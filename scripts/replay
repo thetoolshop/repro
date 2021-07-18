@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+project_dir=$(realpath "$(dirname $0)/..")
+source_dir="$project_dir/src/apps/replay"
+build_dir="$project_dir/dist/replay"
+
+entries="replay=index.tsx"
+flags="--bundle --outdir=$build_dir --loader:.svg=file"
+port="8080"
+serve=false
+
+while getopts "p:s" param; do
+  case "$param" in
+    p) port="$OPTARG";;
+    s) serve=true;;
+  esac
+done
+
+if [ "$serve" = true ]; then
+  flags="$flags --servedir=$build_dir --serve=$port"
+else
+  # TODO: use Terser for improved minification
+  flags="$flags --minify --sourcemap"
+fi
+
+mkdir -p "$build_dir"
+
+cp -r $source_dir/static/* $build_dir/
+
+eval "(cd $source_dir && npx esbuild $entries $flags)"
