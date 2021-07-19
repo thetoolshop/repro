@@ -1,27 +1,22 @@
 import { Grid } from 'jsxstyle'
 import React from 'react'
-import { BrowserRouter } from 'react-router-dom'
 import { Canvas } from './Canvas'
 import { Controls } from './Controls'
 import { Header } from './Header'
 import { Inspector } from './Inspector'
-import { Menu } from './Menu'
 import { Sidebar } from './Sidebar'
 
 export const App: React.FC = () => (
-  <BrowserRouter>
-    <Container>
-      <Body>
-        <Menu />
-        <Sidebar />
-        <Canvas />
-        <Inspector />
-      </Body>
+  <Container>
+    <Body>
+      <Sidebar />
+      <Canvas />
+      <Inspector />
+    </Body>
 
-      <Header />
-      <Controls />
-    </Container>
-  </BrowserRouter>
+    <Header />
+    <Controls />
+  </Container>
 )
 
 const Container: React.FC = ({ children }) => (
@@ -41,10 +36,10 @@ const Body: React.FC = ({ children }) => (
   <Grid
     gridArea="body"
     gridTemplateAreas={`
-      "menu sidebar canvas"
-      "menu sidebar inspector"
+      "sidebar canvas"
+      "sidebar inspector"
     `}
-    gridTemplateColumns="40px auto 1fr"
+    gridTemplateColumns="auto 1fr"
     gridTemplateRows="1fr auto"
   >{children}</Grid>
 )

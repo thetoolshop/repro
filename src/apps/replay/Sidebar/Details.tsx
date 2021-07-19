@@ -1,12 +1,18 @@
 import { Block } from 'jsxstyle'
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
+
 import { DragHandle } from '@/components/DragHandle'
+import { Discussion } from './Discussion'
+import { Settings } from './Settings'
+import { Timeline } from './Timeline'
+import { View, ViewContext } from './view'
 
-const MIN_SIZE = 60
-const MAX_SIZE = 480
-const INITIAL_SIZE = 240
+const MIN_SIZE = 300
+const MAX_SIZE = 600
+const INITIAL_SIZE = 300
 
-export const Inspector: React.FC = () => {
+export const Details: React.FC = () => {
+  const [activeView] = useContext(ViewContext)
   const [size, setSize] = useState(INITIAL_SIZE)
   const [initialSize, setInitialSize] = useState(INITIAL_SIZE)
 
@@ -23,13 +29,13 @@ export const Inspector: React.FC = () => {
   }
 
   return (
-    <Block
-      gridArea="inspector"
-      height={size}
-      position="relative"
-    >
+    <Block position="relative" width={size}>
+      {activeView === View.Discussion && <Discussion />}
+      {activeView === View.Timeline && <Timeline />}
+      {activeView === View.Settings && <Settings />}
+
       <DragHandle
-        edge="top"
+        edge="right"
         onDrag={handleDrag}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
