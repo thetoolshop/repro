@@ -1,6 +1,10 @@
 import { Col, Row } from 'jsxstyle'
 import React, { useContext } from 'react'
-import { Activity, MessageSquare, Settings } from 'react-feather'
+import {
+  Activity as TimelineIcon,
+  MessageSquare as DiscussionIcon,
+  Settings as SettingsIcon,
+} from 'react-feather'
 import { colors } from '@/config/theme'
 import { View, ViewContext } from './view'
 
@@ -12,15 +16,15 @@ export const Menu: React.FC = () => (
     paddingV={10}
   >
     <Item view={View.Discussion}>
-      <MessageSquare size={20} />
+      <DiscussionIcon size={20} />
     </Item>
 
     <Item view={View.Timeline}>
-      <Activity size={20} />
+      <TimelineIcon size={20} />
     </Item>
 
     <Item view={View.Settings}>
-      <Settings size={20} />
+      <SettingsIcon size={20} />
     </Item>
   </Col>
 )

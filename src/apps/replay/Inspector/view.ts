@@ -1,14 +1,14 @@
 import { createContext } from 'react'
 
 export enum View {
-  Discussion,
-  Timeline,
-  Settings,
+  Elements,
+  Network,
+  Console,
 }
 
 type ViewAction = [View, (view: View) => void]
 
 export const ViewContext = createContext<ViewAction>([
-  View.Discussion,
+  View.Elements,
   (_view: View) => undefined
 ])
