@@ -10,7 +10,7 @@ import {
   useDuration,
   useElapsed,
   usePlaybackState,
-} from '@/hooks/usePlayback'
+} from '@/libs/playback'
 import { Pause as PauseIcon, Play as PlayIcon } from 'react-feather'
 
 export const Controls: React.FC = () => {
