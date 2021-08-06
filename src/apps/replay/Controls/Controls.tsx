@@ -1,48 +1,48 @@
 import { Block, Col, Grid, Row } from 'jsxstyle'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
+import {
+  Loader as LoadingIcon,
+  Pause as PauseIcon,
+  Play as PlayIcon,
+  RotateCcw as ReplayIcon,
+} from 'react-feather'
 import { colors } from '@/config/theme'
 import {
-  initializePlayback,
-  pause,
-  play,
   PlaybackState,
   seek,
+  setPlaybackState,
   useDuration,
   useElapsed,
   usePlaybackState,
 } from '@/libs/playback'
-import { Pause as PauseIcon, Play as PlayIcon } from 'react-feather'
 
-export const Controls: React.FC = () => {
-  useEffect(() => {
-    initializePlayback(90000)
-  }, [])
-
-  return (
-    <Grid
-      alignItems="center"
-      borderTop={`2px solid ${colors.blueGray['200']}`}
-      boxShadow={`0 -4px 16px ${colors.blueGray['900']}0D`}
-      gridArea="controls"
-      gridColumnGap={20}
-      gridTemplateColumns="auto 1fr auto"
-      padding="0 15px"
-    >
-      <Control />
-      <ProgressBar />
-      <Timing />
-    </Grid>
-  )
-}
+export const Controls: React.FC = () => (
+  <Grid
+    alignItems="center"
+    borderTop={`2px solid ${colors.blueGray['200']}`}
+    boxShadow={`0 -4px 16px ${colors.blueGray['900']}0D`}
+    gridArea="controls"
+    gridColumnGap={20}
+    gridTemplateColumns="auto 1fr auto"
+    padding="0 15px"
+  >
+    <Control />
+    <ProgressBar />
+    <Timing />
+  </Grid>
+)
 
 const Control: React.FC = () => {
   const state = usePlaybackState()
 
   const handleClick = () => {
     if (state === PlaybackState.Paused) {
-      play()
+      setPlaybackState(PlaybackState.Playing)
     } else if (state === PlaybackState.Playing) {
-      pause()
+      setPlaybackState(PlaybackState.Paused)
+    } else if (state === PlaybackState.Done) {
+      seek(0)
+      setPlaybackState(PlaybackState.Playing)
     }
   }
 
@@ -55,8 +55,10 @@ const Control: React.FC = () => {
         onClick: handleClick
       }}
     >
-      {state === PlaybackState.Paused && <PlayIcon size={20} stroke="none" fill="currentColor" />}
-      {state === PlaybackState.Playing && <PauseIcon size={20} stroke="none" fill="currentColor" />}
+      {state === PlaybackState.Loading && <LoadingIcon size={20} />}
+      {state === PlaybackState.Paused && <PlayIcon size={20} />}
+      {state === PlaybackState.Playing && <PauseIcon size={20} />}
+      {state === PlaybackState.Done && <ReplayIcon size={20} />}
     </Row>
   )
 }
@@ -64,6 +66,7 @@ const Control: React.FC = () => {
 const ProgressBar: React.FC = () => {
   const elapsed = useElapsed()
   const duration = useDuration()
+  const playbackState = usePlaybackState()
 
   const [hasHover, setHasHover] = useState(false)
   const [seekTo, setSeekTo] = useState<number | null>(null)
@@ -71,6 +74,10 @@ const ProgressBar: React.FC = () => {
   const handleSeekDown = () => {
     if (seekTo !== null) {
       seek(seekTo)
+
+      if (playbackState === PlaybackState.Done) {
+        setPlaybackState(PlaybackState.Playing)
+      }
     }
   }
 
