@@ -9,6 +9,6 @@ export enum View {
 type ViewAction = [View, (view: View) => void]
 
 export const ViewContext = createContext<ViewAction>([
-  View.Discussion,
+  View.Timeline,
   (_view: View) => undefined
 ])

@@ -1,8 +1,6 @@
+import { from, map, switchMapTo } from 'rxjs'
 import { Source, SourceEvent } from '@/types/source'
-
-const sleep = (time: number) => new Promise(resolve => {
-  setTimeout(resolve, time)
-})
+import { sleep } from '@/utils/debug'
 
 export class FixtureSource implements Source {
   private data: Promise<Array<SourceEvent>>
@@ -12,19 +10,23 @@ export class FixtureSource implements Source {
       .then(res => res.json())
   }
 
-  async events() {
-    await sleep(1000)
-    return this.data
+  events() {
+    return from(sleep(1000)).pipe(
+      switchMapTo(from(this.data))
+    )
   }
 
-  async metadata() {
-    const events = await this.data
-    const closeEvent = events.length
-      ? events[events.length - 1] as SourceEvent
-      : null
+  metadata() {
+    return from(this.data).pipe(
+      map(events => {
+        const closeEvent = events.length
+          ? events[events.length - 1] as SourceEvent
+          : null
 
-    return {
-      duration: closeEvent !== null ? closeEvent.time : 0,
-    }
+        return {
+          duration: closeEvent !== null ? closeEvent.time : 0,
+        }
+      })
+    )
   }
 }

@@ -1,15 +1,18 @@
 import { Grid } from 'jsxstyle'
 import React, { useEffect } from 'react'
-import { FixtureSource, NullSource, setDuration, setSource, useSource } from '@/libs/playback'
+import { FixtureSource, init, NullSource, setReadyState, setSource, useReadyState, useSource } from '@/libs/playback'
 import { Canvas } from './Canvas'
 import { Controls } from './Controls'
 import { Header } from './Header'
 import { Inspector } from './Inspector'
 import { PlaybackLoop } from './PlaybackLoop'
 import { Sidebar } from './Sidebar'
+import { ReadyState } from '@/libs/playback/state'
+import { forkJoin } from 'rxjs'
 
 export const App: React.FC = () => {
   const source = useSource()
+  const readyState = useReadyState()
 
   useEffect(() => {
     const params = new URLSearchParams(location.search)
@@ -23,9 +26,25 @@ export const App: React.FC = () => {
   }, [])
 
   useEffect(() => {
-    source.metadata()
-      .then(({ duration }) => setDuration(duration))
+    setReadyState(ReadyState.Loading)
+
+    const subscription = forkJoin([
+      source.events(),
+      source.metadata()
+    ]).subscribe(([events, metadata]) => {
+      init(events, metadata.duration)
+      setReadyState(ReadyState.Ready)
+    })
+
+    return () => {
+      subscription.unsubscribe()
+    }
   }, [source])
+
+  if (readyState === ReadyState.Loading) {
+    // TODO loading view
+    return <div>Loading...</div>
+  }
 
   return (
     <Container>
@@ -45,6 +64,7 @@ export const App: React.FC = () => {
 
 const Container: React.FC = ({ children }) => (
   <Grid
+    fontSize="1.3rem"
     gridTemplateAreas={`
       "header"
       "body"

@@ -1,20 +1,16 @@
 import { Block, Col, Grid, Row } from 'jsxstyle'
 import React, { useState } from 'react'
-import {
-  Loader as LoadingIcon,
-  Pause as PauseIcon,
-  Play as PlayIcon,
-  RotateCcw as ReplayIcon,
-} from 'react-feather'
+import { Pause as PauseIcon, Play as PlayIcon, RotateCcw as ReplayIcon } from 'react-feather'
 import { colors } from '@/config/theme'
 import {
   PlaybackState,
-  seek,
+  seekToTime,
   setPlaybackState,
   useDuration,
   useElapsed,
   usePlaybackState,
 } from '@/libs/playback'
+import { formatDate } from '@/utils/date'
 
 export const Controls: React.FC = () => (
   <Grid
@@ -41,7 +37,7 @@ const Control: React.FC = () => {
     } else if (state === PlaybackState.Playing) {
       setPlaybackState(PlaybackState.Paused)
     } else if (state === PlaybackState.Done) {
-      seek(0)
+      seekToTime(0)
       setPlaybackState(PlaybackState.Playing)
     }
   }
@@ -55,7 +51,6 @@ const Control: React.FC = () => {
         onClick: handleClick
       }}
     >
-      {state === PlaybackState.Loading && <LoadingIcon size={20} />}
       {state === PlaybackState.Paused && <PlayIcon size={20} />}
       {state === PlaybackState.Playing && <PauseIcon size={20} />}
       {state === PlaybackState.Done && <ReplayIcon size={20} />}
@@ -73,10 +68,10 @@ const ProgressBar: React.FC = () => {
 
   const handleSeekDown = () => {
     if (seekTo !== null) {
-      seek(seekTo)
+      seekToTime(seekTo)
 
       if (playbackState === PlaybackState.Done) {
-        setPlaybackState(PlaybackState.Playing)
+        setPlaybackState(PlaybackState.Paused)
       }
     }
   }
@@ -163,7 +158,7 @@ const ProgressBar: React.FC = () => {
                 left: `${100*seekTo/duration}%` 
               }}
             >
-              {formatDate(seekTo)}
+              {formatDate(seekTo, 'millis')}
             </Block>
           </React.Fragment>
         )}
@@ -180,14 +175,10 @@ const Timing: React.FC = () => {
     <Block
       color={colors.blue['700']}
       fontFamily="monospace"
+      fontSize="1.2rem"
     >
-      {formatDate(elapsed)}/{formatDate(duration)}
+      {formatDate(elapsed, 'seconds')}/{formatDate(duration, 'seconds')}
     </Block>
   )
 }
 
-const formatDate = (value: number) => {
-  const minutes = value / 60000 | 0
-  const seconds = (value - (minutes * 60000)) / 1000 | 0
-  return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
-}

@@ -1,13 +1,12 @@
+import { NEVER } from 'rxjs'
 import { Source } from '@/types/source'
 
 export class NullSource implements Source {
-  async events() {
-    return []
+  events() {
+    return NEVER
   }
 
-  async metadata() {
-    return {
-      duration: 0
-    }
+  metadata() {
+    return NEVER
   }
 }

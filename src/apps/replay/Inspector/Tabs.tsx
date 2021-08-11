@@ -16,12 +16,12 @@ export const Tabs: React.FC = () => {
         <Inline>Elements</Inline>
       </Item>
 
-      <Item view={View.Network}>
+      <Item view={View.Network} disabled>
         <NetworkIcon size={16} />
         <Inline>Network</Inline>
       </Item>
 
-      <Item view={View.Console}>
+      <Item view={View.Console} disabled>
         <ConsoleIcon size={16} />
         <Inline>Console</Inline>
       </Item>
@@ -31,14 +31,19 @@ export const Tabs: React.FC = () => {
 
 interface ItemProps {
   view: View
+  disabled?: boolean
 }
 
-const Item: React.FC<ItemProps> = ({ children, view }) => {
+const Item: React.FC<ItemProps> = ({ children, disabled, view }) => {
   const [activeView, setActiveView] = useContext(ViewContext)
 
   const handleClick = () => {
     setActiveView(view)
   }
+
+  const color = disabled
+    ? colors.blueGray['300']
+    : activeView === view ? colors.blue['900'] : colors.blue['700']
 
   return (
     <Row
@@ -46,12 +51,13 @@ const Item: React.FC<ItemProps> = ({ children, view }) => {
       borderBottomColor={activeView === view ? colors.blue['900'] : 'transparent'}
       borderBottomStyle="solid"
       borderBottomWidth={2}
-      color={activeView === view ? colors.blue['900'] : colors.blue['700']}
+      color={color}
       cursor="pointer"
       fontSize={13}
       gap={5}
       marginH={10}
       paddingH={5}
+      pointerEvents={disabled ? 'none' : 'auto'}
       userSelect="none"
       props={{
         onClick: handleClick

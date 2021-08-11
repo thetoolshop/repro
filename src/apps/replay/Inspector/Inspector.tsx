@@ -2,6 +2,7 @@ import { Block, Grid, Row } from 'jsxstyle'
 import React, { useState } from 'react'
 import { DragHandle } from '@/components/DragHandle'
 import { colors } from '@/config/theme'
+import { ElementsPanel } from './ElementsPanel'
 import { ElementPicker } from './ElementPicker'
 import { Tabs } from './Tabs'
 import { Zoom } from './Zoom'
@@ -41,8 +42,12 @@ export const Inspector: React.FC = () => {
           <ElementPicker />
           <Separator />
           <Tabs />
-          <Zoom />
+          {/* TODO <Zoom />*/}
         </Header>
+
+        <Body>
+          {view === View.Elements && <ElementsPanel />}
+        </Body>
 
         <DragHandle
           edge="top"
@@ -60,6 +65,13 @@ const Header: React.FC = ({ children }) => (
     alignItems="stretch"
     borderBottom={`1px solid ${colors.blueGray['200']}`}
   >{children}</Row>
+)
+
+const Body: React.FC = ({ children }) => (
+  <Block
+    height="100%"
+    overflow="auto"
+  >{children}</Block>
 )
 
 const Separator: React.FC = () => (

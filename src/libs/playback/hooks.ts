@@ -3,46 +3,26 @@ import { animationFrames, Subscription } from 'rxjs'
 import { map, pairwise } from 'rxjs/operators'
 import { copy } from '@/utils/lang'
 import { SourceEvent, SourceEventType } from '@/types/source'
-import { useAtomValue } from '@/utils/state'
+import { createValueHook, useAtomValue } from '@/utils/state'
 import { applyVTreePatch } from '@/utils/vdom'
-import { getBuffer, seek, setBuffer, setCursor, setElapsed, setEvents, setPlaybackState, setSnapshot } from './service'
-import { PlaybackState, $duration, $elapsed, $playbackState, $snapshot, $source, $cursor } from './state'
+import { getBuffer, setBuffer, setCursor, setElapsed, setPlaybackState, setSnapshot } from './service'
+import { PlaybackState, $duration, $elapsed, $playbackState, $snapshot, $source, $cursor, $readyState, $focusedNode, $events } from './state'
 
-export const useDuration = () => {
-  return useAtomValue($duration)
-}
-
-export const useElapsed = () => {
-  return useAtomValue($elapsed)
-}
-
-export const usePlaybackState = () => {
-  return useAtomValue($playbackState)
-}
-
-export const useSnapshot = () => {
-  return useAtomValue($snapshot)
-}
-
-export const useSource = () => {
-  return useAtomValue($source)
-}
+export const useCursor = createValueHook($cursor)
+export const useDuration = createValueHook($duration)
+export const useElapsed = createValueHook($elapsed)
+export const useEvents = createValueHook($events)
+export const usePlaybackState = createValueHook($playbackState)
+export const useReadyState = createValueHook($readyState)
+export const useSnapshot = createValueHook($snapshot)
+export const useSource = createValueHook($source)
+export const useFocusedNode = createValueHook($focusedNode)
 
 export const usePlaybackLoop = () => {
   const cursor = useAtomValue($cursor)
   const elapsed = useElapsed()
   const duration = useDuration()
   const playbackState = usePlaybackState()
-  const source = useSource()
-
-  useEffect(() => {
-    setPlaybackState(PlaybackState.Loading)
-    source.events().then(events => {
-      setEvents(events)
-      seek(0)
-      setPlaybackState(PlaybackState.Paused)
-    })
-  }, [source])
 
   useEffect(() => {
     const subscription = new Subscription()
@@ -64,40 +44,40 @@ export const usePlaybackLoop = () => {
   }, [playbackState, duration])
 
   useEffect(() => {
-    if (playbackState !== PlaybackState.Loading) {
-      if (duration > 0 && elapsed >= duration) {
-        setPlaybackState(PlaybackState.Done)
-      }
+    if (duration > 0 && elapsed >= duration) {
+      setPlaybackState(PlaybackState.Done)
     }
-  }, [duration, elapsed, playbackState, setPlaybackState])
+  }, [duration, elapsed, setPlaybackState])
 
   useEffect(() => {
-    const buffer = copy(getBuffer())
-    let event: SourceEvent | undefined
-    let nextCursor = cursor
+    if (playbackState === PlaybackState.Playing) {
+      const buffer = copy(getBuffer())
+      let event: SourceEvent | undefined
+      let i = 0
 
-    while (event = buffer[0]) {
-      if (event.time > elapsed) {
-        break
+      while (event = buffer[0]) {
+        if (event.time > elapsed) {
+          break
+        }
+
+        if (event.type === SourceEventType.DOMSnapshot) {
+          setSnapshot(event.data)
+        } else if (event.type === SourceEventType.DOMPatch) {
+          const patch = event.data
+          setSnapshot(snapshot => {
+            // TODO throw if snapshot missing
+            return snapshot
+              ? applyVTreePatch(snapshot, patch)
+              : snapshot
+          })
+        }
+
+        buffer.shift() 
+        i++
       }
 
-      if (event.type === SourceEventType.DOMSnapshot) {
-        setSnapshot(event.data)
-      } else if (event.type === SourceEventType.DOMPatch) {
-        const patch = event.data
-        setSnapshot(snapshot => {
-          // TODO throw if snapshot missing
-          return snapshot
-            ? applyVTreePatch(snapshot, patch)
-            : snapshot
-        })
-      }
-
-      buffer.shift() 
-      nextCursor++
+      setBuffer(buffer)
+      setCursor(cursor => cursor + i)
     }
-
-    setBuffer(buffer)
-    setCursor(nextCursor)
-  }, [cursor, elapsed, setSnapshot])
+  }, [elapsed, playbackState, setSnapshot])
 }

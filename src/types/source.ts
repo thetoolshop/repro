@@ -1,3 +1,4 @@
+import { Observable } from 'rxjs'
 import { Patch, VTree } from './vdom'
 
 export enum SourceEventType {
@@ -34,6 +35,6 @@ export interface Metadata {
 }
 
 export interface Source {
-  events(): Promise<Array<SourceEvent>>
-  metadata(): Promise<Metadata>
+  events(): Observable<Array<SourceEvent>>
+  metadata(): Observable<Metadata>
 }
