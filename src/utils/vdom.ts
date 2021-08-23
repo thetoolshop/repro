@@ -1,7 +1,7 @@
 import { nanoid } from 'nanoid'
 import { SyntheticId } from '@/types/common'
 import { Immutable } from '@/types/extensions'
-import { NodeType, Patch, PatchType, VElement, VNode, VText, VTree } from '@/types/vdom'
+import { NodeType, Patch, PatchType, VDocType, VDocument, VElement, VNode, VText, VTree } from '@/types/vdom'
 
 import {
   assocPath as assocPathR,
@@ -57,6 +57,14 @@ export function getNodeIds(nodes: NodeList) {
   return nodeIds
 }
 
+export function isDocumentVNode(node: VNode | Immutable<VNode>): node is VDocument | Immutable<VDocument> {
+  return node.type === NodeType.Document
+}
+
+export function isDocTypeVNode(node: VNode | Immutable<VNode>): node is VDocType | Immutable<VDocType> {
+  return node.type === NodeType.DocType
+}
+
 export function isElementVNode(node: VNode | Immutable<VNode>): node is VElement | Immutable<VElement> {
   return node.type === NodeType.Element
 }
@@ -65,16 +73,16 @@ export function isTextVNode(node: VNode | Immutable<VNode>): node is VText | Imm
   return node.type === NodeType.Text
 }
 
-function getVNodeById(vtree: VTree, nodeId: SyntheticId): VNode | null {
+export function getVNodeById(vtree: VTree, nodeId: SyntheticId): VNode | null {
   return vtree.nodes[nodeId] ?? null
 }
 
-function replaceVNodeById(vtree: VTree, nodeId: SyntheticId, newNode: VNode) {
+export function replaceVNodeById(vtree: VTree, nodeId: SyntheticId, newNode: VNode) {
   const nodeLens = lensPathR<VTree, VNode>(['nodes', nodeId])
   return setR(nodeLens, newNode, vtree)
 }
 
-function insertSubTreesAtNode(vtree: VTree, parent: VElement, subtrees: Array<VTree>, index: number) {
+export function insertSubTreesAtNode(vtree: VTree, parent: VElement, subtrees: Array<VTree>, index: number) {
   const childIds: Array<SyntheticId> = []
 
   for (const subtree of subtrees) {
@@ -86,7 +94,7 @@ function insertSubTreesAtNode(vtree: VTree, parent: VElement, subtrees: Array<VT
   return replaceVNodeById(vtree, parent.id, parent)
 }
 
-function removeSubTreesAtNode(vtree: VTree, parent: VElement, subtrees: Array<VTree>) {
+export function removeSubTreesAtNode(vtree: VTree, parent: VElement, subtrees: Array<VTree>) {
   const childIds: Array<SyntheticId> = []
   const descendentIds: Array<SyntheticId> = []
 

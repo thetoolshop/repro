@@ -2,7 +2,7 @@ import { Block, InlineBlock, Row } from 'jsxstyle'
 import React from 'react'
 import { Crosshair as ElementPickerIcon } from 'react-feather'
 import { colors } from '@/config/theme'
-import { DOMPatchEvent } from '@/types/source'
+import { DOMPatchEvent } from '@/types/recording'
 import { PatchType } from '@/types/vdom'
 import { EventHeader } from './EventHeader'
 

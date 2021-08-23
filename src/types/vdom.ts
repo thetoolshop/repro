@@ -1,8 +1,24 @@
 import type { SyntheticId } from './common'
 
 export enum NodeType {
-  Element = 'element',
-  Text    = 'text',
+  DocType  = 'doctype',
+  Document = 'document',
+  Element  = 'element',
+  Text     = 'text',
+}
+
+export interface VDocType {
+  id: SyntheticId
+  type: NodeType.DocType
+  name: string
+  publicId: string
+  systemId: string
+}
+
+export interface VDocument {
+  id: SyntheticId
+  type: NodeType.Document
+  children: Array<SyntheticId>
 }
 
 export interface VElement {
@@ -19,7 +35,11 @@ export interface VText {
   value: string
 }
 
-export type VNode = VElement | VText
+export type VNode =
+  | VDocument
+  | VDocType
+  | VElement
+  | VText
 
 export interface VTree {
   rootId: SyntheticId

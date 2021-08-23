@@ -1,5 +1,5 @@
 import { from, map, switchMapTo } from 'rxjs'
-import { Source, SourceEvent } from '@/types/source'
+import { Source, SourceEvent } from '@/types/recording'
 import { sleep } from '@/utils/debug'
 
 export class FixtureSource implements Source {
@@ -24,7 +24,7 @@ export class FixtureSource implements Source {
           : null
 
         return {
-          duration: closeEvent !== null ? closeEvent.time : 0,
+          duration: closeEvent !== null ? closeEvent.time : Infinity,
         }
       })
     )

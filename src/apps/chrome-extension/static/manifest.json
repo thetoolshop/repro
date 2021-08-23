@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+
+  "name": "Repro",
+  "description": "Reproduce and fix bugs, fast.",
+  "version": "1.0",
+
+  "action": {
+    "default_title": "Repro",
+    "default_popup": "popup.html"
+  },
+
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ]
+}

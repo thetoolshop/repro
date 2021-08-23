@@ -1,7 +1,7 @@
 import { Block } from 'jsxstyle'
 import React from 'react'
 import { colors } from '@/config/theme'
-import { SourceEvent, SourceEventType } from '@/types/source'
+import { SourceEvent, SourceEventType } from '@/types/recording'
 import { DOMPatchEventView } from './DOMPatchEventView'
 
 interface Props {

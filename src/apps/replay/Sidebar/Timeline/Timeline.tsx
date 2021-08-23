@@ -1,17 +1,17 @@
 import { Block } from 'jsxstyle'
 import React from 'react'
 import { colors } from '@/config/theme'
-import { seekToEvent, useCursor, useEvents } from '@/libs/playback'
+import { seekToEvent, useActiveIndex, useRecording } from '@/libs/playback'
 import { EventView } from './EventView'
-import { SourceEventType } from '@/types/source'
+import { SourceEventType } from '@/types/recording'
 
 export const Timeline: React.FC = () => {
-  const cursor = useCursor()
-  const events = useEvents()
+  const activeIndex = useActiveIndex()
+  const recording = useRecording()
 
   return (
     <Block>
-      {events.map((event, i) => {
+      {recording.events.map((event, i) => {
         if (event.type !== SourceEventType.DOMPatch) {
           return null
         }
@@ -21,7 +21,7 @@ export const Timeline: React.FC = () => {
             {i > 0 && <Separator />}
             <EventView
               event={event}
-              active={cursor === i}
+              active={activeIndex === i}
               onSelect={() => seekToEvent(i)}
             />
           </React.Fragment>

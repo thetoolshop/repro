@@ -2,26 +2,24 @@ import { useEffect } from 'react'
 import { animationFrames, Subscription } from 'rxjs'
 import { map, pairwise } from 'rxjs/operators'
 import { copy } from '@/utils/lang'
-import { SourceEvent, SourceEventType } from '@/types/source'
-import { createValueHook, useAtomValue } from '@/utils/state'
-import { applyVTreePatch } from '@/utils/vdom'
-import { getBuffer, setBuffer, setCursor, setElapsed, setPlaybackState, setSnapshot } from './service'
-import { PlaybackState, $duration, $elapsed, $playbackState, $snapshot, $source, $cursor, $readyState, $focusedNode, $events } from './state'
+import { SourceEvent } from '@/types/recording'
+import { createValueHook } from '@/utils/state'
+import { getBuffer, setBuffer, setActiveIndex, setElapsed, setPlaybackState, setSnapshot, handleEvent } from './service'
+import { PlaybackState, $elapsed, $playbackState, $pointer, $snapshot, $source, $activeIndex, $readyState, $focusedNode, $recording } from './state'
 
-export const useCursor = createValueHook($cursor)
-export const useDuration = createValueHook($duration)
+export const useActiveIndex = createValueHook($activeIndex)
 export const useElapsed = createValueHook($elapsed)
-export const useEvents = createValueHook($events)
 export const usePlaybackState = createValueHook($playbackState)
+export const usePointer = createValueHook($pointer)
 export const useReadyState = createValueHook($readyState)
+export const useRecording = createValueHook($recording)
 export const useSnapshot = createValueHook($snapshot)
 export const useSource = createValueHook($source)
 export const useFocusedNode = createValueHook($focusedNode)
 
 export const usePlaybackLoop = () => {
-  const cursor = useAtomValue($cursor)
   const elapsed = useElapsed()
-  const duration = useDuration()
+  const recording = useRecording()
   const playbackState = usePlaybackState()
 
   useEffect(() => {
@@ -33,7 +31,7 @@ export const usePlaybackLoop = () => {
           pairwise(),
           map(([prev, next]) => next.timestamp - prev.timestamp)
         ).subscribe(delta => {
-          setElapsed(elapsed => Math.min(duration, elapsed + delta))
+          setElapsed(elapsed => Math.min(recording.duration, elapsed + delta))
         })
       )
     }
@@ -41,13 +39,13 @@ export const usePlaybackLoop = () => {
     return () => {
       subscription.unsubscribe()
     }
-  }, [playbackState, duration])
+  }, [playbackState, recording.duration])
 
   useEffect(() => {
-    if (duration > 0 && elapsed >= duration) {
+    if (recording.duration > 0 && elapsed >= recording.duration) {
       setPlaybackState(PlaybackState.Done)
     }
-  }, [duration, elapsed, setPlaybackState])
+  }, [recording.duration, elapsed, setPlaybackState])
 
   useEffect(() => {
     if (playbackState === PlaybackState.Playing) {
@@ -60,24 +58,13 @@ export const usePlaybackLoop = () => {
           break
         }
 
-        if (event.type === SourceEventType.DOMSnapshot) {
-          setSnapshot(event.data)
-        } else if (event.type === SourceEventType.DOMPatch) {
-          const patch = event.data
-          setSnapshot(snapshot => {
-            // TODO throw if snapshot missing
-            return snapshot
-              ? applyVTreePatch(snapshot, patch)
-              : snapshot
-          })
-        }
-
+        handleEvent(event, elapsed)
         buffer.shift() 
         i++
       }
 
       setBuffer(buffer)
-      setCursor(cursor => cursor + i)
+      setActiveIndex(activeIndex => activeIndex + i)
     }
   }, [elapsed, playbackState, setSnapshot])
 }

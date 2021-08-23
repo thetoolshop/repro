@@ -1,5 +1,7 @@
+import { RecordingController } from '@/libs/record'
 import { SyntheticId } from '@/types/common'
-import { Source, SourceEvent } from '@/types/source'
+import { Point } from '@/types/interaction'
+import { Recording, Source, SourceEvent } from '@/types/recording'
 import { VTree } from '@/types/vdom'
 import { atom } from '@/utils/state'
 import { NullSource } from './NullSource'
@@ -16,12 +18,12 @@ export enum PlaybackState {
 }
 
 export const $source = atom<Source>(new NullSource())
-export const $events = atom<SourceEvent[]>([])
+export const $recording = atom<Recording>(RecordingController.EMPTY)
 export const $buffer = atom<SourceEvent[]>([])
-export const $cursor = atom<number>(-1)
+export const $activeIndex = atom<number>(-1)
 export const $snapshot = atom<VTree | null>(null)
 export const $readyState = atom(ReadyState.Loading)
 export const $playbackState = atom(PlaybackState.Paused)
+export const $pointer = atom<Point>([0, 0])
 export const $elapsed = atom(0)
-export const $duration = atom(0)
 export const $focusedNode = atom<SyntheticId | null>(null)

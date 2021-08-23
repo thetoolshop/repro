@@ -6,13 +6,13 @@ import {
   PlaybackState,
   seekToTime,
   setPlaybackState,
-  useDuration,
   useElapsed,
   usePlaybackState,
+  useRecording,
 } from '@/libs/playback'
 import { formatDate } from '@/utils/date'
 
-export const Controls: React.FC = () => (
+export const PlaybackControls: React.FC = () => (
   <Grid
     alignItems="center"
     borderTop={`2px solid ${colors.blueGray['200']}`}
@@ -60,7 +60,7 @@ const Control: React.FC = () => {
 
 const ProgressBar: React.FC = () => {
   const elapsed = useElapsed()
-  const duration = useDuration()
+  const recording = useRecording()
   const playbackState = usePlaybackState()
 
   const [hasHover, setHasHover] = useState(false)
@@ -89,7 +89,7 @@ const ProgressBar: React.FC = () => {
     const { x, width } = evt.currentTarget.getBoundingClientRect()
     const cursor = evt.pageX - x
     const relative = cursor > 0 ? cursor / width : 0
-    const absolute = Math.round(duration * relative)
+    const absolute = Math.round(recording.duration * relative)
     setSeekTo(absolute)
   }
 
@@ -127,7 +127,7 @@ const ProgressBar: React.FC = () => {
           width="100%"
           style={{
             height: hasHover ? 8 : 4,
-            transform: `scaleX(${elapsed/duration})`
+            transform: `scaleX(${elapsed/recording.duration})`
           }}
         />
 
@@ -143,7 +143,7 @@ const ProgressBar: React.FC = () => {
               transformOrigin="0 0"
               width="100%"
               style={{
-                transform: `scaleX(${seekTo/duration})`
+                transform: `scaleX(${seekTo/recording.duration})`
               }}
             />
 
@@ -155,7 +155,7 @@ const ProgressBar: React.FC = () => {
               position="absolute"
               transform="translate(-50%, -110%)"
               style={{
-                left: `${100*seekTo/duration}%` 
+                left: `${100*seekTo/recording.duration}%` 
               }}
             >
               {formatDate(seekTo, 'millis')}
@@ -169,15 +169,15 @@ const ProgressBar: React.FC = () => {
 
 const Timing: React.FC = () => {
   const elapsed = useElapsed()
-  const duration = useDuration()
+  const recording = useRecording()
 
   return (
     <Block
       color={colors.blue['700']}
       fontFamily="monospace"
-      fontSize="1.2rem"
+      fontSize={13}
     >
-      {formatDate(elapsed, 'seconds')}/{formatDate(duration, 'seconds')}
+      {formatDate(elapsed, 'seconds')}/{formatDate(recording.duration, 'seconds')}
     </Block>
   )
 }

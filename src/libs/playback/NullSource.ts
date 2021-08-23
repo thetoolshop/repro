@@ -1,5 +1,5 @@
 import { NEVER } from 'rxjs'
-import { Source } from '@/types/source'
+import { Source } from '@/types/recording'
 
 export class NullSource implements Source {
   events() {

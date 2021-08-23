@@ -1,11 +1,12 @@
 import { Grid } from 'jsxstyle'
 import React, { useEffect } from 'react'
+import { nanoid } from 'nanoid'
+import { PlaybackCanvas } from '@/components/PlaybackCanvas'
+import { PlaybackControls } from '@/components/PlaybackControls'
+import { PlaybackLoop } from '@/components/PlaybackLoop'
 import { FixtureSource, init, NullSource, setReadyState, setSource, useReadyState, useSource } from '@/libs/playback'
-import { Canvas } from './Canvas'
-import { Controls } from './Controls'
 import { Header } from './Header'
 import { Inspector } from './Inspector'
-import { PlaybackLoop } from './PlaybackLoop'
 import { Sidebar } from './Sidebar'
 import { ReadyState } from '@/libs/playback/state'
 import { forkJoin } from 'rxjs'
@@ -32,7 +33,12 @@ export const App: React.FC = () => {
       source.events(),
       source.metadata()
     ]).subscribe(([events, metadata]) => {
-      init(events, metadata.duration)
+      init({
+        id: nanoid(11),
+        duration: metadata.duration,
+        events,
+        snapshotIndex: [0],
+      })
       setReadyState(ReadyState.Ready)
     })
 
@@ -52,12 +58,12 @@ export const App: React.FC = () => {
 
       <Body>
         <Sidebar />
-        <Canvas />
+        <PlaybackCanvas />
         <Inspector />
       </Body>
 
       <Header />
-      <Controls />
+      <PlaybackControls />
     </Container>
   )
 }
