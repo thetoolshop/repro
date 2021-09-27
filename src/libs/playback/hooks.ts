@@ -4,7 +4,7 @@ import { map, pairwise } from 'rxjs/operators'
 import { copy } from '@/utils/lang'
 import { SourceEvent } from '@/types/recording'
 import { createValueHook } from '@/utils/state'
-import { getBuffer, setBuffer, setActiveIndex, setElapsed, setPlaybackState, setSnapshot, handleEvent } from './service'
+import { getBuffer, setBuffer, setActiveIndex, setElapsed, setPlaybackState, setSnapshot, handleEvents } from './service'
 import { PlaybackState, $elapsed, $playbackState, $pointer, $snapshot, $source, $activeIndex, $readyState, $focusedNode, $recording } from './state'
 
 export const useActiveIndex = createValueHook($activeIndex)
@@ -53,15 +53,19 @@ export const usePlaybackLoop = () => {
       let event: SourceEvent | undefined
       let i = 0
 
+      let processQueue: Array<SourceEvent> = []
+
       while (event = buffer[0]) {
         if (event.time > elapsed) {
           break
         }
 
-        handleEvent(event, elapsed)
+        processQueue.push(event)
         buffer.shift() 
         i++
       }
+
+      handleEvents(processQueue, elapsed)
 
       setBuffer(buffer)
       setActiveIndex(activeIndex => activeIndex + i)

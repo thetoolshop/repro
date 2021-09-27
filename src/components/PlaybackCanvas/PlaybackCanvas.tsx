@@ -6,6 +6,7 @@ import { usePointer, useSnapshot } from '@/libs/playback'
 import { VTree } from '@/types/vdom'
 import { SyntheticId } from '@/types/common'
 import { isDocumentVNode, isDocTypeVNode, isTextVNode } from '@/utils/vdom'
+import {Stats} from '@/libs/stats'
 
 const reactDOMFromSnapshot = (snapshot: VTree | null) => {
   const createReactElement = (nodeId: SyntheticId): React.ReactNode => {

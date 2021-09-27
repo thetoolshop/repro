@@ -1,8 +1,9 @@
 import { nanoid } from 'nanoid'
 import { mergeRight } from 'ramda'
+import { Stats } from '@/libs/stats'
 import { Interaction } from '@/types/interaction'
 import { DOMPatchEvent, DOMSnapshotEvent, InteractionEvent, Recording, SourceEventType } from '@/types/recording'
-import { Patch, VTree } from '@/types/vdom'
+import { Patch, PatchType, VTree } from '@/types/vdom'
 import { applyVTreePatch } from '@/utils/vdom'
 import { buildVTreeSnapshot, observeDOMPatches } from './dom'
 import { observeInteractions } from './interaction'
@@ -134,11 +135,24 @@ export class RecordingController {
       throw new Error('RecordingError: VTree has not been initialized')
     }
 
+    function resetCounters(): Record<PatchType, number> {
+      return {
+        [PatchType.AddNodes]: 0,
+        [PatchType.Attribute]: 0,
+        [PatchType.RemoveNodes]: 0,
+        [PatchType.Text]: 0,
+      }
+    }
+
+    let counters = resetCounters()
+
     this.observers.push(
       observePeriodic(10000, () => {
+        Stats.emit('DOM events between snapshots', counters)
         const index = this.recording.events.length
         this.recording.events.push(this.createSnapshotEvent())
         this.recording.snapshotIndex.push(index)
+        counters = resetCounters()
       })
     )
 
@@ -150,6 +164,7 @@ export class RecordingController {
 
         this.latestVTree = applyVTreePatch(this.latestVTree, patch)
         this.recording.events.push(this.createPatchEvent(patch))
+        counters[patch.type] += 1
       })
     )
   }

@@ -6,30 +6,74 @@ import { Button } from '@/components/Button'
 import { Logo } from '@/components/Logo'
 import { colors } from '@/config/theme'
 import { init } from '@/libs/playback'
-import { RecordingController } from '@/libs/record'
 import { View, useView } from '../../view'
-import { REPRO_ROOT_ID } from '../constants'
+import { Response, StartCommand, StopCommand } from '../types'
 
 export const Controls: React.FC = () => {
-  const timer = useTimer()
+  const [isStarted, setIsStarted] = useState(false)
+  const timer = useTimer(isStarted)
   const { setView } = useView()
+  const [messageChannel, setMessageChannel] = useState<MessageChannel | null>(null)
 
   useEffect(() => {
     const styleElement = getStyleElement()
 
-    const controller = new RecordingController(document, {
-      types: new Set(['dom', 'interaction']),
-      ignoredNodes: styleElement ? [styleElement] : undefined,
-      ignoredSelectors: [`#${REPRO_ROOT_ID}`],
-    })
+    if (styleElement) {
+      styleElement.classList.add('repro-ignore')
+    }
 
-    controller.start()
+    const channel = new MessageChannel()
+
+    const script = document.createElement('script')
+    script.src = chrome.runtime.getURL('rc.js')
+    script.addEventListener('load', () => {
+      window.postMessage('repro:handshake', location.origin, [channel.port2])
+      setMessageChannel(channel)
+    })
+    document.body.appendChild(script)
 
     return () => {
-      controller.stop()
-      init(controller.recording)
+      setMessageChannel(null)
+      script.remove()
     }
   }, [])
+
+  useEffect(() => {
+    function handleResponse(ev: MessageEvent<Response>) {
+      const res = ev.data
+
+      switch (res.name) {
+        case 'recording':
+          init(res.payload)
+          setView(View.Preview)
+          break
+      }
+    }
+
+    if (messageChannel) {
+      messageChannel.port1.addEventListener('message', handleResponse)
+      messageChannel.port1.start()
+      messageChannel.port1.postMessage({
+        name: 'start',
+      } as StartCommand)
+      setIsStarted(true)
+    }
+
+    return () => {
+      if (messageChannel) {
+        messageChannel.port1.removeEventListener('message', handleResponse)
+      }
+    }
+  }, [messageChannel, setIsStarted])
+
+  function handleStopRecording() {
+    if (messageChannel) {
+      messageChannel.port1.postMessage({
+        name: 'stop',
+      } as StopCommand)
+      setIsStarted(false)
+    }
+  }
 
   return (
     <Container>
@@ -42,19 +86,21 @@ export const Controls: React.FC = () => {
       </Timer>
       <Button
         size="small"
-        onClick={() => setView(View.Preview)}
+        onClick={handleStopRecording}
       >End</Button>
     </Container>
   )
 }
 
-const useTimer = () => {
+const useTimer = (isStarted: boolean) => {
   const [value, setValue] = useState(0)
 
   useEffect(() => {
-    const timer = setInterval(() => setValue(value => value + 1), 1000)
+    const timer = isStarted
+      ? setInterval(() => setValue(value => value + 1), 1000)
+      : undefined
     return () => clearInterval(timer)
-  }, [setValue])
+  }, [setValue, isStarted])
 
   return value
 }

@@ -1,4 +1,3 @@
-import { SyntheticId } from '@/types/common'
 import { Immutable } from '@/types/extensions'
 
 import {
@@ -40,18 +39,22 @@ import {
   createVText,
   createStyleSheetVTree,
 } from './factory'
+import {createRemotePageContext, PageContext} from './page-context'
 
 export function buildVTreeSnapshot(doc: Document, options: RecordingOptions): VTree {
   return createVTree(doc, options)
 }
 
 export function observeDOMPatches(doc: Document, vtree: Immutable<VTree>, options: RecordingOptions, subscriber: (patch: Patch) => void): ObserverLike {
+  const channel = new BroadcastChannel('repro:page-context')
+  const pageContext = createRemotePageContext(channel)
   const domObserver = createDOMObserver(doc, options, subscriber)
-  const styleSheetObserver = createStyleSheetObserver(doc, vtree, subscriber)
+  const styleSheetObserver = createStyleSheetObserver(pageContext, doc, vtree, subscriber)
   // TODO: input value + checked state observer
 
   return {
     disconnect() {
+      channel.close()
       domObserver.disconnect()
       styleSheetObserver.disconnect()
     }
@@ -293,7 +296,7 @@ function createDOMObserver(doc: Document, options: RecordingOptions, subscriber:
   return domObserver
 }
 
-function createStyleSheetObserver(doc: Document, vtree: Immutable<VTree>, subscriber: (patch: Patch) => void) {
+function createStyleSheetObserver(_pageContext: PageContext, doc: Document, vtree: Immutable<VTree>, subscriber: (patch: Patch) => void) {
   function insertRuleEffect(sheet: CSSStyleSheet, rule: string, index: number = 0) {
     if (sheet.ownerNode && doc.contains(sheet.ownerNode)) {
       const parentId = getNodeId(sheet.ownerNode)
@@ -326,7 +329,6 @@ function createStyleSheetObserver(doc: Document, vtree: Immutable<VTree>, subscr
 
   const insertRule = window.CSSStyleSheet.prototype.insertRule
   window.CSSStyleSheet.prototype.insertRule = function(this, ...args) {
-    console.log('insert rule', this, args)
     insertRuleEffect(this, ...args)
     return insertRule.call(this, ...args)
   }

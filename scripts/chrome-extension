@@ -11,6 +11,7 @@ watch=false
 
 entries="\
 content=content/index.tsx \
+rc=content/recording-controller.tsx \
 popup=popup/index.tsx"
 
 while getopts "w" param; do

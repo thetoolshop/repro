@@ -13,5 +13,12 @@
   "permissions": [
     "activeTab",
     "scripting"
+  ],
+
+  "web_accessible_resources": [
+    {
+      "resources": ["rc.js"],
+      "matches": ["<all_urls>"]
+    }
   ]
 }

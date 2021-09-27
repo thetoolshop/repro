@@ -1,4 +1,5 @@
 import { nanoid } from 'nanoid'
+import { Stats } from '@/libs/stats'
 import { SyntheticId } from '@/types/common'
 import { Immutable } from '@/types/extensions'
 import { NodeType, Patch, PatchType, VDocType, VDocument, VElement, VNode, VText, VTree } from '@/types/vdom'
@@ -121,7 +122,10 @@ export function removeSubTreesAtNode(vtree: VTree, parent: VElement, subtrees: A
   return replaceVNodeById(vtree, parent.id, parent)
 }
 
+// TODO: benchmark performance of mutable data structure
 export function applyVTreePatch(vtree: VTree, patch: Patch, revert: boolean = false): VTree {
+  const start = performance.now()
+
   switch (patch.type) {
     case PatchType.Attribute: {
       let node = getVNodeById(vtree, patch.targetId)
@@ -131,7 +135,11 @@ export function applyVTreePatch(vtree: VTree, patch: Patch, revert: boolean = fa
           revert ? patch.oldValue : patch.value,
           node)
 
-        return replaceVNodeById(vtree, patch.targetId, node)
+        const result = replaceVNodeById(vtree, patch.targetId, node)
+
+        Stats.sample('VDOM: apply attribute patch', performance.now() - start)
+
+        return result
       }
 
       break
@@ -142,7 +150,11 @@ export function applyVTreePatch(vtree: VTree, patch: Patch, revert: boolean = fa
 
       if (node && isTextVNode(node)) {
         node = assocR('value', revert ? patch.oldValue : patch.value, node)
-        return replaceVNodeById(vtree, patch.targetId, node)
+        const result = replaceVNodeById(vtree, patch.targetId, node)
+
+        Stats.sample('VDOM: apply text patch', performance.now() - start)
+
+        return result
       }
 
       break
@@ -156,9 +168,13 @@ export function applyVTreePatch(vtree: VTree, patch: Patch, revert: boolean = fa
           ? parent.children.indexOf(patch.previousSiblingId) + 1
           : 0
 
-        return revert
+        const result = revert
           ? removeSubTreesAtNode(vtree, parent, patch.nodes)
           : insertSubTreesAtNode(vtree, parent, patch.nodes, index)
+
+        Stats.sample('VDOM: apply add-nodes patch', performance.now() - start)
+
+        return result
       }
 
       break
@@ -172,9 +188,13 @@ export function applyVTreePatch(vtree: VTree, patch: Patch, revert: boolean = fa
           ? parent.children.indexOf(patch.previousSiblingId)
           : 0
 
-        return revert
+        const result = revert
           ? insertSubTreesAtNode(vtree, parent, patch.nodes, index)
           : removeSubTreesAtNode(vtree, parent, patch.nodes)
+
+        Stats.sample('VDOM: apply remove-nodes patch', performance.now() - start)
+
+        return result
       }
 
       break

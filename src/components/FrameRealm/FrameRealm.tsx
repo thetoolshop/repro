@@ -18,6 +18,7 @@ export const FrameRealm: React.FC = ({ children }) => {
         const root = document.createElement('html')
         doc.documentElement.remove()
         doc.appendChild(root)
+
         setRoot(doc)
       }
     }

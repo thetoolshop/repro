@@ -2,6 +2,7 @@ import { DOMSnapshotEvent, Recording, SourceEvent, SourceEventType } from '@/typ
 import { copy } from '@/utils/lang'
 import { createSetter } from '@/utils/state'
 import {applyVTreePatch} from '@/utils/vdom'
+import {Stats} from '../stats'
 
 import {
   $buffer,
@@ -24,6 +25,7 @@ export const setFocusedNode = createSetter($focusedNode)
 export const setPlaybackState = createSetter($playbackState)
 export const setReadyState = createSetter($readyState)
 export const setRecording = createSetter($recording)
+export const getSnapshot = () => $snapshot.getValue()
 export const setSnapshot = createSetter($snapshot)
 
 export const seekToTime = (time: number) => {
@@ -43,15 +45,19 @@ export const seekToTime = (time: number) => {
     break
   }
 
+  let processQueue: Array<SourceEvent> = []
+
   while (event = events[0]) {
     if (event.time > time) {
       break
     }
-
-    handleEvent(event, time)
+    
+    processQueue.push(event)
     events.shift()
     activeIndex++
   }
+
+  handleEvents(processQueue, time)
 
   $buffer.next(events)
   $activeIndex.next(activeIndex)
@@ -74,27 +80,19 @@ export const seekToEvent = (nextIndex: number) => {
     break
   }
 
-  while (event = events[i]) {
-    elapsed = event.time
+  let processQueue: Array<SourceEvent> = []
 
+  while (event = events[0]) {
     if (i === nextIndex) {
       break
     }
 
+    processQueue.push(event)
+    events.shift()
     i++
   }
 
-  i = 0
-
-  while (event = events.shift()) {
-    handleEvent(event, elapsed)
-
-    if (i === nextIndex) {
-      break
-    }
-
-    i++
-  }
+  handleEvents(processQueue, elapsed)
 
   $buffer.next(events)
   $activeIndex.next(nextIndex)
@@ -106,26 +104,36 @@ export const init = (recording: Recording) => {
   seekToTime(0)
 }
 
-export const handleEvent = (event: SourceEvent, elapsed: number) => {
-  switch (event.type) {
-    case SourceEventType.DOMSnapshot:
-      setSnapshot(event.data)
-      break
+export const handleEvents = (events: Array<SourceEvent>, _elapsed: number) => {
+  if (events.length === 0) {
+    return
+  }
 
-    case SourceEventType.DOMPatch:
-      const patch = event.data
-      setSnapshot(snapshot => {
-        return snapshot
+  const start = performance.now() 
+  let snapshot = getSnapshot()
+
+  for (const event of events) {
+    switch (event.type) {
+      case SourceEventType.DOMSnapshot:
+        snapshot = event.data
+        break
+
+      case SourceEventType.DOMPatch:
+        const patch = event.data
+        snapshot = snapshot
           ? applyVTreePatch(snapshot, patch)
           : null
-      })
-      break
+        break
 
-    case SourceEventType.Interaction:
-      // TODO:
-      // For sampled events:
-      // - interpolate initial state based on elapsed time
-      // - init animation to target state
-      break
+      case SourceEventType.Interaction:
+        // TODO:
+        // For sampled events:
+        // - interpolate initial state based on elapsed time
+        // - init animation to target state
+        break
+    }
   }
+
+  Stats.sample('playback frame: duration', performance.now() - start)
+  setSnapshot(snapshot)
 }
