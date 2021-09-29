@@ -1,3 +1,4 @@
+import { Stats } from '@/libs/stats'
 import { Immutable } from '@/types/extensions'
 
 import {
@@ -39,17 +40,18 @@ import {
   createVText,
   createStyleSheetVTree,
 } from './factory'
-import {createRemotePageContext, PageContext} from './page-context'
 
 export function buildVTreeSnapshot(doc: Document, options: RecordingOptions): VTree {
-  return createVTree(doc, options)
+  const start = performance.now()
+  const vtree = createVTree(doc, options)
+  Stats.emit('DOM: build snapshot', performance.now() - start)
+  return vtree
 }
 
 export function observeDOMPatches(doc: Document, vtree: Immutable<VTree>, options: RecordingOptions, subscriber: (patch: Patch) => void): ObserverLike {
   const channel = new BroadcastChannel('repro:page-context')
-  const pageContext = createRemotePageContext(channel)
   const domObserver = createDOMObserver(doc, options, subscriber)
-  const styleSheetObserver = createStyleSheetObserver(pageContext, doc, vtree, subscriber)
+  const styleSheetObserver = createStyleSheetObserver(doc, vtree, subscriber)
   // TODO: input value + checked state observer
 
   return {
@@ -144,7 +146,7 @@ function createVTree(rootNode: Node, options: RecordingOptions): VTree {
             vTree.nodes[vNode.id] = vNode
 
             const subTree = createVTree(frameDoc, options)
-            vTree = insertSubTreesAtNode(vTree, vNode, [subTree], 0)
+            insertSubTreesAtNode(vTree, vNode, [subTree], 0)
           }
         }
 
@@ -161,7 +163,7 @@ function createVTree(rootNode: Node, options: RecordingOptions): VTree {
               const subTree = createStyleSheetVTree(node)
               
               if (subTree) {
-                vTree = insertSubTreesAtNode(
+                insertSubTreesAtNode(
                   vTree,
                   parentVNode,
                   [subTree],
@@ -231,12 +233,13 @@ function createDOMObserver(doc: Document, options: RecordingOptions, subscriber:
             type: PatchType.Text,
             targetId: getNodeId(entry.target),
             value: (entry.target as Text).data,
-            oldValue: entry.oldValue || "",
+            oldValue: entry.oldValue || '',
           })
 
           break
 
         case 'childList':
+          // TODO: optimization - handle moving nodes without destroying vnode
           const addedVTrees = Array.from(entry.addedNodes)
             .filter(node => !isIgnoredBySelector(node, options.ignoredSelectors))
             .filter(node => !isIgnoredByNode(node, options.ignoredNodes))
@@ -296,7 +299,7 @@ function createDOMObserver(doc: Document, options: RecordingOptions, subscriber:
   return domObserver
 }
 
-function createStyleSheetObserver(_pageContext: PageContext, doc: Document, vtree: Immutable<VTree>, subscriber: (patch: Patch) => void) {
+function createStyleSheetObserver(doc: Document, vtree: Immutable<VTree>, subscriber: (patch: Patch) => void) {
   function insertRuleEffect(sheet: CSSStyleSheet, rule: string, index: number = 0) {
     if (sheet.ownerNode && doc.contains(sheet.ownerNode)) {
       const parentId = getNodeId(sheet.ownerNode)

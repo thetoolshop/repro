@@ -3,10 +3,9 @@ import { Block } from 'jsxstyle'
 import React from 'react'
 import { FrameRealm } from '@/components/FrameRealm'
 import { usePointer, useSnapshot } from '@/libs/playback'
-import { VTree } from '@/types/vdom'
+import { VNode, VTree } from '@/types/vdom'
 import { SyntheticId } from '@/types/common'
 import { isDocumentVNode, isDocTypeVNode, isTextVNode } from '@/utils/vdom'
-import {Stats} from '@/libs/stats'
 
 const reactDOMFromSnapshot = (snapshot: VTree | null) => {
   const createReactElement = (nodeId: SyntheticId): React.ReactNode => {
@@ -82,12 +81,14 @@ export const PlaybackCanvas: React.FC = () => {
   const pointer = usePointer()
 
   return (
-    <Block gridArea="canvas" position="relative">
-      <FrameRealm>
-        {reactDOMFromSnapshot(snapshot)}
-      </FrameRealm>
-      <PointerOverlay />
-    </Block>
+    <ErrorBoundary>
+      <Block gridArea="canvas" position="relative">
+        <FrameRealm>
+          {reactDOMFromSnapshot(snapshot)}
+        </FrameRealm>
+        <PointerOverlay />
+      </Block>
+    </ErrorBoundary>
   )
 }
 
@@ -100,3 +101,27 @@ const PointerOverlay: React.FC = () => (
     right={0}
   />
 )
+
+class ErrorBoundary extends React.Component {
+  state = {
+    hasError: false,
+  }
+
+  static getDerivedStateFromError(err: any) {
+    return {
+      hasError: true,
+    }
+  }
+
+  componentDidCatch(err: any, info: any) {
+    console.error(err, info) 
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return 'Error!'
+    }
+
+    return this.props.children
+  }
+}

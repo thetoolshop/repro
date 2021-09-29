@@ -1,8 +1,8 @@
 import { DOMSnapshotEvent, Recording, SourceEvent, SourceEventType } from '@/types/recording'
-import { copy } from '@/utils/lang'
+import { copyArray, copyObject, copyObjectDeep } from '@/utils/lang'
 import { createSetter } from '@/utils/state'
-import {applyVTreePatch} from '@/utils/vdom'
-import {Stats} from '../stats'
+import { applyVTreePatch } from '@/utils/vdom'
+import { Stats } from '../stats'
 
 import {
   $buffer,
@@ -31,7 +31,7 @@ export const setSnapshot = createSetter($snapshot)
 export const seekToTime = (time: number) => {
   const recording = $recording.getValue()
   let activeIndex = -1
-  let events = copy(recording.events)
+  let events = copyArray(recording.events)
   let event: SourceEvent | undefined
 
   for (const index of recording.snapshotIndex) {
@@ -45,19 +45,19 @@ export const seekToTime = (time: number) => {
     break
   }
 
-  let processQueue: Array<SourceEvent> = []
+  let queue: Array<SourceEvent> = []
 
   while (event = events[0]) {
     if (event.time > time) {
       break
     }
     
-    processQueue.push(event)
+    queue.push(event)
     events.shift()
     activeIndex++
   }
 
-  handleEvents(processQueue, time)
+  handleEvents(queue)
 
   $buffer.next(events)
   $activeIndex.next(activeIndex)
@@ -66,7 +66,7 @@ export const seekToTime = (time: number) => {
 
 export const seekToEvent = (nextIndex: number) => {
   const recording = $recording.getValue()
-  let events = copy(recording.events)
+  let events = copyArray(recording.events)
   let event: SourceEvent | undefined
   let elapsed = 0
   let i = 0
@@ -80,19 +80,19 @@ export const seekToEvent = (nextIndex: number) => {
     break
   }
 
-  let processQueue: Array<SourceEvent> = []
+  let queue: Array<SourceEvent> = []
 
   while (event = events[0]) {
     if (i === nextIndex) {
       break
     }
 
-    processQueue.push(event)
+    queue.push(event)
     events.shift()
     i++
   }
 
-  handleEvents(processQueue, elapsed)
+  handleEvents(queue)
 
   $buffer.next(events)
   $activeIndex.next(nextIndex)
@@ -104,25 +104,39 @@ export const init = (recording: Recording) => {
   seekToTime(0)
 }
 
-export const handleEvents = (events: Array<SourceEvent>, _elapsed: number) => {
+export const handleEvents = (events: Array<SourceEvent>) => {
   if (events.length === 0) {
     return
   }
 
   const start = performance.now() 
-  let snapshot = getSnapshot()
 
+  let dirty = false
+  let snapshot = getSnapshot()
+  let queue: Array<SourceEvent> = []
+
+  // Find last snapshot in events to be applied
   for (const event of events) {
+    if (event.type === SourceEventType.DOMSnapshot) {
+      queue = []
+    }
+
+    queue.push(event)
+  }
+
+  for (const event of queue) {
     switch (event.type) {
       case SourceEventType.DOMSnapshot:
-        snapshot = event.data
+        snapshot = copyObjectDeep(event.data)
         break
 
       case SourceEventType.DOMPatch:
         const patch = event.data
-        snapshot = snapshot
-          ? applyVTreePatch(snapshot, patch)
-          : null
+
+        if (snapshot) {
+          dirty = true
+          applyVTreePatch(snapshot, patch)
+        }
         break
 
       case SourceEventType.Interaction:
@@ -132,6 +146,10 @@ export const handleEvents = (events: Array<SourceEvent>, _elapsed: number) => {
         // - init animation to target state
         break
     }
+  }
+
+  if (dirty && snapshot) {
+    snapshot = copyObject(snapshot)
   }
 
   Stats.sample('playback frame: duration', performance.now() - start)

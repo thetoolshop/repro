@@ -4,16 +4,6 @@ import { SyntheticId } from '@/types/common'
 import { Immutable } from '@/types/extensions'
 import { NodeType, Patch, PatchType, VDocType, VDocument, VElement, VNode, VText, VTree } from '@/types/vdom'
 
-import {
-  assocPath as assocPathR,
-  assoc as assocR,
-  insertAll as insertAllR,
-  lensPath as lensPathR,
-  merge as mergeR,
-  set as setR,
-  without as withoutR,
-} from 'ramda'
-
 export function createSyntheticId() {
   return nanoid(5)
 }
@@ -79,8 +69,7 @@ export function getVNodeById(vtree: VTree, nodeId: SyntheticId): VNode | null {
 }
 
 export function replaceVNodeById(vtree: VTree, nodeId: SyntheticId, newNode: VNode) {
-  const nodeLens = lensPathR<VTree, VNode>(['nodes', nodeId])
-  return setR(nodeLens, newNode, vtree)
+  vtree.nodes[nodeId] = newNode
 }
 
 export function insertSubTreesAtNode(vtree: VTree, parent: VElement, subtrees: Array<VTree>, index: number) {
@@ -88,16 +77,17 @@ export function insertSubTreesAtNode(vtree: VTree, parent: VElement, subtrees: A
 
   for (const subtree of subtrees) {
     childIds.push(subtree.rootId)
-    vtree = assocR('nodes', mergeR(vtree.nodes, subtree.nodes), vtree)
+    vtree.nodes = {
+      ...vtree.nodes,
+      ...subtree.nodes,
+    }
   }
 
-  parent = assocR('children', insertAllR(index, childIds, parent.children), parent)
-  return replaceVNodeById(vtree, parent.id, parent)
+  parent.children.splice(index, 0, ...childIds)
 }
 
 export function removeSubTreesAtNode(vtree: VTree, parent: VElement, subtrees: Array<VTree>) {
   const childIds: Array<SyntheticId> = []
-  const descendentIds: Array<SyntheticId> = []
 
   for (const subtree of subtrees) {
     childIds.push(subtree.rootId)
@@ -109,7 +99,7 @@ export function removeSubTreesAtNode(vtree: VTree, parent: VElement, subtrees: A
       const node = getVNodeById(vtree, nodeId)
 
       if (node) {
-        descendentIds.push(nodeId)
+        delete vtree.nodes[nodeId]
 
         if (isElementVNode(node)) {
           queue.push(...node.children)
@@ -118,28 +108,30 @@ export function removeSubTreesAtNode(vtree: VTree, parent: VElement, subtrees: A
     }
   }
 
-  parent = assocR('children', withoutR(childIds, parent.children), parent)
-  return replaceVNodeById(vtree, parent.id, parent)
+  let i = parent.children.length
+
+  while (i--) {
+    const childId = parent.children[i]
+
+    if (childId && childIds.indexOf(childId) !== -1) {
+      parent.children.splice(i, 1)
+    }
+  }
 }
 
 // TODO: benchmark performance of mutable data structure
-export function applyVTreePatch(vtree: VTree, patch: Patch, revert: boolean = false): VTree {
+export function applyVTreePatch(vtree: VTree, patch: Patch, revert: boolean = false): void {
   const start = performance.now()
 
   switch (patch.type) {
     case PatchType.Attribute: {
       let node = getVNodeById(vtree, patch.targetId)
 
-      if (node) {
-        node = assocPathR(['attributes', patch.name],
-          revert ? patch.oldValue : patch.value,
-          node)
-
-        const result = replaceVNodeById(vtree, patch.targetId, node)
-
+      if (node && isElementVNode(node)) {
+        node.attributes[patch.name] = revert
+          ? patch.oldValue
+          : patch.value
         Stats.sample('VDOM: apply attribute patch', performance.now() - start)
-
-        return result
       }
 
       break
@@ -149,12 +141,8 @@ export function applyVTreePatch(vtree: VTree, patch: Patch, revert: boolean = fa
       let node = getVNodeById(vtree, patch.targetId)
 
       if (node && isTextVNode(node)) {
-        node = assocR('value', revert ? patch.oldValue : patch.value, node)
-        const result = replaceVNodeById(vtree, patch.targetId, node)
-
+        node.value = revert ? patch.oldValue : patch.value
         Stats.sample('VDOM: apply text patch', performance.now() - start)
-
-        return result
       }
 
       break
@@ -164,17 +152,17 @@ export function applyVTreePatch(vtree: VTree, patch: Patch, revert: boolean = fa
       let parent = getVNodeById(vtree, patch.parentId)
 
       if (parent && isElementVNode(parent)) {
-        const index = patch.previousSiblingId
-          ? parent.children.indexOf(patch.previousSiblingId) + 1
-          : 0
+        if (revert) {
+          removeSubTreesAtNode(vtree, parent, patch.nodes)
+        } else {
+          const index = patch.previousSiblingId
+            ? parent.children.indexOf(patch.previousSiblingId) + 1
+            : 0
 
-        const result = revert
-          ? removeSubTreesAtNode(vtree, parent, patch.nodes)
-          : insertSubTreesAtNode(vtree, parent, patch.nodes, index)
+          insertSubTreesAtNode(vtree, parent, patch.nodes, index)
+        }
 
         Stats.sample('VDOM: apply add-nodes patch', performance.now() - start)
-
-        return result
       }
 
       break
@@ -184,22 +172,20 @@ export function applyVTreePatch(vtree: VTree, patch: Patch, revert: boolean = fa
       let parent = getVNodeById(vtree, patch.parentId)
 
       if (parent && isElementVNode(parent)) {
-        const index = patch.previousSiblingId
-          ? parent.children.indexOf(patch.previousSiblingId)
-          : 0
+        if (revert) {
+          const index = patch.previousSiblingId
+            ? parent.children.indexOf(patch.previousSiblingId)
+            : 0
 
-        const result = revert
-          ? insertSubTreesAtNode(vtree, parent, patch.nodes, index)
-          : removeSubTreesAtNode(vtree, parent, patch.nodes)
+          insertSubTreesAtNode(vtree, parent, patch.nodes, index)
+        } else {
+          removeSubTreesAtNode(vtree, parent, patch.nodes)
+        }
 
         Stats.sample('VDOM: apply remove-nodes patch', performance.now() - start)
-
-        return result
       }
 
       break
     }
   }
-
-  return vtree
 }

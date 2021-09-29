@@ -25,7 +25,7 @@ export interface VElement {
   id: SyntheticId
   type: NodeType.Element
   tagName: string
-  attributes: Record<string, string>
+  attributes: Record<string, string | null>
   children: Array<SyntheticId>
 }
 

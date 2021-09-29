@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { animationFrames, Subscription } from 'rxjs'
 import { map, pairwise } from 'rxjs/operators'
-import { copy } from '@/utils/lang'
+import { copyArray } from '@/utils/lang'
 import { SourceEvent } from '@/types/recording'
 import { createValueHook } from '@/utils/state'
 import { getBuffer, setBuffer, setActiveIndex, setElapsed, setPlaybackState, setSnapshot, handleEvents } from './service'
@@ -49,23 +49,23 @@ export const usePlaybackLoop = () => {
 
   useEffect(() => {
     if (playbackState === PlaybackState.Playing) {
-      const buffer = copy(getBuffer())
+      const buffer = copyArray(getBuffer())
       let event: SourceEvent | undefined
       let i = 0
 
-      let processQueue: Array<SourceEvent> = []
+      let queue: Array<SourceEvent> = []
 
       while (event = buffer[0]) {
         if (event.time > elapsed) {
           break
         }
 
-        processQueue.push(event)
+        queue.push(event)
         buffer.shift() 
         i++
       }
 
-      handleEvents(processQueue, elapsed)
+      handleEvents(queue)
 
       setBuffer(buffer)
       setActiveIndex(activeIndex => activeIndex + i)
