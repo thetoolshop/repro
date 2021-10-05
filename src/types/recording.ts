@@ -33,9 +33,12 @@ export interface CloseRecordingEvent extends BaseEvent {
   type: SourceEventType.CloseRecording
 }
 
-export type SourceEvent =
+export type DOMSourceEvent =
   | DOMPatchEvent
   | DOMSnapshotEvent
+
+export type SourceEvent =
+  | DOMSourceEvent
   | InteractionEvent
   | CloseRecordingEvent
 

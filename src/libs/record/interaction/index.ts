@@ -3,7 +3,7 @@ import { getNodeId } from '@/utils/vdom'
 import { ObserverLike, RecordingOptions } from '../types'
 import { sampleEventsByKey } from './sample'
 
-type Callback = (interaction: Interaction) => void
+type Callback = (interaction: Interaction, transposition?: number, at?: number) => void
 
 const EMPTY_OBSERVER = {
   disconnect() {}
@@ -70,7 +70,7 @@ function createViewportResizeObserver(doc: Document, callback: Callback, samplin
         value: [prevWidth, prevHeight],
         duration: 0,
       },
-    })
+    }, 0, 0 /* initial frame (ideally observer shouldn't care about elapsed time) */)
   }
 
   const handleViewportResize = sampleEventsByKey(
@@ -81,7 +81,7 @@ function createViewportResizeObserver(doc: Document, callback: Callback, samplin
         type: InteractionType.ViewportResize,
         from: [prevWidth, prevHeight],
         to: sample,
-      })
+      }, sample.duration)
     },
     sampling
   )
@@ -122,7 +122,7 @@ function createScrollObserver(doc: Document, callback: Callback, sampling: numbe
           value: [target.scrollLeft, target.scrollTop] as Point,
           duration,
         }
-      })
+      }, duration)
     },
     sampling
   )
@@ -134,6 +134,17 @@ function createPointerMoveObserver(doc: Document, callback: Callback, sampling: 
   let prevX: number | null = null
   let prevY: number | null = null
 
+  function dispatchInitialPointer() {
+    callback({
+      type: InteractionType.PointerMove,
+      from: [0, 0],
+      to: {
+        value: [0, 0],
+        duration: 0,
+      },
+    }, 0, 0)
+  }
+
   const handlePointerMove = sampleEventsByKey(
     () => 'pointermove',
     (evt: PointerEvent) => [evt.pageX, evt.pageY] as Point,
@@ -144,13 +155,15 @@ function createPointerMoveObserver(doc: Document, callback: Callback, sampling: 
         type: InteractionType.PointerMove,
         from: [prevX ?? x, prevY ?? y],
         to: sample,
-      })
+      }, sample.duration)
 
       prevX = x
       prevY = y
     },
     sampling
   )
+
+  dispatchInitialPointer()
 
   return observeEvent(doc, 'pointermove', handlePointerMove)
 }

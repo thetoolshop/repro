@@ -30,25 +30,31 @@ function emit<T>(label: string, value: T) {
 }
 
 export const Stats = {
+  on: false,
+
   // TODO: support anonymised reporting
   emit(label: string, value: any) {
-    console.debug(label, value)
+    if (Stats.on) {
+      emit(label, value)
+    }
   },
 
   sample(label: string, value: any) {
-    let record = samples[label]
+    if (Stats.on) {
+      let record = samples[label]
 
-    if (!record) {
-      record = createEmptySampleRecord()
-      samples[label] = record
-    }
+      if (!record) {
+        record = createEmptySampleRecord()
+        samples[label] = record
+      }
 
-    record.total += value
-    record.entries += 1
+      record.total += value
+      record.entries += 1
 
-    if (!sampling) {
-      sampling = true
-      awaitSample()
+      if (!sampling) {
+        sampling = true
+        awaitSample()
+      }
     }
   }
 }

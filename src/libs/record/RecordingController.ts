@@ -121,7 +121,7 @@ export class RecordingController {
     }
   }
 
-  private createInteractionEvent(interaction: Interaction): InteractionEvent {
+  private createInteractionEvent(interaction: Interaction, transposition: number, at?: number): InteractionEvent {
     if (!this.isStarted()) {
       throw new Error('RecordingError: recording has not been started')
     }
@@ -129,7 +129,7 @@ export class RecordingController {
     return {
       type: SourceEventType.Interaction,
       data: interaction,
-      time: performance.now() - this.timeOrigin,
+      time: at ?? performance.now() - this.timeOrigin - transposition,
     }
   }
 
@@ -174,8 +174,8 @@ export class RecordingController {
 
   private createInteractionObserver() {
     this.observers.push(
-      observeInteractions(this.document, this.options, interaction => {
-        this.recording.events.push(this.createInteractionEvent(interaction))
+      observeInteractions(this.document, this.options, (interaction, transposition = 0, at) => {
+        this.recording.events.push(this.createInteractionEvent(interaction, transposition, at))
       })
     )
   }

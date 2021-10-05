@@ -33,6 +33,7 @@ export const FrameRealm: React.FC = ({ children }) => {
       border={0}
       width="100%"
       height="100%"
+      overflow="hidden"
     >
       {root && createPortal(children, root.documentElement)}
     </Block>

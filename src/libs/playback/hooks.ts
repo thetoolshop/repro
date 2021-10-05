@@ -4,18 +4,19 @@ import { map, pairwise } from 'rxjs/operators'
 import { copyArray } from '@/utils/lang'
 import { SourceEvent } from '@/types/recording'
 import { createValueHook } from '@/utils/state'
-import { getBuffer, setBuffer, setActiveIndex, setElapsed, setPlaybackState, setSnapshot, handleEvents } from './service'
-import { PlaybackState, $elapsed, $playbackState, $pointer, $snapshot, $source, $activeIndex, $readyState, $focusedNode, $recording } from './state'
+import { getBuffer, setBuffer, setActiveIndex, setElapsed, setPlaybackState, setSnapshot, processEvents } from './service'
+import { PlaybackState, $elapsed, $playbackState, $pointer, $snapshot, $source, $activeIndex, $readyState, $focusedNode, $recording, $viewport } from './state'
 
 export const useActiveIndex = createValueHook($activeIndex)
 export const useElapsed = createValueHook($elapsed)
+export const useFocusedNode = createValueHook($focusedNode)
 export const usePlaybackState = createValueHook($playbackState)
 export const usePointer = createValueHook($pointer)
 export const useReadyState = createValueHook($readyState)
 export const useRecording = createValueHook($recording)
 export const useSnapshot = createValueHook($snapshot)
 export const useSource = createValueHook($source)
-export const useFocusedNode = createValueHook($focusedNode)
+export const useViewport = createValueHook($viewport)
 
 export const usePlaybackLoop = () => {
   const elapsed = useElapsed()
@@ -65,7 +66,7 @@ export const usePlaybackLoop = () => {
         i++
       }
 
-      handleEvents(queue)
+      processEvents(queue)
 
       setBuffer(buffer)
       setActiveIndex(activeIndex => activeIndex + i)

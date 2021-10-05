@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { BehaviorSubject, combineLatest } from 'rxjs'
+import { BehaviorSubject } from 'rxjs'
 
 export type Atom<T> = BehaviorSubject<T>
 
