@@ -1,9 +1,9 @@
 import { InteractionType, Point, Sample } from '@/types/interaction'
-import { DOMPatchEvent, DOMSnapshotEvent, DOMSourceEvent, InteractionEvent, Recording, SourceEvent, SourceEventType } from '@/types/recording'
+import { DOMSnapshotEvent, DOMSourceEvent, InteractionEvent, Recording, SourceEvent, SourceEventType } from '@/types/recording'
 import { copyArray, copyObject, copyObjectDeep } from '@/utils/lang'
 import { createSetter } from '@/utils/state'
 import { applyVTreePatch } from '@/utils/vdom'
-import { Stats } from '../stats'
+import { Stats, Trace } from '@/libs/diagnostics'
 
 import {
   $buffer,
@@ -22,6 +22,7 @@ import {
 
 export const getBuffer = () => $buffer.getValue()
 export const setBuffer = createSetter($buffer)
+export const getActiveIndex = () => $activeIndex.getValue()
 export const setActiveIndex = createSetter($activeIndex)
 export const setSource = createSetter($source)
 export const getElapsed = () => $elapsed.getValue()
@@ -69,7 +70,7 @@ export const seekToTime = (time: number) => {
   processEvents(queue)
 
   setBuffer(events)
-  $activeIndex.next(activeIndex)
+  setActiveIndex(activeIndex)
   setElapsed(time)
 }
 
@@ -104,7 +105,7 @@ export const seekToEvent = (nextIndex: number) => {
   processEvents(queue)
 
   setBuffer(events)
-  $activeIndex.next(nextIndex)
+  setActiveIndex(nextIndex)
   setElapsed(elapsed)
 }
 
@@ -213,6 +214,15 @@ export function processEvents(events: Array<SourceEvent>) {
   }
 
   const start = performance.now() 
+
+  const snapshot = getSnapshot()
+  const elapsed = getElapsed()
+
+  Trace.createFrame({
+    elapsed,
+    snapshot,
+    events,
+  })
 
   const domEvents: Array<DOMSourceEvent> = []
   const interactionEvents: Array<InteractionEvent> = []

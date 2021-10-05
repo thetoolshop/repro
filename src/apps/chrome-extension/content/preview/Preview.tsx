@@ -1,6 +1,7 @@
 import React from 'react'
 import { Grid } from 'jsxstyle'
 import { Modal } from '@/components/Modal'
+import { PlaybackErrorBoundary } from '@/components/PlaybackErrorBoundary'
 import { PlaybackCanvas } from '@/components/PlaybackCanvas'
 import { PlaybackControls } from '@/components/PlaybackControls'
 import { PlaybackLoop } from '@/components/PlaybackLoop'
@@ -21,13 +22,15 @@ export const Preview: React.FC = () => {
 
   return (
     <Modal width="80vw" minWidth={500} height="80vh">
-      <PlaybackLoop />
-      <Layout>
-        <Header />
-        <PlaybackCanvas />
-        <PlaybackControls />
-        <Actions onCancel={handleCancel} onDone={handleDone} />
-      </Layout>
+      <PlaybackErrorBoundary>
+        <PlaybackLoop />
+        <Layout>
+          <Header />
+          <PlaybackCanvas />
+          <PlaybackControls />
+          <Actions onCancel={handleCancel} onDone={handleDone} />
+        </Layout>
+      </PlaybackErrorBoundary>
     </Modal>
   )
 }

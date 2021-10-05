@@ -1,4 +1,4 @@
-import { Stats } from '@/libs/stats'
+import { Stats } from '@/libs/diagnostics'
 import { Immutable } from '@/types/extensions'
 
 import {
@@ -240,12 +240,12 @@ function createDOMObserver(doc: Document, options: RecordingOptions, subscriber:
 
         case 'childList':
           // TODO: optimization - handle moving nodes without destroying vnode
-          const addedVTrees = Array.from(entry.addedNodes)
+          const removedVTrees = Array.from(entry.removedNodes)
             .filter(node => !isIgnoredBySelector(node, options.ignoredSelectors))
             .filter(node => !isIgnoredByNode(node, options.ignoredNodes))
             .map(node => createVTree(node, options))
 
-          const removedVTrees = Array.from(entry.removedNodes)
+          const addedVTrees = Array.from(entry.addedNodes)
             .filter(node => !isIgnoredBySelector(node, options.ignoredSelectors))
             .filter(node => !isIgnoredByNode(node, options.ignoredNodes))
             .map(node => createVTree(node, options))

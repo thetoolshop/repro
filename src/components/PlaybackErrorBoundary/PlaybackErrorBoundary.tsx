@@ -1,21 +1,22 @@
 import React from 'react'
+import { Trace } from '@/libs/diagnostics'
 
-export class ErrorBoundary extends React.Component {
+export class PlaybackErrorBoundary extends React.Component {
   state = {
     hasError: false,
+    error: null,
   }
 
   static getDerivedStateFromError(err: any) {
     return {
       hasError: true,
+      error: err,
     }
   }
 
-  componentDidCatch(err: any, info: any) {
-    console.error(err, info) 
-  }
-
   render() {
+    console.log(Trace.getLastFrame())
+
     if (this.state.hasError) {
       return 'Error!'
     }

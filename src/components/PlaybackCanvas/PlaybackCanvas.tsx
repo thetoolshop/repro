@@ -3,7 +3,6 @@ import { Attributes } from 'html-react-parser/lib/attributes-to-props'
 import { Block } from 'jsxstyle'
 import React, { MutableRefObject, useCallback, useEffect, useRef, useState } from 'react'
 import { Cursor } from '@/components/Cursor'
-import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { FrameRealm } from '@/components/FrameRealm'
 import { colors } from '@/config/theme'
 import { usePointer, useSnapshot, useViewport } from '@/libs/playback'
@@ -12,11 +11,12 @@ import { SyntheticId } from '@/types/common'
 import { isDocumentVNode, isDocTypeVNode, isTextVNode } from '@/utils/vdom'
 
 const reactDOMFromSnapshot = (snapshot: VTree | null) => {
-  const createReactElement = (nodeId: SyntheticId): React.ReactNode => {
+  const createReactElement = (nodeId: SyntheticId, parentNodePath: Array<SyntheticId>): React.ReactNode => {
     const vNode = snapshot!.nodes[nodeId]
+    const nodePath = [ ...parentNodePath, nodeId ]
 
     if (!vNode) {
-      throw new Error(`Could not find VNode with ID "${nodeId}"`)
+      throw new Error(`Could not find VNode: ${nodePath.join(' > ')}`)
     }
 
     if (isTextVNode(vNode)) {
@@ -31,7 +31,7 @@ const reactDOMFromSnapshot = (snapshot: VTree | null) => {
       return React.createElement(
         React.Fragment,
         { key: nodeId },
-        vNode.children.map(createReactElement)
+        vNode.children.map(childId => createReactElement(childId, nodePath))
       )
     }
 
@@ -43,7 +43,7 @@ const reactDOMFromSnapshot = (snapshot: VTree | null) => {
       return React.createElement(
         React.Fragment,
         { key: nodeId },
-        vNode.children.map(createReactElement)
+        vNode.children.map(childId => createReactElement(childId, nodePath))
       )
     }
 
@@ -51,7 +51,7 @@ const reactDOMFromSnapshot = (snapshot: VTree | null) => {
       return React.createElement(
         FrameRealm,
         { key: nodeId },
-        vNode.children.map(createReactElement)
+        vNode.children.map(childId => createReactElement(childId, nodePath))
       )
     }
 
@@ -68,7 +68,7 @@ const reactDOMFromSnapshot = (snapshot: VTree | null) => {
       vNode.tagName,
       props,
       vNode.children.length
-        ? vNode.children.map(createReactElement)
+        ? vNode.children.map(childId => createReactElement(childId, nodePath))
         : null,
     )
   }
@@ -77,23 +77,21 @@ const reactDOMFromSnapshot = (snapshot: VTree | null) => {
     return null
   }
 
-  return createReactElement(snapshot.rootId)
+  return createReactElement(snapshot.rootId, [])
 }
 
 export const PlaybackCanvas: React.FC = () => {
   const snapshot = useSnapshot()
 
   return (
-    <ErrorBoundary>
-      <Block gridArea="canvas" overflow="hidden">
-        <Viewport>
-          <FrameRealm>
-            {reactDOMFromSnapshot(snapshot)}
-          </FrameRealm>
-          <PointerOverlay />
-        </Viewport>
-      </Block>
-    </ErrorBoundary>
+    <Block gridArea="canvas" overflow="hidden">
+      <Viewport>
+        <FrameRealm>
+          {reactDOMFromSnapshot(snapshot)}
+        </FrameRealm>
+        <PointerOverlay />
+      </Viewport>
+    </Block>
   )
 }
 

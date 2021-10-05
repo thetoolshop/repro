@@ -1,8 +1,9 @@
 import { nanoid } from 'nanoid'
-import { Stats } from '@/libs/stats'
+import { Stats } from '@/libs/diagnostics'
 import { SyntheticId } from '@/types/common'
 import { Immutable } from '@/types/extensions'
 import { NodeType, Patch, PatchType, VDocType, VDocument, VElement, VNode, VText, VTree } from '@/types/vdom'
+import { copyObjectDeep } from '@/utils/lang'
 
 export function createSyntheticId() {
   return nanoid(5)
@@ -79,7 +80,7 @@ export function insertSubTreesAtNode(vtree: VTree, parent: VElement, subtrees: A
     childIds.push(subtree.rootId)
     vtree.nodes = {
       ...vtree.nodes,
-      ...subtree.nodes,
+      ...copyObjectDeep(subtree.nodes),
     }
   }
 

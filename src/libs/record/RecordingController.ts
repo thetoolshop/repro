@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid'
-import { Stats } from '@/libs/stats'
+import { Stats } from '@/libs/diagnostics'
 import { Interaction } from '@/types/interaction'
 import { DOMPatchEvent, DOMSnapshotEvent, InteractionEvent, Recording, SourceEventType } from '@/types/recording'
 import { Patch, PatchType, VTree } from '@/types/vdom'
