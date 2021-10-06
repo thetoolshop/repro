@@ -5,8 +5,8 @@ import { ViewProvider } from '../view'
 import { App } from './App'
 import { REPRO_ROOT_ID } from './constants'
 
-Stats.on = false
-Trace.on = true
+Stats.enable()
+Trace.enable()
 
 const root = document.createElement('div')
 root.id = REPRO_ROOT_ID

@@ -17,12 +17,18 @@ export enum PlaybackState {
   Done,
 }
 
+export enum PointerState {
+  Up,
+  Down,
+}
+
 export const $activeIndex = atom<number>(-1)
 export const $buffer = atom<SourceEvent[]>([])
 export const $elapsed = atom(0)
 export const $focusedNode = atom<SyntheticId | null>(null)
 export const $playbackState = atom(PlaybackState.Paused)
 export const $pointer = atom<Point>([0, 0])
+export const $pointerState = atom(PointerState.Up)
 export const $readyState = atom(ReadyState.Loading)
 export const $recording = atom<Recording>(RecordingController.EMPTY)
 export const $snapshot = atom<VTree | null>(null)

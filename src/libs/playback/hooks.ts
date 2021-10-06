@@ -5,13 +5,14 @@ import { copyArray } from '@/utils/lang'
 import { SourceEvent } from '@/types/recording'
 import { createValueHook } from '@/utils/state'
 import { getBuffer, setBuffer, setActiveIndex, setElapsed, setPlaybackState, setSnapshot, processEvents } from './service'
-import { PlaybackState, $elapsed, $playbackState, $pointer, $snapshot, $source, $activeIndex, $readyState, $focusedNode, $recording, $viewport } from './state'
+import { PlaybackState, $elapsed, $playbackState, $pointer, $snapshot, $source, $activeIndex, $readyState, $focusedNode, $recording, $viewport, $pointerState } from './state'
 
 export const useActiveIndex = createValueHook($activeIndex)
 export const useElapsed = createValueHook($elapsed)
 export const useFocusedNode = createValueHook($focusedNode)
 export const usePlaybackState = createValueHook($playbackState)
 export const usePointer = createValueHook($pointer)
+export const usePointerState = createValueHook($pointerState)
 export const useReadyState = createValueHook($readyState)
 export const useRecording = createValueHook($recording)
 export const useSnapshot = createValueHook($snapshot)

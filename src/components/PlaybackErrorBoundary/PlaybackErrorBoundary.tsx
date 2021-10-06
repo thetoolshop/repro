@@ -15,6 +15,7 @@ export class PlaybackErrorBoundary extends React.Component {
   }
 
   render() {
+    // TODO: render last good snapshot and highlight failing patch
     console.log(Trace.getLastFrame())
 
     if (this.state.hasError) {

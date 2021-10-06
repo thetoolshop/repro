@@ -1,3 +1,5 @@
+let enabled = false
+
 interface SampleRecord {
   total: number
   entries: number
@@ -30,17 +32,23 @@ function emit<T>(label: string, value: T) {
 }
 
 export const Stats = {
-  on: false,
+  enable() {
+    enabled = true
+  },
+
+  disable() {
+    enabled = false
+  },
 
   // TODO: support anonymised reporting
   emit(label: string, value: any) {
-    if (Stats.on) {
+    if (enabled) {
       emit(label, value)
     }
   },
 
   sample(label: string, value: any) {
-    if (Stats.on) {
+    if (enabled) {
       let record = samples[label]
 
       if (!record) {

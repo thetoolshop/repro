@@ -5,7 +5,7 @@ import React, { MutableRefObject, useCallback, useEffect, useRef, useState } fro
 import { Cursor } from '@/components/Cursor'
 import { FrameRealm } from '@/components/FrameRealm'
 import { colors } from '@/config/theme'
-import { usePointer, useSnapshot, useViewport } from '@/libs/playback'
+import { PointerState, usePointer, usePointerState, useSnapshot, useViewport } from '@/libs/playback'
 import { VTree } from '@/types/vdom'
 import { SyntheticId } from '@/types/common'
 import { isDocumentVNode, isDocTypeVNode, isTextVNode } from '@/utils/vdom'
@@ -148,6 +148,7 @@ const Viewport: React.FC = ({ children }) => {
 
 const PointerOverlay: React.FC = () => {
   const [x, y] = usePointer()
+  const pointerState = usePointerState()
 
   return (
     <Block
@@ -162,7 +163,23 @@ const PointerOverlay: React.FC = () => {
         position="absolute"
         transform={`translate(${x}px, ${y}px)`}
         transformOrigin="0 0"
-      ><Cursor color={colors.pink['700']} /></Block>
+      >
+        <Block
+          position="absolute"
+          top={0}
+          left={0}
+          width={30}
+          height={30}
+          borderColor={colors.cyan['500']}
+          borderStyle="solid"
+          borderWidth={4}
+          borderRadius={30}
+          opacity={pointerState === PointerState.Up ? 0 : 0.75}
+          transform="translate(-10px, -10px)"
+          transition="opacity 100ms linear"
+        />
+        <Cursor color={colors.pink['700']} />
+      </Block>
     </Block>
   )
 }

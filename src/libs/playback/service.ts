@@ -6,18 +6,20 @@ import { applyVTreePatch } from '@/utils/vdom'
 import { Stats, Trace } from '@/libs/diagnostics'
 
 import {
-  $buffer,
   $activeIndex,
+  $buffer,
   $elapsed,
   $focusedNode,
   $playbackState,
   $pointer,
+  $pointerState,
   $readyState,
   $recording,
   $snapshot,
   $source,
   $viewport,
   PlaybackState,
+  PointerState,
 } from './state'
 
 export const getBuffer = () => $buffer.getValue()
@@ -31,6 +33,8 @@ export const setFocusedNode = createSetter($focusedNode)
 export const setPlaybackState = createSetter($playbackState)
 export const getPointer = () => $pointer.getValue()
 export const setPointer = createSetter($pointer)
+export const getPointerState = () => $pointerState.getValue()
+export const setPointerState = createSetter($pointerState)
 export const setReadyState = createSetter($readyState)
 export const setRecording = createSetter($recording)
 export const getSnapshot = () => $snapshot.getValue()
@@ -162,6 +166,7 @@ function processInteractionEvents(events: Array<InteractionEvent>) {
   const elapsed = getElapsed()
   let viewport = getViewport()
   let pointer = getPointer()
+  let pointerState = getPointerState()
 
   function interpolatePointFromSample(from: Point, to: Sample<Point>, time: number): Point {
     const fromValue = from
@@ -193,6 +198,16 @@ function processInteractionEvents(events: Array<InteractionEvent>) {
         )
         break
 
+      case InteractionType.PointerDown:
+        pointer = event.data.at
+        pointerState = PointerState.Down
+        break
+
+      case InteractionType.PointerUp:
+        pointer = event.data.at
+        pointerState = PointerState.Up
+        break
+
       case InteractionType.ViewportResize:
         viewport = interpolatePointFromSample(
           event.data.from,
@@ -205,6 +220,7 @@ function processInteractionEvents(events: Array<InteractionEvent>) {
 
   setViewport(viewport)
   setPointer(pointer)
+  setPointerState(pointerState)
   Stats.sample('process interaction events: duration', performance.now() - start)
 }
 
@@ -215,13 +231,15 @@ export function processEvents(events: Array<SourceEvent>) {
 
   const start = performance.now() 
 
-  const snapshot = getSnapshot()
-  const elapsed = getElapsed()
+  Trace.createFrame(() => {
+    const snapshot = getSnapshot()
+    const elapsed = getElapsed()
 
-  Trace.createFrame({
-    elapsed,
-    snapshot,
-    events,
+    return {
+      elapsed,
+      snapshot,
+      events,
+    }
   })
 
   const domEvents: Array<DOMSourceEvent> = []

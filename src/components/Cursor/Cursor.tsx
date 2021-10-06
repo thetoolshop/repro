@@ -6,13 +6,11 @@ interface Props {
   size?: number
 }
 
-export const Cursor: React.FC<Props> = ({ color, size = 36 }) => (
-  <svg xmlns="http://www.w3,org/2000/svg" viewBox="0 0 28 28" width={size} height={size}>
-    <polygon fill={colors.white} points="8.2,20.9 8.2,4.9 19.8,16.5 13,16.5 12.6,16.6 " />
-    <polygon fill={colors.white} points="17.3,21.6 13.7,23.1 9,12 12.7,10.5 " />
-    <g fill={color}>
-      <rect x="12.5" y="13.6" transform="matrix(0.9221 -0.3871 0.3871 0.9221 -5.7605 6.5909)" width="2" height="8" />
-      <polygon points="9.2,7.3 9.2,18.5 12.2,15.6 12.6,15.5 17.4,15.5 " />
-    </g>
+export const Cursor: React.FC<Props> = ({ color, size = 24 }) => (
+  <svg xmlns="http://www.w3,org/2000/svg" viewBox="0 0 12 20" width={size} height={size}>
+    <path d="M0.199997 16.9V0.900024L11.8 12.5H5L4.6 12.6L0.199997 16.9Z" fill={colors.white} />
+    <path d="M9.3 17.6L5.7 19.1L1 8L4.7 6.5L9.3 17.6Z" fill={colors.white} />
+    <path d="M4.8745 9.51852L3.0303 10.2927L6.1271 17.6695L7.9713 16.8953L4.8745 9.51852Z" fill={color} />
+    <path d="M1.2 3.29999V14.5L4.2 11.6L4.6 11.5H9.4L1.2 3.29999Z" fill={color} />
   </svg>
 )
