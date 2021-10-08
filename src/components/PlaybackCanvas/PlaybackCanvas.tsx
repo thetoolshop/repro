@@ -8,22 +8,34 @@ import { colors } from '@/config/theme'
 import { PointerState, usePointer, usePointerState, useSnapshot, useViewport } from '@/libs/playback'
 import { VTree } from '@/types/vdom'
 import { SyntheticId } from '@/types/common'
-import { isDocumentVNode, isDocTypeVNode, isTextVNode } from '@/utils/vdom'
+import { isDocumentVNode, isDocTypeVNode, isTextVNode, isStyleElementVNode, getNodeId } from '@/utils/vdom'
+import {Point} from '@/types/interaction'
 
-const reactDOMFromSnapshot = (snapshot: VTree | null) => {
-  const createReactElement = (nodeId: SyntheticId, parentNodePath: Array<SyntheticId>): React.ReactNode => {
-    const vNode = snapshot!.nodes[nodeId]
-    const nodePath = [ ...parentNodePath, nodeId ]
+const HOVER_CLASS = '-repro-hover'
+const HOVER_SELECTOR = `.${HOVER_CLASS}`
+
+const reactDOMFromSnapshot = (snapshot: VTree | null, hoverTargets: Set<SyntheticId>) => {
+  const createReactElement = (nodeId: SyntheticId, parentId: SyntheticId | null): React.ReactNode => {
+    const vNode = snapshot ? snapshot.nodes[nodeId] : null
+    const parentVNode = parentId && snapshot ? snapshot.nodes[parentId] : null
 
     if (!vNode) {
-      throw new Error(`Could not find VNode: ${nodePath.join(' > ')}`)
+      throw new Error(`Could not find VNode: ${nodeId}`)
     }
 
     if (isTextVNode(vNode)) {
+      let value = vNode.value
+
+      // CSS hover states cannot be triggered programmatically.
+      // Replace hover pseudo-selectors with class selector.
+      if (parentVNode && isStyleElementVNode(parentVNode)) {
+        value = value.replace(':hover', HOVER_SELECTOR)
+      }
+
       return React.createElement(
         React.Fragment,
         { key: nodeId },
-        vNode.value
+        value
       )
     }
 
@@ -31,7 +43,7 @@ const reactDOMFromSnapshot = (snapshot: VTree | null) => {
       return React.createElement(
         React.Fragment,
         { key: nodeId },
-        vNode.children.map(childId => createReactElement(childId, nodePath))
+        vNode.children.map(childId => createReactElement(childId, nodeId))
       )
     }
 
@@ -43,7 +55,7 @@ const reactDOMFromSnapshot = (snapshot: VTree | null) => {
       return React.createElement(
         React.Fragment,
         { key: nodeId },
-        vNode.children.map(childId => createReactElement(childId, nodePath))
+        vNode.children.map(childId => createReactElement(childId, nodeId))
       )
     }
 
@@ -51,12 +63,13 @@ const reactDOMFromSnapshot = (snapshot: VTree | null) => {
       return React.createElement(
         FrameRealm,
         { key: nodeId },
-        vNode.children.map(childId => createReactElement(childId, nodePath))
+        vNode.children.map(childId => createReactElement(childId, nodeId))
       )
     }
 
-    const props: React.HTMLProps<HTMLElement> = {
+    const props: React.HTMLProps<HTMLElement> & { 'data-repro-id': SyntheticId } = {
       ...attributesToProps(vNode.attributes as Attributes),
+      'data-repro-id': nodeId,
       key: nodeId,
     }
 
@@ -64,11 +77,15 @@ const reactDOMFromSnapshot = (snapshot: VTree | null) => {
       props.readOnly = true
     }
 
+    if (hoverTargets.has(nodeId)) {
+      props.className = `${props.className || ''} ${HOVER_CLASS}`
+    }
+
     return React.createElement(
       vNode.tagName,
       props,
       vNode.children.length
-        ? vNode.children.map(childId => createReactElement(childId, nodePath))
+        ? vNode.children.map(childId => createReactElement(childId, nodeId))
         : null,
     )
   }
@@ -77,19 +94,50 @@ const reactDOMFromSnapshot = (snapshot: VTree | null) => {
     return null
   }
 
-  return createReactElement(snapshot.rootId, [])
+  return createReactElement(snapshot.rootId, null)
 }
 
 export const PlaybackCanvas: React.FC = () => {
+  const frameRef = useRef() as MutableRefObject<HTMLIFrameElement>
   const snapshot = useSnapshot()
+  const pointer = usePointer()
+  const pointerState = usePointerState()
+  const [hoverTargets, setHoverTargets] = useState(new Set<SyntheticId>())
+
+  useEffect(() => {
+    if (frameRef.current) {
+      const doc = frameRef.current.contentDocument
+
+      if (doc) {
+        let target = doc.elementFromPoint(...pointer)
+        const allTargets = new Set<SyntheticId>()
+
+        while (target) {
+          const nodeId = target.getAttribute('data-repro-id')
+
+          if (nodeId) {
+            allTargets.add(nodeId)
+          }
+
+          target = target.parentElement
+        }
+
+        setHoverTargets(allTargets)
+      }
+    }
+  }, [frameRef, pointer])
 
   return (
     <Block gridArea="canvas" overflow="hidden">
       <Viewport>
-        <FrameRealm>
-          {reactDOMFromSnapshot(snapshot)}
+        <FrameRealm ref={frameRef}>
+          {reactDOMFromSnapshot(snapshot, hoverTargets)}
         </FrameRealm>
-        <PointerOverlay />
+
+        <PointerOverlay
+          pointer={pointer}
+          state={pointerState}
+        />
       </Viewport>
     </Block>
   )
@@ -146,40 +194,40 @@ const Viewport: React.FC = ({ children }) => {
   )
 }
 
-const PointerOverlay: React.FC = () => {
-  const [x, y] = usePointer()
-  const pointerState = usePointerState()
+interface PointerOverlayProps {
+  pointer: Point
+  state: PointerState
+}
 
-  return (
+const PointerOverlay: React.FC<PointerOverlayProps> = ({ pointer: [x, y], state }) => (
+  <Block
+    position="absolute"
+    top={0}
+    left={0}
+    bottom={0}
+    right={0}
+    overflow="hidden"
+  >
     <Block
       position="absolute"
-      top={0}
-      left={0}
-      bottom={0}
-      right={0}
-      overflow="hidden"
+      transform={`translate(${x}px, ${y}px)`}
+      transformOrigin="0 0"
     >
       <Block
         position="absolute"
-        transform={`translate(${x}px, ${y}px)`}
-        transformOrigin="0 0"
-      >
-        <Block
-          position="absolute"
-          top={0}
-          left={0}
-          width={30}
-          height={30}
-          borderColor={colors.cyan['500']}
-          borderStyle="solid"
-          borderWidth={4}
-          borderRadius={30}
-          opacity={pointerState === PointerState.Up ? 0 : 0.75}
-          transform="translate(-10px, -10px)"
-          transition="opacity 100ms linear"
-        />
-        <Cursor color={colors.pink['700']} />
-      </Block>
+        top={0}
+        left={0}
+        width={30}
+        height={30}
+        borderColor={colors.cyan['500']}
+        borderStyle="solid"
+        borderWidth={4}
+        borderRadius={30}
+        opacity={state === PointerState.Up ? 0 : 0.75}
+        transform="translate(-10px, -10px)"
+        transition="opacity 100ms linear"
+      />
+      <Cursor color={colors.pink['700']} />
     </Block>
-  )
-}
+  </Block>
+)

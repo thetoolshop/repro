@@ -61,6 +61,10 @@ export function isElementVNode(node: VNode | Immutable<VNode>): node is VElement
   return node.type === NodeType.Element
 }
 
+export function isStyleElementVNode(node: VNode | Immutable<VNode>) {
+  return isElementVNode(node) && node.tagName === 'style'
+}
+
 export function isTextVNode(node: VNode | Immutable<VNode>): node is VText | Immutable<VText> {
   return node.type === NodeType.Text
 }

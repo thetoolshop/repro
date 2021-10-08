@@ -1,14 +1,18 @@
 import { Block } from 'jsxstyle'
 import React, { MutableRefObject, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
+import mergeRefs from 'react-merge-refs'
 
-export const FrameRealm: React.FC = ({ children }) => {
-  const ref = useRef() as MutableRefObject<HTMLIFrameElement>
+type Props = React.HTMLProps<HTMLIFrameElement>
+
+export const FrameRealm = React.forwardRef<HTMLIFrameElement, Props>(({ children }, outerRef) => {
+  const innerRef = useRef() as MutableRefObject<HTMLIFrameElement>
+  const ref = mergeRefs([innerRef, outerRef])
   const [root, setRoot] = useState<Document | null>(null)
 
   useEffect(() => {
-    if (ref.current) {
-      const doc = ref.current.contentDocument
+    if (innerRef && innerRef.current) {
+      const doc = innerRef.current.contentDocument
 
       if (doc) {
         doc.open()
@@ -22,7 +26,7 @@ export const FrameRealm: React.FC = ({ children }) => {
         setRoot(doc)
       }
     }
-  }, [ref, setRoot])
+  }, [innerRef, setRoot])
 
   // TODO merge <html> attributes into root
 
@@ -38,4 +42,4 @@ export const FrameRealm: React.FC = ({ children }) => {
       {root && createPortal(children, root.documentElement)}
     </Block>
   )
-}
+})

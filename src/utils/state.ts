@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
-import { BehaviorSubject } from 'rxjs'
+import { asapScheduler, BehaviorSubject } from 'rxjs'
+import { observeOn } from 'rxjs/operators'
 
 export type Atom<T> = BehaviorSubject<T>
 
@@ -25,7 +26,9 @@ export function useAtomState<T>(atom: Atom<T>): AtomState<T> {
   const [value, setValue] = useState(atom.getValue())
 
   useEffect(() => {
-    const subscription = atom.subscribe(setValue)
+    const subscription = atom
+      .pipe(observeOn(asapScheduler))
+      .subscribe(setValue)
     return () => subscription.unsubscribe()
   }, [atom, setValue])
 
