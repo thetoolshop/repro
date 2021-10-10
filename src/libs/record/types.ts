@@ -1,5 +1,7 @@
+import { RecordingType } from '@/types/recording'
+
 export interface RecordingOptions {
-  types: Set<'dom' | 'interaction' | 'network' | 'performance' | 'console'>
+  types: Set<RecordingType>
   ignoredNodes: Array<Node>
   ignoredSelectors: Array<string>
   eventSampling: {

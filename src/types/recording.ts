@@ -42,11 +42,18 @@ export type SourceEvent =
   | InteractionEvent
   | CloseRecordingEvent
 
+export type RecordingType =
+  | 'dom'
+  | 'interaction'
+  | 'network'
+  | 'performance'
+
 export interface Recording {
   id: SyntheticId
   duration: number
   events: Array<SourceEvent>
   snapshotIndex: Array<number>
+  types: Array<RecordingType>
 }
 
 export interface Metadata {

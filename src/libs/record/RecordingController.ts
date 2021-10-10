@@ -1,12 +1,14 @@
 import { nanoid } from 'nanoid'
 import { Stats } from '@/libs/diagnostics'
 import { Interaction } from '@/types/interaction'
-import { DOMPatchEvent, DOMSnapshotEvent, InteractionEvent, Recording, SourceEventType } from '@/types/recording'
+import { NetworkMessage } from '@/types/network'
+import { DOMPatchEvent, DOMSnapshotEvent, InteractionEvent, NetworkEvent, Recording, SourceEventType } from '@/types/recording'
 import { Patch, PatchType, VTree } from '@/types/vdom'
 import { copyObjectDeep } from '@/utils/lang'
 import { applyVTreePatch } from '@/utils/vdom'
 import { buildVTreeSnapshot, observeDOMPatches } from './dom'
 import { observeInteractions } from './interaction'
+import { observeNetwork } from './network'
 import { observePeriodic } from './periodic'
 import { ObserverLike, RecordingOptions } from './types'
 
@@ -53,6 +55,7 @@ export class RecordingController {
     this.recording = createEmptyRecording()
     this.recording.events.push(this.createSnapshotEvent(0))
     this.recording.snapshotIndex.push(0)
+    this.recording.types = Array.from(this.options.types.values())
 
     if (this.options.types.has('dom')) {
       this.createDOMObserver()
@@ -133,6 +136,10 @@ export class RecordingController {
     }
   }
 
+  private createNetworkEvent(message: NetworkMessage): NetworkEvent {
+
+  }
+
   private createDOMObserver() {
     if (this.latestVTree === null) {
       throw new Error('RecordingError: VTree has not been initialized')
@@ -181,15 +188,11 @@ export class RecordingController {
   }
 
   private createNetworkObserver() {
-    /*
     this.observers.push(
-      observeNetworkEvents(event => {
-        this.subscribers.forEach(subscriber => {
-          subscriber(event)
-        })
+      observeNetwork(event => {
+        this.recording.events.push(this.createNetworkEvent(event))
       })
     )
-    /**/
   }
 
   private createPerformanceObserver() {
@@ -211,5 +214,6 @@ export function createEmptyRecording(): Recording {
     duration: 0,
     events: [],
     snapshotIndex: [],
+    types: [],
   }
 }
