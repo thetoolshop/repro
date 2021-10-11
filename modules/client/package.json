@@ -1,5 +1,5 @@
 {
-  "name": "repro",
+  "name": "@repro/client",
   "version": "1.0.0",
   "description": "Bug reporting that captures every detail",
   "main": "index.js",

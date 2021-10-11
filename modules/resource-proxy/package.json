@@ -1,0 +1,22 @@
+{
+  "name": "@repro/resource-proxy",
+  "version": "1.0.0",
+  "description": "CORS proxy for recordings",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "esbuild src/index.ts --bundle --platform=node --outdir=dist",
+    "watch": "nodemon"
+  },
+  "author": "",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@types/http-proxy": "^1.17.7",
+    "@types/node": "^16.10.3",
+    "esbuild": "^0.13.4",
+    "nodemon": "^2.0.13",
+    "typescript": "^4.4.3"
+  },
+  "dependencies": {
+    "http-proxy": "^1.18.1"
+  }
+}
