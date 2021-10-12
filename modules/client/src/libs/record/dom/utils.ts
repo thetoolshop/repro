@@ -143,3 +143,17 @@ const inlineEventAttributes = new Set([
 export function isInlineEventAttribute(name: string) {
   return inlineEventAttributes.has(name)
 }
+
+export function isIgnoredByNode(node: Node, ignoredNodes: Array<Node> = []) {
+  return ignoredNodes.some(ignoredNode => {
+    return ignoredNode.contains(node)
+  })
+}
+
+export function isIgnoredBySelector(node: Node, ignoredSelectors: Array<string> = []) {
+  return ignoredSelectors.some(selector => {
+    const parent = document.querySelector(selector)
+    return parent ? parent.contains(node) : false
+  })
+}
+

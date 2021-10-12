@@ -194,3 +194,41 @@ export function applyVTreePatch(vtree: VTree, patch: Patch, revert: boolean = fa
     }
   }
 }
+
+function extractResourcesFromAttribute(tagName: string, name: string, value: string | null): Array<string> {
+
+}
+
+function extractResourcesFromVTree(vtree: VTree): Array<string> {
+
+}
+
+export function extractResourcesFromSnapshot(snapshot: VTree | null): Array<string> {
+  return snapshot
+    ? extractResourcesFromVTree(snapshot)
+    : []
+}
+
+export function extractResourcesFromPatch(vtree: VTree, patch: Patch): Array<string> {
+  switch (patch.type) {
+    case PatchType.Attribute:
+      const node = getVNodeById(vtree, patch.targetId)
+
+      if (node && isElementVNode(node)) {
+        return extractResourcesFromAttribute(
+          node.tagName,
+          patch.name,
+          patch.value,
+        )
+      }
+
+      break
+
+    case PatchType.AddNodes:
+      return patch.nodes.reduce<Array<string>>((resources, vtree) => {
+        return resources.concat(extractResourcesFromVTree(vtree))
+      }, [])
+  }
+
+  return []
+}

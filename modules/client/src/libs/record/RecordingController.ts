@@ -4,11 +4,12 @@ import { Interaction } from '@/types/interaction'
 import { DOMPatchEvent, DOMSnapshotEvent, InteractionEvent, Recording, SourceEventType } from '@/types/recording'
 import { Patch, PatchType, VTree } from '@/types/vdom'
 import { copyObjectDeep } from '@/utils/lang'
-import { applyVTreePatch } from '@/utils/vdom'
+import { applyVTreePatch, extractResourcesFromSnapshot, extractResourcesFromPatch } from '@/utils/vdom'
 import { buildVTreeSnapshot, observeDOMPatches } from './dom'
 import { observeInteractions } from './interaction'
 import { observePeriodic } from './periodic'
 import { ObserverLike, RecordingOptions } from './types'
+import createResourceWorker from './resource.worker'
 
 const defaultOptions: RecordingOptions = {
   types: new Set(['dom', 'interaction']),
@@ -27,6 +28,7 @@ export class RecordingController {
 
   private document: Document
   private options: RecordingOptions
+  private resourceWorker = createResourceWorker()
 
   private started = false
   private observers: Array<ObserverLike> = []
@@ -48,6 +50,7 @@ export class RecordingController {
 
     this.timeOrigin = performance.now()
     this.latestVTree = buildVTreeSnapshot(this.document, this.options)
+    const resources = extractResourcesFromSnapshot(this.latestVTree)
 
     this.started = true
     this.recording = createEmptyRecording()
@@ -165,6 +168,10 @@ export class RecordingController {
           throw new Error('RecordingError: VTree has not been initialized')
         }
 
+        // TODO: extract external resources for processing
+        // 1. Map external resources to data:<mimetype>;base64,...
+        // 2. Rewrite URLs during playback
+        const resources = extractResourcesFromPatch(this.latestVTree, patch)
         applyVTreePatch(this.latestVTree, patch)
         this.recording.events.push(this.createPatchEvent(patch))
         counters[patch.type] += 1

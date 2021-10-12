@@ -1,5 +1,8 @@
+import dotenv from 'dotenv'
 import http from 'http'
 import httpProxy from 'http-proxy'
+
+dotenv.config()
 
 const proxy = httpProxy.createProxyServer()
 
