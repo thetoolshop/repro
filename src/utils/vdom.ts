@@ -1,5 +1,4 @@
 import { nanoid } from 'nanoid'
-import { Stats } from '@/libs/diagnostics'
 import { SyntheticId } from '@/types/common'
 import { Immutable } from '@/types/extensions'
 import { NodeType, Patch, PatchType, VDocType, VDocument, VElement, VNode, VText, VTree } from '@/types/vdom'
@@ -73,6 +72,26 @@ export function getVNodeById(vtree: VTree, nodeId: SyntheticId): VNode | null {
   return vtree.nodes[nodeId] ?? null
 }
 
+export function createVTreeWithRoot(root: VNode): VTree {
+  return {
+    rootId: root.id,
+    nodes: {
+      [root.id]: root,
+    },
+  }
+}
+
+export function addVNode(vtree: VTree, newNode: VNode, parentId: SyntheticId) {
+  const parent = vtree.nodes[parentId]
+
+  if (!parent || !('children' in parent)) {
+    throw new Error('VDOM: invalid parent')
+  }
+
+  vtree.nodes[newNode.id] = newNode
+  parent.children.push(newNode.id)
+}
+
 export function replaceVNodeById(vtree: VTree, nodeId: SyntheticId, newNode: VNode) {
   vtree.nodes[nodeId] = newNode
 }
@@ -126,7 +145,7 @@ export function removeSubTreesAtNode(vtree: VTree, parent: VElement, subtrees: A
 
 // TODO: benchmark performance of mutable data structure
 export function applyVTreePatch(vtree: VTree, patch: Patch, revert: boolean = false): void {
-  const start = performance.now()
+  // const start = performance.now()
 
   switch (patch.type) {
     case PatchType.Attribute: {
@@ -136,7 +155,8 @@ export function applyVTreePatch(vtree: VTree, patch: Patch, revert: boolean = fa
         node.attributes[patch.name] = revert
           ? patch.oldValue
           : patch.value
-        Stats.sample('VDOM: apply attribute patch', performance.now() - start)
+        // TODO: move these to Debugger; stats will be published for monitoring
+        // Stats.sample('VDOM: apply attribute patch', performance.now() - start)
       }
 
       break
@@ -147,7 +167,8 @@ export function applyVTreePatch(vtree: VTree, patch: Patch, revert: boolean = fa
 
       if (node && isTextVNode(node)) {
         node.value = revert ? patch.oldValue : patch.value
-        Stats.sample('VDOM: apply text patch', performance.now() - start)
+        // TODO: move these to Debugger; stats will be published for monitoring
+        // Stats.sample('VDOM: apply text patch', performance.now() - start)
       }
 
       break
@@ -167,7 +188,8 @@ export function applyVTreePatch(vtree: VTree, patch: Patch, revert: boolean = fa
           insertSubTreesAtNode(vtree, parent, patch.nodes, index)
         }
 
-        Stats.sample('VDOM: apply add-nodes patch', performance.now() - start)
+        // TODO: move these to Debugger; stats will be published for monitoring
+        // Stats.sample('VDOM: apply add-nodes patch', performance.now() - start)
       }
 
       break
@@ -187,7 +209,8 @@ export function applyVTreePatch(vtree: VTree, patch: Patch, revert: boolean = fa
           removeSubTreesAtNode(vtree, parent, patch.nodes)
         }
 
-        Stats.sample('VDOM: apply remove-nodes patch', performance.now() - start)
+        // TODO: move these to Debugger; stats will be published for monitoring
+        // Stats.sample('VDOM: apply remove-nodes patch', performance.now() - start)
       }
 
       break

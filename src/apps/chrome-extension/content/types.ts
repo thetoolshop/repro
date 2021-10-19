@@ -1,3 +1,5 @@
+import { Recording } from '@/types/recording'
+
 export interface StartCommand {
   name: 'start'
 }

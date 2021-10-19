@@ -3,7 +3,7 @@ import { SyntheticId } from '@/types/common'
 import { Point } from '@/types/interaction'
 import { Recording, Source, SourceEvent } from '@/types/recording'
 import { VTree } from '@/types/vdom'
-import { atom } from '@/utils/state'
+import { createAtom } from '@/utils/state'
 import { NullSource } from './NullSource'
 
 export enum ReadyState {
@@ -22,15 +22,16 @@ export enum PointerState {
   Down,
 }
 
-export const $activeIndex = atom<number>(-1)
-export const $buffer = atom<SourceEvent[]>([])
-export const $elapsed = atom(0)
-export const $focusedNode = atom<SyntheticId | null>(null)
-export const $playbackState = atom(PlaybackState.Paused)
-export const $pointer = atom<Point>([0, 0])
-export const $pointerState = atom(PointerState.Up)
-export const $readyState = atom(ReadyState.Loading)
-export const $recording = atom<Recording>(RecordingController.EMPTY)
-export const $snapshot = atom<VTree | null>(null)
-export const $source = atom<Source>(new NullSource())
-export const $viewport = atom<Point>([0, 0])
+export const [$activeIndex, getActiveIndex, setActiveIndex] = createAtom(-1)
+export const [$buffer, getBuffer, setBuffer] = createAtom<SourceEvent[]>([])
+export const [$elapsed, getElapsed, setElapsed] = createAtom(0)
+export const [$focusedNode, getFocusedNode, setFocusedNode] = createAtom<SyntheticId | null>(null)
+export const [$playbackState, getPlaybackState, setPlaybackState] = createAtom(PlaybackState.Paused)
+export const [$pointer, getPointer, setPointer] = createAtom<Point>([0, 0])
+export const [$pointerState, getPointerState, setPointerState] = createAtom(PointerState.Up)
+export const [$readyState, getReadyState, setReadyState] = createAtom(ReadyState.Loading)
+export const [$recording, getRecording, setRecording] = createAtom<Recording>(RecordingController.EMPTY)
+export const [$scrollStates, getScrollStates, setScrollStates] = createAtom<Record<SyntheticId, Point>>({})
+export const [$snapshot, getSnapshot, setSnapshot] = createAtom<VTree | null>(null)
+export const [$source, getSource, setSource] = createAtom<Source>(new NullSource())
+export const [$viewport, getViewport, setViewport] = createAtom<Point>([0, 0])

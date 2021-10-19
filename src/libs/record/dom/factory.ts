@@ -26,6 +26,8 @@ export function createVElement(element: Element, attributeOverrides?: Record<str
     .filter(({ name }) => !isInlineEventAttribute(name))
     .reduce((attrs, { name, value }) => ({ ...attrs, [name]: value }), {})
 
+  // TODO: check if element is shadow root
+
   return {
     id: getNodeId(element),
     type: NodeType.Element,
@@ -78,3 +80,4 @@ export function createStyleSheetVTree(node: HTMLStyleElement | HTMLLinkElement):
 
   return vTree
 }
+

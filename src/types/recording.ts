@@ -4,10 +4,10 @@ import { Interaction } from './interaction'
 import { Patch, VTree } from './vdom'
 
 export enum SourceEventType {
-  DOMPatch = 'dom-patch',
-  DOMSnapshot = 'dom-snapshot',
-  Interaction = 'interaction',
-  CloseRecording = 'close-recording',
+  DOMPatch       = 0,
+  DOMSnapshot    = 1,
+  Interaction    = 2,
+  CloseRecording = 3,
 }
 
 interface BaseEvent {

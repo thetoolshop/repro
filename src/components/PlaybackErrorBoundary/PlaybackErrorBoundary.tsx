@@ -14,10 +14,12 @@ export class PlaybackErrorBoundary extends React.Component {
     }
   }
 
-  render() {
+  componentDidCatch() {
     // TODO: render last good snapshot and highlight failing patch
     console.log(Trace.getLastFrame())
+  }
 
+  render() {
     if (this.state.hasError) {
       return 'Error!'
     }

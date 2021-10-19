@@ -1,6 +1,10 @@
+import { Stats, Trace } from '@/libs/diagnostics'
 import { RecordingController } from '@/libs/record'
 import { REPRO_ROOT_ID } from './constants'
 import { Command, RecordingResponse } from './types'
+
+Stats.disable()
+Trace.enable()
 
 const controller = new RecordingController(document, {
   types: new Set(['dom', 'interaction']),

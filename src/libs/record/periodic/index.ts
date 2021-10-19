@@ -1,11 +1,15 @@
 import { ObserverLike } from '../types'
 
 export function observePeriodic(period: number, callback: () => void): ObserverLike {
-  const handle = setInterval(callback, period)
+  let handle: number
 
   return {
     disconnect() {
       clearInterval(handle)
-    }
+    },
+
+    observe() {
+      handle = setInterval(callback, period)
+    },
   }
 }

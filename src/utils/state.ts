@@ -4,8 +4,12 @@ import { observeOn } from 'rxjs/operators'
 
 export type Atom<T> = BehaviorSubject<T>
 
-export function atom<T>(val: T): Atom<T> {
+function atom<T>(val: T): Atom<T> {
   return new BehaviorSubject(val)
+}
+
+function createGetter<T>(atom: Atom<T>) {
+  return () => atom.getValue()
 }
 
 type Factory<T> = (prev: T) => T
@@ -14,10 +18,15 @@ function isValueFactory<T>(val: T | Factory<T>): val is Factory<T> {
   return typeof val === 'function'
 }
 
-export function createSetter<T>(atom: Atom<T>) {
+function createSetter<T>(atom: Atom<T>) {
   return (val: T | Factory<T>) => {
     atom.next(isValueFactory(val) ? val(atom.getValue()) : val)
   }
+}
+
+export function createAtom<T>(val: T) {
+  const $atom = atom(val)
+  return [$atom, createGetter($atom), createSetter($atom)] as const
 }
 
 type AtomState<T> = [T, (val: T | Factory<T>) => void]

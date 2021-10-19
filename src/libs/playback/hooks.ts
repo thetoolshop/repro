@@ -4,8 +4,29 @@ import { map, pairwise } from 'rxjs/operators'
 import { copyArray } from '@/utils/lang'
 import { SourceEvent } from '@/types/recording'
 import { createValueHook } from '@/utils/state'
-import { getBuffer, setBuffer, setActiveIndex, setElapsed, setPlaybackState, setSnapshot, processEvents } from './service'
-import { PlaybackState, $elapsed, $playbackState, $pointer, $snapshot, $source, $activeIndex, $readyState, $focusedNode, $recording, $viewport, $pointerState } from './state'
+import { processEvents } from './service'
+
+import {
+  $activeIndex,
+  $elapsed,
+  $focusedNode,
+  $playbackState,
+  $pointer,
+  $pointerState,
+  $readyState,
+  $recording,
+  $scrollStates, 
+  $snapshot,
+  $source,
+  $viewport,
+  PlaybackState,
+  getBuffer,
+  setActiveIndex,
+  setBuffer,
+  setElapsed,
+  setPlaybackState,
+  setSnapshot,
+} from './state'
 
 export const useActiveIndex = createValueHook($activeIndex)
 export const useElapsed = createValueHook($elapsed)
@@ -15,6 +36,7 @@ export const usePointer = createValueHook($pointer)
 export const usePointerState = createValueHook($pointerState)
 export const useReadyState = createValueHook($readyState)
 export const useRecording = createValueHook($recording)
+export const useScrollStates = createValueHook($scrollStates)
 export const useSnapshot = createValueHook($snapshot)
 export const useSource = createValueHook($source)
 export const useViewport = createValueHook($viewport)

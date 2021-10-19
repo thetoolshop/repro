@@ -1,13 +1,13 @@
 import { SyntheticId } from './common'
 
 export enum InteractionType {
-  ViewportResize = 'viewport-resize',
-  Scroll = 'scroll',
-  PointerMove = 'pointer-move',
-  PointerDown = 'pointer-down',
-  PointerUp = 'pointer-up',
-  KeyDown = 'key-down',
-  KeyUp = 'key-up',
+  ViewportResize = 0,
+  Scroll         = 1,
+  PointerMove    = 2,
+  PointerDown    = 3,
+  PointerUp      = 4,
+  KeyDown        = 5,
+  KeyUp          = 6,
 }
 
 export interface Sample<T> {

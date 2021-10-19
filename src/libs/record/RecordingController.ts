@@ -4,9 +4,9 @@ import { Interaction } from '@/types/interaction'
 import { DOMPatchEvent, DOMSnapshotEvent, InteractionEvent, Recording, SourceEventType } from '@/types/recording'
 import { Patch, PatchType, VTree } from '@/types/vdom'
 import { copyObjectDeep } from '@/utils/lang'
-import { applyVTreePatch } from '@/utils/vdom'
-import { buildVTreeSnapshot, observeDOMPatches } from './dom'
-import { observeInteractions } from './interaction'
+import { applyVTreePatch, getNodeId } from '@/utils/vdom'
+import { DOMTreeWalker, createDOMTreeWalker, createDOMObserver, createDOMVisitor } from './dom'
+import { createInteractionObserver, createScrollVisitor } from './interaction'
 import { observePeriodic } from './periodic'
 import { ObserverLike, RecordingOptions } from './types'
 
@@ -32,6 +32,7 @@ export class RecordingController {
   private observers: Array<ObserverLike> = []
   private timeOrigin = 0
   private latestVTree: VTree | null = null
+  private walkDOMTree: DOMTreeWalker | null = null
 
   constructor(doc: Document, options: Partial<RecordingOptions> = defaultOptions) {
     this.document = doc
@@ -47,18 +48,35 @@ export class RecordingController {
     }
 
     this.timeOrigin = performance.now()
-    this.latestVTree = buildVTreeSnapshot(this.document, this.options)
-
+    
     this.started = true
     this.recording = createEmptyRecording()
-    this.recording.events.push(this.createSnapshotEvent(0))
-    this.recording.snapshotIndex.push(0)
+
+    this.walkDOMTree = createDOMTreeWalker({
+      ignoredNodes: this.options.ignoredNodes,
+      ignoredSelectors: this.options.ignoredSelectors,
+    })
 
     if (this.options.types.has('dom')) {
+      const rootId = getNodeId(this.document)
+      const domVisitor = createDOMVisitor()
+      domVisitor.subscribe(vtree => {
+        if (vtree.rootId === rootId) {
+          this.latestVTree = vtree;
+        }
+      })
+
+      this.walkDOMTree.acceptDOMVisitor(domVisitor)
       this.createDOMObserver()
     }
 
     if (this.options.types.has('interaction')) {
+      const scrollVisitor = createScrollVisitor()
+      scrollVisitor.subscribe(() => {
+
+      })
+
+      this.walkDOMTree.accept(scrollVisitor)
       this.createInteractionObserver()
     }
 
@@ -68,6 +86,21 @@ export class RecordingController {
 
     if (this.options.types.has('performance')) {
       this.createPerformanceObserver()
+    }
+
+    const start = performance.now()
+    this.walkDOMTree(this.document)
+    Stats.scalar('DOM: build snapshot', performance.now() - start)
+
+    if (this.latestVTree === null) {
+      throw new Error('RecordingError: VTree is not initialized')
+    }
+
+    this.recording.events.push(this.createSnapshotEvent(0))
+    this.recording.snapshotIndex.push(0)
+
+    for (const observer of this.observers) {
+      observer.observe(this.document, this.latestVTree)
     }
   }
 
@@ -86,6 +119,14 @@ export class RecordingController {
     this.recording.events.push({
       type: SourceEventType.CloseRecording,
       time,
+    })
+
+    this.recording.events.sort((a, b) => a.time - b.time)
+
+    Stats.scalar('Recording size (bytes)', () => {
+      return new TextEncoder()
+        .encode(JSON.stringify(this.recording))
+        .byteLength
     })
   }
 
@@ -134,8 +175,8 @@ export class RecordingController {
   }
 
   private createDOMObserver() {
-    if (this.latestVTree === null) {
-      throw new Error('RecordingError: VTree has not been initialized')
+    if (this.walkDOMTree === null) {
+      throw new Error('RecordingError: cannot find DOMTreeWalker')
     }
 
     function resetCounters(): Record<PatchType, number> {
@@ -151,7 +192,11 @@ export class RecordingController {
 
     this.observers.push(
       observePeriodic(10000, () => {
-        Stats.emit('DOM events between snapshots', counters)
+        Stats.scalar('DOM events between snapshots (attribute)', counters[PatchType.Attribute])
+        Stats.scalar('DOM events between snapshots (text)', counters[PatchType.Text])
+        Stats.scalar('DOM events between snapshots (add-nodes)', counters[PatchType.AddNodes])
+        Stats.scalar('DOM events between snapshots (remove-nodes)', counters[PatchType.RemoveNodes])
+
         const index = this.recording.events.length
         this.recording.events.push(this.createSnapshotEvent())
         this.recording.snapshotIndex.push(index)
@@ -160,7 +205,7 @@ export class RecordingController {
     )
 
     this.observers.push(
-      observeDOMPatches(this.document, this.latestVTree, this.options, patch => {
+      createDOMObserver(this.walkDOMTree, this.options, patch => {
         if (this.latestVTree === null) {
           throw new Error('RecordingError: VTree has not been initialized')
         }
@@ -174,7 +219,7 @@ export class RecordingController {
 
   private createInteractionObserver() {
     this.observers.push(
-      observeInteractions(this.document, this.options, (interaction, transposition = 0, at) => {
+      createInteractionObserver(this.options, (interaction, transposition = 0, at) => {
         this.recording.events.push(this.createInteractionEvent(interaction, transposition, at))
       })
     )
@@ -183,7 +228,7 @@ export class RecordingController {
   private createNetworkObserver() {
     /*
     this.observers.push(
-      observeNetworkEvents(event => {
+      createNetworkObserver(event => {
         this.subscribers.forEach(subscriber => {
           subscriber(event)
         })
@@ -195,7 +240,7 @@ export class RecordingController {
   private createPerformanceObserver() {
     /*
     this.observers.push(
-      observePerformanceEvents(event => {
+      createPerformanceObserver(event => {
         this.subscribers.forEach(subscriber => {
           subscriber(event)
         })

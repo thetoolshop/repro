@@ -1,5 +1,7 @@
 let enabled = false
 
+type FactoryOrValue<T> = T | (() => T)
+
 interface SampleRecord {
   total: number
   entries: number
@@ -41,13 +43,13 @@ export const Stats = {
   },
 
   // TODO: support anonymised reporting
-  emit(label: string, value: any) {
+  scalar<T extends number>(label: string, value: FactoryOrValue<T>) {
     if (enabled) {
-      emit(label, value)
+      emit(label, typeof value === 'function' ? value() : value)
     }
   },
 
-  sample(label: string, value: any) {
+  sample<T extends number>(label: string, value: FactoryOrValue<T>) {
     if (enabled) {
       let record = samples[label]
 
@@ -56,7 +58,7 @@ export const Stats = {
         samples[label] = record
       }
 
-      record.total += value
+      record.total += typeof value === 'function' ? value() : value
       record.entries += 1
 
       if (!sampling) {

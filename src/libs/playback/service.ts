@@ -1,46 +1,30 @@
 import { InteractionType, Point, Sample } from '@/types/interaction'
 import { DOMSnapshotEvent, DOMSourceEvent, InteractionEvent, Recording, SourceEvent, SourceEventType } from '@/types/recording'
 import { copyArray, copyObject, copyObjectDeep } from '@/utils/lang'
-import { createSetter } from '@/utils/state'
 import { applyVTreePatch } from '@/utils/vdom'
 import { Stats, Trace } from '@/libs/diagnostics'
 
 import {
-  $activeIndex,
-  $buffer,
-  $elapsed,
-  $focusedNode,
-  $playbackState,
-  $pointer,
-  $pointerState,
-  $readyState,
   $recording,
-  $snapshot,
-  $source,
-  $viewport,
   PlaybackState,
   PointerState,
+  getElapsed,
+  getPointer,
+  getPointerState,
+  getSnapshot,
+  getViewport,
+  setActiveIndex,
+  setBuffer,
+  setElapsed,
+  setPlaybackState,
+  setPointer,
+  setPointerState,
+  setRecording,
+  setSnapshot,
+  setViewport,
+  getScrollStates,
+  setScrollStates,
 } from './state'
-
-export const getBuffer = () => $buffer.getValue()
-export const setBuffer = createSetter($buffer)
-export const getActiveIndex = () => $activeIndex.getValue()
-export const setActiveIndex = createSetter($activeIndex)
-export const setSource = createSetter($source)
-export const getElapsed = () => $elapsed.getValue()
-export const setElapsed = createSetter($elapsed)
-export const setFocusedNode = createSetter($focusedNode)
-export const setPlaybackState = createSetter($playbackState)
-export const getPointer = () => $pointer.getValue()
-export const setPointer = createSetter($pointer)
-export const getPointerState = () => $pointerState.getValue()
-export const setPointerState = createSetter($pointerState)
-export const setReadyState = createSetter($readyState)
-export const setRecording = createSetter($recording)
-export const getSnapshot = () => $snapshot.getValue()
-export const setSnapshot = createSetter($snapshot)
-export const getViewport = () => $viewport.getValue()
-export const setViewport = createSetter($viewport)
 
 export const seekToTime = (time: number) => {
   const recording = $recording.getValue()
@@ -116,6 +100,8 @@ export const seekToEvent = (nextIndex: number) => {
 export const init = (recording: Recording) => {
   setRecording(recording)
   setPointer([0, 0])
+  setPointerState(PointerState.Up)
+  setScrollStates({})
   setViewport([0, 0])
   setPlaybackState(PlaybackState.Paused)
   seekToTime(0)
@@ -167,6 +153,7 @@ function processInteractionEvents(events: Array<InteractionEvent>) {
   let viewport = getViewport()
   let pointer = getPointer()
   let pointerState = getPointerState()
+  let scrollStates = getScrollStates()
 
   function interpolatePointFromSample(from: Point, to: Sample<Point>, time: number): Point {
     const fromValue = from
@@ -215,12 +202,22 @@ function processInteractionEvents(events: Array<InteractionEvent>) {
           event.time
         )
         break
+
+      case InteractionType.Scroll:
+        scrollStates = copyObject(scrollStates)
+        scrollStates[event.data.target] = interpolatePointFromSample(
+          event.data.from,
+          event.data.to,
+          event.time
+        )
+        break
     }
   }
 
   setViewport(viewport)
   setPointer(pointer)
   setPointerState(pointerState)
+  setScrollStates(scrollStates)
   Stats.sample('process interaction events: duration', performance.now() - start)
 }
 

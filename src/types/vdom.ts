@@ -1,10 +1,10 @@
 import type { SyntheticId } from './common'
 
 export enum NodeType {
-  DocType  = 'doctype',
-  Document = 'document',
-  Element  = 'element',
-  Text     = 'text',
+  DocType  = 0,
+  Document = 1,
+  Element  = 2,
+  Text     = 3,
 }
 
 export interface VDocType {
@@ -47,10 +47,10 @@ export interface VTree {
 }
 
 export enum PatchType {
-  Attribute   = 'attribute',
-  Text        = 'text',
-  AddNodes    = 'add-nodes',
-  RemoveNodes = 'remove-nodes',
+  Attribute   = 0,
+  Text        = 1,
+  AddNodes    = 2,
+  RemoveNodes = 3,
 }
 
 export interface AttributePatch {
