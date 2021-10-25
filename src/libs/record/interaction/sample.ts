@@ -1,8 +1,8 @@
-import { Sample } from '@/types/interaction'
+import { Sample } from '@/types/recording'
 
 type KeySelectorFn<T> = (input: T) => string
 type MapFn<T, R> = (input: T) => R
-type SampleFn<T> = (sample: Sample<T>) => void
+type SampleFn<T> = (value: T, duration: number) => void
 
 interface SamplingRecord<T> {
   startTime: number
@@ -38,10 +38,10 @@ export function sampleEventsByKey<T extends Event, R>(
         const samplingRecord = samplingRecords.get(key)
 
         if (samplingRecord) {
-          sample({
-            value: samplingRecord.lastValue,
-            duration: samplingRecord.duration,
-          })
+          sample(
+            samplingRecord.lastValue,
+            samplingRecord.duration,
+          )
         }
 
         samplingRecords.delete(key)

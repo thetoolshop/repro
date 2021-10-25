@@ -238,7 +238,7 @@ export class RecordingController {
       createInteractionObserver(this.options, (interaction, transposition = 0, at) => {
         switch (interaction.type) {
           case InteractionType.Scroll:
-            this.scrollMap[interaction.type] = interaction.to.value
+            this.scrollMap[interaction.type] = interaction.to
             break
         }
 

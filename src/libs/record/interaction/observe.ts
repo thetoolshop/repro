@@ -82,12 +82,13 @@ function createViewportResizeObserver(callback: Callback, sampling: number): Obs
       const win = ev.target as Window
       return [win.innerWidth, win.innerHeight] as Point
     },
-    sample => {
+    (value, duration) => {
       callback({
         type: InteractionType.ViewportResize,
         from: [prevWidth, prevHeight],
-        to: sample,
-      }, sample.duration)
+        to: value,
+        duration,
+      }, duration)
     },
     sampling
   )
@@ -106,10 +107,8 @@ function createViewportResizeObserver(callback: Callback, sampling: number): Obs
         callback({
           type: InteractionType.ViewportResize,
           from: [prevWidth, prevHeight],
-          to: {
-            value: [prevWidth, prevHeight],
-            duration: 0,
-          },
+          to: [prevWidth, prevHeight],
+          duration: 0,
         }, 0, 0 /* initial frame (ideally observer shouldn't care about elapsed time) */)
 
         viewportResizeObserver.observe(win, vtree)
@@ -124,8 +123,8 @@ function createScrollObserver(callback: Callback, sampling: number): ObserverLik
   const handleScroll = sampleEventsByKey<Event, Event>(
     (ev: Event) => getNodeId(ev.target as Node),
     identity,
-    ({ value: evt, duration }) => {
-      const eventTarget = evt.target as Node
+    (ev, duration) => {
+      const eventTarget = ev.target as Node
 
       let target: Element | null
 
@@ -150,10 +149,8 @@ function createScrollObserver(callback: Callback, sampling: number): ObserverLik
         type: InteractionType.Scroll,
         target: getNodeId(target),
         from: prevScroll,
-        to: {
-          value: [target.scrollLeft, target.scrollTop] as Point,
-          duration,
-        }
+        to: [target.scrollLeft, target.scrollTop] as Point,
+        duration,
       }, duration)
     },
     sampling
@@ -170,24 +167,23 @@ function createPointerMoveObserver(callback: Callback, sampling: number): Observ
     callback({
       type: InteractionType.PointerMove,
       from: [0, 0],
-      to: {
-        value: [0, 0],
-        duration: 0,
-      },
+      to: [0, 0],
+      duration: 0,
     }, 0, 0)
   }
 
   const handlePointerMove = sampleEventsByKey(
     () => 'pointermove',
     (evt: PointerEvent) => [evt.pageX, evt.pageY] as Point,
-    sample => {
-      const [x, y] = sample.value
+    (value, duration) => {
+      const [x, y] = value
 
       callback({
         type: InteractionType.PointerMove,
         from: [prevX ?? x, prevY ?? y],
-        to: sample,
-      }, sample.duration)
+        to: value,
+        duration,
+      }, duration)
 
       prevX = x
       prevY = y

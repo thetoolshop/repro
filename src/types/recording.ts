@@ -38,12 +38,17 @@ export interface CloseRecordingEvent extends BaseEvent {
   type: SourceEventType.CloseRecording
 }
 
-
 export type SourceEvent =
   | SnapshotEvent
   | DOMPatchEvent
   | InteractionEvent
   | CloseRecordingEvent
+
+export interface Sample<T> {
+  from: T
+  to: T
+  duration: number
+}
 
 export interface Recording {
   id: SyntheticId

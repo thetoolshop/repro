@@ -1,5 +1,5 @@
-import { InteractionType, Point, Sample } from '@/types/interaction'
-import { DOMPatchEvent, InteractionEvent, Recording, SnapshotEvent, SourceEvent, SourceEventType } from '@/types/recording'
+import { InteractionType, Point } from '@/types/interaction'
+import { DOMPatchEvent, InteractionEvent, Recording, Sample, SnapshotEvent, SourceEvent, SourceEventType } from '@/types/recording'
 import { copyArray, copyObject, copyObjectDeep } from '@/utils/lang'
 import { applyVTreePatch } from '@/utils/vdom'
 import { Stats, Trace } from '@/libs/diagnostics'
@@ -26,6 +26,8 @@ import {
   setScrollStates,
 } from './state'
 
+import { isSample } from './utils'
+
 export const seekToTime = (time: number) => {
   const recording = $recording.getValue()
   let activeIndex = -1
@@ -43,7 +45,9 @@ export const seekToTime = (time: number) => {
     break
   }
 
-  let queue: Array<SourceEvent> = []
+  // Sample events should be tracked until resolved
+  const unresolvedEvents: Array<SourceEvent> = []
+  const queue: Array<SourceEvent> = []
 
   while (event = events[0]) {
     if (event.time > time) {
@@ -51,14 +55,20 @@ export const seekToTime = (time: number) => {
     }
     
     queue.push(event)
+
+    if (isSample(event) && event.time + event.duration > time) {
+      unresolvedEvents.push(event)
+    }
+
     events.shift()
+
     activeIndex++
   }
 
   // TODO: split queue into events by type and process sequentially
   processEvents(queue)
 
-  setBuffer(events)
+  setBuffer([...unresolvedEvents, ...events])
   setActiveIndex(activeIndex)
   setElapsed(time)
 }
@@ -73,6 +83,7 @@ export const seekToEvent = (nextIndex: number) => {
   for (const index of recording.snapshotIndex) {
     if (index <= nextIndex) {
       events = events.slice(index)
+      i = index
       continue
     }
 
@@ -88,7 +99,6 @@ export const seekToEvent = (nextIndex: number) => {
 
     queue.push(event)
 
-    // TODO: do not drop sampled events until full sample window has passed
     events.shift()
     i++
   }
@@ -160,9 +170,8 @@ function processInteractionEvents(events: Array<SnapshotEvent | InteractionEvent
   let pointerState = getPointerState()
   let scrollStates = getScrollStates()
 
-  function interpolatePointFromSample(from: Point, to: Sample<Point>, time: number): Point {
-    const fromValue = from
-    const { duration, value: toValue } = to
+  function interpolatePointFromSample(sample: Sample<Point>, time: number): Point {
+    const { duration, from: fromValue, to: toValue } = sample
 
     // If sample window has already expired or duration is 0, jump to end value
     if (time + duration < elapsed || duration === 0) {
@@ -191,11 +200,7 @@ function processInteractionEvents(events: Array<SnapshotEvent | InteractionEvent
 
     switch (event.data.type) {
       case InteractionType.PointerMove:
-        pointer = interpolatePointFromSample(
-          event.data.from,
-          event.data.to,
-          event.time
-        )
+        pointer = interpolatePointFromSample(event.data, event.time)
         break
 
       case InteractionType.PointerDown:
@@ -209,20 +214,12 @@ function processInteractionEvents(events: Array<SnapshotEvent | InteractionEvent
         break
 
       case InteractionType.ViewportResize:
-        viewport = interpolatePointFromSample(
-          event.data.from,
-          event.data.to,
-          event.time
-        )
+        viewport = interpolatePointFromSample(event.data, event.time)
         break
 
       case InteractionType.Scroll:
         scrollStates = copyObject(scrollStates)
-        scrollStates[event.data.target] = interpolatePointFromSample(
-          event.data.from,
-          event.data.to,
-          event.time
-        )
+        scrollStates[event.data.target] = interpolatePointFromSample(event.data, event.time)
         break
     }
   }

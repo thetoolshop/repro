@@ -1,3 +1,4 @@
+import { Sample } from '@/types/recording'
 import { SyntheticId } from './common'
 
 export enum InteractionType {
@@ -10,30 +11,19 @@ export enum InteractionType {
   KeyUp          = 6,
 }
 
-export interface Sample<T> {
-  value: T
-  duration: number
-}
-
 export type Point = [number, number]
 
-export interface ViewportResize {
+export interface ViewportResize extends Sample<Point> {
   type: InteractionType.ViewportResize
-  from: Point
-  to: Sample<Point>
 }
 
-export interface Scroll {
+export interface Scroll extends Sample<Point> {
   type: InteractionType.Scroll
   target: SyntheticId
-  from: Point
-  to: Sample<Point>
 }
 
-export interface PointerMove {
+export interface PointerMove extends Sample<Point> {
   type: InteractionType.PointerMove
-  from: Point
-  to: Sample<Point>
 }
 
 export interface PointerDown {

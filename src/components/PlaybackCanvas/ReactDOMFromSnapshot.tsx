@@ -4,6 +4,7 @@ import React, { MutableRefObject, useEffect, useRef, useState } from 'react'
 import { FrameRealm } from '@/components/FrameRealm'
 import { usePointer, useScrollStates, useSnapshot } from '@/libs/playback'
 import { SyntheticId } from '@/types/common'
+import { Point } from '@/types/interaction'
 import { isDocumentVNode, isDocTypeVNode, isStyleElementVNode, isTextVNode } from '@/utils/vdom'
 import { ScrollEffect } from './ScrollEffect'
 
@@ -13,6 +14,7 @@ interface Props {
 
 const HOVER_CLASS = '-repro-hover'
 const HOVER_SELECTOR = `.${HOVER_CLASS}`
+const ZERO_POINT: Point = [0, 0]
 
 export const ReactDOMFromSnapshot: React.FC<Props> = ({ ownerDocument }) => {
   const snapshot = useSnapshot()
@@ -120,7 +122,7 @@ export const ReactDOMFromSnapshot: React.FC<Props> = ({ ownerDocument }) => {
     }
 
     return (
-      <ScrollEffect key={`${nodeId}-scroll`} state={scrollStates[nodeId] || [0, 0]}>
+      <ScrollEffect key={`${nodeId}-scroll`} state={scrollStates[nodeId] || ZERO_POINT}>
         {React.createElement(
           vNode.tagName,
           props,

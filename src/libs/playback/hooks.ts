@@ -5,6 +5,7 @@ import { copyArray } from '@/utils/lang'
 import { SourceEvent } from '@/types/recording'
 import { createValueHook } from '@/utils/state'
 import { processEvents } from './service'
+import { isSample } from './utils'
 
 import {
   $activeIndex,
@@ -77,7 +78,9 @@ export const usePlaybackLoop = () => {
       let event: SourceEvent | undefined
       let i = 0
 
-      let queue: Array<SourceEvent> = []
+      // Sample events should be tracked until resolved
+      const unresolvedEvents: Array<SourceEvent> = []
+      const queue: Array<SourceEvent> = []
 
       while (event = buffer[0]) {
         if (event.time > elapsed) {
@@ -85,13 +88,19 @@ export const usePlaybackLoop = () => {
         }
 
         queue.push(event)
-        buffer.shift() 
+
+        if (isSample(event) && event.time + event.duration > elapsed) {
+          unresolvedEvents.push(event)
+        }
+
+        buffer.shift()
+
         i++
       }
 
       processEvents(queue)
 
-      setBuffer(buffer)
+      setBuffer([...unresolvedEvents, ...buffer])
       setActiveIndex(activeIndex => activeIndex + i)
     }
   }, [elapsed, playbackState, setSnapshot])
