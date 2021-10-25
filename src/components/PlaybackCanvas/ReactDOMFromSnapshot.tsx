@@ -120,7 +120,7 @@ export const ReactDOMFromSnapshot: React.FC<Props> = ({ ownerDocument }) => {
     }
 
     return (
-      <ScrollEffect key={`${nodeId}-scroll`} state={scrollStates[nodeId] || null}>
+      <ScrollEffect key={`${nodeId}-scroll`} state={scrollStates[nodeId] || [0, 0]}>
         {React.createElement(
           vNode.tagName,
           props,

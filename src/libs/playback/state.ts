@@ -1,6 +1,6 @@
 import { RecordingController } from '@/libs/record'
 import { SyntheticId } from '@/types/common'
-import { Point } from '@/types/interaction'
+import { Point, ScrollMap } from '@/types/interaction'
 import { Recording, Source, SourceEvent } from '@/types/recording'
 import { VTree } from '@/types/vdom'
 import { createAtom } from '@/utils/state'
@@ -31,7 +31,7 @@ export const [$pointer, getPointer, setPointer] = createAtom<Point>([0, 0])
 export const [$pointerState, getPointerState, setPointerState] = createAtom(PointerState.Up)
 export const [$readyState, getReadyState, setReadyState] = createAtom(ReadyState.Loading)
 export const [$recording, getRecording, setRecording] = createAtom<Recording>(RecordingController.EMPTY)
-export const [$scrollStates, getScrollStates, setScrollStates] = createAtom<Record<SyntheticId, Point>>({})
+export const [$scrollStates, getScrollStates, setScrollStates] = createAtom<ScrollMap>({})
 export const [$snapshot, getSnapshot, setSnapshot] = createAtom<VTree | null>(null)
 export const [$source, getSource, setSource] = createAtom<Source>(new NullSource())
 export const [$viewport, getViewport, setViewport] = createAtom<Point>([0, 0])

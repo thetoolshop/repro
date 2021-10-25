@@ -1,5 +1,6 @@
 import React, { MutableRefObject, useEffect, useRef } from 'react'
-import { Point } from '@/types/interaction';
+import { Point } from '@/types/interaction'
+import { PlaybackState, usePlaybackState } from '@/libs/playback'
 
 interface Props {
   state: Point | null
@@ -8,6 +9,7 @@ interface Props {
 
 export const ScrollEffect: React.FC<Props> = ({ children, elementRef, state }) => {
   const ref = useRef() as MutableRefObject<HTMLElement>
+  const playbackState = usePlaybackState()
 
   useEffect(() => {
     const target = elementRef || ref.current
@@ -16,10 +18,12 @@ export const ScrollEffect: React.FC<Props> = ({ children, elementRef, state }) =
       target.scrollTo({
         left: state[0],
         top: state[1],
-        behavior: 'smooth',
+        behavior: playbackState === PlaybackState.Playing
+          ? 'smooth'
+          : 'auto',
       })
     }
-  }, [elementRef, ref, state])
+  }, [elementRef, ref, state, playbackState])
 
   if (elementRef) {
     return (

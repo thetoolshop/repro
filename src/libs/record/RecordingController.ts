@@ -1,8 +1,10 @@
 import { nanoid } from 'nanoid'
 import { Stats } from '@/libs/diagnostics'
-import { Interaction } from '@/types/interaction'
-import { DOMPatchEvent, DOMSnapshotEvent, InteractionEvent, Recording, SourceEventType } from '@/types/recording'
-import { Patch, PatchType, VTree } from '@/types/vdom'
+import { SyntheticId } from '@/types/common'
+import { Interaction, InteractionType, Point } from '@/types/interaction'
+import { DOMPatchEvent, SnapshotEvent, InteractionEvent, Recording, SourceEventType } from '@/types/recording'
+import { Patch, VTree } from '@/types/vdom'
+import { isZeroPoint } from '@/utils/interaction'
 import { copyObjectDeep } from '@/utils/lang'
 import { applyVTreePatch, getNodeId } from '@/utils/vdom'
 import { DOMTreeWalker, createDOMTreeWalker, createDOMObserver, createDOMVisitor } from './dom'
@@ -14,6 +16,7 @@ const defaultOptions: RecordingOptions = {
   types: new Set(['dom', 'interaction']),
   ignoredNodes: [],
   ignoredSelectors: [],
+  snapshotInterval: 10000,
   eventSampling: {
     pointerMove: 50,
     resize: 200,
@@ -31,8 +34,12 @@ export class RecordingController {
   private started = false
   private observers: Array<ObserverLike> = []
   private timeOrigin = 0
-  private latestVTree: VTree | null = null
   private walkDOMTree: DOMTreeWalker | null = null
+
+  // Snapshot entries
+  // TODO: create single property to encapsulate snapshot state
+  private latestVTree: VTree | null = null
+  private scrollMap: Record<SyntheticId, Point> = {}
 
   constructor(doc: Document, options: Partial<RecordingOptions> = defaultOptions) {
     this.document = doc
@@ -57,6 +64,8 @@ export class RecordingController {
       ignoredSelectors: this.options.ignoredSelectors,
     })
 
+    this.createSnapshotObserver()
+
     if (this.options.types.has('dom')) {
       const rootId = getNodeId(this.document)
       const domVisitor = createDOMVisitor()
@@ -72,8 +81,17 @@ export class RecordingController {
 
     if (this.options.types.has('interaction')) {
       const scrollVisitor = createScrollVisitor()
-      scrollVisitor.subscribe(() => {
+      scrollVisitor.subscribe(scrollMap => {
+        for (const [nodeId, point] of Object.entries(scrollMap)) {
+          // If element does not have previous recorded scroll position
+          // and new scroll position is [0, 0], omit this. Playback
+          // will default to [0, 0].
+          if (!this.scrollMap.hasOwnProperty(nodeId) && isZeroPoint(point)) {
+            continue
+          }
 
+          this.scrollMap[nodeId] = point
+        }
       })
 
       this.walkDOMTree.accept(scrollVisitor)
@@ -92,12 +110,14 @@ export class RecordingController {
     this.walkDOMTree(this.document)
     Stats.scalar('DOM: build snapshot', performance.now() - start)
 
+    // TODO: VTree should not be required where not recording DOM
     if (this.latestVTree === null) {
       throw new Error('RecordingError: VTree is not initialized')
     }
 
+    const index = this.recording.events.length
     this.recording.events.push(this.createSnapshotEvent(0))
-    this.recording.snapshotIndex.push(0)
+    this.recording.snapshotIndex.push(index)
 
     for (const observer of this.observers) {
       observer.observe(this.document, this.latestVTree)
@@ -134,19 +154,31 @@ export class RecordingController {
     return this.started === true
   }
 
-  private createSnapshotEvent(at?: number): DOMSnapshotEvent {
+  private createSnapshotEvent(at?: number): SnapshotEvent {
     if (!this.isStarted()) {
       throw new Error('RecordingError: recording has not been started')
     }
 
-    if (this.latestVTree === null) {
-      throw new Error('RecordingError: VTree has not been initialized')
+    const data: SnapshotEvent['data'] = {}
+
+    if (this.options.types.has('dom')) {
+      if (this.latestVTree === null) {
+        throw new Error('RecordingError: VTree has not been initialized')
+      }
+
+      data.dom = copyObjectDeep(this.latestVTree)
+    }
+
+    if (this.options.types.has('interaction')) {
+      data.interaction = {
+        scroll: copyObjectDeep(this.scrollMap),
+      }
     }
 
     return {
-      type: SourceEventType.DOMSnapshot,
-      data: copyObjectDeep(this.latestVTree),
       time: at ?? performance.now() - this.timeOrigin,
+      type: SourceEventType.Snapshot,
+      data,
     }
   }
 
@@ -174,35 +206,20 @@ export class RecordingController {
     }
   }
 
+  private createSnapshotObserver() {
+    this.observers.push(
+      observePeriodic(this.options.snapshotInterval, () => {
+        const index = this.recording.events.length
+        this.recording.events.push(this.createSnapshotEvent())
+        this.recording.snapshotIndex.push(index)
+      })
+    )
+  }
+
   private createDOMObserver() {
     if (this.walkDOMTree === null) {
       throw new Error('RecordingError: cannot find DOMTreeWalker')
     }
-
-    function resetCounters(): Record<PatchType, number> {
-      return {
-        [PatchType.AddNodes]: 0,
-        [PatchType.Attribute]: 0,
-        [PatchType.RemoveNodes]: 0,
-        [PatchType.Text]: 0,
-      }
-    }
-
-    let counters = resetCounters()
-
-    this.observers.push(
-      observePeriodic(10000, () => {
-        Stats.scalar('DOM events between snapshots (attribute)', counters[PatchType.Attribute])
-        Stats.scalar('DOM events between snapshots (text)', counters[PatchType.Text])
-        Stats.scalar('DOM events between snapshots (add-nodes)', counters[PatchType.AddNodes])
-        Stats.scalar('DOM events between snapshots (remove-nodes)', counters[PatchType.RemoveNodes])
-
-        const index = this.recording.events.length
-        this.recording.events.push(this.createSnapshotEvent())
-        this.recording.snapshotIndex.push(index)
-        counters = resetCounters()
-      })
-    )
 
     this.observers.push(
       createDOMObserver(this.walkDOMTree, this.options, patch => {
@@ -212,7 +229,6 @@ export class RecordingController {
 
         applyVTreePatch(this.latestVTree, patch)
         this.recording.events.push(this.createPatchEvent(patch))
-        counters[patch.type] += 1
       })
     )
   }
@@ -220,7 +236,15 @@ export class RecordingController {
   private createInteractionObserver() {
     this.observers.push(
       createInteractionObserver(this.options, (interaction, transposition = 0, at) => {
-        this.recording.events.push(this.createInteractionEvent(interaction, transposition, at))
+        switch (interaction.type) {
+          case InteractionType.Scroll:
+            this.scrollMap[interaction.type] = interaction.to.value
+            break
+        }
+
+        this.recording.events.push(
+          this.createInteractionEvent(interaction, transposition, at)
+        )
       })
     )
   }

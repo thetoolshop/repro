@@ -66,3 +66,5 @@ export type Interaction =
   | PointerUp
   | KeyDown
   | KeyUp
+
+export type ScrollMap = Record<SyntheticId, Point>

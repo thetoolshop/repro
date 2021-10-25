@@ -1,5 +1,5 @@
 import { InteractionType, Point, Sample } from '@/types/interaction'
-import { DOMSnapshotEvent, DOMSourceEvent, InteractionEvent, Recording, SourceEvent, SourceEventType } from '@/types/recording'
+import { DOMPatchEvent, InteractionEvent, Recording, SnapshotEvent, SourceEvent, SourceEventType } from '@/types/recording'
 import { copyArray, copyObject, copyObjectDeep } from '@/utils/lang'
 import { applyVTreePatch } from '@/utils/vdom'
 import { Stats, Trace } from '@/libs/diagnostics'
@@ -33,7 +33,7 @@ export const seekToTime = (time: number) => {
   let event: SourceEvent | undefined
 
   for (const index of recording.snapshotIndex) {
-    const snapshot = events[index] as DOMSnapshotEvent | undefined
+    const snapshot = events[index] as SnapshotEvent | undefined
 
     if (snapshot && snapshot.time <= time) {
       events = events.slice(index)
@@ -55,6 +55,7 @@ export const seekToTime = (time: number) => {
     activeIndex++
   }
 
+  // TODO: split queue into events by type and process sequentially
   processEvents(queue)
 
   setBuffer(events)
@@ -86,6 +87,8 @@ export const seekToEvent = (nextIndex: number) => {
     }
 
     queue.push(event)
+
+    // TODO: do not drop sampled events until full sample window has passed
     events.shift()
     i++
   }
@@ -107,14 +110,14 @@ export const init = (recording: Recording) => {
   seekToTime(0)
 }
 
-function processDOMEvents(events: Array<DOMSourceEvent>) {
+function processDOMEvents(events: Array<SnapshotEvent | DOMPatchEvent>) {
   const start = performance.now()
-  let queue: Array<DOMSourceEvent> = []
+  let queue: Array<SnapshotEvent | DOMPatchEvent> = []
   let snapshot = getSnapshot()
   let dirty = false
 
   for (const event of events) {
-    if (event.type === SourceEventType.DOMSnapshot) {
+    if (event.type === SourceEventType.Snapshot) {
       queue = []
     }
 
@@ -123,8 +126,10 @@ function processDOMEvents(events: Array<DOMSourceEvent>) {
 
   for (const event of events) {
     switch (event.type) {
-      case SourceEventType.DOMSnapshot:
-        snapshot = copyObjectDeep(event.data)
+      case SourceEventType.Snapshot:
+        if (event.data.dom) {
+          snapshot = copyObjectDeep(event.data.dom)
+        }
         break
 
       case SourceEventType.DOMPatch:
@@ -146,7 +151,7 @@ function processDOMEvents(events: Array<DOMSourceEvent>) {
   Stats.sample('process DOM events: duration', performance.now() - start)
 }
 
-function processInteractionEvents(events: Array<InteractionEvent>) {
+function processInteractionEvents(events: Array<SnapshotEvent | InteractionEvent>) {
   const start = performance.now()
 
   const elapsed = getElapsed()
@@ -176,6 +181,14 @@ function processInteractionEvents(events: Array<InteractionEvent>) {
   }
 
   for (const event of events) {
+    if (event.type === SourceEventType.Snapshot) {
+      if (event.data.interaction) {
+        scrollStates = copyObjectDeep(event.data.interaction.scroll)
+      }
+
+      continue
+    }
+
     switch (event.data.type) {
       case InteractionType.PointerMove:
         pointer = interpolatePointFromSample(
@@ -239,13 +252,20 @@ export function processEvents(events: Array<SourceEvent>) {
     }
   })
 
-  const domEvents: Array<DOMSourceEvent> = []
-  const interactionEvents: Array<InteractionEvent> = []
+  const domEvents: Array<SnapshotEvent | DOMPatchEvent> = []
+  const interactionEvents: Array<SnapshotEvent | InteractionEvent> = []
 
   for (const event of events) {
     switch (event.type) {
-      case SourceEventType.DOMSnapshot:
-        domEvents.push(event)
+      case SourceEventType.Snapshot:
+        // TODO: should these be split into synthetic events for clarity?
+        if ('dom' in event.data) {
+          domEvents.push(event)
+        }
+
+        if ('interaction' in event.data) {
+          interactionEvents.push(event)
+        }
         break
 
       case SourceEventType.DOMPatch:

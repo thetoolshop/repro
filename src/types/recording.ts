@@ -1,22 +1,27 @@
 import { Observable } from 'rxjs'
 import { SyntheticId } from './common'
-import { Interaction } from './interaction'
+import { Interaction, ScrollMap } from './interaction'
 import { Patch, VTree } from './vdom'
 
 export enum SourceEventType {
-  DOMPatch       = 0,
-  DOMSnapshot    = 1,
-  Interaction    = 2,
-  CloseRecording = 3,
+  Snapshot            = 0,
+  DOMPatch            = 10,
+  Interaction         = 20,
+  CloseRecording      = 99,
 }
 
 interface BaseEvent {
   time: number
 }
 
-export interface DOMSnapshotEvent extends BaseEvent {
-  type: SourceEventType.DOMSnapshot
-  data: VTree
+export interface SnapshotEvent extends BaseEvent {
+  type: SourceEventType.Snapshot
+  data: Partial<{
+    dom: VTree
+    interaction: {
+      scroll: ScrollMap
+    }
+  }>
 }
 
 export interface DOMPatchEvent extends BaseEvent {
@@ -33,12 +38,10 @@ export interface CloseRecordingEvent extends BaseEvent {
   type: SourceEventType.CloseRecording
 }
 
-export type DOMSourceEvent =
-  | DOMPatchEvent
-  | DOMSnapshotEvent
 
 export type SourceEvent =
-  | DOMSourceEvent
+  | SnapshotEvent
+  | DOMPatchEvent
   | InteractionEvent
   | CloseRecordingEvent
 

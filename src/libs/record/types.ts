@@ -23,6 +23,7 @@ export interface DOMOptions {
 
 export interface RecordingOptions extends DOMOptions {
   types: Set<'dom' | 'interaction' | 'network' | 'performance' | 'console'>
+  snapshotInterval: number
   eventSampling: {
     pointerMove: number
     resize: number

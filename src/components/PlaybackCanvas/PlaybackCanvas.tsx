@@ -6,6 +6,7 @@ import { ReactDOMFromSnapshot } from './ReactDOMFromSnapshot'
 import { Viewport } from './Viewport'
 
 export const PlaybackCanvas: React.FC = () => {
+  // TODO: remount after seek to reset interaction state
   const frameRef = useRef() as MutableRefObject<HTMLIFrameElement>
   const [ownerDocument, setOwnerDocument] = useState<Document | null>(null)
 
