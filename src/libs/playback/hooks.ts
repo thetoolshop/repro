@@ -9,6 +9,7 @@ import { isSample } from './utils'
 
 import {
   $activeIndex,
+  $buffer,
   $elapsed,
   $focusedNode,
   $playbackState,
@@ -30,6 +31,7 @@ import {
 } from './state'
 
 export const useActiveIndex = createValueHook($activeIndex)
+export const useBuffer = createValueHook($buffer)
 export const useElapsed = createValueHook($elapsed)
 export const useFocusedNode = createValueHook($focusedNode)
 export const usePlaybackState = createValueHook($playbackState)

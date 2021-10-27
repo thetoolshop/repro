@@ -1,6 +1,7 @@
 import { Block } from 'jsxstyle'
 import React, { MutableRefObject, useEffect, useRef, useState } from 'react'
 import { FrameRealm } from '@/components/FrameRealm'
+import { DOMRenderer } from './DOMRenderer'
 import { PointerOverlay } from './PointerOverlay'
 import { ReactDOMFromSnapshot } from './ReactDOMFromSnapshot'
 import { Viewport } from './Viewport'
@@ -23,7 +24,7 @@ export const PlaybackCanvas: React.FC = () => {
     <Block gridArea="canvas" overflow="hidden">
       <Viewport>
         <FrameRealm ref={frameRef}>
-          <ReactDOMFromSnapshot
+          <DOMRenderer
             ownerDocument={ownerDocument}
           />
         </FrameRealm>
