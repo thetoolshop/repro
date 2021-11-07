@@ -13,6 +13,11 @@ export enum InteractionType {
 
 export type Point = [number, number]
 
+export enum PointerState {
+  Up,
+  Down,
+}
+
 export interface ViewportResize extends Sample<Point> {
   type: InteractionType.ViewportResize
 }

@@ -2,14 +2,15 @@ import { Block, Col, Grid, Row } from 'jsxstyle'
 import React, { useState } from 'react'
 import { Pause as PauseIcon, Play as PlayIcon, RotateCcw as ReplayIcon } from 'react-feather'
 import { colors } from '@/config/theme'
+
 import {
   PlaybackState,
-  seekToTime,
-  setPlaybackState,
   useElapsed,
   usePlaybackState,
+  useReplay,
   useRecording,
 } from '@/libs/playback'
+
 import { formatDate } from '@/utils/date'
 
 export const PlaybackControls: React.FC = () => (
@@ -29,16 +30,17 @@ export const PlaybackControls: React.FC = () => (
 )
 
 const Control: React.FC = () => {
+  const replay = useReplay()
   const state = usePlaybackState()
 
   const handleClick = () => {
     if (state === PlaybackState.Paused) {
-      setPlaybackState(PlaybackState.Playing)
+      replay.play()
     } else if (state === PlaybackState.Playing) {
-      setPlaybackState(PlaybackState.Paused)
+      replay.pause()
     } else if (state === PlaybackState.Done) {
-      seekToTime(0)
-      setPlaybackState(PlaybackState.Playing)
+      replay.seekToTime(0)
+      replay.play()
     }
   }
 
@@ -62,16 +64,17 @@ const ProgressBar: React.FC = () => {
   const elapsed = useElapsed()
   const recording = useRecording()
   const playbackState = usePlaybackState()
+  const replay = useReplay()
 
   const [hasHover, setHasHover] = useState(false)
   const [seekTo, setSeekTo] = useState<number | null>(null)
 
   const handleSeekDown = () => {
     if (seekTo !== null) {
-      seekToTime(seekTo)
+      replay.seekToTime(seekTo)
 
       if (playbackState === PlaybackState.Done) {
-        setPlaybackState(PlaybackState.Paused)
+        replay.pause()
       }
     }
   }

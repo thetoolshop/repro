@@ -1,9 +1,9 @@
 import { SyntheticId } from '@/types/common'
 import { VNode, VTree } from '@/types/vdom'
+import { isExternalStyleSheet, isLocalStylesheet } from '@/utils/dom'
 import { addVNode, createVTreeWithRoot, getNodeId, insertSubTreesAtNode, isElementVNode } from '@/utils/vdom'
 import { Visitor, Subscribable, Subscriber } from '../types'
 import { createStyleSheetVTree, createVDocument, createVDocType, createVElement, createVText } from './factory'
-import { isExternalStyleSheet, isLocalStylesheet } from './utils'
 
 export function createDOMVisitor() {
   /**

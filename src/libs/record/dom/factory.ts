@@ -1,7 +1,7 @@
 import { SyntheticId } from '@/types/common'
+import { isInlineEventAttribute } from '@/utils/dom'
 import { NodeType, VDocument, VDocType, VElement, VText, VTree } from '@/types/vdom'
 import { createSyntheticId, getNodeId } from '@/utils/vdom'
-import { isInlineEventAttribute } from './utils'
 
 export function createVDocument(doc: Document): VDocument {
   return {

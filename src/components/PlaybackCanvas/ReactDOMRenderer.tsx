@@ -16,7 +16,7 @@ const HOVER_CLASS = '-repro-hover'
 const HOVER_SELECTOR = `.${HOVER_CLASS}`
 const ZERO_POINT: Point = [0, 0]
 
-export const ReactDOMFromSnapshot: React.FC<Props> = ({ ownerDocument }) => {
+export const ReactDOMRenderer: React.FC<Props> = ({ ownerDocument }) => {
   const snapshot = useSnapshot()
   const pointer = usePointer()
   const scrollStates = useScrollStates()
@@ -54,7 +54,7 @@ export const ReactDOMFromSnapshot: React.FC<Props> = ({ ownerDocument }) => {
     const parentVNode = parentId && snapshot ? snapshot.nodes[parentId] : null
 
     if (!vNode) {
-      throw new Error(`Could not find VNode: ${nodeId}`)
+      throw new Error(`ReactDOMRenderer: could not find VNode: ${nodeId}`)
     }
 
     if (isTextVNode(vNode)) {

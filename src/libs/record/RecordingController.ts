@@ -1,7 +1,7 @@
 import { nanoid } from 'nanoid'
 import { Stats } from '@/libs/diagnostics'
 import { SyntheticId } from '@/types/common'
-import { Interaction, InteractionType, Point } from '@/types/interaction'
+import { Interaction, InteractionType, Point, PointerState } from '@/types/interaction'
 import { DOMPatchEvent, SnapshotEvent, InteractionEvent, Recording, SourceEventType } from '@/types/recording'
 import { Patch, VTree } from '@/types/vdom'
 import { isZeroPoint } from '@/utils/interaction'
@@ -39,7 +39,10 @@ export class RecordingController {
   // Snapshot entries
   // TODO: create single property to encapsulate snapshot state
   private latestVTree: VTree | null = null
+  private pointer: Point = [0, 0]
+  private pointerState = PointerState.Up
   private scrollMap: Record<SyntheticId, Point> = {}
+  private viewport: Point = [0, 0]
 
   constructor(doc: Document, options: Partial<RecordingOptions> = defaultOptions) {
     this.document = doc
@@ -58,6 +61,13 @@ export class RecordingController {
     
     this.started = true
     this.recording = createEmptyRecording()
+
+    // Reset snapshot state
+    this.latestVTree = null
+    this.pointer = [0, 0]
+    this.pointerState = PointerState.Up
+    this.scrollMap = {}
+    this.viewport = [0, 0]
 
     this.walkDOMTree = createDOMTreeWalker({
       ignoredNodes: this.options.ignoredNodes,
@@ -115,9 +125,7 @@ export class RecordingController {
       throw new Error('RecordingError: VTree is not initialized')
     }
 
-    const index = this.recording.events.length
     this.recording.events.push(this.createSnapshotEvent(0))
-    this.recording.snapshotIndex.push(index)
 
     for (const observer of this.observers) {
       observer.observe(this.document, this.latestVTree)
@@ -142,6 +150,7 @@ export class RecordingController {
     })
 
     this.recording.events.sort((a, b) => a.time - b.time)
+    this.createSnapshotIndex()
 
     Stats.scalar('Recording size (bytes)', () => {
       return new TextEncoder()
@@ -154,12 +163,30 @@ export class RecordingController {
     return this.started === true
   }
 
+  private createSnapshotIndex() {
+    const start = performance.now()
+    const index: Array<number> = []
+
+    for (let i = 0, len = this.recording.events.length; i < len; i++) {
+      const event = this.recording.events[i]
+
+      if (event && event.type === SourceEventType.Snapshot) {
+        index.push(i)
+      }
+    }
+
+    this.recording.snapshotIndex = index
+    Stats.scalar('Indexing (ms)', performance.now() - start)
+  }
+
   private createSnapshotEvent(at?: number): SnapshotEvent {
     if (!this.isStarted()) {
       throw new Error('RecordingError: recording has not been started')
     }
 
-    const data: SnapshotEvent['data'] = {}
+    const data: SnapshotEvent['data'] = {
+      dom: null,
+    }
 
     if (this.options.types.has('dom')) {
       if (this.latestVTree === null) {
@@ -171,7 +198,10 @@ export class RecordingController {
 
     if (this.options.types.has('interaction')) {
       data.interaction = {
+        pointer: this.pointer,
+        pointerState: this.pointerState,
         scroll: copyObjectDeep(this.scrollMap),
+        viewport: this.viewport,
       }
     }
 
@@ -209,9 +239,7 @@ export class RecordingController {
   private createSnapshotObserver() {
     this.observers.push(
       observePeriodic(this.options.snapshotInterval, () => {
-        const index = this.recording.events.length
         this.recording.events.push(this.createSnapshotEvent())
-        this.recording.snapshotIndex.push(index)
       })
     )
   }
@@ -237,8 +265,21 @@ export class RecordingController {
     this.observers.push(
       createInteractionObserver(this.options, (interaction, transposition = 0, at) => {
         switch (interaction.type) {
+          case InteractionType.PointerMove:
+            this.pointer = interaction.to
+            break
+
+          case InteractionType.PointerDown:
+            this.pointer = interaction.at
+            this.pointerState = PointerState.Down
+            break
+
           case InteractionType.Scroll:
             this.scrollMap[interaction.type] = interaction.to
+            break
+
+          case InteractionType.ViewportResize:
+            this.viewport = interaction.to
             break
         }
 

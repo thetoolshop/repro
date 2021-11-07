@@ -89,6 +89,9 @@ function createViewportResizeObserver(callback: Callback, sampling: number): Obs
         to: value,
         duration,
       }, duration)
+
+      prevWidth = value[0]
+      prevHeight = value[1]
     },
     sampling
   )

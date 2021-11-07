@@ -1,6 +1,7 @@
 import { Observable } from 'rxjs'
+import { PointerState } from '@/types/interaction'
 import { SyntheticId } from './common'
-import { Interaction, ScrollMap } from './interaction'
+import { Interaction, Point, ScrollMap } from './interaction'
 import { Patch, VTree } from './vdom'
 
 export enum SourceEventType {
@@ -14,14 +15,19 @@ interface BaseEvent {
   time: number
 }
 
+export interface Snapshot {
+  dom: VTree | null
+  interaction?: {
+    pointer: Point
+    pointerState: PointerState
+    scroll: ScrollMap
+    viewport: Point
+  }
+}
+
 export interface SnapshotEvent extends BaseEvent {
   type: SourceEventType.Snapshot
-  data: Partial<{
-    dom: VTree
-    interaction: {
-      scroll: ScrollMap
-    }
-  }>
+  data: Snapshot
 }
 
 export interface DOMPatchEvent extends BaseEvent {

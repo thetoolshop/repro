@@ -1,13 +1,11 @@
 import { Block } from 'jsxstyle'
 import React, { MutableRefObject, useEffect, useRef, useState } from 'react'
 import { FrameRealm } from '@/components/FrameRealm'
-import { DOMRenderer } from './DOMRenderer'
+import { NativeDOMRenderer } from './NativeDOMRenderer'
 import { PointerOverlay } from './PointerOverlay'
-import { ReactDOMFromSnapshot } from './ReactDOMFromSnapshot'
 import { Viewport } from './Viewport'
 
 export const PlaybackCanvas: React.FC = () => {
-  // TODO: remount after seek to reset interaction state
   const frameRef = useRef() as MutableRefObject<HTMLIFrameElement>
   const [ownerDocument, setOwnerDocument] = useState<Document | null>(null)
 
@@ -24,7 +22,7 @@ export const PlaybackCanvas: React.FC = () => {
     <Block gridArea="canvas" overflow="hidden">
       <Viewport>
         <FrameRealm ref={frameRef}>
-          <DOMRenderer
+          <NativeDOMRenderer
             ownerDocument={ownerDocument}
           />
         </FrameRealm>

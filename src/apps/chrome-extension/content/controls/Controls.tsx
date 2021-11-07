@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react'
 import { Button } from '@/components/Button'
 import { Logo } from '@/components/Logo'
 import { colors } from '@/config/theme'
-import { init } from '@/libs/playback'
+import { setRecording } from '@/libs/playback'
 import { View, useView } from '../../view'
 import { Response, StartCommand, StopCommand } from '../types'
 
@@ -44,7 +44,7 @@ export const Controls: React.FC = () => {
 
       switch (res.name) {
         case 'recording':
-          init(res.payload)
+          setRecording(res.payload)
           setView(View.Preview)
           break
       }
