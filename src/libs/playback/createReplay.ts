@@ -1,6 +1,6 @@
 import { animationFrames, connectable, NEVER, Subscription } from 'rxjs'
 import { map, pairwise, switchMap } from 'rxjs/operators'
-import { Stats, Trace } from '@/libs/diagnostics'
+import { Stats } from '@/libs/diagnostics'
 import { Immutable } from '@/types/extensions'
 import { InteractionType, Point, PointerState, ScrollMap } from '@/types/interaction'
 import { DOMPatchEvent, InteractionEvent, Recording, Sample, Snapshot, SnapshotEvent, SourceEvent, SourceEventType } from '@/types/recording'

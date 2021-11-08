@@ -1,5 +1,3 @@
-import { Sample } from '@/types/recording'
-
 type KeySelectorFn<T> = (input: T) => string
 type MapFn<T, R> = (input: T) => R
 type SampleFn<T> = (value: T, duration: number) => void
