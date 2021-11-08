@@ -10,9 +10,9 @@ flags="--bundle --outdir=$build_dir"
 watch=false
 
 entries="\
+background=background.ts \
 content=content/index.tsx \
-rc=content/recording-controller.tsx \
-popup=popup/index.tsx"
+rc=content/recording-controller.tsx"
 
 while getopts "w" param; do
   case "$param" in

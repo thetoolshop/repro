@@ -2,12 +2,22 @@
   "manifest_version": 3,
 
   "name": "Repro",
-  "description": "Reproduce and fix bugs, fast.",
+  "description": "The time-travel web inspector",
   "version": "1.0",
 
+  "icons": {
+    "128": "logo-128.png",
+    "48": "logo-48.png",
+    "32": "logo-32.png",
+    "16": "logo-16.png"
+  },
+
   "action": {
-    "default_title": "Repro",
-    "default_popup": "popup.html"
+    "default_title": "Repro"
+  },
+
+  "background": {
+    "service_worker": "background.js"
   },
 
   "permissions": [
