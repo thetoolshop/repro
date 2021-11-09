@@ -274,6 +274,11 @@ export class RecordingController {
             this.pointerState = PointerState.Down
             break
 
+          case InteractionType.PointerUp:
+            this.pointer = interaction.at
+            this.pointerState = PointerState.Up
+            break
+
           case InteractionType.Scroll:
             this.scrollMap[interaction.type] = interaction.to
             break
