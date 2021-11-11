@@ -3,11 +3,10 @@ import { map, pairwise, switchMap } from 'rxjs/operators'
 import { Stats } from '@/libs/diagnostics'
 import { Immutable } from '@/types/extensions'
 import { InteractionType, Point, PointerState, ScrollMap } from '@/types/interaction'
-import { DOMPatchEvent, InteractionEvent, Recording, Sample, Snapshot, SnapshotEvent, SourceEvent, SourceEventType } from '@/types/recording'
+import { Recording, Sample, Snapshot, SnapshotEvent, SourceEvent, SourceEventType } from '@/types/recording'
 import { copyArray, copyObjectDeep } from '@/utils/lang'
+import { applyEventToSnapshot, interpolatePointFromSample, isSample } from '@/utils/source'
 import { Atom, createAtom } from '@/utils/state'
-import { applyVTreePatch } from '@/utils/vdom'
-import { interpolatePointFromSample, isSample } from './utils'
 
 /**
  * TARGET IMPLEMENTATION:
@@ -142,66 +141,6 @@ export function createReplay(recording: Recording): Replay {
     eventsAfter.unshift(...unresolvedSampleEvents)
 
     return [eventsBefore, eventsAfter] as const
-  }
-
-  function applyDOMEventToSnapshot(snapshot: Snapshot, event: DOMPatchEvent) {
-    if (snapshot.dom) {
-      applyVTreePatch(snapshot.dom, event.data)
-    }
-  }
-
-  function applyInteractionEventToSnapshot(snapshot: Snapshot, event: InteractionEvent, elapsed: number) {
-    if (snapshot.interaction) {
-      switch (event.data.type) {
-        case InteractionType.PointerMove:
-          snapshot.interaction.pointer = interpolatePointFromSample(
-            event.data,
-            event.time,
-            elapsed
-          )
-          break
-
-        case InteractionType.PointerDown:
-          snapshot.interaction.pointer = event.data.at
-          snapshot.interaction.pointerState = PointerState.Down
-          break
-
-        case InteractionType.PointerUp:
-          snapshot.interaction.pointer = event.data.at
-          snapshot.interaction.pointerState = PointerState.Up
-          break
-
-        case InteractionType.ViewportResize:
-          snapshot.interaction.viewport = interpolatePointFromSample(
-            event.data,
-            event.time,
-            elapsed
-          )
-          break
-
-        case InteractionType.Scroll:
-          snapshot.interaction.scroll[event.data.target] = interpolatePointFromSample(
-            event.data,
-            event.time,
-            elapsed
-          )
-          break
-      }
-    }
-  }
-
-  function applyEventsToSnapshot(snapshot: Snapshot, events: Array<SourceEvent>, elapsed: number) {
-    for (const event of events) {
-      switch (event.type) {
-        case SourceEventType.DOMPatch:
-          applyDOMEventToSnapshot(snapshot, event)
-          break
-
-        case SourceEventType.Interaction:
-          applyInteractionEventToSnapshot(snapshot, event, elapsed)
-          break
-      }
-    }
   }
 
   function updateInteractionStatesFromSnapshot(snapshot: Snapshot) {
@@ -360,11 +299,13 @@ export function createReplay(recording: Recording): Replay {
     if (snapshot) {
       snapshot = copyObjectDeep(snapshot)
 
-      applyEventsToSnapshot(
-        snapshot,
-        before,
-        targetEvent.time
-      )
+      for (const event of before) {
+        applyEventToSnapshot(
+          snapshot,
+          event,
+          targetEvent.time
+        )
+      }
 
       updateInteractionStatesFromSnapshot(snapshot)
     }
@@ -373,7 +314,7 @@ export function createReplay(recording: Recording): Replay {
     setActveIndex(before.length - 1)
     setElapsed(targetEvent.time)
 
-    Stats.scalar('Replay: seek to event', performance.now() - start)
+    Stats.value('Replay: seek to event', performance.now() - start)
   }
 
   function seekToTime(elapsed: number) {
@@ -405,11 +346,13 @@ export function createReplay(recording: Recording): Replay {
     if (snapshot) {
       snapshot = copyObjectDeep(snapshot)
 
-      applyEventsToSnapshot(
-        snapshot,
-        before,
-        elapsed
-      )
+      for (const event of before) {
+        applyEventToSnapshot(
+          snapshot,
+          event,
+          elapsed
+        )
+      }
 
       updateInteractionStatesFromSnapshot(snapshot)
     }
@@ -418,7 +361,7 @@ export function createReplay(recording: Recording): Replay {
     setActveIndex(before.length - 1)
     setElapsed(elapsed)
 
-    Stats.scalar('Replay: seek to time', performance.now() - start)
+    Stats.value('Replay: seek to time', performance.now() - start)
   }
 
   function open() {

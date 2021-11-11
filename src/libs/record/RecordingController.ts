@@ -2,11 +2,13 @@ import { nanoid } from 'nanoid'
 import { Stats } from '@/libs/diagnostics'
 import { SyntheticId } from '@/types/common'
 import { Interaction, InteractionType, Point, PointerState } from '@/types/interaction'
-import { DOMPatchEvent, SnapshotEvent, InteractionEvent, Recording, SourceEventType } from '@/types/recording'
+import { DOMPatchEvent, SnapshotEvent, InteractionEvent, Recording, SourceEventType, SourceEvent, Snapshot } from '@/types/recording'
 import { Patch, VTree } from '@/types/vdom'
 import { isZeroPoint } from '@/utils/interaction'
 import { copyObjectDeep } from '@/utils/lang'
+import { applyEventToSnapshot } from '@/utils/source'
 import { applyVTreePatch, getNodeId } from '@/utils/vdom'
+import { approxByteLength, createBuffer, Unsubscribe } from './buffer-utils'
 import { DOMTreeWalker, createDOMTreeWalker, createDOMObserver, createDOMVisitor } from './dom'
 import { createInteractionObserver, createScrollVisitor } from './interaction'
 import { observePeriodic } from './periodic'
@@ -32,12 +34,15 @@ export class RecordingController {
   private options: RecordingOptions
 
   private started = false
+  private buffer = createBuffer<SourceEvent>(10e6)
+  private bufferSubscription: Unsubscribe | null = null
   private observers: Array<ObserverLike> = []
   private timeOrigin = 0
   private walkDOMTree: DOMTreeWalker | null = null
 
   // Snapshot entries
   // TODO: create single property to encapsulate snapshot state
+  private leadingSnapshot: Snapshot | null = null
   private latestVTree: VTree | null = null
   private pointer: Point = [0, 0]
   private pointerState = PointerState.Up
@@ -60,6 +65,7 @@ export class RecordingController {
     this.timeOrigin = performance.now()
     
     this.started = true
+    this.buffer.clear()
     this.recording = createEmptyRecording()
 
     // Reset snapshot state
@@ -118,14 +124,18 @@ export class RecordingController {
 
     const start = performance.now()
     this.walkDOMTree(this.document)
-    Stats.scalar('DOM: build snapshot', performance.now() - start)
+    Stats.value('DOM: build snapshot', performance.now() - start)
 
     // TODO: VTree should not be required where not recording DOM
     if (this.latestVTree === null) {
       throw new Error('RecordingError: VTree is not initialized')
     }
 
-    this.recording.events.push(this.createSnapshotEvent(0))
+    this.subscribeToBuffer()
+
+    const initialSnapshotEvent = this.createSnapshotEvent(0)
+    this.addEvent(initialSnapshotEvent)
+    this.leadingSnapshot = initialSnapshotEvent.data
 
     for (const observer of this.observers) {
       observer.observe(this.document, this.latestVTree)
@@ -142,25 +152,75 @@ export class RecordingController {
     this.started = false
 
     const time = performance.now() - this.timeOrigin
-    this.recording.duration = time
 
-    this.recording.events.push({
+    this.addEvent({
       type: SourceEventType.CloseRecording,
       time,
     })
 
-    this.recording.events.sort((a, b) => a.time - b.time)
+    let events = this.buffer.copy()
+    events.sort((a, b) => a.time - b.time)
+
+    const timeOffset = events[0]?.time ?? 0
+    this.recording.duration = time - timeOffset
+
+    events = events.map(event => ({
+      ...event,
+      time: event.time - timeOffset,
+    }))
+
+    if (!this.leadingSnapshot) {
+      throw new Error('Recording: cannot prepend leading snapshot')
+    }
+
+    events = [{
+      type: SourceEventType.Snapshot,
+      data: copyObjectDeep(this.leadingSnapshot),
+      time: 0,
+    }, ...events]
+
+    this.recording.events = events
     this.createSnapshotIndex()
 
-    Stats.scalar('Recording size (bytes)', () => {
-      return new TextEncoder()
-        .encode(JSON.stringify(this.recording))
-        .byteLength
+    Stats.value('Recording size (bytes)', () => {
+      return approxByteLength(this.recording)
     })
+
+    this.unsubscribeFromBuffer()
+    this.buffer.clear()
   }
 
   public isStarted() {
     return this.started === true
+  }
+
+  private subscribeToBuffer() {
+    this.bufferSubscription = this.buffer.onEvict(evicted => {
+      for (const evictedEvent of evicted) {
+        if (evictedEvent.type === SourceEventType.Snapshot) {
+          this.leadingSnapshot = evictedEvent.data
+          continue
+        }
+
+        if (this.leadingSnapshot) {
+          applyEventToSnapshot(
+            this.leadingSnapshot,
+            evictedEvent,
+            evictedEvent.time
+          )
+        }
+      }
+    })
+  }
+
+  private unsubscribeFromBuffer() {
+    if (this.bufferSubscription) {
+      this.bufferSubscription()
+    }
+  }
+
+  private addEvent(event: SourceEvent) {
+    this.buffer.push(event)
   }
 
   private createSnapshotIndex() {
@@ -176,7 +236,7 @@ export class RecordingController {
     }
 
     this.recording.snapshotIndex = index
-    Stats.scalar('Indexing (ms)', performance.now() - start)
+    Stats.value('Indexing (ms)', performance.now() - start)
   }
 
   private createSnapshotEvent(at?: number): SnapshotEvent {
@@ -239,7 +299,7 @@ export class RecordingController {
   private createSnapshotObserver() {
     this.observers.push(
       observePeriodic(this.options.snapshotInterval, () => {
-        this.recording.events.push(this.createSnapshotEvent())
+        this.addEvent(this.createSnapshotEvent())
       })
     )
   }
@@ -256,7 +316,7 @@ export class RecordingController {
         }
 
         applyVTreePatch(this.latestVTree, patch)
-        this.recording.events.push(this.createPatchEvent(patch))
+        this.addEvent(this.createPatchEvent(patch))
       })
     )
   }
@@ -288,7 +348,7 @@ export class RecordingController {
             break
         }
 
-        this.recording.events.push(
+        this.addEvent(
           this.createInteractionEvent(interaction, transposition, at)
         )
       })

@@ -43,14 +43,15 @@ export const Stats = {
   },
 
   // TODO: support anonymised reporting
-  scalar<T extends number>(label: string, value: FactoryOrValue<T>) {
+  value(label: string, value: FactoryOrValue<number>) {
     if (enabled) {
       emit(label, typeof value === 'function' ? value() : value)
     }
   },
 
-  sample<T extends number>(label: string, value: FactoryOrValue<T>) {
+  mean(label: string, value: FactoryOrValue<number>) {
     if (enabled) {
+      label = `(mean) ${label}`
       let record = samples[label]
 
       if (!record) {
@@ -66,5 +67,5 @@ export const Stats = {
         awaitSample()
       }
     }
-  }
+  },
 }
