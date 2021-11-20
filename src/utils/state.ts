@@ -36,9 +36,7 @@ export function useAtomState<T>(atom: Atom<T>): AtomState<T> {
   const [value, setValue] = useState(atom.getValue())
 
   useEffect(() => {
-    const subscription = atom
-      .pipe(observeOn(asapScheduler))
-      .subscribe(setValue)
+    const subscription = atom.pipe(observeOn(asapScheduler)).subscribe(setValue)
     return () => subscription.unsubscribe()
   }, [atom, setValue])
 
@@ -70,6 +68,9 @@ export function useSelector<T, U>(atom: Atom<T>, selector: (value: T) => U) {
   return value
 }
 
-export function createSelectorHook<T, U>(atom: Atom<T>, selector: (value: T) => U) {
+export function createSelectorHook<T, U>(
+  atom: Atom<T>,
+  selector: (value: T) => U
+) {
   return () => useSelector(atom, selector)
 }

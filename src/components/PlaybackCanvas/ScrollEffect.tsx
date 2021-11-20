@@ -7,7 +7,11 @@ interface Props {
   elementRef?: HTMLElement | null
 }
 
-export const ScrollEffect: React.FC<Props> = ({ children, elementRef, state }) => {
+export const ScrollEffect: React.FC<Props> = ({
+  children,
+  elementRef,
+  state,
+}) => {
   const ref = useRef() as MutableRefObject<HTMLElement>
   const playbackState = usePlaybackState()
 
@@ -18,19 +22,13 @@ export const ScrollEffect: React.FC<Props> = ({ children, elementRef, state }) =
       target.scrollTo({
         left: state[0],
         top: state[1],
-        behavior: playbackState === PlaybackState.Playing
-          ? 'smooth'
-          : 'auto',
+        behavior: playbackState === PlaybackState.Playing ? 'smooth' : 'auto',
       })
     }
   }, [elementRef, ref, state, playbackState])
 
   if (elementRef) {
-    return (
-      <React.Fragment>
-        {children}
-      </React.Fragment>
-    )
+    return <React.Fragment>{children}</React.Fragment>
   }
 
   const child = React.Children.only(children)

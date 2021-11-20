@@ -37,7 +37,6 @@ export const Inspector: React.FC = () => {
         height={size}
         position="relative"
       >
-
         <Header>
           <ElementPicker />
           <Separator />
@@ -45,9 +44,7 @@ export const Inspector: React.FC = () => {
           {/* TODO <Zoom />*/}
         </Header>
 
-        <Body>
-          {view === View.Elements && <ElementsPanel />}
-        </Body>
+        <Body>{view === View.Elements && <ElementsPanel />}</Body>
 
         <DragHandle
           edge="top"
@@ -64,14 +61,15 @@ const Header: React.FC = ({ children }) => (
   <Row
     alignItems="stretch"
     borderBottom={`1px solid ${colors.blueGray['200']}`}
-  >{children}</Row>
+  >
+    {children}
+  </Row>
 )
 
 const Body: React.FC = ({ children }) => (
-  <Block
-    height="100%"
-    overflow="auto"
-  >{children}</Block>
+  <Block height="100%" overflow="auto">
+    {children}
+  </Block>
 )
 
 const Separator: React.FC = () => (

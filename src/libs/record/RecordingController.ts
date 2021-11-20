@@ -1,15 +1,33 @@
 import { nanoid } from 'nanoid'
 import { Stats } from '@/libs/diagnostics'
 import { SyntheticId } from '@/types/common'
-import { Interaction, InteractionType, Point, PointerState } from '@/types/interaction'
-import { DOMPatchEvent, SnapshotEvent, InteractionEvent, Recording, SourceEventType, SourceEvent, Snapshot } from '@/types/recording'
+import {
+  Interaction,
+  InteractionType,
+  Point,
+  PointerState,
+} from '@/types/interaction'
+import {
+  DOMPatchEvent,
+  SnapshotEvent,
+  InteractionEvent,
+  Recording,
+  SourceEventType,
+  SourceEvent,
+  Snapshot,
+} from '@/types/recording'
 import { Patch, VTree } from '@/types/vdom'
 import { isZeroPoint } from '@/utils/interaction'
 import { copyObjectDeep } from '@/utils/lang'
 import { applyEventToSnapshot } from '@/utils/source'
 import { applyVTreePatch, getNodeId } from '@/utils/vdom'
 import { approxByteLength, createBuffer, Unsubscribe } from './buffer-utils'
-import { DOMTreeWalker, createDOMTreeWalker, createDOMObserver, createDOMVisitor } from './dom'
+import {
+  DOMTreeWalker,
+  createDOMTreeWalker,
+  createDOMObserver,
+  createDOMVisitor,
+} from './dom'
 import { createInteractionObserver, createScrollVisitor } from './interaction'
 import { observePeriodic } from './periodic'
 import { ObserverLike, RecordingOptions } from './types'
@@ -49,7 +67,10 @@ export class RecordingController {
   private scrollMap: Record<SyntheticId, Point> = {}
   private viewport: Point = [0, 0]
 
-  constructor(doc: Document, options: Partial<RecordingOptions> = defaultOptions) {
+  constructor(
+    doc: Document,
+    options: Partial<RecordingOptions> = defaultOptions
+  ) {
     this.document = doc
     this.options = {
       ...defaultOptions,
@@ -63,7 +84,7 @@ export class RecordingController {
     }
 
     this.timeOrigin = performance.now()
-    
+
     this.started = true
     this.buffer.clear()
     this.recording = createEmptyRecording()
@@ -87,7 +108,7 @@ export class RecordingController {
       const domVisitor = createDOMVisitor()
       domVisitor.subscribe(vtree => {
         if (vtree.rootId === rootId) {
-          this.latestVTree = vtree;
+          this.latestVTree = vtree
         }
       })
 
@@ -145,7 +166,7 @@ export class RecordingController {
   public stop() {
     let observer: ObserverLike | undefined
 
-    while (observer = this.observers.shift()) {
+    while ((observer = this.observers.shift())) {
       observer.disconnect()
     }
 
@@ -173,11 +194,14 @@ export class RecordingController {
       throw new Error('Recording: cannot prepend leading snapshot')
     }
 
-    events = [{
-      type: SourceEventType.Snapshot,
-      data: copyObjectDeep(this.leadingSnapshot),
-      time: 0,
-    }, ...events]
+    events = [
+      {
+        type: SourceEventType.Snapshot,
+        data: copyObjectDeep(this.leadingSnapshot),
+        time: 0,
+      },
+      ...events,
+    ]
 
     this.recording.events = events
     this.createSnapshotIndex()
@@ -284,7 +308,11 @@ export class RecordingController {
     }
   }
 
-  private createInteractionEvent(interaction: Interaction, transposition: number, at?: number): InteractionEvent {
+  private createInteractionEvent(
+    interaction: Interaction,
+    transposition: number,
+    at?: number
+  ): InteractionEvent {
     if (!this.isStarted()) {
       throw new Error('RecordingError: recording has not been started')
     }
@@ -323,35 +351,38 @@ export class RecordingController {
 
   private createInteractionObserver() {
     this.observers.push(
-      createInteractionObserver(this.options, (interaction, transposition = 0, at) => {
-        switch (interaction.type) {
-          case InteractionType.PointerMove:
-            this.pointer = interaction.to
-            break
+      createInteractionObserver(
+        this.options,
+        (interaction, transposition = 0, at) => {
+          switch (interaction.type) {
+            case InteractionType.PointerMove:
+              this.pointer = interaction.to
+              break
 
-          case InteractionType.PointerDown:
-            this.pointer = interaction.at
-            this.pointerState = PointerState.Down
-            break
+            case InteractionType.PointerDown:
+              this.pointer = interaction.at
+              this.pointerState = PointerState.Down
+              break
 
-          case InteractionType.PointerUp:
-            this.pointer = interaction.at
-            this.pointerState = PointerState.Up
-            break
+            case InteractionType.PointerUp:
+              this.pointer = interaction.at
+              this.pointerState = PointerState.Up
+              break
 
-          case InteractionType.Scroll:
-            this.scrollMap[interaction.type] = interaction.to
-            break
+            case InteractionType.Scroll:
+              this.scrollMap[interaction.type] = interaction.to
+              break
 
-          case InteractionType.ViewportResize:
-            this.viewport = interaction.to
-            break
+            case InteractionType.ViewportResize:
+              this.viewport = interaction.to
+              break
+          }
+
+          this.addEvent(
+            this.createInteractionEvent(interaction, transposition, at)
+          )
         }
-
-        this.addEvent(
-          this.createInteractionEvent(interaction, transposition, at)
-        )
-      })
+      )
     )
   }
 

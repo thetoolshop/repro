@@ -2,10 +2,26 @@ import { animationFrames, connectable, NEVER, Subscription } from 'rxjs'
 import { map, pairwise, switchMap } from 'rxjs/operators'
 import { Stats } from '@/libs/diagnostics'
 import { Immutable } from '@/types/extensions'
-import { InteractionType, Point, PointerState, ScrollMap } from '@/types/interaction'
-import { Recording, Sample, Snapshot, SnapshotEvent, SourceEvent, SourceEventType } from '@/types/recording'
+import {
+  InteractionType,
+  Point,
+  PointerState,
+  ScrollMap,
+} from '@/types/interaction'
+import {
+  Recording,
+  Sample,
+  Snapshot,
+  SnapshotEvent,
+  SourceEvent,
+  SourceEventType,
+} from '@/types/recording'
 import { copyArray, copyObjectDeep } from '@/utils/lang'
-import { applyEventToSnapshot, interpolatePointFromSample, isSample } from '@/utils/source'
+import {
+  applyEventToSnapshot,
+  interpolatePointFromSample,
+  isSample,
+} from '@/utils/source'
 import { Atom, createAtom } from '@/utils/state'
 
 /**
@@ -78,7 +94,7 @@ export interface Replay {
 const ZERO_POINT: Point = [0, 0]
 
 const EMPTY_SNAPSHOT: Snapshot = {
-  dom: null
+  dom: null,
 }
 
 const EMPTY_BUFFER: Array<SourceEvent> = []
@@ -98,13 +114,19 @@ export function createReplay(recording: Recording): Replay {
   const [$activeIndex, getActiveIndex, setActveIndex] = createAtom(-1)
   const [$buffer, getBuffer, setBuffer] = createAtom<Array<SourceEvent>>([])
   const [$elapsed, getElapsed, setElapsed] = createAtom(0)
-  const [$playbackState, getPlaybackState, setPlaybackState] = createAtom(PlaybackState.Paused)
-  const [$snapshot, getSnapshot, setSnapshot] = createAtom<Snapshot>(EMPTY_SNAPSHOT)
+  const [$playbackState, getPlaybackState, setPlaybackState] = createAtom(
+    PlaybackState.Paused
+  )
+  const [$snapshot, getSnapshot, setSnapshot] =
+    createAtom<Snapshot>(EMPTY_SNAPSHOT)
 
   // Interaction projections
   const [$pointer, getPointer, setPointer] = createAtom(ZERO_POINT)
-  const [$pointerState, getPointerState, setPointerState] = createAtom(PointerState.Up)
-  const [$scrollMap, getScrollMap, setScrollMap] = createAtom<ScrollMap>(EMPTY_SCROLL_MAP)
+  const [$pointerState, getPointerState, setPointerState] = createAtom(
+    PointerState.Up
+  )
+  const [$scrollMap, getScrollMap, setScrollMap] =
+    createAtom<ScrollMap>(EMPTY_SCROLL_MAP)
   const [$viewport, getViewport, setViewport] = createAtom(ZERO_POINT)
 
   function loadEvents() {
@@ -123,14 +145,18 @@ export function createReplay(recording: Recording): Replay {
     let event: SourceEvent | undefined
     let i = 0
 
-    while (event = eventsAfter[0]) {
+    while ((event = eventsAfter[0])) {
       if (shouldPartition(event, i)) {
         break
       }
 
       eventsBefore.push(event)
 
-      if ('data' in event && isSample(event.data) && isUnresolvedSample(event.data, event.time)) {
+      if (
+        'data' in event &&
+        isSample(event.data) &&
+        isUnresolvedSample(event.data, event.time)
+      ) {
         unresolvedSampleEvents.push(event)
       }
 
@@ -159,9 +185,9 @@ export function createReplay(recording: Recording): Replay {
         return playbackState !== PlaybackState.Playing
           ? NEVER
           : animationFrames().pipe(
-            pairwise(),
-            map(([prev, next]) => next.timestamp - prev.timestamp),
-          )
+              pairwise(),
+              map(([prev, next]) => next.timestamp - prev.timestamp)
+            )
       })
     )
   )
@@ -208,11 +234,9 @@ export function createReplay(recording: Recording): Replay {
           case SourceEventType.Interaction:
             switch (event.data.type) {
               case InteractionType.PointerMove:
-                setPointer(interpolatePointFromSample(
-                  event.data,
-                  event.time,
-                  elapsed
-                ))
+                setPointer(
+                  interpolatePointFromSample(event.data, event.time, elapsed)
+                )
                 break
 
               case InteractionType.PointerDown:
@@ -226,11 +250,9 @@ export function createReplay(recording: Recording): Replay {
                 break
 
               case InteractionType.ViewportResize:
-                setViewport(interpolatePointFromSample(
-                  event.data,
-                  event.time,
-                  elapsed
-                ))
+                setViewport(
+                  interpolatePointFromSample(event.data, event.time, elapsed)
+                )
                 break
 
               case InteractionType.Scroll:
@@ -289,7 +311,7 @@ export function createReplay(recording: Recording): Replay {
     }
 
     const [before, after] = partitionEvents(
-      queuedEvents, 
+      queuedEvents,
       (_, index) => index > nextIndex,
       (sample, time) => time + sample.duration > targetEvent.time
     )
@@ -300,11 +322,7 @@ export function createReplay(recording: Recording): Replay {
       snapshot = copyObjectDeep(snapshot)
 
       for (const event of before) {
-        applyEventToSnapshot(
-          snapshot,
-          event,
-          targetEvent.time
-        )
+        applyEventToSnapshot(snapshot, event, targetEvent.time)
       }
 
       updateInteractionStatesFromSnapshot(snapshot)
@@ -327,7 +345,7 @@ export function createReplay(recording: Recording): Replay {
     let snapshot: Snapshot | null = null
 
     for (const index of recording.snapshotIndex) {
-      const event = (allEvents[index] as SnapshotEvent)
+      const event = allEvents[index] as SnapshotEvent
 
       if (event.time <= elapsed) {
         snapshot = event.data
@@ -347,11 +365,7 @@ export function createReplay(recording: Recording): Replay {
       snapshot = copyObjectDeep(snapshot)
 
       for (const event of before) {
-        applyEventToSnapshot(
-          snapshot,
-          event,
-          elapsed
-        )
+        applyEventToSnapshot(snapshot, event, elapsed)
       }
 
       updateInteractionStatesFromSnapshot(snapshot)
@@ -365,15 +379,13 @@ export function createReplay(recording: Recording): Replay {
   }
 
   function open() {
-    subscription.add(
-      eventLoop.connect()
-    )
+    subscription.add(eventLoop.connect())
 
     seekToTime(0)
   }
 
   function close() {
-    subscription.unsubscribe() 
+    subscription.unsubscribe()
   }
 
   return {
@@ -411,4 +423,3 @@ export function createReplay(recording: Recording): Replay {
     close,
   }
 }
-

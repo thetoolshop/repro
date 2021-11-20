@@ -1,105 +1,113 @@
-[{
-  "time": 0,
-  "type": "dom-snapshot",
-  "data": {
-    "rootId": "0",
-    "nodes": {
-      "0": {
-        "id": "0",
-        "type": "element",
-        "tagName": "html",
-        "attributes": {
-          "lang": "en"
-        },
-        "children": ["1", "2"]
-      },
-
-      "1": {
-        "id": "1",
-        "type": "element",
-        "tagName": "head",
-        "attributes": {},
-        "children": ["3"]
-      },
-
-      "2": {
-        "id": "2",
-        "type": "element",
-        "tagName": "body",
-        "attributes": {},
-        "children": ["4"]
-      },
-
-      "3": {
-        "id": "3",
-        "type": "element",
-        "tagName": "style",
-        "attributes": {},
-        "children": ["5"]
-      },
-
-      "4": {
-        "id": "4",
-        "type": "element",
-        "tagName": "div",
-        "attributes": {
-          "class": "foo"
-        },
-        "children": ["6"]
-      },
-
-      "5": {
-        "id": "5",
-        "type": "text",
-        "value": ".foo { padding: 1rem; border: 1px solid black; }"
-      },
-
-      "6": {
-        "id": "6",
-        "type": "text",
-        "value": "Foo"
-      }
-    }
-  }
-}, {
-  "time": 1000,
-  "type": "dom-patch",
-  "data": {
-    "type": "add-nodes",
-    "parentId": "3",
-    "previousSiblingId": "5",
-    "nextSiblingId": null,
-    "nodes": [{
-      "rootId": "7",
+[
+  {
+    "time": 0,
+    "type": "dom-snapshot",
+    "data": {
+      "rootId": "0",
       "nodes": {
-        "7": {
-          "id": "7",
+        "0": {
+          "id": "0",
+          "type": "element",
+          "tagName": "html",
+          "attributes": {
+            "lang": "en"
+          },
+          "children": ["1", "2"]
+        },
+
+        "1": {
+          "id": "1",
+          "type": "element",
+          "tagName": "head",
+          "attributes": {},
+          "children": ["3"]
+        },
+
+        "2": {
+          "id": "2",
+          "type": "element",
+          "tagName": "body",
+          "attributes": {},
+          "children": ["4"]
+        },
+
+        "3": {
+          "id": "3",
+          "type": "element",
+          "tagName": "style",
+          "attributes": {},
+          "children": ["5"]
+        },
+
+        "4": {
+          "id": "4",
+          "type": "element",
+          "tagName": "div",
+          "attributes": {
+            "class": "foo"
+          },
+          "children": ["6"]
+        },
+
+        "5": {
+          "id": "5",
           "type": "text",
-          "value": ".bar { padding: 2rem; border-color: red; }"
+          "value": ".foo { padding: 1rem; border: 1px solid black; }"
+        },
+
+        "6": {
+          "id": "6",
+          "type": "text",
+          "value": "Foo"
         }
       }
-    }]
+    }
+  },
+  {
+    "time": 1000,
+    "type": "dom-patch",
+    "data": {
+      "type": "add-nodes",
+      "parentId": "3",
+      "previousSiblingId": "5",
+      "nextSiblingId": null,
+      "nodes": [
+        {
+          "rootId": "7",
+          "nodes": {
+            "7": {
+              "id": "7",
+              "type": "text",
+              "value": ".bar { padding: 2rem; border-color: red; }"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "time": 1250,
+    "type": "dom-patch",
+    "data": {
+      "type": "attribute",
+      "targetId": "4",
+      "name": "class",
+      "value": "foo bar",
+      "oldValue": "foo"
+    }
+  },
+  {
+    "time": 1250,
+    "type": "dom-patch",
+    "data": {
+      "type": "text",
+      "targetId": "6",
+      "value": "Bar",
+      "oldValue": "Foo"
+    }
+  },
+  {
+    "time": 2000,
+    "type": "close-recording"
   }
-}, {
-  "time": 1250,
-  "type": "dom-patch",
-  "data": {
-    "type": "attribute",
-    "targetId": "4",
-    "name": "class",
-    "value": "foo bar",
-    "oldValue": "foo"
-  }
-}, {
-  "time": 1250,
-  "type": "dom-patch",
-  "data": {
-    "type": "text",
-    "targetId": "6",
-    "value": "Bar",
-    "oldValue": "Foo"
-  }
-}, {
-  "time": 2000,
-  "type": "close-recording"
-}]
+]

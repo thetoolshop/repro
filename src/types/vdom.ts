@@ -1,10 +1,10 @@
 import type { SyntheticId } from './common'
 
 export enum NodeType {
-  DocType  = 0,
+  DocType = 0,
   Document = 1,
-  Element  = 2,
-  Text     = 3,
+  Element = 2,
+  Text = 3,
 }
 
 export interface VDocType {
@@ -35,11 +35,7 @@ export interface VText {
   value: string
 }
 
-export type VNode =
-  | VDocument
-  | VDocType
-  | VElement
-  | VText
+export type VNode = VDocument | VDocType | VElement | VText
 
 export interface VTree {
   rootId: SyntheticId
@@ -47,9 +43,9 @@ export interface VTree {
 }
 
 export enum PatchType {
-  Attribute   = 0,
-  Text        = 1,
-  AddNodes    = 2,
+  Attribute = 0,
+  Text = 1,
+  AddNodes = 2,
   RemoveNodes = 3,
 }
 
@@ -84,7 +80,7 @@ export interface RemoveNodesPatch {
   nodes: Array<VTree>
 }
 
-export type Patch = 
+export type Patch =
   | AttributePatch
   | TextPatch
   | AddNodesPatch

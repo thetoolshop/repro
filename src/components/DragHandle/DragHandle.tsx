@@ -9,7 +9,12 @@ interface Props {
   onDrag(offset: number): void
 }
 
-export const DragHandle: React.FC<Props> = ({ edge, onDrag, onDragEnd, onDragStart }) => {
+export const DragHandle: React.FC<Props> = ({
+  edge,
+  onDrag,
+  onDragEnd,
+  onDragStart,
+}) => {
   const [dragging, setDragging] = useState(false)
   const [start, setStart] = useState<number | null>(null)
 
@@ -25,19 +30,22 @@ export const DragHandle: React.FC<Props> = ({ edge, onDrag, onDragEnd, onDragSta
     onDragEnd()
   }, [setDragging, setStart])
 
-  const handleMove = useCallback((evt: PointerEvent) => {
-    if (dragging && start !== null) {
-      const position = edge === 'top' || edge === 'bottom'
-        ? evt.pageY
-        : evt.pageX
+  const handleMove = useCallback(
+    (evt: PointerEvent) => {
+      if (dragging && start !== null) {
+        const position =
+          edge === 'top' || edge === 'bottom' ? evt.pageY : evt.pageX
 
-      const offset = edge === 'top' || edge === 'left'
-        ? start - position
-        : position - start
+        const offset =
+          edge === 'top' || edge === 'left'
+            ? start - position
+            : position - start
 
-      onDrag(offset)
-    }
-  }, [dragging, edge, onDrag, start])
+        onDrag(offset)
+      }
+    },
+    [dragging, edge, onDrag, start]
+  )
 
   useEffect(() => {
     window.addEventListener('pointerup', handleUp)
@@ -49,17 +57,15 @@ export const DragHandle: React.FC<Props> = ({ edge, onDrag, onDragEnd, onDragSta
     return () => window.removeEventListener('pointermove', handleMove)
   }, [handleMove])
 
-  const positionStyles = ({
+  const positionStyles = {
     position: 'absolute',
     top: edge === 'bottom' ? 'auto' : 0,
     bottom: edge === 'top' ? 'auto' : 0,
     left: edge === 'right' ? 'auto' : 0,
     right: edge === 'left' ? 'auto' : 0,
-  } as const)
+  } as const
 
-  const cursor = edge === 'top' || edge === 'bottom'
-    ? 'ns-resize'
-    : 'ew-resize'
+  const cursor = edge === 'top' || edge === 'bottom' ? 'ns-resize' : 'ew-resize'
 
   const borderWidth = [
     edge === 'top' ? '2px' : '0',

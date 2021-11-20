@@ -32,14 +32,11 @@ export function sampleEventsByKey<T extends Event, R>(
 
       samplingRecords.set(key, samplingRecord)
 
-      setTimeout(function() {
+      setTimeout(function () {
         const samplingRecord = samplingRecords.get(key)
 
         if (samplingRecord) {
-          sample(
-            samplingRecord.lastValue,
-            samplingRecord.duration,
-          )
+          sample(samplingRecord.lastValue, samplingRecord.duration)
         }
 
         samplingRecords.delete(key)
@@ -50,4 +47,3 @@ export function sampleEventsByKey<T extends Event, R>(
     samplingRecord.duration = time - samplingRecord.startTime
   }
 }
-

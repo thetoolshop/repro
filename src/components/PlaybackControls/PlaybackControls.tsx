@@ -1,6 +1,10 @@
 import { Block, Col, Grid, Row } from 'jsxstyle'
 import React, { useState } from 'react'
-import { Pause as PauseIcon, Play as PlayIcon, RotateCcw as ReplayIcon } from 'react-feather'
+import {
+  Pause as PauseIcon,
+  Play as PlayIcon,
+  RotateCcw as ReplayIcon,
+} from 'react-feather'
 import { colors } from '@/config/theme'
 
 import {
@@ -50,7 +54,7 @@ const Control: React.FC = () => {
       color={colors.blue['700']}
       cursor="pointer"
       props={{
-        onClick: handleClick
+        onClick: handleClick,
       }}
     >
       {state === PlaybackState.Paused && <PlayIcon size={20} />}
@@ -116,7 +120,7 @@ const ProgressBar: React.FC = () => {
         pointerEvents="none"
         transition="height linear 100ms"
         style={{
-          height: hasHover ? 8 : 4
+          height: hasHover ? 8 : 4,
         }}
       >
         <Block
@@ -130,7 +134,7 @@ const ProgressBar: React.FC = () => {
           width="100%"
           style={{
             height: hasHover ? 8 : 4,
-            transform: `scaleX(${elapsed/recording.duration})`
+            transform: `scaleX(${elapsed / recording.duration})`,
           }}
         />
 
@@ -146,7 +150,7 @@ const ProgressBar: React.FC = () => {
               transformOrigin="0 0"
               width="100%"
               style={{
-                transform: `scaleX(${seekTo/recording.duration})`
+                transform: `scaleX(${seekTo / recording.duration})`,
               }}
             />
 
@@ -158,7 +162,7 @@ const ProgressBar: React.FC = () => {
               position="absolute"
               transform="translate(-50%, -110%)"
               style={{
-                left: `${100*seekTo/recording.duration}%` 
+                left: `${(100 * seekTo) / recording.duration}%`,
               }}
             >
               {formatDate(seekTo, 'millis')}
@@ -175,13 +179,9 @@ const Timing: React.FC = () => {
   const recording = useRecording()
 
   return (
-    <Block
-      color={colors.blue['700']}
-      fontFamily="monospace"
-      fontSize={13}
-    >
-      {formatDate(elapsed, 'seconds')}/{formatDate(recording.duration, 'seconds')}
+    <Block color={colors.blue['700']} fontFamily="monospace" fontSize={13}>
+      {formatDate(elapsed, 'seconds')}/
+      {formatDate(recording.duration, 'seconds')}
     </Block>
   )
 }
-

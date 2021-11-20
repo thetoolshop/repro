@@ -11,7 +11,9 @@ import { Response, StartCommand, StopCommand } from '../types'
 
 export const Controls: React.FC = () => {
   const { setView } = useView()
-  const [messageChannel, setMessageChannel] = useState<MessageChannel | null>(null)
+  const [messageChannel, setMessageChannel] = useState<MessageChannel | null>(
+    null
+  )
 
   useEffect(() => {
     const styleElement = getStyleElement()
@@ -75,10 +77,9 @@ export const Controls: React.FC = () => {
     <Container>
       <Logo size={20} />
       <Light />
-      <Button
-        size="small"
-        onClick={handleStopRecording}
-      >End</Button>
+      <Button size="small" onClick={handleStopRecording}>
+        End
+      </Button>
     </Container>
   )
 }
@@ -96,7 +97,9 @@ const Container: React.FC = ({ children }) => (
     position="fixed"
     top={0}
     transform="translate(-50%)"
-  >{children}</Row>
+  >
+    {children}
+  </Row>
 )
 
 const Light: React.FC = () => (
@@ -120,11 +123,9 @@ const Light: React.FC = () => (
       cy={7}
       r={3}
       fill={colors.pink['500']}
-
       animate={{
         opacity: [1, 0.25, 1],
       }}
-
       transition={{
         duration: 2,
         ease: 'linear',

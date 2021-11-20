@@ -12,30 +12,34 @@ const controller = new RecordingController(document, {
   ignoredSelectors: [`#${REPRO_ROOT_ID}`, '.repro-ignore'],
 })
 
-window.addEventListener('message', message => {
-  const port = message.ports[0]
+window.addEventListener(
+  'message',
+  message => {
+    const port = message.ports[0]
 
-  if (!port) {
-    return
-  }
-
-  port.addEventListener('message', (ev: MessageEvent<Command>) => {
-    const command = ev.data
-
-    switch (command.name) {
-      case 'start':
-        controller.start()
-        break
-
-      case 'stop':
-        controller.stop()
-        port.postMessage({
-          name: 'recording',
-          payload: controller.recording
-        } as RecordingResponse)
-        break
+    if (!port) {
+      return
     }
-  })
 
-  port.start()
-}, { once: true })
+    port.addEventListener('message', (ev: MessageEvent<Command>) => {
+      const command = ev.data
+
+      switch (command.name) {
+        case 'start':
+          controller.start()
+          break
+
+        case 'stop':
+          controller.stop()
+          port.postMessage({
+            name: 'recording',
+            payload: controller.recording,
+          } as RecordingResponse)
+          break
+      }
+    })
+
+    port.start()
+  },
+  { once: true }
+)

@@ -36,13 +36,10 @@ export const DOMPatchEventView: React.FC<Props> = ({ event }) => {
         time={event.time}
       />
 
-      <Row
-        alignItems="center"
-        borderRadius={2}
-        gap="0.5rem"
-        marginV="1rem"
-      >
-        <Block alignItems="center" color={colors.blueGray['800']}>Target</Block>
+      <Row alignItems="center" borderRadius={2} gap="0.5rem" marginV="1rem">
+        <Block alignItems="center" color={colors.blueGray['800']}>
+          Target
+        </Block>
 
         <Row
           alignItems="center"

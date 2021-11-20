@@ -22,10 +22,10 @@ export const ElementPicker: React.FC = () => {
       paddingH={10}
       transition="all linear 100ms"
       props={{
-        onClick: handleClick
+        onClick: handleClick,
       }}
     >
-      <ElementPickerIcon size={16} /> 
+      <ElementPickerIcon size={16} />
     </Row>
   )
 }

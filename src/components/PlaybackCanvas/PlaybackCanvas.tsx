@@ -22,9 +22,7 @@ export const PlaybackCanvas: React.FC = () => {
     <Block gridArea="canvas" overflow="hidden">
       <Viewport>
         <FrameRealm ref={frameRef}>
-          <NativeDOMRenderer
-            ownerDocument={ownerDocument}
-          />
+          <NativeDOMRenderer ownerDocument={ownerDocument} />
         </FrameRealm>
 
         <PointerOverlay />

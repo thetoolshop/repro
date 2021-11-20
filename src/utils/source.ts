@@ -16,7 +16,11 @@ export function isSample(data: object): data is Sample<any> {
   return 'from' in data && 'to' in data && 'duration' in data
 }
 
-export function interpolatePointFromSample(sample: Sample<Point>, time: number, elapsed: number): Point {
+export function interpolatePointFromSample(
+  sample: Sample<Point>,
+  time: number,
+  elapsed: number
+): Point {
   const { duration, from: fromValue, to: toValue } = sample
 
   // If sample window has already expired or duration is 0, jump to end value
@@ -26,8 +30,8 @@ export function interpolatePointFromSample(sample: Sample<Point>, time: number, 
     const adjustment = (elapsed - time) / duration
 
     const offsetValue: Point = [
-      fromValue[0] + ((toValue[0] - fromValue[0]) * adjustment),
-      fromValue[1] + ((toValue[1] - fromValue[1]) * adjustment),
+      fromValue[0] + (toValue[0] - fromValue[0]) * adjustment,
+      fromValue[1] + (toValue[1] - fromValue[1]) * adjustment,
     ]
 
     return offsetValue
@@ -40,7 +44,11 @@ function applyDOMEventToSnapshot(snapshot: Snapshot, event: DOMPatchEvent) {
   }
 }
 
-function applyInteractionEventToSnapshot(snapshot: Snapshot, event: InteractionEvent, elapsed: number) {
+function applyInteractionEventToSnapshot(
+  snapshot: Snapshot,
+  event: InteractionEvent,
+  elapsed: number
+) {
   if (snapshot.interaction) {
     switch (event.data.type) {
       case InteractionType.PointerMove:
@@ -70,17 +78,18 @@ function applyInteractionEventToSnapshot(snapshot: Snapshot, event: InteractionE
         break
 
       case InteractionType.Scroll:
-        snapshot.interaction.scroll[event.data.target] = interpolatePointFromSample(
-          event.data,
-          event.time,
-          elapsed
-        )
+        snapshot.interaction.scroll[event.data.target] =
+          interpolatePointFromSample(event.data, event.time, elapsed)
         break
     }
   }
 }
 
-export function applyEventToSnapshot(snapshot: Snapshot, event: SourceEvent, elapsed: number) {
+export function applyEventToSnapshot(
+  snapshot: Snapshot,
+  event: SourceEvent,
+  elapsed: number
+) {
   switch (event.type) {
     case SourceEventType.DOMPatch:
       applyDOMEventToSnapshot(snapshot, event)

@@ -16,7 +16,12 @@ const sizes = {
 
 const MINIMUM_FONT_SIZE = 12
 
-export const Button: React.FC<Props> = ({ children, size = 'medium', variant = 'primary', onClick }) => {
+export const Button: React.FC<Props> = ({
+  children,
+  size = 'medium',
+  variant = 'primary',
+  onClick,
+}) => {
   const base = sizes[size]
   const height = base * 5
   const paddingH = base * 2
@@ -27,10 +32,11 @@ export const Button: React.FC<Props> = ({ children, size = 'medium', variant = '
     <Row
       component="button"
       props={{ onClick }}
-
       // CSS Props
       alignItems="center"
-      backgroundColor={variant === 'primary' ? colors.blue['700'] : 'transparent'}
+      backgroundColor={
+        variant === 'primary' ? colors.blue['700'] : 'transparent'
+      }
       borderColor={colors.blue['700']}
       borderStyle="solid"
       borderWidth={2}
@@ -43,7 +49,8 @@ export const Button: React.FC<Props> = ({ children, size = 'medium', variant = '
       justifyContent="center"
       lineHeight="1em"
       paddingH={paddingH}
-    >{children}</Row>
+    >
+      {children}
+    </Row>
   )
 }
-

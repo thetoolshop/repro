@@ -1,9 +1,21 @@
 import { SyntheticId } from '@/types/common'
 import { VNode, VTree } from '@/types/vdom'
 import { isExternalStyleSheet, isLocalStylesheet } from '@/utils/dom'
-import { addVNode, createVTreeWithRoot, getNodeId, insertSubTreesAtNode, isElementVNode } from '@/utils/vdom'
+import {
+  addVNode,
+  createVTreeWithRoot,
+  getNodeId,
+  insertSubTreesAtNode,
+  isElementVNode,
+} from '@/utils/vdom'
 import { Visitor, Subscribable, Subscriber } from '../types'
-import { createStyleSheetVTree, createVDocument, createVDocType, createVElement, createVText } from './factory'
+import {
+  createStyleSheetVTree,
+  createVDocument,
+  createVDocType,
+  createVElement,
+  createVText,
+} from './factory'
 
 export function createDOMVisitor() {
   /**
@@ -19,7 +31,7 @@ export function createDOMVisitor() {
    * [ ] Convert same-origin images to data-uris
    * [ ] Convert cross-origin images to data-uris via extension proxy
    */
-  
+
   let vtree: VTree | null = null
 
   function createOrUpdateVTree(node: VNode, parentId: SyntheticId | null) {
@@ -31,7 +43,7 @@ export function createDOMVisitor() {
     if (!parentId) {
       throw new Error('VDOM: cannot add node to tree; missing parentId')
     }
-    
+
     addVNode(vtree, node, parentId)
   }
 
@@ -47,9 +59,7 @@ export function createDOMVisitor() {
     documentNode(node) {
       const vNode = createVDocument(node)
 
-      const parent = node.defaultView
-        ? node.defaultView.frameElement
-        : null
+      const parent = node.defaultView ? node.defaultView.frameElement : null
 
       createOrUpdateVTree(vNode, parent && getNodeId(parent))
     },
@@ -93,7 +103,7 @@ export function createDOMVisitor() {
       const vNode = createVElement(node)
       createOrUpdateVTree(vNode, node.parentNode && getNodeId(node.parentNode))
     },
-    
+
     textNode(node) {
       const vNode = createVText(node)
       createOrUpdateVTree(vNode, node.parentNode && getNodeId(node.parentNode))

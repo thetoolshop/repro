@@ -48,8 +48,10 @@ const Item: React.FC<ItemProps> = ({ children, view }) => {
       justifyContent="center"
       paddingV={10}
       props={{
-        onClick: handleClick
+        onClick: handleClick,
       }}
-    >{children}</Row>
+    >
+      {children}
+    </Row>
   )
 }

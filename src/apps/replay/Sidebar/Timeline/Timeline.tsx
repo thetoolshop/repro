@@ -32,8 +32,5 @@ export const Timeline: React.FC = () => {
 }
 
 const Separator: React.FC = () => (
-  <Block
-    backgroundColor={colors.blueGray['100']}
-    height={1}
-  />
+  <Block backgroundColor={colors.blueGray['100']} height={1} />
 )

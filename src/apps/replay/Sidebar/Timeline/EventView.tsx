@@ -30,6 +30,8 @@ export const EventView: React.FC<Props> = ({ event, active, onSelect }) => {
       backgroundColor={active ? activeColor : 'transparent'}
       hoverBackgroundColor={active ? activeColor : hoverColor}
       props={{ onPointerDown: onSelect }}
-    >{view}</Block>
+    >
+      {view}
+    </Block>
   )
 }

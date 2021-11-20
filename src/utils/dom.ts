@@ -22,15 +22,21 @@ export function isElementNode(node: Node): node is Element {
   return node.nodeType === Node.ELEMENT_NODE
 }
 
-export function isIFrameElement(element: Element): element is HTMLIFrameElement {
+export function isIFrameElement(
+  element: Element
+): element is HTMLIFrameElement {
   return matches(element.nodeName, 'iframe')
 }
 
-export function isLocalStylesheet(element: Element): element is HTMLStyleElement {
+export function isLocalStylesheet(
+  element: Element
+): element is HTMLStyleElement {
   return matches(element.nodeName, 'style')
 }
 
-export function isExternalStyleSheet(element: Element): element is HTMLLinkElement {
+export function isExternalStyleSheet(
+  element: Element
+): element is HTMLLinkElement {
   if (matches(element.nodeName, 'link')) {
     if ((element as HTMLLinkElement).relList.contains('stylesheet')) {
       return true
@@ -40,7 +46,9 @@ export function isExternalStyleSheet(element: Element): element is HTMLLinkEleme
   return false
 }
 
-export function isScriptElement(element: Element): element is HTMLScriptElement {
+export function isScriptElement(
+  element: Element
+): element is HTMLScriptElement {
   return matches(element.nodeName, 'script')
 }
 

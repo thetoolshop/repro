@@ -21,8 +21,11 @@ const samples: Record<string, SampleRecord> = {}
 function awaitSample() {
   requestIdleCallback(() => {
     for (const [label, record] of Object.entries(samples)) {
-      emit(`(sample [${record.entries}]) ${label}`, record.total / record.entries)
-      delete samples[label] 
+      emit(
+        `(sample [${record.entries}]) ${label}`,
+        record.total / record.entries
+      )
+      delete samples[label]
     }
 
     sampling = false

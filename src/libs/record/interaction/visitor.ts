@@ -11,10 +11,7 @@ export function createScrollVisitor() {
 
   const scrollVisitor: Visitor<ScrollMap> & Subscribable<ScrollMap> = {
     elementNode(node) {
-      scrollMap[getNodeId(node)] = [
-        node.scrollLeft,
-        node.scrollTop,
-      ]
+      scrollMap[getNodeId(node)] = [node.scrollLeft, node.scrollTop]
     },
 
     // Not implemented

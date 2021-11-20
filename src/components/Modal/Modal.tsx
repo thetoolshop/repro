@@ -9,7 +9,13 @@ interface Props {
   minHeight?: string | number
 }
 
-export const Modal: React.FC<Props> = ({ children, width, height, minWidth, minHeight }) => (
+export const Modal: React.FC<Props> = ({
+  children,
+  width,
+  height,
+  minWidth,
+  minHeight,
+}) => (
   <Backdrop>
     <Container
       width={width}
@@ -32,12 +38,20 @@ const Backdrop: React.FC = ({ children }) => (
     left={0}
     bottom={0}
     right={0}
-  >{children}</Row>
+  >
+    {children}
+  </Row>
 )
 
 type ContainerProps = Pick<Props, 'width' | 'height' | 'minWidth' | 'minHeight'>
 
-const Container: React.FC<ContainerProps> = ({ children, width, height, minWidth, minHeight }) => (
+const Container: React.FC<ContainerProps> = ({
+  children,
+  width,
+  height,
+  minWidth,
+  minHeight,
+}) => (
   <Block
     background={colors.white}
     boxShadow="0 8px 16px rgba(0, 0, 0, 0.25)"
@@ -45,5 +59,7 @@ const Container: React.FC<ContainerProps> = ({ children, width, height, minWidth
     minWidth={minWidth}
     height={height}
     width={width}
-  >{children}</Block>
+  >
+    {children}
+  </Block>
 )

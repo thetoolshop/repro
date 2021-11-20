@@ -1,13 +1,20 @@
 import { SyntheticId } from '@/types/common'
 import { isInlineEventAttribute } from '@/utils/dom'
-import { NodeType, VDocument, VDocType, VElement, VText, VTree } from '@/types/vdom'
+import {
+  NodeType,
+  VDocument,
+  VDocType,
+  VElement,
+  VText,
+  VTree,
+} from '@/types/vdom'
 import { createSyntheticId, getNodeId } from '@/utils/vdom'
 
 export function createVDocument(doc: Document): VDocument {
   return {
     id: getNodeId(doc),
     type: NodeType.Document,
-    children: []
+    children: [],
   }
 }
 
@@ -21,10 +28,15 @@ export function createVDocType(doctype: DocumentType): VDocType {
   }
 }
 
-export function createVElement(element: Element, attributeOverrides?: Record<string, string>): VElement {
-  const attributes = attributeOverrides ?? Array.from(element.attributes)
-    .filter(({ name }) => !isInlineEventAttribute(name))
-    .reduce((attrs, { name, value }) => ({ ...attrs, [name]: value }), {})
+export function createVElement(
+  element: Element,
+  attributeOverrides?: Record<string, string>
+): VElement {
+  const attributes =
+    attributeOverrides ??
+    Array.from(element.attributes)
+      .filter(({ name }) => !isInlineEventAttribute(name))
+      .reduce((attrs, { name, value }) => ({ ...attrs, [name]: value }), {})
 
   // TODO: check if element is shadow root
 
@@ -45,7 +57,9 @@ export function createVText(text: Text): VText {
   }
 }
 
-export function createStyleSheetVTree(node: HTMLStyleElement | HTMLLinkElement): VTree | null {
+export function createStyleSheetVTree(
+  node: HTMLStyleElement | HTMLLinkElement
+): VTree | null {
   if (!node.sheet) {
     return null
   }
@@ -80,4 +94,3 @@ export function createStyleSheetVTree(node: HTMLStyleElement | HTMLLinkElement):
 
   return vTree
 }
-

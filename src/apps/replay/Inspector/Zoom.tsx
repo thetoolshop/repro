@@ -9,7 +9,7 @@ const INITIAL_POSITION = 50
 
 function normalize(position: number) {
   const upper = MAX_POSITION - MIN_POSITION
-  return 200 * (position - MIN_POSITION) / upper | 0
+  return ((200 * (position - MIN_POSITION)) / upper) | 0
 }
 
 export const Zoom: React.FC = () => {
@@ -29,12 +29,20 @@ export const Zoom: React.FC = () => {
     setInitialPosition(position)
   }, [setDragging, setStart])
 
-  const handleMove = useCallback(evt => {
-    if (dragging && start !== null) {
-      const offset = evt.pageX - start
-      setPosition(Math.max(MIN_POSITION, Math.min(MAX_POSITION, initialPosition + offset)))
-    }
-  }, [dragging, initialPosition, start, setPosition])
+  const handleMove = useCallback(
+    evt => {
+      if (dragging && start !== null) {
+        const offset = evt.pageX - start
+        setPosition(
+          Math.max(
+            MIN_POSITION,
+            Math.min(MAX_POSITION, initialPosition + offset)
+          )
+        )
+      }
+    },
+    [dragging, initialPosition, start, setPosition]
+  )
 
   useEffect(() => {
     window.addEventListener('pointerup', handleUp)
@@ -53,17 +61,11 @@ export const Zoom: React.FC = () => {
       marginRight={10}
       userSelect="none"
     >
-      <Block
-        color={colors.blue['700']}
-        fontSize={13}
-        marginRight={5}
-      >{normalize(position)}%</Block>
+      <Block color={colors.blue['700']} fontSize={13} marginRight={5}>
+        {normalize(position)}%
+      </Block>
 
-      <ZoomOutIcon
-        color={colors.blue['700']}
-        cursor="pointer"
-        size={16}
-      /> 
+      <ZoomOutIcon color={colors.blue['700']} cursor="pointer" size={16} />
 
       <Block
         backgroundColor={colors.blue['700']}
@@ -88,11 +90,7 @@ export const Zoom: React.FC = () => {
         />
       </Block>
 
-      <ZoomInIcon
-        color={colors.blue['700']}
-        cursor="pointer"
-        size={16}
-      />
+      <ZoomInIcon color={colors.blue['700']} cursor="pointer" size={16} />
     </Row>
   )
 }

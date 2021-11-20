@@ -4,7 +4,15 @@ import { nanoid } from 'nanoid'
 import { PlaybackCanvas } from '@/components/PlaybackCanvas'
 import { PlaybackControls } from '@/components/PlaybackControls'
 import { PlaybackLoop } from '@/components/PlaybackLoop'
-import { FixtureSource, init, NullSource, setReadyState, setSource, useReadyState, useSource } from '@/libs/playback'
+import {
+  FixtureSource,
+  init,
+  NullSource,
+  setReadyState,
+  setSource,
+  useReadyState,
+  useSource,
+} from '@/libs/playback'
 import { Header } from './Header'
 import { Inspector } from './Inspector'
 import { Sidebar } from './Sidebar'
@@ -19,11 +27,7 @@ export const App: React.FC = () => {
     const params = new URLSearchParams(location.search)
     const name = params.get('fixture')
 
-    setSource(
-      name !== null
-        ? new FixtureSource(name)
-        : new NullSource()
-    )
+    setSource(name !== null ? new FixtureSource(name) : new NullSource())
   }, [])
 
   useEffect(() => {
@@ -31,7 +35,7 @@ export const App: React.FC = () => {
 
     const subscription = forkJoin([
       source.events(),
-      source.metadata()
+      source.metadata(),
     ]).subscribe(([events, metadata]) => {
       init({
         id: nanoid(11),
@@ -79,7 +83,9 @@ const Container: React.FC = ({ children }) => (
     gridTemplateRows="50px 1fr 45px"
     height="100vh"
     overflow="hidden"
-  >{children}</Grid>
+  >
+    {children}
+  </Grid>
 )
 
 const Body: React.FC = ({ children }) => (
@@ -91,5 +97,7 @@ const Body: React.FC = ({ children }) => (
     `}
     gridTemplateColumns="auto 1fr"
     gridTemplateRows="1fr auto"
-  >{children}</Grid>
+  >
+    {children}
+  </Grid>
 )

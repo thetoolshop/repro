@@ -3,12 +3,12 @@ import { SyntheticId } from './common'
 
 export enum InteractionType {
   ViewportResize = 0,
-  Scroll         = 1,
-  PointerMove    = 2,
-  PointerDown    = 3,
-  PointerUp      = 4,
-  KeyDown        = 5,
-  KeyUp          = 6,
+  Scroll = 1,
+  PointerMove = 2,
+  PointerDown = 3,
+  PointerUp = 4,
+  KeyDown = 5,
+  KeyUp = 6,
 }
 
 export type Point = [number, number]

@@ -94,7 +94,7 @@ export function createBuffer<T>(maxSizeInBytes: number): Buffer<T> {
     onEvict(subscriber) {
       subscribers.add(subscriber)
       return () => subscribers.delete(subscriber)
-    }
+    },
   }
 }
 
@@ -117,9 +117,7 @@ export function approxByteLength(obj: any): number {
     }
 
     if (Array.isArray(obj)) {
-      return obj
-        .map(approxByteLength)
-        .reduce((a, b) => a + b, 0)
+      return obj.map(approxByteLength).reduce((a, b) => a + b, 0)
     }
 
     return Object.entries(obj)

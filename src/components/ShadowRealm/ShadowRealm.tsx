@@ -9,7 +9,11 @@ type Props<T extends Keys> = React.PropsWithChildren<{
   props: Elements[T]
 }>
 
-export function ShadowRealm<T extends Keys>({ children, component, props }: Props<T>) {
+export function ShadowRealm<T extends Keys>({
+  children,
+  component,
+  props,
+}: Props<T>) {
   const ref = useRef() as MutableRefObject<HTMLElement>
   const [root, setRoot] = useState<ShadowRoot | null>(null)
 

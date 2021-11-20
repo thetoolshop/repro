@@ -1,7 +1,17 @@
 import { nanoid } from 'nanoid'
 import { SyntheticId } from '@/types/common'
 import { Immutable } from '@/types/extensions'
-import { NodeType, Patch, PatchType, VDocType, VDocument, VElement, VNode, VText, VTree } from '@/types/vdom'
+import {
+  NodeType,
+  Patch,
+  PatchType,
+  VDocType,
+  VDocument,
+  VElement,
+  VNode,
+  VText,
+  VTree,
+} from '@/types/vdom'
 import { copyObjectDeep } from '@/utils/lang'
 
 export function createSyntheticId() {
@@ -26,7 +36,7 @@ function createNodeIdFactory() {
       nodeIds.set(node, nodeId)
 
       return nodeId
-    }
+    },
   }
 }
 
@@ -38,7 +48,7 @@ export function getNodeIds(nodes: NodeList) {
 
   let node: Node | undefined
 
-  while (node = queue.shift()) {
+  while ((node = queue.shift())) {
     if (hasNodeId(node)) {
       queue.push(...Array.from(node.childNodes))
       nodeIds.push(getNodeId(node))
@@ -48,15 +58,21 @@ export function getNodeIds(nodes: NodeList) {
   return nodeIds
 }
 
-export function isDocumentVNode(node: VNode | Immutable<VNode>): node is VDocument | Immutable<VDocument> {
+export function isDocumentVNode(
+  node: VNode | Immutable<VNode>
+): node is VDocument | Immutable<VDocument> {
   return node.type === NodeType.Document
 }
 
-export function isDocTypeVNode(node: VNode | Immutable<VNode>): node is VDocType | Immutable<VDocType> {
+export function isDocTypeVNode(
+  node: VNode | Immutable<VNode>
+): node is VDocType | Immutable<VDocType> {
   return node.type === NodeType.DocType
 }
 
-export function isElementVNode(node: VNode | Immutable<VNode>): node is VElement | Immutable<VElement> {
+export function isElementVNode(
+  node: VNode | Immutable<VNode>
+): node is VElement | Immutable<VElement> {
   return node.type === NodeType.Element
 }
 
@@ -64,7 +80,9 @@ export function isStyleElementVNode(node: VNode | Immutable<VNode>) {
   return isElementVNode(node) && node.tagName === 'style'
 }
 
-export function isTextVNode(node: VNode | Immutable<VNode>): node is VText | Immutable<VText> {
+export function isTextVNode(
+  node: VNode | Immutable<VNode>
+): node is VText | Immutable<VText> {
   return node.type === NodeType.Text
 }
 
@@ -92,11 +110,20 @@ export function addVNode(vtree: VTree, newNode: VNode, parentId: SyntheticId) {
   parent.children.push(newNode.id)
 }
 
-export function replaceVNodeById(vtree: VTree, nodeId: SyntheticId, newNode: VNode) {
+export function replaceVNodeById(
+  vtree: VTree,
+  nodeId: SyntheticId,
+  newNode: VNode
+) {
   vtree.nodes[nodeId] = newNode
 }
 
-export function insertSubTreesAtNode(vtree: VTree, parent: VElement, subtrees: Array<VTree>, index: number) {
+export function insertSubTreesAtNode(
+  vtree: VTree,
+  parent: VElement,
+  subtrees: Array<VTree>,
+  index: number
+) {
   const childIds: Array<SyntheticId> = []
 
   for (const subtree of subtrees) {
@@ -110,7 +137,11 @@ export function insertSubTreesAtNode(vtree: VTree, parent: VElement, subtrees: A
   parent.children.splice(index, 0, ...childIds)
 }
 
-export function removeSubTreesAtNode(vtree: VTree, parent: VElement, subtrees: Array<VTree>) {
+export function removeSubTreesAtNode(
+  vtree: VTree,
+  parent: VElement,
+  subtrees: Array<VTree>
+) {
   const childIds: Array<SyntheticId> = []
 
   for (const subtree of subtrees) {
@@ -144,7 +175,11 @@ export function removeSubTreesAtNode(vtree: VTree, parent: VElement, subtrees: A
 }
 
 // TODO: benchmark performance of mutable data structure
-export function applyVTreePatch(vtree: VTree, patch: Patch, revert: boolean = false): void {
+export function applyVTreePatch(
+  vtree: VTree,
+  patch: Patch,
+  revert: boolean = false
+): void {
   // const start = performance.now()
 
   switch (patch.type) {
@@ -152,9 +187,7 @@ export function applyVTreePatch(vtree: VTree, patch: Patch, revert: boolean = fa
       let node = getVNodeById(vtree, patch.targetId)
 
       if (node && isElementVNode(node)) {
-        node.attributes[patch.name] = revert
-          ? patch.oldValue
-          : patch.value
+        node.attributes[patch.name] = revert ? patch.oldValue : patch.value
         // TODO: move these to Debugger; stats will be published for monitoring
         // Stats.sample('VDOM: apply attribute patch', performance.now() - start)
       }

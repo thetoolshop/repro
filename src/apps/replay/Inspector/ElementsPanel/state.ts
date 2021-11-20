@@ -1,7 +1,7 @@
 import { append, uniq, without } from 'ramda'
 import { SyntheticId } from '@/types/common'
 import { atom, useAtomValue } from '@/utils/state'
-import {setFocusedNode} from '@/libs/playback'
+import { setFocusedNode } from '@/libs/playback'
 
 export const $openNodes = atom<Array<SyntheticId>>([])
 export const $selectedNode = atom<[SyntheticId, 'open' | 'close'] | null>(null)

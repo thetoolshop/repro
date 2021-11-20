@@ -2,5 +2,4 @@ interface StyleSheetRequest {
   type: 'stylesheet'
 }
 
-export type PageContextAction =
-  | StyleSheetRequest
+export type PageContextAction = StyleSheetRequest

@@ -26,18 +26,25 @@ async function announce(tabId: number) {
 
 async function loadContentScript(tabId: number) {
   return new Promise<void>(resolve => {
-    chrome.scripting.executeScript({
-      files: ['content.js'],
-      target: { tabId },
-    }, () => resolve())
+    chrome.scripting.executeScript(
+      {
+        files: ['content.js'],
+        target: { tabId },
+      },
+      () => resolve()
+    )
   })
 }
 
 async function setView(tabId: number, view: View) {
   return new Promise<void>(resolve => {
-    chrome.tabs.sendMessage(tabId, {
-      action: 'setView',
-      value: view,
-    }, () => resolve())
+    chrome.tabs.sendMessage(
+      tabId,
+      {
+        action: 'setView',
+        value: view,
+      },
+      () => resolve()
+    )
   })
 }

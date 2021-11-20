@@ -3,11 +3,18 @@ import { getNodeId } from '@/utils/vdom'
 import { ObserverLike, RecordingOptions } from '../types'
 import { sampleEventsByKey } from './sample'
 
-type Callback = (interaction: Interaction, transposition?: number, at?: number) => void
+type Callback = (
+  interaction: Interaction,
+  transposition?: number,
+  at?: number
+) => void
 
 function createEventObserver<K extends keyof GlobalEventHandlersEventMap>(
   type: K,
-  listener: (this: GlobalEventHandlers, ev: GlobalEventHandlersEventMap[K]) => void
+  listener: (
+    this: GlobalEventHandlers,
+    ev: GlobalEventHandlersEventMap[K]
+  ) => void
 ): ObserverLike<GlobalEventHandlers> {
   const listenerMap = new Map<GlobalEventHandlers, Array<typeof listener>>()
 
@@ -40,10 +47,22 @@ function identity<T>(value: T) {
   return value
 }
 
-export function createInteractionObserver(options: RecordingOptions, callback: Callback): ObserverLike<Document> {
-  const viewportResizeObserver = createViewportResizeObserver(callback, options.eventSampling.resize)
-  const scrollObserver = createScrollObserver(callback, options.eventSampling.scroll)
-  const pointerMoveObserver = createPointerMoveObserver(callback, options.eventSampling.pointerMove)
+export function createInteractionObserver(
+  options: RecordingOptions,
+  callback: Callback
+): ObserverLike<Document> {
+  const viewportResizeObserver = createViewportResizeObserver(
+    callback,
+    options.eventSampling.resize
+  )
+  const scrollObserver = createScrollObserver(
+    callback,
+    options.eventSampling.scroll
+  )
+  const pointerMoveObserver = createPointerMoveObserver(
+    callback,
+    options.eventSampling.pointerMove
+  )
   const pointerDownObserver = createPointerDownObserver(callback)
   const pointerUpObserver = createPointerUpObserver(callback)
   const keyDownObserver = createKeyDownObserver(callback)
@@ -68,11 +87,14 @@ export function createInteractionObserver(options: RecordingOptions, callback: C
       pointerUpObserver.observe(doc, vtree)
       keyDownObserver.observe(doc, vtree)
       keyUpObserver.observe(doc, vtree)
-    }
+    },
   }
 }
 
-function createViewportResizeObserver(callback: Callback, sampling: number): ObserverLike<Document> {
+function createViewportResizeObserver(
+  callback: Callback,
+  sampling: number
+): ObserverLike<Document> {
   let prevWidth = 0
   let prevHeight = 0
 
@@ -83,12 +105,15 @@ function createViewportResizeObserver(callback: Callback, sampling: number): Obs
       return [win.innerWidth, win.innerHeight] as Point
     },
     (value, duration) => {
-      callback({
-        type: InteractionType.ViewportResize,
-        from: [prevWidth, prevHeight],
-        to: value,
-        duration,
-      }, duration)
+      callback(
+        {
+          type: InteractionType.ViewportResize,
+          from: [prevWidth, prevHeight],
+          to: value,
+          duration,
+        },
+        duration
+      )
 
       prevWidth = value[0]
       prevHeight = value[1]
@@ -96,7 +121,10 @@ function createViewportResizeObserver(callback: Callback, sampling: number): Obs
     sampling
   )
 
-  const viewportResizeObserver = createEventObserver('resize', handleViewportResize)
+  const viewportResizeObserver = createEventObserver(
+    'resize',
+    handleViewportResize
+  )
 
   return {
     disconnect: () => viewportResizeObserver.disconnect(),
@@ -107,12 +135,16 @@ function createViewportResizeObserver(callback: Callback, sampling: number): Obs
         prevWidth = win.innerWidth
         prevHeight = win.innerHeight
 
-        callback({
-          type: InteractionType.ViewportResize,
-          from: [prevWidth, prevHeight],
-          to: [prevWidth, prevHeight],
-          duration: 0,
-        }, 0, 0 /* initial frame (ideally observer shouldn't care about elapsed time) */)
+        callback(
+          {
+            type: InteractionType.ViewportResize,
+            from: [prevWidth, prevHeight],
+            to: [prevWidth, prevHeight],
+            duration: 0,
+          },
+          0,
+          0 /* initial frame (ideally observer shouldn't care about elapsed time) */
+        )
 
         viewportResizeObserver.observe(win, vtree)
       }
@@ -120,7 +152,10 @@ function createViewportResizeObserver(callback: Callback, sampling: number): Obs
   }
 }
 
-function createScrollObserver(callback: Callback, sampling: number): ObserverLike {
+function createScrollObserver(
+  callback: Callback,
+  sampling: number
+): ObserverLike {
   const prevScrollMap = new WeakMap<EventTarget, Point>()
 
   const handleScroll = sampleEventsByKey<Event, Event>(
@@ -148,13 +183,16 @@ function createScrollObserver(callback: Callback, sampling: number): ObserverLik
 
       prevScrollMap.set(target, nextScroll)
 
-      callback({
-        type: InteractionType.Scroll,
-        target: getNodeId(target),
-        from: prevScroll,
-        to: [target.scrollLeft, target.scrollTop] as Point,
-        duration,
-      }, duration)
+      callback(
+        {
+          type: InteractionType.Scroll,
+          target: getNodeId(target),
+          from: prevScroll,
+          to: [target.scrollLeft, target.scrollTop] as Point,
+          duration,
+        },
+        duration
+      )
     },
     sampling
   )
@@ -162,17 +200,24 @@ function createScrollObserver(callback: Callback, sampling: number): ObserverLik
   return createEventObserver('scroll', handleScroll)
 }
 
-function createPointerMoveObserver(callback: Callback, sampling: number): ObserverLike {
+function createPointerMoveObserver(
+  callback: Callback,
+  sampling: number
+): ObserverLike {
   let prevX: number | null = null
   let prevY: number | null = null
 
   function dispatchInitialPointer() {
-    callback({
-      type: InteractionType.PointerMove,
-      from: [0, 0],
-      to: [0, 0],
-      duration: 0,
-    }, 0, 0)
+    callback(
+      {
+        type: InteractionType.PointerMove,
+        from: [0, 0],
+        to: [0, 0],
+        duration: 0,
+      },
+      0,
+      0
+    )
   }
 
   const handlePointerMove = sampleEventsByKey(
@@ -181,12 +226,15 @@ function createPointerMoveObserver(callback: Callback, sampling: number): Observ
     (value, duration) => {
       const [x, y] = value
 
-      callback({
-        type: InteractionType.PointerMove,
-        from: [prevX ?? x, prevY ?? y],
-        to: value,
-        duration,
-      }, duration)
+      callback(
+        {
+          type: InteractionType.PointerMove,
+          from: [prevX ?? x, prevY ?? y],
+          to: value,
+          duration,
+        },
+        duration
+      )
 
       prevX = x
       prevY = y
@@ -212,8 +260,7 @@ function createPointerDownObserver(callback: Callback): ObserverLike<Document> {
     const x = evt.pageX
     const y = evt.pageY
 
-    const targets = doc.elementsFromPoint(x, y)
-      .map(elem => getNodeId(elem))
+    const targets = doc.elementsFromPoint(x, y).map(elem => getNodeId(elem))
 
     callback({
       type: InteractionType.PointerDown,
@@ -236,8 +283,7 @@ function createPointerUpObserver(callback: Callback): ObserverLike<Document> {
     const x = evt.pageX
     const y = evt.pageY
 
-    const targets = doc.elementsFromPoint(x, y)
-      .map(elem => getNodeId(elem))
+    const targets = doc.elementsFromPoint(x, y).map(elem => getNodeId(elem))
 
     callback({
       type: InteractionType.PointerUp,

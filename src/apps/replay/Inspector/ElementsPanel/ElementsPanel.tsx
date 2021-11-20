@@ -27,7 +27,7 @@ export const ElementsPanel: React.FC = () => {
     if (snapshot) {
       const nodeIds = [snapshot.rootId]
       const bodyNodeId = getBodyElementNodeId(snapshot)
-      
+
       if (bodyNodeId) {
         nodeIds.push(bodyNodeId)
       }
@@ -55,4 +55,3 @@ export const ElementsPanel: React.FC = () => {
     </Block>
   )
 }
-

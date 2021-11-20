@@ -12,9 +12,18 @@ interface Props {
   secondaryLabel: string
 }
 
-export const EventHeader: React.FC<Props> = ({ colorGroup, primaryLabel, secondaryLabel, time }) => (
+export const EventHeader: React.FC<Props> = ({
+  colorGroup,
+  primaryLabel,
+  secondaryLabel,
+  time,
+}) => (
   <Row alignItems="center" gap="1rem">
-    <Block color={colors.blueGray['700']} fontFamily="monospace" fontSize="1.2rem">
+    <Block
+      color={colors.blueGray['700']}
+      fontFamily="monospace"
+      fontSize="1.2rem"
+    >
       {formatDate(time, 'millis')}
     </Block>
     <Row gap="0.5rem">

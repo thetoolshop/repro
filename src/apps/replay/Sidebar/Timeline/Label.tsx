@@ -1,10 +1,10 @@
-import {colors} from '@/config/theme'
+import { colors } from '@/config/theme'
 import { Block } from 'jsxstyle'
 import React from 'react'
 import { TailwindColorGroup } from 'tailwindcss/tailwind-config'
 
 interface Props {
-  colorGroup: TailwindColorGroup 
+  colorGroup: TailwindColorGroup
   type: 'primary' | 'secondary'
 }
 

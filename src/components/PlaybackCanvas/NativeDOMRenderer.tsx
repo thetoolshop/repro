@@ -4,11 +4,20 @@ import { observeOn, switchMap } from 'rxjs/operators'
 import { useReplay } from '@/libs/playback'
 import { SyntheticId } from '@/types/common'
 import { InteractionType, Point, ScrollMap } from '@/types/interaction'
-import { DOMPatchEvent, InteractionEvent, SourceEventType } from '@/types/recording'
+import {
+  DOMPatchEvent,
+  InteractionEvent,
+  SourceEventType,
+} from '@/types/recording'
 import { PatchType, VTree } from '@/types/vdom'
 import { isElementNode, isTextNode } from '@/utils/dom'
 import { interpolatePointFromSample } from '@/utils/source'
-import { isDocTypeVNode, isDocumentVNode, isStyleElementVNode, isTextVNode } from '@/utils/vdom'
+import {
+  isDocTypeVNode,
+  isDocumentVNode,
+  isStyleElementVNode,
+  isTextVNode,
+} from '@/utils/vdom'
 
 const HOVER_CLASS = '-repro-hover'
 const HOVER_SELECTOR = `.${HOVER_CLASS}`
@@ -28,25 +37,23 @@ export const NativeDOMRenderer: React.FC<Props> = ({ ownerDocument }) => {
     const subscription = new Subscription()
 
     subscription.add(
-      replay.$snapshot
-        .pipe(observeOn(asapScheduler))
-        .subscribe(snapshot => {
-          if (ownerDocument) {
-            clearDocument(ownerDocument)
+      replay.$snapshot.pipe(observeOn(asapScheduler)).subscribe(snapshot => {
+        if (ownerDocument) {
+          clearDocument(ownerDocument)
 
-            if (snapshot.dom) {
-              const [rootNode, vtreeNodeMap] = createDOMFromVTree(snapshot.dom)
+          if (snapshot.dom) {
+            const [rootNode, vtreeNodeMap] = createDOMFromVTree(snapshot.dom)
 
-              if (rootNode) {
-                ownerDocument.documentElement.appendChild(rootNode)
-                nodeMap = vtreeNodeMap
+            if (rootNode) {
+              ownerDocument.documentElement.appendChild(rootNode)
+              nodeMap = vtreeNodeMap
 
-                updateAllScrollStates(nodeMap, replay.getScrollMap())
-                updateHoverTargets(ownerDocument, replay.getPointer())
-              }
+              updateAllScrollStates(nodeMap, replay.getScrollMap())
+              updateHoverTargets(ownerDocument, replay.getPointer())
             }
           }
-        })
+        }
+      })
     )
 
     subscription.add(
@@ -147,22 +154,24 @@ function applyDOMPatchEvent(event: DOMPatchEvent, nodeMap: MutableNodeMap) {
       if (parent) {
         const [fragment, newNodeMap] = event.data.nodes
           .map(vtree => createDOMFromVTree(vtree))
-          .reduce(([fragment, nodeMap], [node, nextNodeMap]) => {
-            if (fragment && node) {
-              fragment.appendChild(node)
-              Object.assign(nodeMap, nextNodeMap)
-            }
+          .reduce(
+            ([fragment, nodeMap], [node, nextNodeMap]) => {
+              if (fragment && node) {
+                fragment.appendChild(node)
+                Object.assign(nodeMap, nextNodeMap)
+              }
 
-            return [fragment, nodeMap]
-          }, [document.createDocumentFragment(), {}])
+              return [fragment, nodeMap]
+            },
+            [document.createDocumentFragment(), {}]
+          )
 
         if (!fragment) {
           break
         }
 
-        const next = nextSiblingId !== null
-          ? nodeMap[nextSiblingId] ?? null
-          : null
+        const next =
+          nextSiblingId !== null ? nodeMap[nextSiblingId] ?? null : null
 
         if (next) {
           parent.insertBefore(fragment, next)
@@ -177,11 +186,11 @@ function applyDOMPatchEvent(event: DOMPatchEvent, nodeMap: MutableNodeMap) {
     }
 
     case PatchType.RemoveNodes: {
-      const rootNodeIds = event.data.nodes
-        .map(vtree => vtree.rootId)
+      const rootNodeIds = event.data.nodes.map(vtree => vtree.rootId)
 
-      const nodeIds = event.data.nodes
-        .flatMap(vtree => Object.keys(vtree.nodes))
+      const nodeIds = event.data.nodes.flatMap(vtree =>
+        Object.keys(vtree.nodes)
+      )
 
       for (const nodeId of rootNodeIds) {
         const node = nodeMap[nodeId]
@@ -201,7 +210,11 @@ function applyDOMPatchEvent(event: DOMPatchEvent, nodeMap: MutableNodeMap) {
   }
 }
 
-function applyInteractionEvent(event: InteractionEvent, nodeMap: MutableNodeMap, elapsed: number) {
+function applyInteractionEvent(
+  event: InteractionEvent,
+  nodeMap: MutableNodeMap,
+  elapsed: number
+) {
   if (event.data.type === InteractionType.Scroll) {
     const target = event.data.target
     const node = nodeMap[target]
@@ -225,9 +238,13 @@ function applyInteractionEvent(event: InteractionEvent, nodeMap: MutableNodeMap,
 function createDOMFromVTree(vtree: VTree): [Node | null, MutableNodeMap] {
   const nodeMap: MutableNodeMap = {}
 
-  const createNode = (nodeId: SyntheticId, parentId: SyntheticId | null, svgContext: boolean = false): Node => {
+  const createNode = (
+    nodeId: SyntheticId,
+    parentId: SyntheticId | null,
+    svgContext: boolean = false
+  ): Node => {
     const vNode = vtree.nodes[nodeId] || null
-    const parentVNode = parentId && vtree.nodes[parentId] || null
+    const parentVNode = (parentId && vtree.nodes[parentId]) || null
 
     if (!vNode) {
       throw new Error(`NativeDOMRenderer: could not find VNode: ${nodeId}`)
@@ -245,13 +262,9 @@ function createDOMFromVTree(vtree: VTree): [Node | null, MutableNodeMap] {
       }
 
       node = document.createTextNode(value)
-    }
-
-    else if (isDocTypeVNode(vNode)) {
+    } else if (isDocTypeVNode(vNode)) {
       node = document.createDocumentFragment()
-    }
-
-    else if (isDocumentVNode(vNode) || vNode.tagName === 'html') {
+    } else if (isDocumentVNode(vNode) || vNode.tagName === 'html') {
       const fragment = document.createDocumentFragment()
 
       for (const childId of vNode.children) {
@@ -259,27 +272,27 @@ function createDOMFromVTree(vtree: VTree): [Node | null, MutableNodeMap] {
       }
 
       node = fragment
-    }
-
-    else if (vNode.tagName === 'iframe') {
+    } else if (vNode.tagName === 'iframe') {
       const frame = document.createElement('iframe')
 
-      frame.addEventListener('load', () => {
-        if (frame.contentDocument) {
-          const fragment = document.createDocumentFragment()
+      frame.addEventListener(
+        'load',
+        () => {
+          if (frame.contentDocument) {
+            const fragment = document.createDocumentFragment()
 
-          for (const childId of vNode.children) {
-            fragment.appendChild(createNode(childId, nodeId, svgContext))
+            for (const childId of vNode.children) {
+              fragment.appendChild(createNode(childId, nodeId, svgContext))
+            }
+
+            frame.contentDocument.appendChild(fragment)
           }
-
-          frame.contentDocument.appendChild(fragment)
-        }
-      }, { once: true })
+        },
+        { once: true }
+      )
 
       node = frame
-    }
-
-    else {
+    } else {
       if (vNode.tagName === 'svg') {
         svgContext = true
       }

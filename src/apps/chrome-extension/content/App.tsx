@@ -20,18 +20,19 @@ export const App: React.FC = () => {
     function onMessage(
       message: Message,
       _: chrome.runtime.MessageSender,
-      sendResponse: (response: boolean) => void) {
-        switch (message.action) {
-          case 'announce':
-            sendResponse(true)
-            break
+      sendResponse: (response: boolean) => void
+    ) {
+      switch (message.action) {
+        case 'announce':
+          sendResponse(true)
+          break
 
-          case 'setView':
-            setView(message.value)
-            sendResponse(true)
-            break
-        }
+        case 'setView':
+          setView(message.value)
+          sendResponse(true)
+          break
       }
+    }
 
     chrome.runtime.onMessage.addListener(onMessage)
 
@@ -57,5 +58,7 @@ const Base: React.FC = ({ children }) => (
     lineHeight="1em"
     position="relative"
     zIndex={MAX_INT32}
-  >{children}</Block>
+  >
+    {children}
+  </Block>
 )

@@ -8,15 +8,11 @@ export interface StopCommand {
   name: 'stop'
 }
 
-export type Command =
-  | StartCommand
-  | StopCommand
+export type Command = StartCommand | StopCommand
 
 export interface RecordingResponse {
   name: 'recording'
   payload: Recording
 }
 
-export type Response =
-  | RecordingResponse
-
+export type Response = RecordingResponse

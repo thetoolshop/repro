@@ -4,7 +4,11 @@ import { createSyntheticId, getNodeId, isElementVNode } from '@/utils/vdom'
 import { ObserverLike, RecordingOptions } from '../types'
 import { DOMTreeWalker, isIgnoredByNode, isIgnoredBySelector } from './utils'
 
-export function createDOMObserver(walkDOMTree: DOMTreeWalker, options: RecordingOptions, subscriber: (patch: Patch) => void): ObserverLike {
+export function createDOMObserver(
+  walkDOMTree: DOMTreeWalker,
+  options: RecordingOptions,
+  subscriber: (patch: Patch) => void
+): ObserverLike {
   const domObserver = createMutationObserver(walkDOMTree, options, subscriber)
   const styleSheetObserver = createStyleSheetObserver(subscriber)
   // TODO: input value + checked state observer (should this be interaction? or is 'form' a distinct recording type?)
@@ -22,7 +26,11 @@ export function createDOMObserver(walkDOMTree: DOMTreeWalker, options: Recording
   }
 }
 
-function createMutationObserver(walkDOMTree: DOMTreeWalker, options: RecordingOptions, subscriber: (patch: Patch) => void): ObserverLike<Document> {
+function createMutationObserver(
+  walkDOMTree: DOMTreeWalker,
+  options: RecordingOptions,
+  subscriber: (patch: Patch) => void
+): ObserverLike<Document> {
   const domObserver = new MutationObserver(entries => {
     for (const entry of entries) {
       if (isIgnoredByNode(entry.target, options.ignoredNodes)) {
@@ -36,7 +44,9 @@ function createMutationObserver(walkDOMTree: DOMTreeWalker, options: RecordingOp
       switch (entry.type) {
         case 'attributes':
           const name = entry.attributeName as string
-          const attribute = (entry.target as Element).attributes.getNamedItem(name)
+          const attribute = (entry.target as Element).attributes.getNamedItem(
+            name
+          )
 
           subscriber({
             type: PatchType.Attribute,
@@ -61,13 +71,17 @@ function createMutationObserver(walkDOMTree: DOMTreeWalker, options: RecordingOp
         case 'childList':
           // TODO: optimization - handle moving nodes without destroying vnode
           const removedVTrees = Array.from(entry.removedNodes)
-            .filter(node => !isIgnoredBySelector(node, options.ignoredSelectors))
+            .filter(
+              node => !isIgnoredBySelector(node, options.ignoredSelectors)
+            )
             .filter(node => !isIgnoredByNode(node, options.ignoredNodes))
             .map(node => walkDOMTree(node))
             .filter(vtree => vtree !== null) as Array<VTree>
 
           const addedVTrees = Array.from(entry.addedNodes)
-            .filter(node => !isIgnoredBySelector(node, options.ignoredSelectors))
+            .filter(
+              node => !isIgnoredBySelector(node, options.ignoredSelectors)
+            )
             .filter(node => !isIgnoredByNode(node, options.ignoredNodes))
             .map(node => walkDOMTree(node))
             .filter(vtree => vtree !== null) as Array<VTree>
@@ -124,7 +138,9 @@ function createMutationObserver(walkDOMTree: DOMTreeWalker, options: RecordingOp
   }
 }
 
-function createStyleSheetObserver(subscriber: (patch: Patch) => void): ObserverLike<Document> {
+function createStyleSheetObserver(
+  subscriber: (patch: Patch) => void
+): ObserverLike<Document> {
   function insertRuleEffect(
     doc: Document,
     vtree: Immutable<VTree>,
@@ -146,16 +162,18 @@ function createStyleSheetObserver(subscriber: (patch: Patch) => void): ObserverL
           parentId,
           previousSiblingId,
           nextSiblingId,
-          nodes: [{
-            rootId: id,
-            nodes: {
-              [id]: {
-                type: NodeType.Text,
-                id,
-                value: rule,
+          nodes: [
+            {
+              rootId: id,
+              nodes: {
+                [id]: {
+                  type: NodeType.Text,
+                  id,
+                  value: rule,
+                },
               },
             },
-          }]
+          ],
         })
       }
     }
@@ -185,12 +203,14 @@ function createStyleSheetObserver(subscriber: (patch: Patch) => void): ObserverL
               parentId,
               previousSiblingId,
               nextSiblingId,
-              nodes: [{
-                rootId: id,
-                nodes: {
-                  [id]: node as VText,
+              nodes: [
+                {
+                  rootId: id,
+                  nodes: {
+                    [id]: node as VText,
+                  },
                 },
-              }]
+              ],
             })
           }
         }
@@ -208,12 +228,12 @@ function createStyleSheetObserver(subscriber: (patch: Patch) => void): ObserverL
     },
 
     observe(doc, vtree) {
-      window.CSSStyleSheet.prototype.insertRule = function(this, ...args) {
+      window.CSSStyleSheet.prototype.insertRule = function (this, ...args) {
         insertRuleEffect(doc, vtree, this, ...args)
         return insertRule.call(this, ...args)
       }
 
-      window.CSSStyleSheet.prototype.deleteRule = function(this, ...args) {
+      window.CSSStyleSheet.prototype.deleteRule = function (this, ...args) {
         deleteRuleEffect(doc, vtree, this, ...args)
         return deleteRule.call(this, ...args)
       }

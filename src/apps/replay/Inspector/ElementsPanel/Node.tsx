@@ -1,13 +1,24 @@
 import { Block } from 'jsxstyle'
 import React from 'react'
-import { ArrowDown as OpenedIcon, ArrowRight as ClosedIcon } from 'react-feather'
+import {
+  ArrowDown as OpenedIcon,
+  ArrowRight as ClosedIcon,
+} from 'react-feather'
 import { colors } from '@/config/theme'
 import { setFocusedNode, useFocusedNode, useSnapshot } from '@/libs/playback'
 import { SyntheticId } from '@/types/common'
 import { NodeType } from '@/types/vdom'
 import { useAtomValue } from '@/utils/state'
 import { ElementNode } from './ElementNode'
-import { $openNodes, $selectedNode, blurNode, focusNode, selectNode, toggleOpen, useFocusedNodeTag } from './state'
+import {
+  $openNodes,
+  $selectedNode,
+  blurNode,
+  focusNode,
+  selectNode,
+  toggleOpen,
+  useFocusedNodeTag,
+} from './state'
 import { TextNode } from './TextNode'
 
 interface Props {
@@ -69,7 +80,9 @@ export const Node: React.FC<Props> = ({ id, level }) => {
         </NodeRow>
 
         {isNodeOpen
-          ? node.children.map(childId => <Node key={childId} id={childId} level={level + 1} />)
+          ? node.children.map(childId => (
+              <Node key={childId} id={childId} level={level + 1} />
+            ))
           : null}
 
         <NodeRow
@@ -112,27 +125,22 @@ interface NodeRowProps {
 }
 
 const NodeRow: React.FC<NodeRowProps> = props => {
-  const {
-    children,
-    focused,
-    indent,
-    selected,
-    onBlur,
-    onFocus,
-    onSelect,
-  } = props
+  const { children, focused, indent, selected, onBlur, onFocus, onSelect } =
+    props
 
   const focusedColor = colors.blueGray['50']
   const selectedColor = colors.blue['100']
 
   const backgroundColor = selected
     ? selectedColor
-    : focused ? focusedColor : "transparent"
+    : focused
+    ? focusedColor
+    : 'transparent'
 
   return (
     <Block
       backgroundColor={backgroundColor}
-      paddingLeft={`${(indent * 2) + 1}rem`}
+      paddingLeft={`${indent * 2 + 1}rem`}
       paddingV={3}
       position="relative"
       props={{
@@ -140,7 +148,9 @@ const NodeRow: React.FC<NodeRowProps> = props => {
         onPointerEnter: onFocus,
         onPointerLeave: onBlur,
       }}
-    >{children}</Block>
+    >
+      {children}
+    </Block>
   )
 }
 

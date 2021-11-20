@@ -5,10 +5,10 @@ import { Interaction, Point, ScrollMap } from './interaction'
 import { Patch, VTree } from './vdom'
 
 export enum SourceEventType {
-  Snapshot            = 0,
-  DOMPatch            = 10,
-  Interaction         = 20,
-  CloseRecording      = 99,
+  Snapshot = 0,
+  DOMPatch = 10,
+  Interaction = 20,
+  CloseRecording = 99,
 }
 
 interface BaseEvent {

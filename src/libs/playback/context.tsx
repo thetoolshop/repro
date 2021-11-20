@@ -14,8 +14,6 @@ export const ReplayProvider: React.FC<Props> = ({ children, replay }) => {
   }, [replay])
 
   return (
-    <ReplayContext.Provider value={replay}>
-      {children}
-    </ReplayContext.Provider>
+    <ReplayContext.Provider value={replay}>{children}</ReplayContext.Provider>
   )
 }

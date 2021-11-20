@@ -10,5 +10,5 @@ type ViewAction = [View, (view: View) => void]
 
 export const ViewContext = createContext<ViewAction>([
   View.Timeline,
-  (_view: View) => undefined
+  (_view: View) => undefined,
 ])

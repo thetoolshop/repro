@@ -4,7 +4,12 @@ import { Modal } from '@/components/Modal'
 import { PlaybackErrorBoundary } from '@/components/PlaybackErrorBoundary'
 import { PlaybackCanvas } from '@/components/PlaybackCanvas'
 import { PlaybackControls } from '@/components/PlaybackControls'
-import { createReplay, EMPTY_REPLAY, ReplayProvider, useRecording } from '@/libs/playback'
+import {
+  createReplay,
+  EMPTY_REPLAY,
+  ReplayProvider,
+  useRecording,
+} from '@/libs/playback'
 import { useView, View } from '../../view'
 import { Header } from './Header'
 import { Actions } from './Actions'
@@ -52,5 +57,7 @@ const Layout: React.FC = ({ children }) => (
     gridTemplateColumns="1fr auto"
     gridTemplateRows="50px 1fr 45px"
     height="100%"
-  >{children}</Grid>
+  >
+    {children}
+  </Grid>
 )

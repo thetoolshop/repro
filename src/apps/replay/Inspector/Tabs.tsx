@@ -43,12 +43,16 @@ const Item: React.FC<ItemProps> = ({ children, disabled, view }) => {
 
   const color = disabled
     ? colors.blueGray['300']
-    : activeView === view ? colors.blue['900'] : colors.blue['700']
+    : activeView === view
+    ? colors.blue['900']
+    : colors.blue['700']
 
   return (
     <Row
       alignItems="center"
-      borderBottomColor={activeView === view ? colors.blue['900'] : 'transparent'}
+      borderBottomColor={
+        activeView === view ? colors.blue['900'] : 'transparent'
+      }
       borderBottomStyle="solid"
       borderBottomWidth={2}
       color={color}
@@ -60,8 +64,10 @@ const Item: React.FC<ItemProps> = ({ children, disabled, view }) => {
       pointerEvents={disabled ? 'none' : 'auto'}
       userSelect="none"
       props={{
-        onClick: handleClick
+        onClick: handleClick,
       }}
-    >{children}</Row>
+    >
+      {children}
+    </Row>
   )
 }

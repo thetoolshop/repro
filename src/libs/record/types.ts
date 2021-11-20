@@ -35,4 +35,3 @@ export interface ObserverLike<T extends any = any> {
   disconnect(): void
   observe(target: T, vtree: Immutable<VTree>): void
 }
-

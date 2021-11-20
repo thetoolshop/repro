@@ -1,5 +1,11 @@
 import { Block } from 'jsxstyle'
-import React, { MutableRefObject, useCallback, useEffect, useRef, useState } from 'react'
+import React, {
+  MutableRefObject,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import { colors } from '@/config/theme'
 import { useViewport } from '@/libs/playback'
 import { Point } from '@/types/interaction'
@@ -11,15 +17,18 @@ export const Viewport: React.FC = ({ children }) => {
   const [scale, setScale] = useState(1)
   const [offset, setOffset] = useState<Point>([0, 0])
 
-  const onScale = useCallback((width: number, height: number) => {
-    const widthScale = width / viewport[0]
-    const heightScale = height / viewport[1]
-    setScale(Math.min(1, widthScale, heightScale))
+  const onScale = useCallback(
+    (width: number, height: number) => {
+      const widthScale = width / viewport[0]
+      const heightScale = height / viewport[1]
+      setScale(Math.min(1, widthScale, heightScale))
 
-    const x = (width - viewport[0]) / 2
-    const y = (height - viewport[1]) / 2
-    setOffset([x, y])
-  }, [viewport, setScale, setOffset])
+      const x = (width - viewport[0]) / 2
+      const y = (height - viewport[1]) / 2
+      setOffset([x, y])
+    },
+    [viewport, setScale, setOffset]
+  )
 
   useEffect(() => {
     const observer = new ResizeObserver(entries => {
@@ -60,8 +69,9 @@ export const Viewport: React.FC = ({ children }) => {
         height={viewport[1]}
         transform={`translate(${offset[0]}px, ${offset[1]}px) scale(${scale})`}
         transformOrigin="center"
-      >{children}</Block>
+      >
+        {children}
+      </Block>
     </Block>
   )
 }
-
