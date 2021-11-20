@@ -99,6 +99,10 @@ export function createBuffer<T>(maxSizeInBytes: number): Buffer<T> {
 }
 
 export function approxByteLength(obj: any): number {
+  if (obj && obj.byteLength !== undefined) {
+    return obj.byteLength
+  }
+
   if (typeof obj === 'string') {
     return obj.length * 2
   }

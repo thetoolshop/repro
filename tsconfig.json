@@ -19,5 +19,9 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "esnext",
+  },
+
+  "ts-node": {
+    "files": true
   }
 }

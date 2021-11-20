@@ -44,6 +44,8 @@ const defaultOptions: RecordingOptions = {
   },
 }
 
+const MAX_BUFFER_SIZE_BYTES = 16_000_000
+
 export class RecordingController {
   public static EMPTY = createEmptyRecording()
   public recording = RecordingController.EMPTY
@@ -52,7 +54,7 @@ export class RecordingController {
   private options: RecordingOptions
 
   private started = false
-  private buffer = createBuffer<SourceEvent>(10e6)
+  private buffer = createBuffer<SourceEvent>(MAX_BUFFER_SIZE_BYTES)
   private bufferSubscription: Unsubscribe | null = null
   private observers: Array<ObserverLike> = []
   private timeOrigin = 0

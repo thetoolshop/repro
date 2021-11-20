@@ -59,6 +59,7 @@ export const NativeDOMRenderer: React.FC<Props> = ({ ownerDocument }) => {
     subscription.add(
       replay.$pointer.subscribe(pointer => {
         if (ownerDocument) {
+          // TODO: schedule this on idle callback
           updateHoverTargets(ownerDocument, pointer)
         }
       })
