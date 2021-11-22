@@ -31,6 +31,9 @@ import {
 import { createInteractionObserver, createScrollVisitor } from './interaction'
 import { observePeriodic } from './periodic'
 import { ObserverLike, RecordingOptions } from './types'
+import { decodeEvent, encodeEvent } from '../codecs/event'
+import { BufferReader } from 'arraybuffer-utils'
+import { LITTLE_ENDIAN } from '../codecs/common'
 
 const defaultOptions: RecordingOptions = {
   types: new Set(['dom', 'interaction']),
@@ -44,7 +47,7 @@ const defaultOptions: RecordingOptions = {
   },
 }
 
-const MAX_BUFFER_SIZE_BYTES = 16_000_000
+const MAX_BUFFER_SIZE_BYTES = 32_000_000
 
 export class RecordingController {
   public static EMPTY = createEmptyRecording()
@@ -54,7 +57,7 @@ export class RecordingController {
   private options: RecordingOptions
 
   private started = false
-  private buffer = createBuffer<SourceEvent>(MAX_BUFFER_SIZE_BYTES)
+  private buffer = createBuffer<ArrayBuffer>(MAX_BUFFER_SIZE_BYTES)
   private bufferSubscription: Unsubscribe | null = null
   private observers: Array<ObserverLike> = []
   private timeOrigin = 0
@@ -181,8 +184,24 @@ export class RecordingController {
       time,
     })
 
-    let events = this.buffer.copy()
-    events.sort((a, b) => a.time - b.time)
+    const eventBuffers = this.buffer.copy()
+
+    Stats.value('Recording raw buffer size (bytes)', () => {
+      return approxByteLength(eventBuffers)
+    })
+
+    eventBuffers.sort((a, b) => {
+      const readerA = new BufferReader(a, 1, LITTLE_ENDIAN)
+      const readerB = new BufferReader(b, 1, LITTLE_ENDIAN)
+      const timeA = readerA.readUint32()
+      const timeB = readerB.readUint32()
+      return timeA - timeB
+    })
+
+    let events = eventBuffers.map(buf => {
+      const reader = new BufferReader(buf, 0, LITTLE_ENDIAN)
+      return decodeEvent(reader)
+    })
 
     const timeOffset = events[0]?.time ?? 0
     this.recording.duration = time - timeOffset
@@ -222,7 +241,10 @@ export class RecordingController {
 
   private subscribeToBuffer() {
     this.bufferSubscription = this.buffer.onEvict(evicted => {
-      for (const evictedEvent of evicted) {
+      for (const evictedEventBuffer of evicted) {
+        const reader = new BufferReader(evictedEventBuffer, 0, LITTLE_ENDIAN)
+        const evictedEvent = decodeEvent(reader)
+
         if (evictedEvent.type === SourceEventType.Snapshot) {
           this.leadingSnapshot = evictedEvent.data
           continue
@@ -246,7 +268,7 @@ export class RecordingController {
   }
 
   private addEvent(event: SourceEvent) {
-    this.buffer.push(event)
+    this.buffer.push(encodeEvent(event))
   }
 
   private createSnapshotIndex() {
@@ -372,7 +394,7 @@ export class RecordingController {
               break
 
             case InteractionType.Scroll:
-              this.scrollMap[interaction.type] = interaction.to
+              this.scrollMap[interaction.target] = interaction.to
               break
 
             case InteractionType.ViewportResize:

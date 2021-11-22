@@ -15,6 +15,13 @@ interface BaseEvent {
   time: number
 }
 
+export interface InteractionSnapshot {
+  pointer: Point
+  pointerState: PointerState
+  scroll: ScrollMap
+  viewport: Point
+}
+
 export interface Snapshot {
   dom: VTree | null
   interaction?: {

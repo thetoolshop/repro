@@ -11,6 +11,7 @@ import { createSyntheticId } from '@/utils/vdom'
 import { BufferReader } from 'arraybuffer-utils'
 import { approxByteLength } from '../record/buffer-utils'
 import { LITTLE_ENDIAN } from './common'
+import { decodeInteraction, encodeInteraction } from './interaction'
 
 describe('Interaction codecs', () => {
   it('should encode and decode viewport resize', () => {
@@ -23,7 +24,7 @@ describe('Interaction codecs', () => {
 
     const buffer = encodeInteraction(input)
     const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
-    const output = decodeInteration(reader)
+    const output = decodeInteraction(reader)
 
     expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
     expect(output).toEqual(input)
@@ -40,7 +41,7 @@ describe('Interaction codecs', () => {
 
     const buffer = encodeInteraction(input)
     const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
-    const output = decodeInteration(reader)
+    const output = decodeInteraction(reader)
 
     expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
     expect(output).toEqual(input)
@@ -56,7 +57,7 @@ describe('Interaction codecs', () => {
 
     const buffer = encodeInteraction(input)
     const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
-    const output = decodeInteration(reader)
+    const output = decodeInteraction(reader)
 
     expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
     expect(output).toEqual(input)

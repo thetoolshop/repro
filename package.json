@@ -8,7 +8,9 @@
     "build:replay": "./scripts/replay",
     "start:replay": "./scripts/replay -p 8080 -s",
     "build:chrome-extension": "./scripts/chrome-extension",
-    "watch:chrome-extension": "./scripts/chrome-extension -w"
+    "watch:chrome-extension": "./scripts/chrome-extension -w",
+    "bench:codecs": "./scripts/bench-codecs",
+    "test": "jest"
   },
   "license": "UNLICENSED",
   "dependencies": {

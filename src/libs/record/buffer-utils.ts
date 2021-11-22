@@ -1,4 +1,4 @@
-import { copyObjectDeep } from '@/utils/lang'
+import { copyArray } from '@/utils/lang'
 import { Stats } from '../diagnostics'
 import { Subscriber } from './types'
 
@@ -62,10 +62,10 @@ export function createBuffer<T>(maxSizeInBytes: number): Buffer<T> {
     },
 
     /**
-     * Create deep copy of current buffer.
+     * Create shallow copy of current buffer.
      */
     copy() {
-      return copyObjectDeep(buffer)
+      return copyArray(buffer)
     },
 
     /**

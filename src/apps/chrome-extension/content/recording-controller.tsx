@@ -3,7 +3,7 @@ import { RecordingController } from '@/libs/record'
 import { REPRO_ROOT_ID } from './constants'
 import { Command, RecordingResponse } from './types'
 
-Stats.disable()
+Stats.enable()
 Trace.enable()
 
 const controller = new RecordingController(document, {

@@ -40,11 +40,14 @@ export const PATCH_TYPE_BYTE_LENGTH = 1
 const textEncoder = new TextEncoder()
 const textDecoder = new TextDecoder()
 
-function writeNodeId(writer: BufferWriter, nodeId: SyntheticId) {
+// Should nodeId encoder/decoder by lifted to common?
+export function writeNodeId(writer: BufferWriter, nodeId: SyntheticId) {
   const bytes = textEncoder.encode(nodeId)
 
   if (bytes.byteLength !== NODE_ID_BYTE_LENGTH) {
-    throw new Error('VDOM codec: invalid node ID')
+    throw new Error(
+      `VDOM codec: invalid node ID (${nodeId}: ${bytes.byteLength} bytes)`
+    )
   }
 
   for (const byte of bytes) {
@@ -52,7 +55,7 @@ function writeNodeId(writer: BufferWriter, nodeId: SyntheticId) {
   }
 }
 
-function readNodeId(reader: BufferReader): SyntheticId {
+export function readNodeId(reader: BufferReader): SyntheticId {
   const bytes: Array<number> = []
 
   for (let i = 0; i < NODE_ID_BYTE_LENGTH; i++) {
