@@ -276,17 +276,31 @@ function createDOMFromVTree(vtree: VTree): [Node | null, MutableNodeMap] {
     } else if (vNode.tagName === 'iframe') {
       const frame = document.createElement('iframe')
 
+      for (const [name, value] of Object.entries(vNode.attributes)) {
+        frame.setAttribute(name, value ?? '')
+      }
+
       frame.addEventListener(
         'load',
         () => {
-          if (frame.contentDocument) {
+          const doc = frame.contentDocument
+
+          if (doc) {
+            doc.open()
+            doc.write('<!doctype html>')
+            doc.close()
+
+            const root = document.createElement('html')
+            doc.documentElement.remove()
+            doc.appendChild(root)
+
             const fragment = document.createDocumentFragment()
 
             for (const childId of vNode.children) {
               fragment.appendChild(createNode(childId, nodeId, svgContext))
             }
 
-            frame.contentDocument.appendChild(fragment)
+            root.appendChild(fragment)
           }
         },
         { once: true }
