@@ -43,11 +43,13 @@ export const Button: React.FC<Props> = ({
       boxSizing="border-box"
       color={variant === 'primary' ? colors.white : colors.blue['900']}
       cursor="pointer"
+      fontFamily="monospace"
       fontSize={fontSize}
       gap={gap}
       height={height}
       justifyContent="center"
       lineHeight="1em"
+      outline="none"
       paddingH={paddingH}
     >
       {children}

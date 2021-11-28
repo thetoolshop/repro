@@ -23,7 +23,8 @@
     "react-dom": "^17.0.2",
     "react-feather": "^2.0.9",
     "react-merge-refs": "^1.1.0",
-    "rxjs": "^7.2.0",
+    "rxjs": "^7.4.0",
+    "shortcuts": "^1.8.0",
     "tailwindcss": "^2.2.4"
   },
   "devDependencies": {
@@ -32,7 +33,7 @@
     "@types/react": "^17.0.14",
     "@types/react-dom": "^17.0.9",
     "@types/tailwindcss": "^2.2.1",
-    "esbuild": "^0.12.15",
+    "esbuild": "^0.13.15",
     "jest": "^27.3.1",
     "patch-package": "^6.4.7",
     "prettier": "^2.4.1",

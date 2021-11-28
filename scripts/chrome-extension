@@ -11,8 +11,8 @@ watch=false
 
 entries="\
 background=background.ts \
-content=content/index.tsx \
-rc=content/recording-controller.tsx"
+content=content/index.ts \
+devtools=../devtools/index.tsx"
 
 while getopts "w" param; do
   case "$param" in

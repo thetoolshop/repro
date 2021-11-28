@@ -31,7 +31,13 @@ import {
 import { createInteractionObserver, createScrollVisitor } from './interaction'
 import { observePeriodic } from './periodic'
 import { ObserverLike, RecordingOptions } from './types'
-import { decodeEvent, encodeEvent } from '../codecs/event'
+import {
+  decodeEvent,
+  encodeEvent,
+  encodeSnapshotEvent,
+  readEventTime,
+  readEventType,
+} from '../codecs/event'
 import { BufferReader } from 'arraybuffer-utils'
 import { LITTLE_ENDIAN } from '../codecs/common'
 
@@ -50,9 +56,6 @@ const defaultOptions: RecordingOptions = {
 const MAX_BUFFER_SIZE_BYTES = 32_000_000
 
 export class RecordingController {
-  public static EMPTY = createEmptyRecording()
-  public recording = RecordingController.EMPTY
-
   private document: Document
   private options: RecordingOptions
 
@@ -60,7 +63,6 @@ export class RecordingController {
   private buffer = createBuffer<ArrayBuffer>(MAX_BUFFER_SIZE_BYTES)
   private bufferSubscription: Unsubscribe | null = null
   private observers: Array<ObserverLike> = []
-  private timeOrigin = 0
   private walkDOMTree: DOMTreeWalker | null = null
 
   // Snapshot entries
@@ -88,11 +90,8 @@ export class RecordingController {
       return
     }
 
-    this.timeOrigin = performance.now()
-
     this.started = true
     this.buffer.clear()
-    this.recording = createEmptyRecording()
 
     // Reset snapshot state
     this.latestVTree = null
@@ -176,67 +175,70 @@ export class RecordingController {
     }
 
     this.started = false
-
-    const time = performance.now() - this.timeOrigin
-
-    this.addEvent({
-      type: SourceEventType.CloseRecording,
-      time,
-    })
-
-    const eventBuffers = this.buffer.copy()
-
-    Stats.value('Recording raw buffer size (bytes)', () => {
-      return approxByteLength(eventBuffers)
-    })
-
-    eventBuffers.sort((a, b) => {
-      const readerA = new BufferReader(a, 1, LITTLE_ENDIAN)
-      const readerB = new BufferReader(b, 1, LITTLE_ENDIAN)
-      const timeA = readerA.readUint32()
-      const timeB = readerB.readUint32()
-      return timeA - timeB
-    })
-
-    let events = eventBuffers.map(buf => {
-      const reader = new BufferReader(buf, 0, LITTLE_ENDIAN)
-      return decodeEvent(reader)
-    })
-
-    const timeOffset = events[0]?.time ?? 0
-    this.recording.duration = time - timeOffset
-
-    events = events.map(event => ({
-      ...event,
-      time: event.time - timeOffset,
-    }))
-
-    if (!this.leadingSnapshot) {
-      throw new Error('Recording: cannot prepend leading snapshot')
-    }
-
-    events = [
-      {
-        type: SourceEventType.Snapshot,
-        data: copyObjectDeep(this.leadingSnapshot),
-        time: 0,
-      },
-      ...events,
-    ]
-
-    this.recording.events = events
-    this.createSnapshotIndex()
-
-    Stats.value('Recording size (bytes)', () => {
-      return approxByteLength(this.recording)
-    })
-
     this.unsubscribeFromBuffer()
     this.buffer.clear()
   }
 
   public isStarted() {
     return this.started === true
+  }
+
+  public slice(): Recording {
+    const recording = createEmptyRecording()
+
+    const events = this.buffer.copy()
+
+    events.sort((a, b) => {
+      return readEventTime(a) - readEventTime(b)
+    })
+
+    const firstEvent = events[0]
+    const lastEvent = events[events.length - 1]
+
+    const timeStart = firstEvent ? readEventTime(firstEvent) : 0
+    const timeEnd = lastEvent ? readEventTime(lastEvent) : 0
+    recording.duration = timeEnd - timeStart
+
+    if (!this.leadingSnapshot) {
+      throw new Error('Recording: cannot prepend leading snapshot')
+    }
+
+    events.unshift(
+      encodeSnapshotEvent({
+        type: SourceEventType.Snapshot,
+        data: this.leadingSnapshot,
+        time: timeStart,
+      })
+    )
+
+    Stats.value('Recording: raw event buffer size (bytes)', () => {
+      return approxByteLength(events)
+    })
+
+    recording.events = events.map(buf => {
+      const reader = new BufferReader(buf, 0, LITTLE_ENDIAN)
+      return decodeEvent(reader)
+    })
+
+    const start = performance.now()
+    const index: Array<number> = []
+
+    for (let i = 0, len = recording.events.length; i < len; i++) {
+      const event = recording.events[i]
+
+      if (event && event.type === SourceEventType.Snapshot) {
+        index.push(i)
+      }
+    }
+
+    recording.snapshotIndex = index
+    Stats.value('Recording: indexing snapshots (ms)', performance.now() - start)
+
+    Stats.value('Recording: decoded size (bytes)', () => {
+      return approxByteLength(recording)
+    })
+
+    return recording
   }
 
   private subscribeToBuffer() {
@@ -271,22 +273,6 @@ export class RecordingController {
     this.buffer.push(encodeEvent(event))
   }
 
-  private createSnapshotIndex() {
-    const start = performance.now()
-    const index: Array<number> = []
-
-    for (let i = 0, len = this.recording.events.length; i < len; i++) {
-      const event = this.recording.events[i]
-
-      if (event && event.type === SourceEventType.Snapshot) {
-        index.push(i)
-      }
-    }
-
-    this.recording.snapshotIndex = index
-    Stats.value('Indexing (ms)', performance.now() - start)
-  }
-
   private createSnapshotEvent(at?: number): SnapshotEvent {
     if (!this.isStarted()) {
       throw new Error('RecordingError: recording has not been started')
@@ -314,7 +300,7 @@ export class RecordingController {
     }
 
     return {
-      time: at ?? performance.now() - this.timeOrigin,
+      time: at ?? performance.now(),
       type: SourceEventType.Snapshot,
       data,
     }
@@ -328,7 +314,7 @@ export class RecordingController {
     return {
       type: SourceEventType.DOMPatch,
       data: patch,
-      time: performance.now() - this.timeOrigin,
+      time: performance.now(),
     }
   }
 
@@ -344,7 +330,7 @@ export class RecordingController {
     return {
       type: SourceEventType.Interaction,
       data: interaction,
-      time: at ?? performance.now() - this.timeOrigin - transposition,
+      time: at ?? performance.now() - transposition,
     }
   }
 

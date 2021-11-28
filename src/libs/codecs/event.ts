@@ -12,6 +12,16 @@ import { decodeInteraction, encodeInteraction } from './interaction'
 import { decodeSnapshot, encodeSnapshot } from './snapshot'
 import { decodePatch, encodePatch } from './vdom'
 
+export function readEventType(buffer: ArrayBuffer): SourceEventType {
+  const view = new DataView(buffer)
+  return view.getUint8(0)
+}
+
+export function readEventTime(buffer: ArrayBuffer): number {
+  const view = new DataView(buffer)
+  return view.getUint32(1, LITTLE_ENDIAN)
+}
+
 export function encodeEvent(event: SourceEvent): ArrayBuffer {
   switch (event.type) {
     case SourceEventType.Snapshot:
