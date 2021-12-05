@@ -19,7 +19,9 @@ function isValueFactory<T>(val: T | Factory<T>): val is Factory<T> {
   return typeof val === 'function'
 }
 
-function createSetter<T>(atom: Atom<T>) {
+export type Setter<T> = (val: T | Factory<T>) => void
+
+function createSetter<T>(atom: Atom<T>): Setter<T> {
   return (val: T | Factory<T>) => {
     atom.next(isValueFactory(val) ? val(atom.getValue()) : val)
   }

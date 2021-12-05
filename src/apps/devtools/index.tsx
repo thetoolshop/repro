@@ -1,15 +1,18 @@
 import { Stats, Trace } from '@/libs/diagnostics'
-import { RecordingController } from '@/libs/record'
+import { createRecordingStream, RecordingStreamProvider } from '@/libs/record'
 import { cache as styleCache } from 'jsxstyle'
 import React from 'react'
 import ReactDOM from 'react-dom'
+import { StateProvider } from './context'
+import { createState } from './createState'
 import { DevTools } from './DevTools'
 
-Stats.disable()
+Stats.enable()
 Trace.enable()
 
 class ReproDevTools extends HTMLElement {
   private renderRoot: HTMLDivElement
+  private state = createState()
 
   constructor() {
     super()
@@ -44,13 +47,20 @@ class ReproDevTools extends HTMLElement {
       ignoredNodes.push(document.currentScript)
     }
 
-    const controller = new RecordingController(document, {
+    const stream = createRecordingStream(document, {
       types: new Set(['dom', 'interaction']),
       ignoredNodes,
       ignoredSelectors,
     })
 
-    ReactDOM.render(<DevTools controller={controller} />, this.renderRoot)
+    ReactDOM.render(
+      <RecordingStreamProvider stream={stream}>
+        <StateProvider state={this.state}>
+          <DevTools />
+        </StateProvider>
+      </RecordingStreamProvider>,
+      this.renderRoot
+    )
   }
 
   public disconnectedCallback() {

@@ -1,24 +1,24 @@
 import { Button } from '@/components/Button'
 import { Logo } from '@/components/Logo'
 import { colors } from '@/config/theme'
-import { useAtomState } from '@/utils/state'
 import { Block, Grid, Row } from 'jsxstyle'
 import React, { useCallback, useEffect } from 'react'
 import { Crosshair, Eye, EyeOff } from 'react-feather'
 import { Shortcuts } from 'shortcuts'
-import { $active, $picker } from '../state'
+import { useActive, useDevtoolsState, usePicker } from '../hooks'
 
 export const Toolbar: React.FC = () => {
-  const [active, setActive] = useAtomState($active)
-  const [picker, setPicker] = useAtomState($picker)
+  const state = useDevtoolsState()
+  const active = useActive()
+  const picker = usePicker()
 
   const toggleActive = useCallback(() => {
-    setActive(active => !active)
-  }, [setActive])
+    state.setActive(active => !active)
+  }, [state])
 
   const togglePicker = useCallback(() => {
-    setPicker(picker => !picker)
-  }, [setPicker])
+    state.setPicker(picker => !picker)
+  }, [state])
 
   useEffect(() => {
     const shortcuts = new Shortcuts()

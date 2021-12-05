@@ -242,9 +242,21 @@ function createPointerMoveObserver(
     sampling
   )
 
-  dispatchInitialPointer()
+  const pointerMoveObserver = createEventObserver(
+    'pointermove',
+    handlePointerMove
+  )
 
-  return createEventObserver('pointermove', handlePointerMove)
+  return {
+    observe(target, vtree) {
+      dispatchInitialPointer()
+      pointerMoveObserver.observe(target, vtree)
+    },
+
+    disconnect() {
+      pointerMoveObserver.disconnect()
+    },
+  }
 }
 
 function createPointerDownObserver(callback: Callback): ObserverLike<Document> {

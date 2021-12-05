@@ -1,14 +1,14 @@
 import { colors } from '@/config/theme'
-import { SyntheticId } from '@/types/common'
 import { getNodeId } from '@/utils/vdom'
 import { Block } from 'jsxstyle'
 import React, { useEffect, useState } from 'react'
 import { fromEvent, Subscription } from 'rxjs'
 import { distinctUntilChanged, map, share } from 'rxjs/operators'
+import { useDevtoolsState } from '../hooks'
 
 export const PickerOverlay: React.FC = () => {
+  const state = useDevtoolsState()
   const [boundingBox, setBoundingBox] = useState<DOMRect | null>(null)
-  const [targetNodeId, setTargetNodeId] = useState<SyntheticId | null>(null)
 
   useEffect(() => {
     const subscription = new Subscription()
@@ -27,14 +27,18 @@ export const PickerOverlay: React.FC = () => {
 
     subscription.add(
       targetElement$.subscribe(target => {
-        setTargetNodeId(target ? getNodeId(target) : null)
+        state.setTargetNodeId(target ? getNodeId(target) : null)
       })
     )
 
     return () => {
       subscription.unsubscribe()
     }
-  }, [setBoundingBox, setTargetNodeId])
+  }, [setBoundingBox, state])
+
+  const handleClick = () => {
+    state.setActive(true)
+  }
 
   return (
     <Block
@@ -44,6 +48,9 @@ export const PickerOverlay: React.FC = () => {
       left={0}
       right={0}
       pointerEvents="none"
+      props={{
+        onClick: handleClick,
+      }}
     >
       <svg width="100%" height="100%">
         {boundingBox && (

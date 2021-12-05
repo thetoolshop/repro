@@ -1,25 +1,20 @@
 import { Block } from 'jsxstyle'
 import React, { useEffect } from 'react'
-import { Shortcuts } from 'shortcuts'
-import { RecordingController } from '@/libs/record'
-import { useAtomValue } from '@/utils/state'
-import { $active, $picker } from './state'
+import { useRecordingStream } from '@/libs/record'
 import { Inspector } from './Inspector'
 import { Toolbar } from './Toolbar'
 import { PickerOverlay } from './PickerOverlay'
+import { useActive, usePicker } from './hooks'
 
-interface Props {
-  controller: RecordingController
-}
-
-export const DevTools: React.FC<Props> = ({ controller }) => {
-  const active = useAtomValue($active)
-  const picker = useAtomValue($picker)
+export const DevTools: React.FC = () => {
+  const stream = useRecordingStream()
+  const active = useActive()
+  const picker = usePicker()
 
   useEffect(() => {
-    controller.start()
-    return () => controller.stop()
-  }, [controller])
+    stream.start()
+    return () => stream.stop()
+  }, [stream])
 
   return (
     <Container>

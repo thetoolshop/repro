@@ -24,32 +24,6 @@ import {
 } from '@/utils/source'
 import { Atom, createAtom } from '@/utils/state'
 
-/**
- * TARGET IMPLEMENTATION:
- *
- * const ReplayContext = React.createContext<Replay>()
- *
- * const ReplayProvider = ({ children, value }) => {
- *   useEffect(() => {
- *     return () => replay.close()
- *   }, [replay])
- *
- *   return children
- * }
- *
- * Replay provider starts/stops replay instance with lifecycle
- * <ReplayProvider value={replay}>
- *
- * function useReplay() {
- *   return useContext(ReplayContext)
- * }
- *
- * function useElapsed() {
- *   const replay = useReplay()
- *   return useAtomValue(replay.$elapsed)
- * }
- */
-
 export enum PlaybackState {
   Playing,
   Paused,
