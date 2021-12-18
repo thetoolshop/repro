@@ -1,13 +1,13 @@
 import { colors } from '@/config/theme'
-import { getNodeId } from '@/utils/vdom'
 import { Block } from 'jsxstyle'
 import React, { useEffect, useState } from 'react'
 import { fromEvent, Subscription } from 'rxjs'
 import { distinctUntilChanged, map, share } from 'rxjs/operators'
-import { useDevtoolsState } from '../hooks'
+import { useActive, useTargetNode } from '../hooks'
 
 export const PickerOverlay: React.FC = () => {
-  const state = useDevtoolsState()
+  const [, setActive] = useActive()
+  const [, setTargetNode] = useTargetNode()
   const [boundingBox, setBoundingBox] = useState<DOMRect | null>(null)
 
   useEffect(() => {
@@ -27,17 +27,17 @@ export const PickerOverlay: React.FC = () => {
 
     subscription.add(
       targetElement$.subscribe(target => {
-        state.setTargetNodeId(target ? getNodeId(target) : null)
+        setTargetNode(target)
       })
     )
 
     return () => {
       subscription.unsubscribe()
     }
-  }, [setBoundingBox, state])
+  }, [setBoundingBox, setTargetNode])
 
   const handleClick = () => {
-    state.setActive(true)
+    setActive(true)
   }
 
   return (

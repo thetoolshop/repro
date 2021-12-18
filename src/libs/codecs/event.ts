@@ -22,6 +22,12 @@ export function readEventTime(buffer: ArrayBuffer): number {
   return view.getUint32(1, LITTLE_ENDIAN)
 }
 
+export function writeEventTimeOffset(buffer: ArrayBuffer, timeOffset: number) {
+  const time = readEventTime(buffer)
+  const writer = new BufferWriter(buffer, 1, LITTLE_ENDIAN)
+  writer.writeUint32(time - timeOffset)
+}
+
 export function encodeEvent(event: SourceEvent): ArrayBuffer {
   switch (event.type) {
     case SourceEventType.Snapshot:

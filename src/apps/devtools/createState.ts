@@ -1,29 +1,41 @@
-import { SyntheticId } from '@/types/common'
 import { Atom, createAtom, Setter } from '@/utils/state'
+import { INITIAL_SIZE } from './constants'
+import { View } from './types'
 
 export interface State {
   $active: Atom<boolean>
   $picker: Atom<boolean>
-  $targetNodeId: Atom<SyntheticId | null>
+  $targetNode: Atom<Node | null>
+  $view: Atom<View>
+  $size: Atom<number>
 
   setActive: Setter<boolean>
   setPicker: Setter<boolean>
-  setTargetNodeId: Setter<SyntheticId | null>
+  setTargetNode: Setter<Node | null>
+  setView: Setter<View>
+  setSize: Setter<number>
 }
 
 export function createState(): State {
-  const [$active, getActive, setActive] = createAtom(false)
-  const [$picker, getPicker, setPicker] = createAtom(false)
-  const [$targetNodeId, getTargetNodeId, setTargetNodeId] =
-    createAtom<SyntheticId | null>(null)
+  const [$active, _getActive, setActive] = createAtom(false)
+  const [$picker, _getPicker, setPicker] = createAtom(false)
+  const [$targetNode, _getTargetNode, setTargetNode] = createAtom<Node | null>(
+    null
+  )
+  const [$view, _getView, setView] = createAtom(View.Elements)
+  const [$size, _getSize, setSize] = createAtom(INITIAL_SIZE)
 
   return {
     $active,
     $picker,
-    $targetNodeId,
+    $targetNode,
+    $view,
+    $size,
 
     setActive,
     setPicker,
-    setTargetNodeId,
+    setTargetNode,
+    setView,
+    setSize,
   }
 }

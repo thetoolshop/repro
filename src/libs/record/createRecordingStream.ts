@@ -5,6 +5,7 @@ import { Interaction, InteractionType, PointerState } from '@/types/interaction'
 import {
   DOMPatchEvent,
   InteractionEvent,
+  InteractionSnapshot,
   Recording,
   Snapshot,
   SnapshotEvent,
@@ -13,17 +14,28 @@ import {
 } from '@/types/recording'
 import { Patch, VNode } from '@/types/vdom'
 import { isZeroPoint } from '@/utils/interaction'
-import { copyObjectDeep } from '@/utils/lang'
+import {
+  ArrayBufferBackedList,
+  copyObjectDeep,
+  createEmptyList,
+} from '@/utils/lang'
 import { applyEventToSnapshot } from '@/utils/source'
 import { applyVTreePatch, getNodeId } from '@/utils/vdom'
 import { LITTLE_ENDIAN } from '../codecs/common'
-import { decodeEvent, encodeEvent, readEventTime } from '../codecs/event'
+import {
+  decodeEvent,
+  encodeEvent,
+  readEventTime,
+  readEventType,
+  writeEventTimeOffset,
+} from '../codecs/event'
 import { Stats } from '../diagnostics'
 import { createBuffer, Unsubscribe } from './buffer-utils'
 import { createDOMObserver, createDOMTreeWalker, createDOMVisitor } from './dom'
 import { createInteractionObserver, createScrollVisitor } from './interaction'
 import { observePeriodic } from './periodic'
 import { ObserverLike, RecordingOptions } from './types'
+import { concat, NEVER, Observable, of } from 'rxjs'
 
 const defaultOptions: RecordingOptions = {
   types: new Set(['dom', 'interaction']),
@@ -49,8 +61,17 @@ export function createEmptyRecording(): Recording {
   return {
     id: nanoid(11),
     duration: 0,
-    events: [],
+    events: createEmptyList<SourceEvent>(),
     snapshotIndex: [],
+  }
+}
+
+export function createEmptyInteractionSnapshot(): InteractionSnapshot {
+  return {
+    pointer: [0, 0],
+    pointerState: PointerState.Up,
+    scroll: {},
+    viewport: [0, 0],
   }
 }
 
@@ -59,6 +80,12 @@ export interface RecordingStream {
   stop(): void
   peek(nodeId: SyntheticId): VNode | null
   slice(): Recording
+  tail(): Observable<SourceEvent>
+}
+
+interface BufferSubscriptions {
+  onEvict: Unsubscribe | null
+  onPush: Unsubscribe | null
 }
 
 export const EMPTY_RECORDING_STREAM: RecordingStream = {
@@ -66,6 +93,7 @@ export const EMPTY_RECORDING_STREAM: RecordingStream = {
   stop: () => undefined,
   peek: () => null,
   slice: createEmptyRecording,
+  tail: () => NEVER,
 }
 
 export function createRecordingStream(
@@ -81,7 +109,11 @@ export function createRecordingStream(
 
   const observers: Array<ObserverLike> = []
   const buffer = createBuffer<ArrayBuffer>(MAX_BUFFER_SIZE_BYTES)
-  let subscription: Unsubscribe | null = null
+
+  const bufferSubscriptions: BufferSubscriptions = {
+    onEvict: null,
+    onPush: null,
+  }
 
   const leadingSnapshot = createEmptySnapshot()
   const trailingSnapshot = createEmptySnapshot()
@@ -91,6 +123,7 @@ export function createRecordingStream(
     ignoredSelectors: options.ignoredSelectors,
   })
 
+  // TODO: investigate on-the-fly snapshotting
   registerSnapshotObserver()
 
   if (options.types.has('dom')) {
@@ -121,12 +154,7 @@ export function createRecordingStream(
     trailingSnapshot.dom = null
 
     if (options.types.has('interaction')) {
-      trailingSnapshot.interaction = {
-        pointer: [0, 0],
-        pointerState: PointerState.Up,
-        scroll: {},
-        viewport: [0, 0],
-      }
+      trailingSnapshot.interaction = createEmptyInteractionSnapshot()
     }
 
     const start = performance.now()
@@ -143,6 +171,7 @@ export function createRecordingStream(
     }
 
     subscribeToBuffer()
+    addEvent(createSnapshotEvent())
 
     for (const observer of observers) {
       observer.observe(doc, trailingVTree)
@@ -172,6 +201,59 @@ export function createRecordingStream(
       return readEventTime(a) - readEventTime(b)
     })
 
+    events.push(encodeEvent(createSnapshotEvent()))
+
+    const firstEvent = events[0]
+    const timeOffset = firstEvent ? readEventTime(firstEvent) : 0
+
+    const start = performance.now()
+
+    for (const event of events) {
+      writeEventTimeOffset(event, timeOffset)
+    }
+
+    Stats.value(
+      'Recording stream: apply time offset',
+      performance.now() - start
+    )
+
+    const lastEvent = events[events.length - 1]
+    const duration = lastEvent ? readEventTime(lastEvent) : 0
+    recording.duration = duration
+
+    // If first event is not a snapshot event (i.e. leading snapshot has been
+    // evicted), prepend rolling leading snapshot.
+    if (!firstEvent || readEventType(firstEvent) !== SourceEventType.Snapshot) {
+      events.unshift(
+        encodeEvent({
+          time: 0,
+          type: SourceEventType.Snapshot,
+          data: leadingSnapshot,
+        })
+      )
+    }
+
+    recording.events = new ArrayBufferBackedList<SourceEvent>(
+      events,
+      buf => {
+        const reader = new BufferReader(buf, 0, LITTLE_ENDIAN)
+        return decodeEvent(reader)
+      },
+      encodeEvent
+    )
+
+    for (let i = 0, len = events.length; i < len; i++) {
+      const event = events[i]
+
+      if (event) {
+        const type = readEventType(event)
+
+        if (type === SourceEventType.Snapshot) {
+          recording.snapshotIndex.push(i)
+        }
+      }
+    }
+
     return recording
   }
 
@@ -185,13 +267,29 @@ export function createRecordingStream(
     return trailingVTree.nodes[nodeId] || null
   }
 
+  function tail(): Observable<SourceEvent> {
+    return concat(
+      of(createSnapshotEvent()),
+      new Observable<SourceEvent>(observer => {
+        const subscription = buffer.onPush(data => {
+          const reader = new BufferReader(data, 0, LITTLE_ENDIAN)
+          observer.next(decodeEvent(reader))
+        })
+
+        return () => {
+          subscription()
+        }
+      })
+    )
+  }
+
   function addEvent(event: SourceEvent) {
     buffer.push(encodeEvent(event))
   }
 
-  function createSnapshotEvent(at?: number): SnapshotEvent {
+  function createSnapshotEvent(): SnapshotEvent {
     return {
-      time: at ?? performance.now(),
+      time: performance.now(),
       type: SourceEventType.Snapshot,
       data: copyObjectDeep(trailingSnapshot),
     }
@@ -245,11 +343,10 @@ export function createRecordingStream(
 
   function createInteractionEvent(
     interaction: Interaction,
-    transposition: number,
-    at?: number
+    transposition: number
   ): InteractionEvent {
     return {
-      time: at ?? performance.now() - transposition,
+      time: performance.now() - transposition,
       type: SourceEventType.Interaction,
       data: interaction,
     }
@@ -257,44 +354,41 @@ export function createRecordingStream(
 
   function registerInteractionObserver() {
     observers.push(
-      createInteractionObserver(
-        options,
-        (interaction, transposition = 0, at) => {
-          const trailingInteraction = trailingSnapshot.interaction
+      createInteractionObserver(options, (interaction, transposition = 0) => {
+        const trailingInteraction = trailingSnapshot.interaction
 
-          if (!trailingInteraction) {
-            throw new Error(
-              'RecordingStream: trailing interaction snapshot has not been created'
-            )
-          }
-
-          switch (interaction.type) {
-            case InteractionType.PointerMove:
-              trailingInteraction.pointer = interaction.to
-              break
-
-            case InteractionType.PointerDown:
-              trailingInteraction.pointer = interaction.at
-              trailingInteraction.pointerState = PointerState.Down
-              break
-
-            case InteractionType.PointerUp:
-              trailingInteraction.pointer = interaction.at
-              trailingInteraction.pointerState = PointerState.Up
-              break
-
-            case InteractionType.Scroll:
-              trailingInteraction.scroll[interaction.target] = interaction.to
-              break
-
-            case InteractionType.ViewportResize:
-              trailingInteraction.viewport = interaction.to
-              break
-          }
-
-          addEvent(createInteractionEvent(interaction, transposition, at))
+        if (!trailingInteraction) {
+          throw new Error(
+            'RecordingStream: trailing interaction snapshot has not been created'
+          )
         }
-      )
+
+        switch (interaction.type) {
+          case InteractionType.PointerMove:
+            trailingInteraction.pointer = interaction.to
+            break
+
+          case InteractionType.PointerDown:
+            trailingInteraction.pointer = interaction.at
+            trailingInteraction.pointerState = PointerState.Down
+            break
+
+          case InteractionType.PointerUp:
+            trailingInteraction.pointer = interaction.at
+            trailingInteraction.pointerState = PointerState.Up
+            break
+
+          case InteractionType.Scroll:
+            trailingInteraction.scroll[interaction.target] = interaction.to
+            break
+
+          case InteractionType.ViewportResize:
+            trailingInteraction.viewport = interaction.to
+            break
+        }
+
+        addEvent(createInteractionEvent(interaction, transposition))
+      })
     )
   }
 
@@ -325,7 +419,7 @@ export function createRecordingStream(
   function registerPerformanceObserver() {}
 
   function subscribeToBuffer() {
-    subscription = buffer.onEvict(evicted => {
+    bufferSubscriptions.onEvict = buffer.onEvict(evicted => {
       for (const evictee of evicted) {
         const reader = new BufferReader(evictee, 0, LITTLE_ENDIAN)
         const event = decodeEvent(reader)
@@ -343,9 +437,9 @@ export function createRecordingStream(
   }
 
   function unsubscribeFromBuffer() {
-    if (subscription) {
-      subscription()
-      subscription = null
+    if (bufferSubscriptions.onEvict) {
+      bufferSubscriptions.onEvict()
+      bufferSubscriptions.onEvict = null
     }
   }
 
@@ -354,5 +448,6 @@ export function createRecordingStream(
     stop,
     peek,
     slice,
+    tail,
   }
 }

@@ -1,53 +1,56 @@
 import { useContext } from 'react'
 import { createValueHook, useAtomValue } from '@/utils/state'
-import { ReplayContext } from './context'
+import { PlaybackContext } from './context'
 import { $focusedNode, $readyState, $recording, $source } from './state'
+import { EMPTY_PLAYBACK } from './createRecordingPlayback'
+import { PointerState } from '@/types/interaction'
+import { OUT_OF_BOUNDS_POINT, ZERO_POINT } from './constants'
 
 export const useFocusedNode = createValueHook($focusedNode)
 export const useReadyState = createValueHook($readyState)
 export const useRecording = createValueHook($recording)
 export const useSource = createValueHook($source)
 
-export function useReplay() {
-  return useContext(ReplayContext)
+export function usePlayback() {
+  return useContext(PlaybackContext) || EMPTY_PLAYBACK
 }
 
 export function useActiveIndex() {
-  const replay = useReplay()
-  return useAtomValue(replay.$activeIndex)
+  const playback = usePlayback()
+  return useAtomValue(playback.$activeIndex)
 }
 
 export function useBuffer() {
-  const replay = useReplay()
-  return useAtomValue(replay.$buffer)
+  const playback = usePlayback()
+  return useAtomValue(playback.$buffer)
 }
 
 export function useElapsed() {
-  const replay = useReplay()
-  return useAtomValue(replay.$elapsed)
-}
-
-export function usePlaybackState() {
-  const replay = useReplay()
-  return useAtomValue(replay.$playbackState)
-}
-
-export function usePointer() {
-  const replay = useReplay()
-  return useAtomValue(replay.$pointer)
-}
-
-export function usePointerState() {
-  const replay = useReplay()
-  return useAtomValue(replay.$pointerState)
+  const playback = usePlayback()
+  return useAtomValue(playback.$elapsed)
 }
 
 export function useSnapshot() {
-  const replay = useReplay()
-  return useAtomValue(replay.$snapshot)
+  const playback = usePlayback()
+  return useAtomValue(playback.$snapshot)
+}
+
+export function usePlaybackState() {
+  const playback = usePlayback()
+  return useAtomValue(playback.$playbackState)
+}
+
+export function usePointer() {
+  const snapshot = useSnapshot()
+  return snapshot.interaction?.pointer || OUT_OF_BOUNDS_POINT
+}
+
+export function usePointerState() {
+  const snapshot = useSnapshot()
+  return snapshot.interaction?.pointerState || PointerState.Up
 }
 
 export function useViewport() {
-  const replay = useReplay()
-  return useAtomValue(replay.$viewport)
+  const snapshot = useSnapshot()
+  return snapshot.interaction?.viewport || ZERO_POINT
 }

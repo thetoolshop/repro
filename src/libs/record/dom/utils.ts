@@ -111,8 +111,11 @@ export function isIgnoredBySelector(
   node: Node,
   ignoredSelectors: Array<string> = []
 ) {
-  return ignoredSelectors.some(selector => {
-    const parent = document.querySelector(selector)
-    return parent ? parent.contains(node) : false
-  })
+  if (isElementNode(node)) {
+    return ignoredSelectors.some(selector => {
+      return node.matches(selector)
+    })
+  }
+
+  return false
 }

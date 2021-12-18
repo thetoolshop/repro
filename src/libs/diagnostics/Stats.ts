@@ -45,7 +45,6 @@ export const Stats = {
     enabled = false
   },
 
-  // TODO: support anonymised reporting
   value(label: string, value: FactoryOrValue<number>) {
     if (enabled) {
       emit(label, typeof value === 'function' ? value() : value)

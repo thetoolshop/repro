@@ -1,8 +1,10 @@
+import { applyResetStyles } from '@/config/theme'
 import { Stats, Trace } from '@/libs/diagnostics'
 import { createRecordingStream, RecordingStreamProvider } from '@/libs/record'
 import { cache as styleCache } from 'jsxstyle'
 import React from 'react'
 import ReactDOM from 'react-dom'
+import { REPRO_ROOT_ID } from './constants'
 import { StateProvider } from './context'
 import { createState } from './createState'
 import { DevTools } from './DevTools'
@@ -10,20 +12,27 @@ import { DevTools } from './DevTools'
 Stats.enable()
 Trace.enable()
 
+const NODE_NAME = 'repro-devtools'
+
 class ReproDevTools extends HTMLElement {
   private renderRoot: HTMLDivElement
+  private styleRoot: HTMLStyleElement
   private state = createState()
 
   constructor() {
     super()
 
     const shadowRoot = this.attachShadow({ mode: 'closed' })
+
     const renderRoot = (this.renderRoot = document.createElement('div'))
-    const styleRoot = document.createElement('style')
+    renderRoot.id = REPRO_ROOT_ID
+
+    const styleRoot = (this.styleRoot = document.createElement('style'))
 
     shadowRoot.appendChild(styleRoot)
     shadowRoot.appendChild(renderRoot)
 
+    // TODO: build and bundle css for prod
     styleCache.injectOptions({
       onInsertRule(rule) {
         const sheet = styleRoot.sheet
@@ -36,7 +45,7 @@ class ReproDevTools extends HTMLElement {
   }
 
   public connectedCallback() {
-    const ignoredSelectors = ['.repro-ignore']
+    const ignoredSelectors = [NODE_NAME, '.repro-ignore']
     const ignoredNodes: Array<Node> = []
 
     if (this.shadowRoot) {
@@ -53,6 +62,8 @@ class ReproDevTools extends HTMLElement {
       ignoredSelectors,
     })
 
+    applyResetStyles(`#${REPRO_ROOT_ID}`, this.styleRoot)
+
     ReactDOM.render(
       <RecordingStreamProvider stream={stream}>
         <StateProvider state={this.state}>
@@ -68,7 +79,7 @@ class ReproDevTools extends HTMLElement {
   }
 }
 
-window.customElements.define('repro-devtools', ReproDevTools)
+window.customElements.define(NODE_NAME, ReproDevTools)
 
-const devtools = document.createElement('repro-devtools')
+const devtools = document.createElement(NODE_NAME)
 document.body.appendChild(devtools)

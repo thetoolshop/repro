@@ -12,7 +12,7 @@ export function observePeriodic(
     },
 
     observe() {
-      handle = setInterval(callback, period)
+      handle = window.setInterval(callback, period)
     },
   }
 }

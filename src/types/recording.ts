@@ -3,6 +3,7 @@ import { PointerState } from '@/types/interaction'
 import { SyntheticId } from './common'
 import { Interaction, Point, ScrollMap } from './interaction'
 import { Patch, VTree } from './vdom'
+import { List } from '@/utils/lang'
 
 export enum SourceEventType {
   Snapshot = 0,
@@ -66,7 +67,7 @@ export interface Sample<T> {
 export interface Recording {
   id: SyntheticId
   duration: number
-  events: Array<SourceEvent>
+  events: List<SourceEvent>
   snapshotIndex: Array<number>
 }
 

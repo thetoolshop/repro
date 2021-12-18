@@ -1,19 +1,28 @@
 import React, { useEffect } from 'react'
-import { EMPTY_REPLAY, Replay } from './createReplay'
+import { Playback } from './types'
 
-export const ReplayContext = React.createContext<Replay>(EMPTY_REPLAY)
+export const PlaybackContext = React.createContext<Playback | null>(null)
 
 interface Props {
-  replay: Replay
+  playback: Playback | null
 }
 
-export const ReplayProvider: React.FC<Props> = ({ children, replay }) => {
+export const PlaybackProvider: React.FC<Props> = ({ children, playback }) => {
   useEffect(() => {
-    replay.open()
-    return () => replay.close()
-  }, [replay])
+    if (playback) {
+      playback.open()
+    }
+
+    return () => {
+      if (playback) {
+        playback.close()
+      }
+    }
+  }, [playback])
 
   return (
-    <ReplayContext.Provider value={replay}>{children}</ReplayContext.Provider>
+    <PlaybackContext.Provider value={playback}>
+      {children}
+    </PlaybackContext.Provider>
   )
 }

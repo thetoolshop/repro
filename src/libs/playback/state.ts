@@ -1,4 +1,4 @@
-import { RecordingController } from '@/libs/record'
+import { createEmptyRecording } from '@/libs/record'
 import { SyntheticId } from '@/types/common'
 import { Recording, Source } from '@/types/recording'
 import { createAtom } from '@/utils/state'
@@ -16,7 +16,7 @@ export const [$readyState, getReadyState, setReadyState] = createAtom(
   ReadyState.Loading
 )
 export const [$recording, getRecording, setRecording] = createAtom<Recording>(
-  RecordingController.EMPTY
+  createEmptyRecording()
 )
 export const [$source, getSource, setSource] = createAtom<Source>(
   new NullSource()

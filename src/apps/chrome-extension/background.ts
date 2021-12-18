@@ -11,6 +11,7 @@ async function enable() {
   }
 }
 
+// @ts-ignore
 async function disable() {
   const tab = await getActiveTab()
 

@@ -3,11 +3,7 @@ import { getNodeId } from '@/utils/vdom'
 import { ObserverLike, RecordingOptions } from '../types'
 import { sampleEventsByKey } from './sample'
 
-type Callback = (
-  interaction: Interaction,
-  transposition?: number,
-  at?: number
-) => void
+type Callback = (interaction: Interaction, transposition?: number) => void
 
 function createEventObserver<K extends keyof GlobalEventHandlersEventMap>(
   type: K,
@@ -142,8 +138,7 @@ function createViewportResizeObserver(
             to: [prevWidth, prevHeight],
             duration: 0,
           },
-          0,
-          0 /* initial frame (ideally observer shouldn't care about elapsed time) */
+          0
         )
 
         viewportResizeObserver.observe(win, vtree)
@@ -215,7 +210,6 @@ function createPointerMoveObserver(
         to: [0, 0],
         duration: 0,
       },
-      0,
       0
     )
   }

@@ -10,6 +10,7 @@ export interface Buffer<T> {
   peek(): T | null
   push(entry: T): void
   onEvict(subscriber: Subscriber<Array<T>>): Unsubscribe
+  onPush(subscriber: Subscriber<T>): Unsubscribe
 }
 
 export function createBuffer<T>(maxSizeInBytes: number): Buffer<T> {
@@ -17,7 +18,11 @@ export function createBuffer<T>(maxSizeInBytes: number): Buffer<T> {
   let size = 0
 
   let evicting = false
-  const subscribers = new Set<Subscriber<Array<T>>>()
+
+  const subscribers = {
+    onEvict: new Set<Subscriber<Array<T>>>(),
+    onPush: new Set<Subscriber<T>>(),
+  }
 
   function scheduleEvictions() {
     evicting = true
@@ -38,7 +43,7 @@ export function createBuffer<T>(maxSizeInBytes: number): Buffer<T> {
       Stats.value('Buffer: calculating evictions', performance.now() - start)
 
       if (evicted.length) {
-        for (const subscriber of subscribers) {
+        for (const subscriber of subscribers.onEvict) {
           subscriber(evicted)
         }
 
@@ -82,8 +87,12 @@ export function createBuffer<T>(maxSizeInBytes: number): Buffer<T> {
       const start = performance.now()
 
       buffer.push(entry)
-      size += approxByteLength(entry)
 
+      for (const subscriber of subscribers.onPush) {
+        subscriber(entry)
+      }
+
+      size += approxByteLength(entry)
       if (!evicting) {
         scheduleEvictions()
       }
@@ -92,8 +101,13 @@ export function createBuffer<T>(maxSizeInBytes: number): Buffer<T> {
     },
 
     onEvict(subscriber) {
-      subscribers.add(subscriber)
-      return () => subscribers.delete(subscriber)
+      subscribers.onEvict.add(subscriber)
+      return () => subscribers.onEvict.delete(subscriber)
+    },
+
+    onPush(subscriber) {
+      subscribers.onPush.add(subscriber)
+      return () => subscribers.onPush.delete(subscriber)
     },
   }
 }

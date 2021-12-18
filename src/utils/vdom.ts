@@ -128,10 +128,7 @@ export function insertSubTreesAtNode(
 
   for (const subtree of subtrees) {
     childIds.push(subtree.rootId)
-    vtree.nodes = {
-      ...vtree.nodes,
-      ...copyObjectDeep(subtree.nodes),
-    }
+    Object.assign(vtree.nodes, copyObjectDeep(subtree.nodes))
   }
 
   parent.children.splice(index, 0, ...childIds)

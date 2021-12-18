@@ -6,8 +6,8 @@
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
     "jsx": "react",
-    "lib": ["esnext", "dom"],
-    "module": "ES2020",
+    "lib": ["es2021", "dom"],
+    "module": "commonjs",
     "moduleResolution": "node",
     "noEmit": true,
     "noFallthroughCasesInSwitch": true,
@@ -18,7 +18,7 @@
     "paths": { "@/*": ["*"] },
     "skipLibCheck": true,
     "strict": true,
-    "target": "ES2020",
+    "target": "es2021",
   },
 
   "ts-node": {
