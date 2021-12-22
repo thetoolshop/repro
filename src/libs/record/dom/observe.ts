@@ -1,3 +1,4 @@
+import { SyntheticId } from '@/types/common'
 import { Immutable } from '@/types/extensions'
 import { NodeType, Patch, PatchType, VText, VTree } from '@/types/vdom'
 import { createSyntheticId, getNodeId, isElementVNode } from '@/utils/vdom'
@@ -32,6 +33,9 @@ function createMutationObserver(
   subscriber: (patch: Patch) => void
 ): ObserverLike<Document> {
   const domObserver = new MutationObserver(entries => {
+    const addedNodeIds = new Set<SyntheticId>()
+    const removedNodeIds = new Set<SyntheticId>()
+
     for (const entry of entries) {
       if (isIgnoredByNode(entry.target, options.ignoredNodes)) {
         continue
@@ -71,6 +75,7 @@ function createMutationObserver(
         case 'childList':
           // TODO: optimization - handle moving nodes without destroying vnode
           const removedVTrees = Array.from(entry.removedNodes)
+            .filter(node => !removedNodeIds.has(getNodeId(node)))
             .filter(
               node => !isIgnoredBySelector(node, options.ignoredSelectors)
             )
@@ -79,6 +84,7 @@ function createMutationObserver(
             .filter(vtree => vtree !== null) as Array<VTree>
 
           const addedVTrees = Array.from(entry.addedNodes)
+            .filter(node => !addedNodeIds.has(getNodeId(node)))
             .filter(
               node => !isIgnoredBySelector(node, options.ignoredSelectors)
             )
@@ -87,6 +93,12 @@ function createMutationObserver(
             .filter(vtree => vtree !== null) as Array<VTree>
 
           if (removedVTrees.length) {
+            for (const vtree of removedVTrees) {
+              for (const nodeId of Object.keys(vtree.nodes)) {
+                removedNodeIds.add(nodeId)
+              }
+            }
+
             subscriber({
               type: PatchType.RemoveNodes,
               parentId: getNodeId(entry.target),
@@ -103,6 +115,12 @@ function createMutationObserver(
           }
 
           if (addedVTrees.length) {
+            for (const vtree of addedVTrees) {
+              for (const nodeId of Object.keys(vtree.nodes)) {
+                addedNodeIds.add(nodeId)
+              }
+            }
+
             subscriber({
               type: PatchType.AddNodes,
               parentId: getNodeId(entry.target),
