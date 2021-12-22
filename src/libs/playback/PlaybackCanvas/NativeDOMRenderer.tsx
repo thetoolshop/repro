@@ -18,7 +18,7 @@ import {
 } from '@/utils/vdom'
 import React, { useEffect } from 'react'
 import { asapScheduler, from, Subscription } from 'rxjs'
-import { map, observeOn, switchMap } from 'rxjs/operators'
+import { distinctUntilChanged, map, observeOn, switchMap } from 'rxjs/operators'
 import { OUT_OF_BOUNDS_POINT } from '../constants'
 
 const HOVER_CLASS = '-repro-hover'
@@ -45,7 +45,7 @@ export const NativeDOMRenderer: React.FC<Props> = ({
     subscription.add(
       playback.$latestControlFrame
         .pipe(observeOn(asapScheduler))
-        .subscribe(controlFrame => {
+        .subscribe(() => {
           const snapshot = playback.getSnapshot()
           const pointer = snapshot.interaction?.pointer || OUT_OF_BOUNDS_POINT
           const scrollMap = snapshot.interaction?.scroll || {}
@@ -78,7 +78,9 @@ export const NativeDOMRenderer: React.FC<Props> = ({
     subscription.add(
       playback.$snapshot
         .pipe(
-          map(snapshot => snapshot.interaction?.pointer || OUT_OF_BOUNDS_POINT)
+          observeOn(asapScheduler),
+          map(snapshot => snapshot.interaction?.pointer || OUT_OF_BOUNDS_POINT),
+          distinctUntilChanged()
         )
         .subscribe(pointer => {
           if (ownerDocument) {
@@ -270,6 +272,15 @@ function createDOMFromVTree(vtree: VTree): [Node | null, MutableNodeMap] {
     const vNode = vtree.nodes[nodeId] || null
     const parentVNode = (parentId && vtree.nodes[parentId]) || null
 
+    if (nodeMap.hasOwnProperty(nodeId)) {
+      console.warn(
+        `Duplicate node(${nodeId}) of parent(${parentId})`,
+        nodeMap[nodeId],
+        vNode,
+        parentVNode
+      )
+    }
+
     if (!vNode) {
       throw new Error(
         `PlaybackCanvas/NativeDOMRenderer: could not find VNode: ${nodeId}`
@@ -354,6 +365,10 @@ function createDOMFromVTree(vtree: VTree): [Node | null, MutableNodeMap] {
       }
 
       node = element
+    }
+
+    if (isElementNode(node)) {
+      node.setAttribute('data-repro-node', nodeId)
     }
 
     nodeMap[nodeId] = node

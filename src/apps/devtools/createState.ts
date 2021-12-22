@@ -1,6 +1,6 @@
 import { Atom, createAtom, Setter } from '@/utils/state'
 import { INITIAL_SIZE } from './constants'
-import { View } from './types'
+import { Snap, View } from './types'
 
 export interface State {
   $active: Atom<boolean>
@@ -8,12 +8,14 @@ export interface State {
   $targetNode: Atom<Node | null>
   $view: Atom<View>
   $size: Atom<number>
+  $snap: Atom<Snap>
 
   setActive: Setter<boolean>
   setPicker: Setter<boolean>
   setTargetNode: Setter<Node | null>
   setView: Setter<View>
   setSize: Setter<number>
+  setSnap: Setter<Snap>
 }
 
 export function createState(): State {
@@ -24,6 +26,7 @@ export function createState(): State {
   )
   const [$view, _getView, setView] = createAtom(View.Elements)
   const [$size, _getSize, setSize] = createAtom(INITIAL_SIZE)
+  const [$snap, _getSnap, setSnap] = createAtom<Snap>('bottom')
 
   return {
     $active,
@@ -31,11 +34,13 @@ export function createState(): State {
     $targetNode,
     $view,
     $size,
+    $snap,
 
     setActive,
     setPicker,
     setTargetNode,
     setView,
     setSize,
+    setSnap,
   }
 }

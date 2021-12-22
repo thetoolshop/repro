@@ -3,9 +3,14 @@ import { Block } from 'jsxstyle'
 import React, { useEffect, useState } from 'react'
 import { fromEvent, Subscription } from 'rxjs'
 import { distinctUntilChanged, map, share } from 'rxjs/operators'
+import { MAX_INT32 } from '../constants'
 import { useActive, useTargetNode } from '../hooks'
 
-export const PickerOverlay: React.FC = () => {
+interface Props {
+  targetDocument: Document
+}
+
+export const PickerOverlay: React.FC<Props> = ({ targetDocument }) => {
   const [, setActive] = useActive()
   const [, setTargetNode] = useTargetNode()
   const [boundingBox, setBoundingBox] = useState<DOMRect | null>(null)
@@ -14,7 +19,11 @@ export const PickerOverlay: React.FC = () => {
     const subscription = new Subscription()
 
     const targetElement$ = fromEvent<PointerEvent>(window, 'pointermove').pipe(
-      map(evt => document.elementFromPoint(evt.clientX, evt.clientY)),
+      map(evt => {
+        return (
+          targetDocument.elementsFromPoint(evt.clientX, evt.clientY)[1] || null
+        )
+      }),
       distinctUntilChanged(),
       share()
     )
@@ -34,7 +43,7 @@ export const PickerOverlay: React.FC = () => {
     return () => {
       subscription.unsubscribe()
     }
-  }, [setBoundingBox, setTargetNode])
+  }, [targetDocument, setBoundingBox, setTargetNode])
 
   const handleClick = () => {
     setActive(true)
@@ -47,7 +56,7 @@ export const PickerOverlay: React.FC = () => {
       bottom={0}
       left={0}
       right={0}
-      pointerEvents="none"
+      zIndex={MAX_INT32}
       props={{
         onClick: handleClick,
       }}

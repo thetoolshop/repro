@@ -3,95 +3,55 @@ export const copyObject = <T extends object>(obj: T): T => ({ ...obj })
 export const copyObjectDeep = <T extends object>(obj: T): T =>
   JSON.parse(JSON.stringify(obj))
 
-export interface List<T> extends Iterable<T> {
-  size(): number
-  get(index: number): T | null
-  slice(start?: number, end?: number): List<T>
-  shift(): T | null
-  unshift(...entries: Array<T>): number
-  pop(): T | null
-  push(...entries: Array<T>): number
-}
-
-export function createEmptyList<T>(): List<T> {
-  return {
-    size() {
-      return 0
-    },
-
-    get() {
-      return null
-    },
-
-    slice() {
-      return createEmptyList<T>()
-    },
-
-    shift() {
-      return null
-    },
-
-    unshift() {
-      return 0
-    },
-
-    pop() {
-      return null
-    },
-
-    push() {
-      return 0
-    },
-
-    [Symbol.iterator]: Array.prototype[Symbol.iterator],
-  }
-}
-
-export class ArrayBufferBackedList<T> implements List<T> {
+export class ArrayBufferBackedList<T> {
   constructor(
     private readonly source: Array<ArrayBuffer>,
-    private readonly read: (buf: ArrayBuffer) => T,
-    private readonly write: (entry: T) => ArrayBuffer
+    private readonly reader: (buf: ArrayBuffer) => T,
+    private readonly writer: (entry: T) => ArrayBuffer
   ) {}
 
   size(): number {
     return this.source.length
   }
 
-  get(index: number): T | null {
-    const entry = this.source[index] || null
-    return entry ? this.read(entry) : null
+  at(index: number): ArrayBuffer | null {
+    return this.source[index] || null
+  }
+
+  read(index: number): T | null {
+    const entry = this.at(index)
+    return entry ? this.reader(entry) : null
   }
 
   slice(start?: number, end?: number): ArrayBufferBackedList<T> {
     return new ArrayBufferBackedList(
       this.source.slice(start, end),
-      this.read,
-      this.write
+      this.reader,
+      this.writer
     )
   }
 
   shift(): T | null {
     const buf = this.source.shift()
-    return buf ? this.read(buf) : null
+    return buf ? this.reader(buf) : null
   }
 
   unshift(...entries: Array<T>): number {
-    return this.source.unshift(...entries.map(this.write))
+    return this.source.unshift(...entries.map(this.writer))
   }
 
   pop(): T | null {
     const buf = this.source.pop()
-    return buf ? this.read(buf) : null
+    return buf ? this.reader(buf) : null
   }
 
   push(...entries: Array<T>): number {
-    return this.source.push(...entries.map(this.write))
+    return this.source.push(...entries.map(this.writer))
   }
 
   *[Symbol.iterator]() {
     for (const entry of this.source) {
-      yield this.read(entry)
+      yield this.reader(entry)
     }
   }
 }

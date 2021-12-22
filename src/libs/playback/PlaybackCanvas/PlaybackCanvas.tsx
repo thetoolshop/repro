@@ -15,9 +15,14 @@ import { ScaleToFitViewport } from './ScaleToFitViewport'
 interface Props {
   interactive: boolean
   scaling: 'full-width' | 'scale-to-fit'
+  onDocumentReady?: (doc: Document) => void
 }
 
-export const PlaybackCanvas: React.FC<Props> = ({ interactive, scaling }) => {
+export const PlaybackCanvas: React.FC<Props> = ({
+  interactive,
+  scaling,
+  onDocumentReady,
+}) => {
   const frameRef = useRef() as MutableRefObject<HTMLIFrameElement>
   const [ownerDocument, setOwnerDocument] = useState<Document | null>(null)
   const [loaded, setLoaded] = useState(false)
@@ -32,7 +37,11 @@ export const PlaybackCanvas: React.FC<Props> = ({ interactive, scaling }) => {
 
     const contentDocument = frameRef.current.contentDocument
     setOwnerDocument(contentDocument)
-  }, [frameRef, setOwnerDocument])
+
+    if (contentDocument && onDocumentReady) {
+      onDocumentReady(contentDocument)
+    }
+  }, [frameRef, setOwnerDocument, onDocumentReady])
 
   const viewportContents = (
     <React.Fragment>

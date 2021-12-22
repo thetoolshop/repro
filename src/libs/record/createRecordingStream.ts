@@ -14,11 +14,7 @@ import {
 } from '@/types/recording'
 import { Patch, VNode } from '@/types/vdom'
 import { isZeroPoint } from '@/utils/interaction'
-import {
-  ArrayBufferBackedList,
-  copyObjectDeep,
-  createEmptyList,
-} from '@/utils/lang'
+import { ArrayBufferBackedList, copyObjectDeep } from '@/utils/lang'
 import { applyEventToSnapshot } from '@/utils/source'
 import { applyVTreePatch, getNodeId } from '@/utils/vdom'
 import { LITTLE_ENDIAN } from '../codecs/common'
@@ -57,11 +53,24 @@ function createEmptySnapshot(): Snapshot {
   }
 }
 
+function eventReader(buffer: ArrayBuffer): SourceEvent {
+  const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
+  return decodeEvent(reader)
+}
+
+function eventWriter(event: SourceEvent): ArrayBuffer {
+  return encodeEvent(event)
+}
+
 export function createEmptyRecording(): Recording {
   return {
     id: nanoid(11),
     duration: 0,
-    events: createEmptyList<SourceEvent>(),
+    events: new ArrayBufferBackedList<SourceEvent>(
+      [],
+      eventReader,
+      eventWriter
+    ),
     snapshotIndex: [],
   }
 }
@@ -78,6 +87,7 @@ export function createEmptyInteractionSnapshot(): InteractionSnapshot {
 export interface RecordingStream {
   start(): void
   stop(): void
+  isStarted(): boolean
   peek(nodeId: SyntheticId): VNode | null
   slice(): Recording
   tail(): Observable<SourceEvent>
@@ -91,6 +101,7 @@ interface BufferSubscriptions {
 export const EMPTY_RECORDING_STREAM: RecordingStream = {
   start: () => undefined,
   stop: () => undefined,
+  isStarted: () => false,
   peek: () => null,
   slice: createEmptyRecording,
   tail: () => NEVER,
@@ -193,6 +204,10 @@ export function createRecordingStream(
     started = false
   }
 
+  function isStarted() {
+    return started
+  }
+
   function slice(): Recording {
     const recording = createEmptyRecording()
     const events = buffer.copy()
@@ -235,11 +250,8 @@ export function createRecordingStream(
 
     recording.events = new ArrayBufferBackedList<SourceEvent>(
       events,
-      buf => {
-        const reader = new BufferReader(buf, 0, LITTLE_ENDIAN)
-        return decodeEvent(reader)
-      },
-      encodeEvent
+      eventReader,
+      eventWriter
     )
 
     for (let i = 0, len = events.length; i < len; i++) {
@@ -446,6 +458,7 @@ export function createRecordingStream(
   return {
     start,
     stop,
+    isStarted,
     peek,
     slice,
     tail,

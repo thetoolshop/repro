@@ -7,12 +7,14 @@ import {
   Snapshot,
   SnapshotEvent,
   SourceEvent,
+  SourceEventType,
 } from '@/types/recording'
-import { copyObject, copyObjectDeep, List } from '@/utils/lang'
+import { ArrayBufferBackedList, copyObject } from '@/utils/lang'
 import { applyEventToSnapshot, isSample } from '@/utils/source'
 import { createAtom } from '@/utils/state'
 import { ControlFrame, Playback, PlaybackState } from './types'
 import { createEmptyRecording } from '../record'
+import { readEventTime, readEventType } from '../codecs/event'
 
 const EMPTY_SNAPSHOT: Snapshot = {
   dom: null,
@@ -41,19 +43,30 @@ export function createRecordingPlayback(recording: Recording): Playback {
   }
 
   function partitionEvents(
-    events: List<SourceEvent>,
-    shouldPartition: (event: SourceEvent, index: number) => boolean,
+    events: ArrayBufferBackedList<SourceEvent>,
+    shouldPartition: (buffer: ArrayBuffer, index: number) => boolean,
     isUnresolvedSample: (sample: Sample<any>, time: number) => boolean
   ) {
     const eventsBefore: Array<SourceEvent> = []
     const eventsAfter = events.slice()
     const unresolvedSampleEvents: Array<SourceEvent> = []
 
-    let event: SourceEvent | null
+    let buffer: ArrayBuffer | null
     let i = 0
 
-    while ((event = eventsAfter.get(0))) {
-      if (shouldPartition(event, i)) {
+    while ((buffer = eventsAfter.at(0))) {
+      if (readEventType(buffer) === SourceEventType.Snapshot) {
+        eventsAfter.shift()
+        continue
+      }
+
+      if (shouldPartition(buffer, i)) {
+        break
+      }
+
+      const event = eventsAfter.read(0)
+
+      if (!event) {
         break
       }
 
@@ -76,7 +89,7 @@ export function createRecordingPlayback(recording: Recording): Playback {
     return [eventsBefore, eventsAfter] as const
   }
 
-  let queuedEvents: List<SourceEvent> = loadEvents()
+  let queuedEvents: ArrayBufferBackedList<SourceEvent> = loadEvents()
 
   const eventLoop = connectable(
     $playbackState.pipe(
@@ -109,7 +122,7 @@ export function createRecordingPlayback(recording: Recording): Playback {
     $elapsed.subscribe(elapsed => {
       const [before, after] = partitionEvents(
         queuedEvents,
-        event => event.time > elapsed,
+        buffer => readEventTime(buffer) > elapsed,
         (sample, time) => time + sample.duration > elapsed
       )
 
@@ -156,18 +169,23 @@ export function createRecordingPlayback(recording: Recording): Playback {
     const allEvents = loadEvents()
     queuedEvents = allEvents
 
-    const targetEvent = queuedEvents.get(nextIndex)
+    const targetEvent = queuedEvents.read(nextIndex)
 
     if (!targetEvent) {
-      throw new Error(`Replay: could not find event at index ${nextIndex}`)
+      throw new Error(`Playback: could not find event at index ${nextIndex}`)
     }
 
     let snapshot: Snapshot | null = null
 
-    for (const index of recording.snapshotIndex) {
-      if (index <= nextIndex) {
-        snapshot = (allEvents.get(index) as SnapshotEvent).data
-        queuedEvents = allEvents.slice(index)
+    for (let i = recording.snapshotIndex.length - 1; i >= 0; i--) {
+      const index = recording.snapshotIndex[i]
+
+      if (typeof index === 'number') {
+        if (index <= nextIndex) {
+          snapshot = (allEvents.read(index) as SnapshotEvent).data
+          queuedEvents = allEvents.slice(index + 1)
+          break
+        }
       }
     }
 
@@ -192,7 +210,7 @@ export function createRecordingPlayback(recording: Recording): Playback {
     setElapsed(targetEvent.time)
     setLatestControlFrame(ControlFrame.SeekToEvent)
 
-    Stats.value('Replay: seek to event', performance.now() - start)
+    Stats.value('Playback: seek to event', performance.now() - start)
   }
 
   function seekToTime(elapsed: number) {
@@ -204,18 +222,23 @@ export function createRecordingPlayback(recording: Recording): Playback {
 
     let snapshot: Snapshot | null = null
 
-    for (const index of recording.snapshotIndex) {
-      const event = allEvents.get(index) as SnapshotEvent
+    for (let i = recording.snapshotIndex.length - 1; i >= 0; i--) {
+      const index = recording.snapshotIndex[i]
 
-      if (event.time <= elapsed) {
-        snapshot = event.data
-        queuedEvents = allEvents.slice(index)
+      if (typeof index === 'number') {
+        const buffer = allEvents.at(index)
+
+        if (buffer && readEventTime(buffer) <= elapsed) {
+          snapshot = (allEvents.read(index) as SnapshotEvent).data
+          queuedEvents = allEvents.slice(index + 1)
+          break
+        }
       }
     }
 
     const [before, after] = partitionEvents(
       queuedEvents,
-      event => event.time > elapsed,
+      buffer => readEventTime(buffer) > elapsed,
       (sample, time) => time + sample.duration > elapsed
     )
 
@@ -234,7 +257,7 @@ export function createRecordingPlayback(recording: Recording): Playback {
     setElapsed(elapsed)
     setLatestControlFrame(ControlFrame.SeekToTime)
 
-    Stats.value('Replay: seek to time', performance.now() - start)
+    Stats.value('Playback: seek to time', performance.now() - start)
   }
 
   function open() {

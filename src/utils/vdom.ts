@@ -127,6 +127,11 @@ export function insertSubTreesAtNode(
   const childIds: Array<SyntheticId> = []
 
   for (const subtree of subtrees) {
+    if (parent.children.includes(subtree.rootId)) {
+      console.log('Duplicate node inserted', subtree, parent)
+      console.trace()
+    }
+
     childIds.push(subtree.rootId)
     Object.assign(vtree.nodes, copyObjectDeep(subtree.nodes))
   }
