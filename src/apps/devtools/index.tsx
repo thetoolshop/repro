@@ -7,9 +7,9 @@ import ReactDOM from 'react-dom'
 import { REPRO_ROOT_ID } from './constants'
 import { StateProvider } from './context'
 import { createState } from './createState'
-import { DevTools } from './DevTools'
+import { DevToolsContainer } from './DevToolsContainer'
 
-Stats.enable()
+Stats.disable()
 Trace.enable()
 
 const NODE_NAME = 'repro-devtools'
@@ -67,7 +67,7 @@ class ReproDevTools extends HTMLElement {
     ReactDOM.render(
       <RecordingStreamProvider stream={stream}>
         <StateProvider state={this.state}>
-          <DevTools />
+          <DevToolsContainer />
         </StateProvider>
       </RecordingStreamProvider>,
       this.renderRoot

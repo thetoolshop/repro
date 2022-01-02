@@ -1,8 +1,17 @@
 import { useRecordingStream } from '@/libs/record'
 import { isElementNode } from '@/utils/dom'
 import { useAtomState } from '@/utils/state'
-import { getNodeId } from '@/utils/vdom'
 import { useContext, useEffect, useState } from 'react'
+import {
+  fromEvent,
+  map,
+  mapTo,
+  NEVER,
+  of,
+  race,
+  Subscription,
+  take,
+} from 'rxjs'
 import { StateContext } from './context'
 
 export function useDevtoolsState() {
@@ -19,9 +28,19 @@ export function usePicker() {
   return useAtomState(state.$picker)
 }
 
-export function useTargetNode() {
+export function useCurrentDocument() {
   const state = useDevtoolsState()
-  return useAtomState(state.$targetNode)
+  return useAtomState(state.$currentDocument)
+}
+
+export function useTargetNodeId() {
+  const state = useDevtoolsState()
+  return useAtomState(state.$targetNodeId)
+}
+
+export function useMask() {
+  const state = useDevtoolsState()
+  return useAtomState(state.$mask)
 }
 
 export function useSize() {
@@ -34,39 +53,30 @@ export function useView() {
   return useAtomState(state.$view)
 }
 
-export function useTargetNodeBoundingBox() {
-  const [targetNode] = useTargetNode()
+export function useTargetElement() {
+  const [currentDocument] = useCurrentDocument()
+  const [targetNodeId] = useTargetNodeId()
+
+  return currentDocument && targetNodeId
+    ? currentDocument.querySelector(`[data-repro-node="${targetNodeId}"]`)
+    : null
+}
+
+export function useTargetElementBoundingBox() {
+  const targetElement = useTargetElement()
   const [boundingBox, setBoundingBox] = useState<DOMRect | null>(null)
 
   useEffect(() => {
     setBoundingBox(
-      targetNode !== null && isElementNode(targetNode)
-        ? targetNode.getBoundingClientRect()
-        : null
+      targetElement !== null ? targetElement.getBoundingClientRect() : null
     )
-  }, [targetNode, setBoundingBox])
+  }, [targetElement, setBoundingBox])
 
   return boundingBox
 }
 
-export function useTargetNodeComputedStyle() {
-  const [targetNode] = useTargetNode()
-  const [computedStyle, setComputedStyle] =
-    useState<CSSStyleDeclaration | null>(null)
-
-  useEffect(() => {
-    setComputedStyle(
-      targetNode !== null && isElementNode(targetNode)
-        ? window.getComputedStyle(targetNode)
-        : null
-    )
-  }, [targetNode, setComputedStyle])
-
-  return computedStyle
-}
-
 export function useTargetVNode() {
   const stream = useRecordingStream()
-  const [targetNode] = useTargetNode()
-  return targetNode ? stream.peek(getNodeId(targetNode)) : null
+  const [targetNodeId] = useTargetNodeId()
+  return targetNodeId ? stream.peek(targetNodeId) : null
 }

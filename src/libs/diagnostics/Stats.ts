@@ -70,4 +70,15 @@ export const Stats = {
       }
     }
   },
+
+  time(label: string, fn: () => void) {
+    if (!enabled) {
+      fn()
+      return
+    }
+
+    const start = performance.now()
+    fn()
+    emit(label, performance.now() - start)
+  },
 }

@@ -8,8 +8,7 @@ export enum PlaybackState {
 }
 
 export enum ControlFrame {
-  Play,
-  Pause,
+  Idle,
   SeekToEvent,
   SeekToTime,
 }

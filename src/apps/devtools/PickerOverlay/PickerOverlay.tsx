@@ -1,18 +1,17 @@
 import { colors } from '@/config/theme'
+import { SyntheticId } from '@/types/common'
+import { getNodeId } from '@/utils/vdom'
 import { Block } from 'jsxstyle'
 import React, { useEffect, useState } from 'react'
 import { fromEvent, Subscription } from 'rxjs'
 import { distinctUntilChanged, map, share } from 'rxjs/operators'
 import { MAX_INT32 } from '../constants'
-import { useActive, useTargetNode } from '../hooks'
+import { useActive, useCurrentDocument, useTargetNodeId } from '../hooks'
 
-interface Props {
-  targetDocument: Document
-}
-
-export const PickerOverlay: React.FC<Props> = ({ targetDocument }) => {
+export const PickerOverlay: React.FC = React.memo(() => {
   const [, setActive] = useActive()
-  const [, setTargetNode] = useTargetNode()
+  const [currentDocument] = useCurrentDocument()
+  const [, setTargetNodeId] = useTargetNodeId()
   const [boundingBox, setBoundingBox] = useState<DOMRect | null>(null)
 
   useEffect(() => {
@@ -20,8 +19,12 @@ export const PickerOverlay: React.FC<Props> = ({ targetDocument }) => {
 
     const targetElement$ = fromEvent<PointerEvent>(window, 'pointermove').pipe(
       map(evt => {
+        if (!currentDocument) {
+          return null
+        }
+
         return (
-          targetDocument.elementsFromPoint(evt.clientX, evt.clientY)[1] || null
+          currentDocument.elementsFromPoint(evt.clientX, evt.clientY)[1] || null
         )
       }),
       distinctUntilChanged(),
@@ -36,14 +39,21 @@ export const PickerOverlay: React.FC<Props> = ({ targetDocument }) => {
 
     subscription.add(
       targetElement$.subscribe(target => {
-        setTargetNode(target)
+        let targetNodeId: SyntheticId | null = null
+
+        if (target) {
+          targetNodeId =
+            target.getAttribute('data-repro-node') || getNodeId(target)
+        }
+
+        setTargetNodeId(targetNodeId)
       })
     )
 
     return () => {
       subscription.unsubscribe()
     }
-  }, [targetDocument, setBoundingBox, setTargetNode])
+  }, [currentDocument, setBoundingBox, setTargetNodeId])
 
   const handleClick = () => {
     setActive(true)
@@ -114,4 +124,4 @@ export const PickerOverlay: React.FC<Props> = ({ targetDocument }) => {
       </svg>
     </Block>
   )
-}
+})

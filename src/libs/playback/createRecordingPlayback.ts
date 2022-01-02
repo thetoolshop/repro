@@ -36,7 +36,7 @@ export function createRecordingPlayback(recording: Recording): Playback {
   const [$snapshot, getSnapshot, setSnapshot] =
     createAtom<Snapshot>(EMPTY_SNAPSHOT)
   const [$latestControlFrame, getLatestControlFrame, setLatestControlFrame] =
-    createAtom<ControlFrame>(ControlFrame.Pause)
+    createAtom<ControlFrame>(ControlFrame.Idle)
 
   function loadEvents() {
     return recording.events.slice()
@@ -154,12 +154,10 @@ export function createRecordingPlayback(recording: Recording): Playback {
 
   function play() {
     setPlaybackState(PlaybackState.Playing)
-    setLatestControlFrame(ControlFrame.Play)
   }
 
   function pause() {
     setPlaybackState(PlaybackState.Paused)
-    setLatestControlFrame(ControlFrame.Pause)
   }
 
   function seekToEvent(nextIndex: number) {
@@ -197,7 +195,7 @@ export function createRecordingPlayback(recording: Recording): Playback {
 
     queuedEvents = after
 
-    if (snapshot) {
+    if (snapshot && before.length) {
       snapshot = copyObject(snapshot)
 
       for (const event of before) {
@@ -244,7 +242,7 @@ export function createRecordingPlayback(recording: Recording): Playback {
 
     queuedEvents = after
 
-    if (snapshot) {
+    if (snapshot && before.length) {
       snapshot = copyObject(snapshot)
 
       for (const event of before) {

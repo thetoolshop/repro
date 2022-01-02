@@ -76,6 +76,29 @@ export function isElementVNode(
   return node.type === NodeType.Element
 }
 
+// https://developer.mozilla.org/en-US/docs/Glossary/Empty_element
+const EMPTY_ELEMENT_NAMES = [
+  'area',
+  'base',
+  'br',
+  'col',
+  'embed',
+  'hr',
+  'img',
+  'input',
+  'keygen',
+  'link',
+  'meta',
+  'param',
+  'source',
+  'track',
+  'wbr',
+]
+
+export function isEmptyElementVNode(node: VNode | Immutable<VNode>) {
+  return isElementVNode(node) && EMPTY_ELEMENT_NAMES.includes(node.tagName)
+}
+
 export function isStyleElementVNode(node: VNode | Immutable<VNode>) {
   return isElementVNode(node) && node.tagName === 'style'
 }

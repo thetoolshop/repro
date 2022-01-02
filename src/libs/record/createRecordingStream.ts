@@ -168,12 +168,9 @@ export function createRecordingStream(
       trailingSnapshot.interaction = createEmptyInteractionSnapshot()
     }
 
-    const start = performance.now()
-    domTreeWalker(doc)
-    Stats.value(
-      'RecordingStream: build VTree snapshot',
-      performance.now() - start
-    )
+    Stats.time('RecordingStream: build VTree snapshot', () => {
+      domTreeWalker(doc)
+    })
 
     const trailingVTree = trailingSnapshot.dom
 
@@ -210,61 +207,69 @@ export function createRecordingStream(
 
   function slice(): Recording {
     const recording = createEmptyRecording()
-    const events = buffer.copy()
 
-    events.sort((a, b) => {
-      return readEventTime(a) - readEventTime(b)
-    })
+    Stats.time('Recording stream: slice', () => {
+      const events = buffer.copy()
 
-    events.push(encodeEvent(createSnapshotEvent()))
+      events.sort((a, b) => {
+        return readEventTime(a) - readEventTime(b)
+      })
 
-    const firstEvent = events[0]
-    const timeOffset = firstEvent ? readEventTime(firstEvent) : 0
+      events.push(encodeEvent(createSnapshotEvent()))
 
-    const start = performance.now()
+      const firstEvent = events[0]
+      const timeOffset = firstEvent ? readEventTime(firstEvent) : 0
 
-    for (const event of events) {
-      writeEventTimeOffset(event, timeOffset)
-    }
+      const start = performance.now()
 
-    Stats.value(
-      'Recording stream: apply time offset',
-      performance.now() - start
-    )
-
-    const lastEvent = events[events.length - 1]
-    const duration = lastEvent ? readEventTime(lastEvent) : 0
-    recording.duration = duration
-
-    // If first event is not a snapshot event (i.e. leading snapshot has been
-    // evicted), prepend rolling leading snapshot.
-    if (!firstEvent || readEventType(firstEvent) !== SourceEventType.Snapshot) {
-      events.unshift(
-        encodeEvent({
-          time: 0,
-          type: SourceEventType.Snapshot,
-          data: leadingSnapshot,
-        })
-      )
-    }
-
-    recording.events = new ArrayBufferBackedList<SourceEvent>(
-      events,
-      eventReader,
-      eventWriter
-    )
-
-    for (let i = 0, len = events.length; i < len; i++) {
-      const event = events[i]
-
-      if (event) {
-        const type = readEventType(event)
-
-        if (type === SourceEventType.Snapshot) {
-          recording.snapshotIndex.push(i)
-        }
+      for (const event of events) {
+        writeEventTimeOffset(event, timeOffset)
       }
-    }
+
+      Stats.value(
+        'Recording stream: apply time offset',
+        performance.now() - start
+      )
+
+      const lastEvent = events[events.length - 1]
+      const duration = lastEvent ? readEventTime(lastEvent) : 0
+      recording.duration = duration
+
+      // If first event is not a snapshot event (i.e. leading snapshot has been
+      // evicted), prepend rolling leading snapshot.
+      if (
+        !firstEvent ||
+        readEventType(firstEvent) !== SourceEventType.Snapshot
+      ) {
+        events.unshift(
+          encodeEvent({
+            time: 0,
+            type: SourceEventType.Snapshot,
+            data: leadingSnapshot,
+          })
+        )
+      }
+
+      recording.events = new ArrayBufferBackedList<SourceEvent>(
+        events,
+        eventReader,
+        eventWriter
+      )
+
+      Stats.time('Recording stream: index snapshot events', () => {
+        for (let i = 0, len = events.length; i < len; i++) {
+          const event = events[i]
+
+          if (event) {
+            const type = readEventType(event)
+
+            if (type === SourceEventType.Snapshot) {
+              recording.snapshotIndex.push(i)
+            }
+          }
+        }
+      })
+    })
 
     return recording
   }

@@ -25,6 +25,11 @@ export function useBuffer() {
   return useAtomValue(playback.$buffer)
 }
 
+export function useLatestControlFrame() {
+  const playback = usePlayback()
+  return useAtomValue(playback.$latestControlFrame)
+}
+
 export function useElapsed() {
   const playback = usePlayback()
   return useAtomValue(playback.$elapsed)
