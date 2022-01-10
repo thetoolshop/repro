@@ -1,3 +1,4 @@
+import { GLOBAL_CHANNEL_NAME } from '@/config/constants'
 import { applyResetStyles } from '@/config/theme'
 import { Stats, Trace } from '@/libs/diagnostics'
 import { createRecordingStream, RecordingStreamProvider } from '@/libs/record'
@@ -14,9 +15,23 @@ Trace.enable()
 
 const NODE_NAME = 'repro-devtools'
 
+// jsxstyle prevents multiple invocations of `cache.injectOptions`,
+// so we cannot register a new style root per custom element.
+// We must keep track of the active style root in global context instead.
+// NB: if we need to support multiple instances, this could hold
+// WeakMap<ReproDevTools, HTMLStyleElement>
+interface Refs {
+  activeStyleRoot: HTMLStyleElement | null
+}
+
+const refs: Refs = {
+  activeStyleRoot: null,
+}
+
+const _initialInjectOptions = styleCache.injectOptions
+
 class ReproDevTools extends HTMLElement {
   private renderRoot: HTMLDivElement
-  private styleRoot: HTMLStyleElement
   private state = createState()
 
   constructor() {
@@ -27,18 +42,23 @@ class ReproDevTools extends HTMLElement {
     const renderRoot = (this.renderRoot = document.createElement('div'))
     renderRoot.id = REPRO_ROOT_ID
 
-    const styleRoot = (this.styleRoot = document.createElement('style'))
+    const styleRoot = document.createElement('style')
+    refs.activeStyleRoot = styleRoot
 
     shadowRoot.appendChild(styleRoot)
     shadowRoot.appendChild(renderRoot)
 
+    styleCache.reset()
+    styleCache.injectOptions = _initialInjectOptions
     // TODO: build and bundle css for prod
     styleCache.injectOptions({
       onInsertRule(rule) {
-        const sheet = styleRoot.sheet
+        if (refs.activeStyleRoot) {
+          const sheet = refs.activeStyleRoot.sheet
 
-        if (sheet) {
-          sheet.insertRule(rule, sheet.cssRules.length)
+          if (sheet) {
+            sheet.insertRule(rule, sheet.cssRules.length)
+          }
         }
       },
     })
@@ -62,7 +82,9 @@ class ReproDevTools extends HTMLElement {
       ignoredSelectors,
     })
 
-    applyResetStyles(`#${REPRO_ROOT_ID}`, this.styleRoot)
+    if (refs.activeStyleRoot) {
+      applyResetStyles(`#${REPRO_ROOT_ID}`, refs.activeStyleRoot)
+    }
 
     ReactDOM.render(
       <RecordingStreamProvider stream={stream}>
@@ -79,7 +101,32 @@ class ReproDevTools extends HTMLElement {
   }
 }
 
-window.customElements.define(NODE_NAME, ReproDevTools)
+const messageBus = new BroadcastChannel(GLOBAL_CHANNEL_NAME)
 
-const devtools = document.createElement(NODE_NAME)
-document.body.appendChild(devtools)
+interface Message {
+  action: string
+  value: any
+}
+
+messageBus.onmessage = (message: MessageEvent<Message>) => {
+  switch (message.data.action) {
+    case 'enable':
+      if (!window.customElements.get(NODE_NAME)) {
+        window.customElements.define(NODE_NAME, ReproDevTools)
+      }
+
+      if (!document.querySelector(NODE_NAME)) {
+        const devtools = document.createElement(NODE_NAME)
+        document.body.appendChild(devtools)
+      }
+      break
+
+    case 'disable':
+      const root = document.querySelector(NODE_NAME)
+
+      if (root) {
+        root.remove()
+      }
+      break
+  }
+}

@@ -1,20 +1,35 @@
+import { GLOBAL_CHANNEL_NAME } from '@/config/constants'
+
 let scriptElement: HTMLScriptElement | null = null
 
-function addPageScript() {
-  if (scriptElement && scriptElement.isConnected) {
-    return
-  }
+const messageBus = new BroadcastChannel(GLOBAL_CHANNEL_NAME)
 
-  scriptElement = document.createElement('script')
-  scriptElement.src = chrome.runtime.getURL('devtools.js')
-  document.body.appendChild(scriptElement)
+function addPageScript() {
+  return new Promise(resolve => {
+    if (scriptElement && scriptElement.isConnected) {
+      resolve(null)
+      return
+    }
+
+    scriptElement = document.createElement('script')
+    scriptElement.src = chrome.runtime.getURL('devtools.js')
+    scriptElement.onload = resolve
+
+    document.body.appendChild(scriptElement)
+  })
 }
 
-function removePageScript() {
-  if (scriptElement) {
-    scriptElement.remove()
-    scriptElement = null
-  }
+async function enableDevTools() {
+  await addPageScript()
+  messageBus.postMessage({
+    action: 'enable',
+  })
+}
+
+async function disableDevTools() {
+  messageBus.postMessage({
+    action: 'disable',
+  })
 }
 
 interface Message {
@@ -29,15 +44,15 @@ function onMessage(
 ) {
   switch (message.action) {
     case 'enable':
-      addPageScript()
-      sendResponse(true)
+      enableDevTools()
       break
 
     case 'disable':
-      removePageScript()
-      sendResponse(true)
+      disableDevTools()
       break
   }
+
+  sendResponse(true)
 }
 
 chrome.runtime.onMessage.addListener(onMessage)
