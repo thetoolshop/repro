@@ -7,7 +7,7 @@ import {
   SourceEventType,
 } from '@/types/recording'
 import { PatchType, VTree } from '@/types/vdom'
-import { isElementNode, isTextNode } from '@/utils/dom'
+import { isElementNode, isHTMLElement, isTextNode } from '@/utils/dom'
 import { interpolatePointFromSample } from '@/utils/source'
 import {
   isDocTypeVNode,
@@ -62,6 +62,20 @@ export const NativeDOMRenderer: React.FC<Props> = ({
               if (rootNode) {
                 documentElement.appendChild(rootNode)
                 nodeMap = vtreeNodeMap
+
+                if (ownerDocument.defaultView) {
+                  console.log(
+                    'NativeDOMRenderer: window',
+                    ownerDocument.defaultView
+                  )
+                  console.log(
+                    'NativeDOMRenderer: document ready-state',
+                    ownerDocument.readyState
+                  )
+                  ownerDocument.defaultView.addEventListener('load', () =>
+                    console.log('NativeDOMRenderer: load')
+                  )
+                }
 
                 if (onLoad) {
                   onLoad()
@@ -142,7 +156,17 @@ function updateAllScrollStates(nodeMap: MutableNodeMap, scrollMap: ScrollMap) {
     const node = nodeMap[nodeId]
 
     if (node && isElementNode(node)) {
+      // Override CSS `scroll-behavior` if set
+      if (isHTMLElement(node)) {
+        node.style.scrollBehavior = 'auto'
+      }
+
       node.scrollTo(x, y)
+
+      // Revert CSS `scroll-behavior`
+      if (isHTMLElement(node)) {
+        node.style.scrollBehavior = ''
+      }
     }
   }
 }

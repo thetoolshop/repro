@@ -24,6 +24,10 @@ export function concat(buffers: Array<ArrayBuffer>): ArrayBuffer {
   return dest
 }
 
+export function copy(buffer: ArrayBuffer) {
+  return concat([buffer])
+}
+
 export function zeroFill(writer: BufferWriter, byteLength: number) {
   for (let i = 0; i < byteLength; i++) {
     writer.writeUint8(0)

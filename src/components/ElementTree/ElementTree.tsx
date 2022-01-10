@@ -7,11 +7,16 @@ import { NodeStateContext } from './context'
 import { TreeRenderer } from './TreeRenderer'
 
 interface Props {
-  targetNodeId: SyntheticId | null
   vtree: VTree
+  targetNodeId: SyntheticId | null
+  selectNode(nodeId: SyntheticId): void
 }
 
-export const ElementTree: React.FC<Props> = ({ targetNodeId, vtree }) => {
+export const ElementTree: React.FC<Props> = ({
+  vtree,
+  targetNodeId,
+  selectNode,
+}) => {
   const [openNodes, setOpenNodes] = useState(() => {
     const initialOpenNodes = []
 
@@ -69,8 +74,10 @@ export const ElementTree: React.FC<Props> = ({ targetNodeId, vtree }) => {
   )
 
   return (
-    <NodeStateContext.Provider value={[targetNodeId, openNodes, toggleNode]}>
-      <Block paddingV={8}>
+    <NodeStateContext.Provider
+      value={[targetNodeId, selectNode, openNodes, toggleNode]}
+    >
+      <Block paddingV={8} userSelect="none">
         <TreeRenderer vtree={vtree} />
       </Block>
     </NodeStateContext.Provider>

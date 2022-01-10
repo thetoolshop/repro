@@ -8,6 +8,7 @@ import {
   isIFrameElement,
   isScriptElement,
   isTextNode,
+  isLocalStylesheet,
 } from '@/utils/dom'
 
 import { DOMOptions, Visitor } from '../types'
@@ -34,11 +35,19 @@ function walkDOMTree(
 
     if (isElementNode(node)) {
       if (isScriptElement(node)) {
+        // TODO: insert synthetic node to show script elements in inspector
         continue
       }
 
       for (const visitor of visitors) {
         visitor.elementNode(node)
+      }
+
+      // Local stylesheets may contain style rules as text nodes, but these will
+      // already have been processed from sheet.cssRules.
+      // TODO: lift this condition/exclusion into the DOM visitor
+      if (isLocalStylesheet(node)) {
+        continue
       }
 
       if (isIFrameElement(node) && node.contentDocument) {

@@ -19,20 +19,27 @@ export const DragHandle: React.FC<Props> = ({
   const [start, setStart] = useState<number | null>(null)
 
   const handleDown = (evt: React.MouseEvent<HTMLDivElement>) => {
+    evt.preventDefault()
     setDragging(true)
     setStart(edge === 'top' || edge === 'bottom' ? evt.pageY : evt.pageX)
     onDragStart()
   }
 
-  const handleUp = useCallback(() => {
-    setDragging(false)
-    setStart(null)
-    onDragEnd()
-  }, [setDragging, setStart])
+  const handleUp = useCallback(
+    (evt: PointerEvent) => {
+      evt.preventDefault()
+      setDragging(false)
+      setStart(null)
+      onDragEnd()
+    },
+    [setDragging, setStart]
+  )
 
   const handleMove = useCallback(
     (evt: PointerEvent) => {
       if (dragging && start !== null) {
+        evt.preventDefault()
+
         const position =
           edge === 'top' || edge === 'bottom' ? evt.pageY : evt.pageX
 
@@ -94,7 +101,7 @@ export const DragHandle: React.FC<Props> = ({
       hoverBorderWidth={hoverBorderWidth}
       borderStyle="solid"
       borderColor={colors.blueGray['200']}
-      hoverBorderColor={colors.blue['500']}
+      hoverBorderColor={colors.blueGray['300']}
       boxSizing="border-box"
       cursor={cursor}
       transition="all linear 100ms"

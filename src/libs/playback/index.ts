@@ -1,7 +1,6 @@
 export * from './FixtureSource'
 export * from './NullSource'
 export * from './PlaybackCanvas'
-export * from './PlaybackControls'
 export * from './PlaybackErrorBoundary'
 export * from './context'
 export * from './createLivePlayback'

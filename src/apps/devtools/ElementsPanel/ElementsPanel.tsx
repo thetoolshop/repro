@@ -22,13 +22,17 @@ const Container: React.FC = ({ children }) => (
 )
 
 const MainPane: React.FC = React.memo(() => {
-  const [targetNodeId] = useTargetNodeId()
+  const [targetNodeId, setTargetNodeId] = useTargetNodeId()
   const snapshot = useSnapshot()
 
   return (
     <Block height="100%" overflow="auto">
       {snapshot.dom && (
-        <ElementTree vtree={snapshot.dom} targetNodeId={targetNodeId} />
+        <ElementTree
+          vtree={snapshot.dom}
+          targetNodeId={targetNodeId}
+          selectNode={setTargetNodeId}
+        />
       )}
     </Block>
   )

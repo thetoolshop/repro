@@ -17,7 +17,7 @@ import { isZeroPoint } from '@/utils/interaction'
 import { ArrayBufferBackedList, copyObjectDeep } from '@/utils/lang'
 import { applyEventToSnapshot } from '@/utils/source'
 import { applyVTreePatch, getNodeId } from '@/utils/vdom'
-import { LITTLE_ENDIAN } from '../codecs/common'
+import { copy as copyArrayBuffer, LITTLE_ENDIAN } from '../codecs/common'
 import {
   decodeEvent,
   encodeEvent,
@@ -89,7 +89,7 @@ export interface RecordingStream {
   stop(): void
   isStarted(): boolean
   peek(nodeId: SyntheticId): VNode | null
-  slice(): Recording
+  slice(): Promise<Recording>
   tail(): Observable<SourceEvent>
 }
 
@@ -103,7 +103,7 @@ export const EMPTY_RECORDING_STREAM: RecordingStream = {
   stop: () => undefined,
   isStarted: () => false,
   peek: () => null,
-  slice: createEmptyRecording,
+  slice: () => Promise.resolve(createEmptyRecording()),
   tail: () => NEVER,
 }
 
@@ -168,14 +168,14 @@ export function createRecordingStream(
       trailingSnapshot.interaction = createEmptyInteractionSnapshot()
     }
 
-    Stats.time('RecordingStream: build VTree snapshot', () => {
+    Stats.time('RecordingStream#start: build VTree snapshot', () => {
       domTreeWalker(doc)
     })
 
     const trailingVTree = trailingSnapshot.dom
 
     if (!trailingVTree) {
-      throw new Error('RecordingStream: VTree is not initialized')
+      throw new Error('RecordingStream#start: VTree is not initialized')
     }
 
     subscribeToBuffer()
@@ -205,35 +205,39 @@ export function createRecordingStream(
     return started
   }
 
-  function slice(): Recording {
+  async function slice(): Promise<Recording> {
     const recording = createEmptyRecording()
 
-    Stats.time('Recording stream: slice', () => {
-      const events = buffer.copy()
+    Stats.time('RecordingStream#slice: total', () => {
+      let events: Array<ArrayBuffer> = []
 
-      events.sort((a, b) => {
-        return readEventTime(a) - readEventTime(b)
+      Stats.time('RecordingStream#slice: deep copy event buffer', () => {
+        events = buffer.copy().map(copyArrayBuffer)
       })
 
-      events.push(encodeEvent(createSnapshotEvent()))
+      Stats.time('RecordingStream#slice: sort events by time', () => {
+        events.sort((a, b) => {
+          return readEventTime(a) - readEventTime(b)
+        })
+      })
+
+      Stats.time('RecordingStream#slice: append trailing snapshot', () => {
+        events.push(encodeEvent(createSnapshotEvent()))
+      })
 
       const firstEvent = events[0]
-      const timeOffset = firstEvent ? readEventTime(firstEvent) : 0
-
-      const start = performance.now()
-
-      for (const event of events) {
-        writeEventTimeOffset(event, timeOffset)
-      }
-
-      Stats.value(
-        'Recording stream: apply time offset',
-        performance.now() - start
-      )
-
       const lastEvent = events[events.length - 1]
-      const duration = lastEvent ? readEventTime(lastEvent) : 0
-      recording.duration = duration
+
+      const timeOffset = firstEvent ? readEventTime(firstEvent) : 0
+      const duration = lastEvent ? readEventTime(lastEvent) - timeOffset : 0
+
+      Stats.value('RecordingStream#slice: time offset', timeOffset)
+
+      Stats.time('RecordingStream#slice: offset event times', () => {
+        for (const event of events) {
+          writeEventTimeOffset(event, timeOffset)
+        }
+      })
 
       // If first event is not a snapshot event (i.e. leading snapshot has been
       // evicted), prepend rolling leading snapshot.
@@ -241,22 +245,25 @@ export function createRecordingStream(
         !firstEvent ||
         readEventType(firstEvent) !== SourceEventType.Snapshot
       ) {
-        events.unshift(
-          encodeEvent({
-            time: 0,
-            type: SourceEventType.Snapshot,
-            data: leadingSnapshot,
-          })
-        )
+        Stats.time('RecordingStream#slice: prepend leading snapshot', () => {
+          events.unshift(
+            encodeEvent({
+              time: 0,
+              type: SourceEventType.Snapshot,
+              data: leadingSnapshot,
+            })
+          )
+        })
       }
 
+      recording.duration = duration
       recording.events = new ArrayBufferBackedList<SourceEvent>(
         events,
         eventReader,
         eventWriter
       )
 
-      Stats.time('Recording stream: index snapshot events', () => {
+      Stats.time('RecordingStream#slice: index snapshot events', () => {
         for (let i = 0, len = events.length; i < len; i++) {
           const event = events[i]
 
@@ -278,7 +285,7 @@ export function createRecordingStream(
     const trailingVTree = trailingSnapshot.dom
 
     if (!trailingVTree) {
-      throw new Error('RecordingStream; VTree is not initialized')
+      throw new Error('RecordingStream#peek: VTree is not initialized')
     }
 
     return trailingVTree.nodes[nodeId] || null
@@ -335,7 +342,7 @@ export function createRecordingStream(
 
         if (!trailingVTree) {
           throw new Error(
-            'RecordingStream: trailing VTree has not been created'
+            'RecordingStream~registerDOMObserver: trailing VTree has not been created'
           )
         }
 
@@ -376,7 +383,7 @@ export function createRecordingStream(
 
         if (!trailingInteraction) {
           throw new Error(
-            'RecordingStream: trailing interaction snapshot has not been created'
+            'RecordingStream~registerInteractionObserver: trailing interaction snapshot has not been created'
           )
         }
 

@@ -89,6 +89,10 @@ export function createRecordingPlayback(recording: Recording): Playback {
     return [eventsBefore, eventsAfter] as const
   }
 
+  function isPassiveEventType(type: SourceEventType) {
+    return type === SourceEventType.Interaction
+  }
+
   let queuedEvents: ArrayBufferBackedList<SourceEvent> = loadEvents()
 
   const eventLoop = connectable(
@@ -107,14 +111,6 @@ export function createRecordingPlayback(recording: Recording): Playback {
   subscription.add(
     eventLoop.subscribe(delta => {
       setElapsed(elapsed => Math.min(recording.duration, elapsed + delta))
-    })
-  )
-
-  subscription.add(
-    $elapsed.subscribe(elapsed => {
-      if (recording.duration > 0 && elapsed >= recording.duration) {
-        setPlaybackState(PlaybackState.Done)
-      }
     })
   )
 
@@ -147,6 +143,16 @@ export function createRecordingPlayback(recording: Recording): Playback {
       }
     })
   )
+
+  function getEventTimeAtIndex(index: number) {
+    const event = recording.events.at(index)
+    return event ? readEventTime(event) : null
+  }
+
+  function getEventTypeAtIndex(index: number) {
+    const event = recording.events.at(index)
+    return event ? readEventType(event) : null
+  }
 
   function getDuration() {
     return recording.duration
@@ -212,50 +218,48 @@ export function createRecordingPlayback(recording: Recording): Playback {
   }
 
   function seekToTime(elapsed: number) {
-    const start = performance.now()
+    Stats.time('RecordingPlayback: seek to time', () => {
+      setBuffer(EMPTY_BUFFER)
+      const allEvents = loadEvents()
+      queuedEvents = allEvents
 
-    setBuffer(EMPTY_BUFFER)
-    const allEvents = loadEvents()
-    queuedEvents = allEvents
+      let snapshot: Snapshot | null = null
 
-    let snapshot: Snapshot | null = null
+      for (let i = recording.snapshotIndex.length - 1; i >= 0; i--) {
+        const index = recording.snapshotIndex[i]
 
-    for (let i = recording.snapshotIndex.length - 1; i >= 0; i--) {
-      const index = recording.snapshotIndex[i]
+        if (typeof index === 'number') {
+          const buffer = allEvents.at(index)
 
-      if (typeof index === 'number') {
-        const buffer = allEvents.at(index)
-
-        if (buffer && readEventTime(buffer) <= elapsed) {
-          snapshot = (allEvents.read(index) as SnapshotEvent).data
-          queuedEvents = allEvents.slice(index + 1)
-          break
+          if (buffer && readEventTime(buffer) <= elapsed) {
+            snapshot = (allEvents.read(index) as SnapshotEvent).data
+            queuedEvents = allEvents.slice(index + 1)
+            break
+          }
         }
       }
-    }
 
-    const [before, after] = partitionEvents(
-      queuedEvents,
-      buffer => readEventTime(buffer) > elapsed,
-      (sample, time) => time + sample.duration > elapsed
-    )
+      const [before, after] = partitionEvents(
+        queuedEvents,
+        buffer => readEventTime(buffer) > elapsed,
+        (sample, time) => time + sample.duration > elapsed
+      )
 
-    queuedEvents = after
+      queuedEvents = after
 
-    if (snapshot && before.length) {
-      snapshot = copyObject(snapshot)
+      if (snapshot && before.length) {
+        snapshot = copyObject(snapshot)
 
-      for (const event of before) {
-        applyEventToSnapshot(snapshot, event, elapsed)
+        for (const event of before) {
+          applyEventToSnapshot(snapshot, event, elapsed)
+        }
       }
-    }
 
-    setSnapshot(snapshot || EMPTY_SNAPSHOT)
-    setActveIndex(before.length - 1)
-    setElapsed(elapsed)
-    setLatestControlFrame(ControlFrame.SeekToTime)
-
-    Stats.value('Playback: seek to time', performance.now() - start)
+      setSnapshot(snapshot || EMPTY_SNAPSHOT)
+      setActveIndex(before.length - 1)
+      setElapsed(elapsed)
+      setLatestControlFrame(ControlFrame.SeekToTime)
+    })
   }
 
   function open() {
@@ -280,6 +284,8 @@ export function createRecordingPlayback(recording: Recording): Playback {
     getBuffer,
     getDuration,
     getElapsed,
+    getEventTimeAtIndex,
+    getEventTypeAtIndex,
     getLatestControlFrame,
     getPlaybackState,
     getSnapshot,

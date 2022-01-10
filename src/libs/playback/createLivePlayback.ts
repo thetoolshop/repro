@@ -19,7 +19,7 @@ export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
   const [$buffer, getBuffer, setBuffer] = createAtom<Array<SourceEvent>>([])
   const [$elapsed, getElapsed, setElapsed] = createAtom(0)
   const [$latestControlFrame, getLatestControlFrame] = createAtom(
-    ControlFrame.Play
+    ControlFrame.Idle
   )
   const [$playbackState, getPlaybackState] = createAtom(PlaybackState.Playing)
   const [$snapshot, getSnapshot, setSnapshot] =
@@ -27,6 +27,14 @@ export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
 
   function getDuration() {
     return Infinity
+  }
+
+  function getEventTimeAtIndex() {
+    return null
+  }
+
+  function getEventTypeAtIndex() {
+    return null
   }
 
   function play() {}
@@ -78,6 +86,8 @@ export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
     getBuffer,
     getDuration,
     getElapsed,
+    getEventTimeAtIndex,
+    getEventTypeAtIndex,
     getLatestControlFrame,
     getPlaybackState,
     getSnapshot,

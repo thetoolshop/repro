@@ -47,7 +47,7 @@ export const Stats = {
 
   value(label: string, value: FactoryOrValue<number>) {
     if (enabled) {
-      emit(label, typeof value === 'function' ? value() : value)
+      emit(`(value) ${label}`, typeof value === 'function' ? value() : value)
     }
   },
 
@@ -79,6 +79,6 @@ export const Stats = {
 
     const start = performance.now()
     fn()
-    emit(label, performance.now() - start)
+    emit(`(time) ${label}`, performance.now() - start)
   },
 }

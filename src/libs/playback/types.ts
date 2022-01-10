@@ -1,10 +1,9 @@
-import { Snapshot, SourceEvent } from '@/types/recording'
+import { Snapshot, SourceEvent, SourceEventType } from '@/types/recording'
 import { Atom } from '@/utils/state'
 
 export enum PlaybackState {
   Playing,
   Paused,
-  Done,
 }
 
 export enum ControlFrame {
@@ -27,6 +26,8 @@ export interface Playback {
   getBuffer(): Array<SourceEvent>
   getDuration(): number
   getElapsed(): number
+  getEventTimeAtIndex(index: number): number | null
+  getEventTypeAtIndex(index: number): SourceEventType | null
   getLatestControlFrame(): ControlFrame
   getPlaybackState(): PlaybackState
   getSnapshot(): Snapshot

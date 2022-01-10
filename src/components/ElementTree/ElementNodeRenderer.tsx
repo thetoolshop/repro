@@ -4,7 +4,7 @@ import { isEmptyElementVNode } from '@/utils/vdom'
 import { Block, Inline } from 'jsxstyle'
 import React, { useContext } from 'react'
 import colors from 'tailwindcss/colors'
-import { FONT_SIZE, INDENT } from './constants'
+import { FONT_SIZE } from './constants'
 import { useNode, useNodeState, VTreeContext } from './context'
 import { NodeRenderer } from './NodeRenderer'
 import { Toggle } from './Toggle'
@@ -18,7 +18,7 @@ interface Props {
 export const ElementNodeRenderer: React.FC<Props> = ({ nodeId, depth }) => {
   const vtree = useContext(VTreeContext)
   const node = useNode<VElement>(nodeId)
-  const [targetNodeId, isOpen, toggleNode] = useNodeState(nodeId)
+  const [targetNodeId, , isOpen, toggleNode] = useNodeState(nodeId)
 
   if (!vtree || !node) {
     return null
@@ -32,7 +32,11 @@ export const ElementNodeRenderer: React.FC<Props> = ({ nodeId, depth }) => {
 
   return (
     <Block key={nodeId}>
-      <TreeRow highlight={nodeId === targetNodeId} depth={depth}>
+      <TreeRow
+        nodeId={nodeId}
+        highlight={nodeId === targetNodeId}
+        depth={depth}
+      >
         {!isTopLevelNode && hasChildren && (
           <Toggle isOpen={isOpen} onClick={toggleNode} />
         )}
@@ -64,7 +68,7 @@ export const ElementNodeRenderer: React.FC<Props> = ({ nodeId, depth }) => {
       )}
 
       {!isEmptyElement && isOpen && (
-        <TreeRow depth={depth}>
+        <TreeRow nodeId={nodeId} depth={depth}>
           <Syntax>{`</`}</Syntax>
           <TagName>{node.tagName}</TagName>
           <Syntax>{`>`}</Syntax>

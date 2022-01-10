@@ -9,7 +9,7 @@ import { StateProvider } from './context'
 import { createState } from './createState'
 import { DevToolsContainer } from './DevToolsContainer'
 
-Stats.disable()
+Stats.enable()
 Trace.enable()
 
 const NODE_NAME = 'repro-devtools'

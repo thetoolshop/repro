@@ -16,7 +16,7 @@ interface Props {
 export const DocumentNodeRenderer: React.FC<Props> = ({ nodeId, depth }) => {
   const vtree = useContext(VTreeContext)
   const node = useNode<VDocument>(nodeId)
-  const [targetNodeId, isOpen, toggleNode] = useNodeState(nodeId)
+  const [targetNodeId, , isOpen, toggleNode] = useNodeState(nodeId)
 
   if (!vtree || !node) {
     return null
@@ -43,7 +43,11 @@ export const DocumentNodeRenderer: React.FC<Props> = ({ nodeId, depth }) => {
 
   return (
     <Block key={nodeId}>
-      <TreeRow highlight={nodeId === targetNodeId} depth={depth}>
+      <TreeRow
+        nodeId={nodeId}
+        highlight={nodeId === targetNodeId}
+        depth={depth}
+      >
         {hasChildren && <Toggle isOpen={isOpen} onClick={toggleNode} />}
       </TreeRow>
       {children}

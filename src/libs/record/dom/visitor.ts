@@ -80,21 +80,24 @@ export function createDOMVisitor() {
         } catch {}
 
         if (subtree) {
-          if (vtree) {
-            if (node.parentNode) {
-              const parentId = getNodeId(node.parentNode)
-              const parentVNode = vtree.nodes[parentId]
+          if (!vtree) {
+            vtree = subtree
+            return
+          }
 
-              if (parentVNode && isElementVNode(parentVNode)) {
-                insertSubTreesAtNode(
-                  vtree,
-                  parentVNode,
-                  [subtree],
-                  parentVNode.children.length
-                )
+          if (node.parentNode) {
+            const parentId = getNodeId(node.parentNode)
+            const parentVNode = vtree.nodes[parentId]
 
-                return
-              }
+            if (parentVNode && isElementVNode(parentVNode)) {
+              insertSubTreesAtNode(
+                vtree,
+                parentVNode,
+                [subtree],
+                parentVNode.children.length
+              )
+
+              return
             }
           }
         }

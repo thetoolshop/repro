@@ -22,6 +22,10 @@ export function isElementNode(node: Node): node is Element {
   return node.nodeType === Node.ELEMENT_NODE
 }
 
+export function isHTMLElement(node: Node): node is HTMLElement {
+  return node.nodeType === Node.ELEMENT_NODE && 'style' in node
+}
+
 export function isIFrameElement(
   element: Element
 ): element is HTMLIFrameElement {

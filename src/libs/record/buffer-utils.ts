@@ -28,7 +28,6 @@ export function createBuffer<T>(maxSizeInBytes: number): Buffer<T> {
     evicting = true
 
     requestIdleCallback(() => {
-      const start = performance.now()
       const evicted: Array<T> = []
 
       while (size > maxSizeInBytes) {
@@ -40,14 +39,10 @@ export function createBuffer<T>(maxSizeInBytes: number): Buffer<T> {
         }
       }
 
-      Stats.value('Buffer: calculating evictions', performance.now() - start)
-
       if (evicted.length) {
         for (const subscriber of subscribers.onEvict) {
           subscriber(evicted)
         }
-
-        Stats.value('Buffer: evicted entries', evicted.length)
       }
 
       evicting = false
@@ -84,8 +79,6 @@ export function createBuffer<T>(maxSizeInBytes: number): Buffer<T> {
      * Append new entry to buffer.
      */
     push(entry) {
-      const start = performance.now()
-
       buffer.push(entry)
 
       for (const subscriber of subscribers.onPush) {
@@ -93,11 +86,10 @@ export function createBuffer<T>(maxSizeInBytes: number): Buffer<T> {
       }
 
       size += approxByteLength(entry)
+
       if (!evicting) {
         scheduleEvictions()
       }
-
-      Stats.mean('Buffer: push entry', performance.now() - start)
     },
 
     onEvict(subscriber) {

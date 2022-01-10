@@ -13,7 +13,7 @@ import {
   PlaybackProvider,
 } from '@/libs/playback'
 import { DevTools } from './DevTools'
-import { first, map, Subscription } from 'rxjs'
+import { first, from, map, Subscription } from 'rxjs'
 import { VTree } from '@/types/vdom'
 import { isDocumentVNode, isElementVNode } from '@/utils/vdom'
 
@@ -35,12 +35,23 @@ export const DevToolsContainer: React.FC = () => {
   }, [initialDocumentOverflow])
 
   useEffect(() => {
-    document.documentElement.style.overflow = active
-      ? 'hidden'
-      : initialDocumentOverflow.current
+    if (active) {
+      const overrideStyles = document.createElement('style')
+      overrideStyles.classList.add('repro-ignore')
+      overrideStyles.id = 'repro-style-overrides'
+      overrideStyles.appendChild(
+        document.createTextNode('html { overflow: hidden !important; }')
+      )
+
+      document.head.appendChild(overrideStyles)
+    }
 
     return () => {
-      document.documentElement.style.overflow = initialDocumentOverflow.current
+      const overrideStyles = document.querySelector('#repro-style-overrides')
+
+      if (overrideStyles) {
+        overrideStyles.remove()
+      }
     }
   }, [active])
 
@@ -97,7 +108,21 @@ export const DevToolsContainer: React.FC = () => {
   }, [stream])
 
   useEffect(() => {
-    setPlayback(active ? createRecordingPlayback(stream.slice()) : null)
+    const subscription = new Subscription()
+
+    if (active) {
+      subscription.add(
+        from(stream.slice()).subscribe(events => {
+          setPlayback(createRecordingPlayback(events))
+        })
+      )
+    } else {
+      setPlayback(null)
+    }
+
+    return () => {
+      subscription.unsubscribe()
+    }
   }, [active, setPlayback])
 
   useEffect(() => {
@@ -117,12 +142,12 @@ export const DevToolsContainer: React.FC = () => {
 
     shortcuts.add([
       {
-        shortcut: 'Ctrl+Alt+Shift+I',
+        shortcut: 'CmdOrCtrl+Alt+Shift+I',
         handler: () => setActive(active => !active),
       },
 
       {
-        shortcut: 'Ctrl+Alt+Shift+C',
+        shortcut: 'CmdOrCtrl+Alt+Shift+C',
         handler: () => setPicker(picker => !picker),
       },
     ])

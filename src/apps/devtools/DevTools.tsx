@@ -1,7 +1,7 @@
 import { Block, Grid } from 'jsxstyle'
 import React from 'react'
 import { colors } from '@/config/theme'
-import { PlaybackCanvas, usePlayback } from '@/libs/playback'
+import { PlaybackCanvas } from '@/libs/playback'
 import { Toolbar } from './Toolbar'
 import { PickerOverlay } from './PickerOverlay'
 import { View } from './types'
@@ -20,7 +20,6 @@ import {
 } from './hooks'
 
 export const DevTools: React.FC = React.memo(() => {
-  const playback = usePlayback()
   const [, setCurrentDocument] = useCurrentDocument()
   const [active] = useActive()
   const [picker] = usePicker()
@@ -28,11 +27,11 @@ export const DevTools: React.FC = React.memo(() => {
   const [view] = useView()
 
   return (
-    <Container open={!!(active && playback)}>
+    <Container open={active}>
       {active && (
         <PlaybackRegion mask={mask}>
           <PlaybackCanvas
-            interactive={true}
+            interactive={false}
             scaling="full-width"
             onDocumentReady={setCurrentDocument}
           />
@@ -74,7 +73,11 @@ const Container: React.FC<{ open: boolean }> = ({ children, open }) => (
 )
 
 const PlaybackRegion: React.FC<{ mask: boolean }> = ({ children, mask }) => (
-  <Block gridArea="playback" pointerEvents={mask ? 'none' : 'all'}>
+  <Block
+    gridArea="playback"
+    pointerEvents={mask ? 'none' : 'all'}
+    backgroundColor={colors.white}
+  >
     {children}
   </Block>
 )
