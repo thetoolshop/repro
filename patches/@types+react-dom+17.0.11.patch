@@ -1,5 +1,5 @@
 diff --git a/node_modules/@types/react-dom/index.d.ts b/node_modules/@types/react-dom/index.d.ts
-index e2a2ad6..9750872 100755
+index d9a3f7d..a6a264a 100755
 --- a/node_modules/@types/react-dom/index.d.ts
 +++ b/node_modules/@types/react-dom/index.d.ts
 @@ -29,7 +29,7 @@ import {

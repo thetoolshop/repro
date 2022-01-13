@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { asapScheduler, BehaviorSubject, Observable } from 'rxjs'
+import { asyncScheduler, BehaviorSubject, Observable } from 'rxjs'
 import { distinctUntilChanged, map, observeOn } from 'rxjs/operators'
 
 export type Atom<T> = BehaviorSubject<T>
@@ -39,7 +39,7 @@ export function useAtomState<T>(atom: Atom<T>): AtomState<T> {
 
   useEffect(() => {
     const subscription = atom
-      .pipe(observeOn(asapScheduler), distinctUntilChanged())
+      .pipe(observeOn(asyncScheduler), distinctUntilChanged())
       .subscribe(setValue)
     return () => subscription.unsubscribe()
   }, [atom, setValue])
@@ -64,7 +64,7 @@ export function useSelector<T, U>(atom: Atom<T>, selector: (value: T) => U) {
 
   useEffect(() => {
     const subscription = atom
-      .pipe(observeOn(asapScheduler), map(selector))
+      .pipe(observeOn(asyncScheduler), map(selector))
       .subscribe(setValue)
     return () => subscription.unsubscribe()
   }, [atom, selector, setValue])

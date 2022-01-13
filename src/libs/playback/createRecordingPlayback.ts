@@ -89,10 +89,6 @@ export function createRecordingPlayback(recording: Recording): Playback {
     return [eventsBefore, eventsAfter] as const
   }
 
-  function isPassiveEventType(type: SourceEventType) {
-    return type === SourceEventType.Interaction
-  }
-
   let queuedEvents: ArrayBufferBackedList<SourceEvent> = loadEvents()
 
   const eventLoop = connectable(
