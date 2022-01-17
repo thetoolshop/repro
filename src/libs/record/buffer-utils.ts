@@ -1,5 +1,4 @@
 import { copyArray } from '@/utils/lang'
-import { Stats } from '../diagnostics'
 import { Subscriber } from './types'
 
 export type Unsubscribe = () => void

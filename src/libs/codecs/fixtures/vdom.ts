@@ -3,6 +3,9 @@ import {
   AttributePatch,
   NodeType,
   PatchType,
+  TextPropertyPatch,
+  NumberPropertyPatch,
+  BooleanPropertyPatch,
   RemoveNodesPatch,
   TextPatch,
   VDocType,
@@ -37,6 +40,11 @@ export const elementNode: VElement = {
     id: 'element-id',
     ['data-custom']: '{"foo": "bar"}',
   },
+  properties: {
+    value: 'this is a value',
+    checked: true,
+    selectedIndex: 4,
+  },
 }
 
 export const textNode: VText = {
@@ -64,6 +72,30 @@ export const attributePatch: AttributePatch = {
   name: 'class',
   value: 'foo',
   oldValue: 'bar',
+}
+
+export const textPropertyPatch: TextPropertyPatch = {
+  type: PatchType.TextProperty,
+  targetId: createSyntheticId(),
+  name: 'value',
+  value: 'this is the new value',
+  oldValue: '',
+}
+
+export const numberPropertyPatch: NumberPropertyPatch = {
+  type: PatchType.NumberProperty,
+  targetId: createSyntheticId(),
+  name: 'selectedIndex',
+  value: 3,
+  oldValue: -1,
+}
+
+export const booleanPropertyPatch: BooleanPropertyPatch = {
+  type: PatchType.BooleanProperty,
+  targetId: createSyntheticId(),
+  name: 'checked',
+  value: true,
+  oldValue: false,
 }
 
 export const textPatch: TextPatch = {

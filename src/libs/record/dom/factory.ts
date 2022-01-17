@@ -1,5 +1,10 @@
 import { SyntheticId } from '@/types/common'
-import { isInlineEventAttribute } from '@/utils/dom'
+import {
+  isInlineEventAttribute,
+  isInputElement,
+  isSelectElement,
+  isTextAreaElement,
+} from '@/utils/dom'
 import {
   NodeType,
   VDocument,
@@ -38,6 +43,27 @@ export function createVElement(
       .filter(({ name }) => !isInlineEventAttribute(name))
       .reduce((attrs, { name, value }) => ({ ...attrs, [name]: value }), {})
 
+  const properties: VElement['properties'] = {}
+
+  if (
+    isInputElement(element) ||
+    isTextAreaElement(element) ||
+    isSelectElement(element)
+  ) {
+    properties.value = element.value
+  }
+
+  if (
+    isInputElement(element) &&
+    (element.type === 'checkbox' || element.type === 'radio')
+  ) {
+    properties.checked = element.checked
+  }
+
+  if (isSelectElement(element)) {
+    properties.selectedIndex = element.selectedIndex
+  }
+
   // TODO: check if element is shadow root
 
   return {
@@ -45,6 +71,7 @@ export function createVElement(
     type: NodeType.Element,
     tagName: element.nodeName.toLowerCase(),
     attributes,
+    properties,
     children: [],
   }
 }
@@ -89,6 +116,7 @@ export function createStyleSheetVTree(
     type: NodeType.Element,
     tagName: 'style',
     attributes: {},
+    properties: {},
     children,
   }
 

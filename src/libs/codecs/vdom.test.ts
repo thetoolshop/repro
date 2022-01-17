@@ -2,10 +2,11 @@ import { BufferReader } from 'arraybuffer-utils'
 import { approxByteLength } from '../record/buffer-utils'
 import {
   getByteLength,
-  HEADER_16,
-  HEADER_32,
-  HEADER_8,
+  UINT_16,
+  UINT_32,
+  UINT_8,
   LITTLE_ENDIAN,
+  INT_32,
 } from './common'
 import {
   documentNode,
@@ -16,6 +17,9 @@ import {
   textPatch,
   addNodesPatch,
   removeNodesPatch,
+  numberPropertyPatch,
+  textPropertyPatch,
+  booleanPropertyPatch,
 } from './fixtures/vdom'
 import {
   decodePatch,
@@ -35,7 +39,7 @@ describe('VDOM codec', () => {
     expect(buffer.byteLength).toBe(
       NODE_TYPE_BYTE_LENGTH +
         NODE_ID_BYTE_LENGTH +
-        HEADER_16 +
+        UINT_16 +
         input.children.length * NODE_ID_BYTE_LENGTH
     )
 
@@ -51,11 +55,11 @@ describe('VDOM codec', () => {
     expect(buffer.byteLength).toBe(
       NODE_TYPE_BYTE_LENGTH +
         NODE_ID_BYTE_LENGTH +
-        HEADER_8 +
+        UINT_8 +
         getByteLength(input.name) +
-        HEADER_8 +
+        UINT_8 +
         getByteLength(input.publicId) +
-        HEADER_8 +
+        UINT_8 +
         getByteLength(input.systemId)
     )
 
@@ -71,15 +75,27 @@ describe('VDOM codec', () => {
     expect(buffer.byteLength).toBe(
       NODE_TYPE_BYTE_LENGTH +
         NODE_ID_BYTE_LENGTH +
-        HEADER_8 +
+        UINT_8 +
         getByteLength(input.tagName) +
-        HEADER_16 +
+        UINT_16 +
         input.children.length * NODE_ID_BYTE_LENGTH +
-        HEADER_16 +
+        UINT_16 +
         Object.entries(input.attributes)
           .flatMap(([key, value]) => [
-            HEADER_8 + getByteLength(key),
-            HEADER_16 + (value !== null ? getByteLength(value) : 0),
+            UINT_8 + getByteLength(key),
+            UINT_16 + (value !== null ? getByteLength(value) : 0),
+          ])
+          .reduce((a, b) => a + b, 0) +
+        UINT_16 +
+        Object.entries(input.properties)
+          .flatMap(([key, value]) => [
+            UINT_8,
+            UINT_8 + getByteLength(key),
+            typeof value === 'string'
+              ? UINT_32 + getByteLength(value)
+              : typeof value === 'number'
+              ? INT_32
+              : UINT_8,
           ])
           .reduce((a, b) => a + b, 0)
     )
@@ -96,7 +112,7 @@ describe('VDOM codec', () => {
     expect(buffer.byteLength).toBe(
       NODE_TYPE_BYTE_LENGTH +
         NODE_ID_BYTE_LENGTH +
-        HEADER_32 +
+        UINT_32 +
         getByteLength(input.value)
     )
 
@@ -112,17 +128,65 @@ describe('VDOM codec', () => {
     expect(buffer.byteLength).toBe(
       PATCH_TYPE_BYTE_LENGTH +
         NODE_ID_BYTE_LENGTH +
-        HEADER_8 +
+        UINT_8 +
         getByteLength(input.name) +
-        HEADER_16 +
+        UINT_16 +
         getByteLength(input.value ?? '') +
-        HEADER_16 +
+        UINT_16 +
         getByteLength(input.oldValue ?? '')
     )
 
     const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
     const output = decodePatch(reader)
     expect(output).toEqual(input)
+  })
+
+  it('should encode and decode a text property patch', () => {
+    const input = textPropertyPatch
+    const buffer = encodePatch(input)
+    expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
+    expect(buffer.byteLength).toBe(
+      PATCH_TYPE_BYTE_LENGTH +
+        NODE_ID_BYTE_LENGTH +
+        UINT_8 +
+        getByteLength(input.name) +
+        UINT_32 +
+        getByteLength(input.value) +
+        UINT_32 +
+        getByteLength(input.oldValue)
+    )
+
+    const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
+    const output = decodePatch(reader)
+    expect(output).toEqual(input)
+  })
+
+  it('should encode and decode a number property patch', () => {
+    const input = numberPropertyPatch
+    const buffer = encodePatch(input)
+    expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
+    expect(buffer.byteLength).toBe(
+      PATCH_TYPE_BYTE_LENGTH +
+        NODE_ID_BYTE_LENGTH +
+        UINT_8 +
+        getByteLength(input.name) +
+        INT_32 +
+        INT_32
+    )
+  })
+
+  it('should encode and decode a boolean property patch', () => {
+    const input = booleanPropertyPatch
+    const buffer = encodePatch(input)
+    expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
+    expect(buffer.byteLength).toBe(
+      PATCH_TYPE_BYTE_LENGTH +
+        NODE_ID_BYTE_LENGTH +
+        UINT_8 +
+        getByteLength(input.name) +
+        UINT_8 +
+        UINT_8
+    )
   })
 
   it('should encode and decode a text patch', () => {
@@ -132,9 +196,9 @@ describe('VDOM codec', () => {
     expect(buffer.byteLength).toBe(
       PATCH_TYPE_BYTE_LENGTH +
         NODE_ID_BYTE_LENGTH +
-        HEADER_32 +
+        UINT_32 +
         getByteLength(input.value ?? '') +
-        HEADER_32 +
+        UINT_32 +
         getByteLength(input.oldValue ?? '')
     )
 

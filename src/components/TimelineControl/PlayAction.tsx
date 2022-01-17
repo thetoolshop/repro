@@ -11,13 +11,18 @@ interface Props {
 }
 
 export const PlayAction: React.FC<Props> = ({ playing, onPlay, onPause }) => {
-  const togglePlayback = useCallback(() => {
-    if (playing) {
-      onPause()
-    } else {
-      onPlay()
-    }
-  }, [onPlay, onPause, playing])
+  const togglePlayback = useCallback(
+    (evt: Event) => {
+      evt.preventDefault()
+
+      if (playing) {
+        onPause()
+      } else {
+        onPlay()
+      }
+    },
+    [onPlay, onPause, playing]
+  )
 
   useEffect(() => {
     const shortcuts = new Shortcuts()
@@ -44,7 +49,7 @@ export const PlayAction: React.FC<Props> = ({ playing, onPlay, onPause }) => {
       backgroundColor={playing ? colors.pink['100'] : 'transparent'}
       borderRadius={4}
       cursor="pointer"
-      props={{ onClick: togglePlayback }}
+      props={{ onClick: evt => togglePlayback(evt.nativeEvent) }}
     >
       {playing ? <PauseIcon size={16} /> : <PlayIcon size={16} />}
     </Row>

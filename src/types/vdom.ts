@@ -26,6 +26,12 @@ export interface VElement {
   type: NodeType.Element
   tagName: string
   attributes: Record<string, string | null>
+  // TODO: investigate other plausible properties
+  properties: Partial<{
+    value: string
+    checked: boolean
+    selectedIndex: number
+  }>
   children: Array<SyntheticId>
 }
 
@@ -47,6 +53,9 @@ export enum PatchType {
   Text = 1,
   AddNodes = 2,
   RemoveNodes = 3,
+  TextProperty = 4,
+  NumberProperty = 5,
+  BooleanProperty = 6,
 }
 
 export interface AttributePatch {
@@ -55,6 +64,30 @@ export interface AttributePatch {
   name: string
   value: string | null
   oldValue: string | null
+}
+
+export interface TextPropertyPatch {
+  type: PatchType.TextProperty
+  targetId: SyntheticId
+  name: string
+  value: string
+  oldValue: string
+}
+
+export interface NumberPropertyPatch {
+  type: PatchType.NumberProperty
+  targetId: SyntheticId
+  name: string
+  value: number
+  oldValue: number
+}
+
+export interface BooleanPropertyPatch {
+  type: PatchType.BooleanProperty
+  targetId: SyntheticId
+  name: string
+  value: boolean
+  oldValue: boolean
 }
 
 export interface TextPatch {
@@ -82,6 +115,9 @@ export interface RemoveNodesPatch {
 
 export type Patch =
   | AttributePatch
+  | TextPropertyPatch
+  | NumberPropertyPatch
+  | BooleanPropertyPatch
   | TextPatch
   | AddNodesPatch
   | RemoveNodesPatch

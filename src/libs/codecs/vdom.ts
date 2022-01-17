@@ -4,11 +4,14 @@ import { SyntheticId } from '@/types/common'
 import {
   AddNodesPatch,
   AttributePatch,
+  BooleanPropertyPatch,
   NodeType,
+  NumberPropertyPatch,
   Patch,
   PatchType,
   RemoveNodesPatch,
   TextPatch,
+  TextPropertyPatch,
   VDocType,
   VDocument,
   VElement,
@@ -18,9 +21,9 @@ import {
 } from '@/types/vdom'
 
 import {
-  HEADER_8,
-  HEADER_16,
-  HEADER_32,
+  UINT_8,
+  UINT_16,
+  UINT_32,
   LITTLE_ENDIAN,
   getByteLength,
   readString8,
@@ -31,6 +34,7 @@ import {
   readString16,
   concat,
   zeroFill,
+  INT_32,
 } from './common'
 
 export const NODE_TYPE_BYTE_LENGTH = 1
@@ -103,11 +107,11 @@ export function encodeVDocType(node: VDocType): ArrayBuffer {
   const byteLength =
     NODE_TYPE_BYTE_LENGTH +
     NODE_ID_BYTE_LENGTH +
-    HEADER_8 +
+    UINT_8 +
     getByteLength(node.name) +
-    HEADER_8 +
+    UINT_8 +
     getByteLength(node.publicId) +
-    HEADER_8 +
+    UINT_8 +
     getByteLength(node.systemId)
 
   const buffer = new ArrayBuffer(byteLength)
@@ -142,7 +146,7 @@ export function encodeVDocument(node: VDocument): ArrayBuffer {
   const byteLength =
     NODE_TYPE_BYTE_LENGTH +
     NODE_ID_BYTE_LENGTH +
-    HEADER_16 +
+    UINT_16 +
     node.children.length * NODE_ID_BYTE_LENGTH
 
   const buffer = new ArrayBuffer(byteLength)
@@ -177,14 +181,40 @@ export function decodeVDocument(reader: BufferReader): VDocument {
   }
 }
 
+enum PropertyType {
+  Text = 0,
+  Number = 1,
+  Boolean = 2,
+}
+
 export function encodeVElement(node: VElement): ArrayBuffer {
   const tagNameByteLength = getByteLength(node.tagName)
+
   const attrEntries = Object.entries(node.attributes)
   const attrByteLength = attrEntries.flatMap(([key, value]) => [
-    HEADER_8 + getByteLength(key),
-    HEADER_16 + (value !== null ? getByteLength(value) : 0),
+    UINT_8 + getByteLength(key),
+    UINT_16 + (value !== null ? getByteLength(value) : 0),
   ])
   const attrByteLengthTotal = attrByteLength.reduce(
+    (acc, byteLength) => acc + byteLength,
+    0
+  )
+
+  const propEntries = Object.entries(node.properties)
+  const propByteLength = propEntries.flatMap(([key, value]) => {
+    let valueByteLength: number
+
+    if (typeof value === 'string') {
+      valueByteLength = UINT_32 + getByteLength(value)
+    } else if (typeof value === 'number') {
+      valueByteLength = INT_32
+    } else {
+      valueByteLength = UINT_8
+    }
+
+    return [UINT_8, UINT_8 + getByteLength(key), valueByteLength]
+  })
+  const propByteLengthTotal = propByteLength.reduce(
     (acc, byteLength) => acc + byteLength,
     0
   )
@@ -192,12 +222,14 @@ export function encodeVElement(node: VElement): ArrayBuffer {
   const byteLength =
     NODE_TYPE_BYTE_LENGTH +
     NODE_ID_BYTE_LENGTH +
-    HEADER_8 +
+    UINT_8 +
     tagNameByteLength +
-    HEADER_16 +
+    UINT_16 +
     node.children.length * NODE_ID_BYTE_LENGTH +
-    HEADER_16 +
-    attrByteLengthTotal
+    UINT_16 +
+    attrByteLengthTotal +
+    UINT_16 +
+    propByteLengthTotal
 
   const buffer = new ArrayBuffer(byteLength)
   const writer = new BufferWriter(buffer, 0, LITTLE_ENDIAN)
@@ -215,6 +247,30 @@ export function encodeVElement(node: VElement): ArrayBuffer {
   for (const [key, value] of attrEntries) {
     writeString8(writer, key)
     writeString16(writer, value ?? '')
+  }
+
+  writer.writeUint16(propEntries.length)
+  for (const [key, value] of propEntries) {
+    let propType: PropertyType
+
+    if (typeof value === 'string') {
+      propType = PropertyType.Text
+    } else if (typeof value === 'number') {
+      propType = PropertyType.Number
+    } else {
+      propType = PropertyType.Boolean
+    }
+
+    writer.writeUint8(propType)
+    writeString8(writer, key)
+
+    if (typeof value === 'string') {
+      writeString32(writer, value)
+    } else if (typeof value === 'number') {
+      writer.writeInt32(value)
+    } else {
+      writer.writeUint8(Number(value))
+    }
   }
 
   return buffer
@@ -244,12 +300,35 @@ export function decodeVElement(reader: BufferReader): VElement {
     {}
   )
 
+  const propLength = reader.readUint16()
+  const propEntries: Array<[string, string | number | boolean]> = []
+
+  for (let k = 0; k < propLength; k++) {
+    const propType = reader.readUint8()
+    const name = readString8(reader)
+    let value: string | number | boolean
+
+    if (propType === PropertyType.Text) {
+      value = readString32(reader)
+    } else if (propType === PropertyType.Number) {
+      value = reader.readInt32()
+    } else {
+      value = !!reader.readUint8()
+    }
+
+    propEntries.push([name, value])
+  }
+
+  const properties: Record<string, string | number | boolean> =
+    propEntries.reduce((acc, entry) => ({ ...acc, [entry[0]]: entry[1] }), {})
+
   return {
     type,
     id,
     tagName,
     children,
     attributes,
+    properties,
   }
 }
 
@@ -257,7 +336,7 @@ export function encodeVText(node: VText): ArrayBuffer {
   const byteLength =
     NODE_TYPE_BYTE_LENGTH +
     NODE_ID_BYTE_LENGTH +
-    HEADER_32 +
+    UINT_32 +
     getByteLength(node.value)
 
   const buffer = new ArrayBuffer(byteLength)
@@ -328,6 +407,15 @@ export function encodePatch(patch: Patch): ArrayBuffer {
 
     case PatchType.RemoveNodes:
       return encodeRemoveNodesPatch(patch)
+
+    case PatchType.TextProperty:
+      return encodeTextPropertyPatch(patch)
+
+    case PatchType.NumberProperty:
+      return encodeNumberPropertyPatch(patch)
+
+    case PatchType.BooleanProperty:
+      return encodeBooleanPropertyPatch(patch)
   }
 }
 
@@ -346,6 +434,15 @@ export function decodePatch(reader: BufferReader): Patch {
 
     case PatchType.RemoveNodes:
       return decodeRemoveNodesPatch(reader)
+
+    case PatchType.TextProperty:
+      return decodeTextPropertyPatch(reader)
+
+    case PatchType.NumberProperty:
+      return decodeNumberPropertyPatch(reader)
+
+    case PatchType.BooleanProperty:
+      return decodeBooleanPropertyPatch(reader)
   }
 }
 
@@ -353,11 +450,11 @@ export function encodeAttributePatch(patch: AttributePatch): ArrayBuffer {
   const byteLength =
     PATCH_TYPE_BYTE_LENGTH +
     NODE_ID_BYTE_LENGTH +
-    HEADER_8 +
+    UINT_8 +
     getByteLength(patch.name) +
-    HEADER_16 +
+    UINT_16 +
     getByteLength(patch.value ?? '') +
-    HEADER_16 +
+    UINT_16 +
     getByteLength(patch.oldValue ?? '')
 
   const buffer = new ArrayBuffer(byteLength)
@@ -392,9 +489,9 @@ export function encodeTextPatch(patch: TextPatch): ArrayBuffer {
   const byteLength =
     PATCH_TYPE_BYTE_LENGTH +
     NODE_ID_BYTE_LENGTH +
-    HEADER_32 +
+    UINT_32 +
     getByteLength(patch.value) +
-    HEADER_32 +
+    UINT_32 +
     getByteLength(patch.oldValue)
 
   const buffer = new ArrayBuffer(byteLength)
@@ -428,11 +525,11 @@ function encodeAddRemoveNodesPatch(
   const byteLength =
     PATCH_TYPE_BYTE_LENGTH +
     NODE_ID_BYTE_LENGTH +
-    HEADER_8 +
+    UINT_8 +
     NODE_ID_BYTE_LENGTH +
-    HEADER_8 +
+    UINT_8 +
     NODE_ID_BYTE_LENGTH +
-    HEADER_16
+    UINT_16
 
   const buffer = new ArrayBuffer(byteLength)
   const writer = new BufferWriter(buffer, 0, LITTLE_ENDIAN)
@@ -517,4 +614,124 @@ export function decodeRemoveNodesPatch(reader: BufferReader): RemoveNodesPatch {
     PatchType.RemoveNodes,
     reader
   ) as RemoveNodesPatch
+}
+
+export function encodeTextPropertyPatch(patch: TextPropertyPatch): ArrayBuffer {
+  const byteLength =
+    PATCH_TYPE_BYTE_LENGTH +
+    NODE_ID_BYTE_LENGTH +
+    UINT_8 +
+    getByteLength(patch.name) +
+    UINT_32 +
+    getByteLength(patch.value) +
+    UINT_32 +
+    getByteLength(patch.oldValue)
+
+  const buffer = new ArrayBuffer(byteLength)
+  const writer = new BufferWriter(buffer, 0, LITTLE_ENDIAN)
+
+  writer.writeUint8(patch.type)
+  writeNodeId(writer, patch.targetId)
+  writeString8(writer, patch.name)
+  writeString32(writer, patch.value)
+  writeString32(writer, patch.oldValue)
+
+  return buffer
+}
+
+export function decodeTextPropertyPatch(
+  reader: BufferReader
+): TextPropertyPatch {
+  const targetId = readNodeId(reader)
+  const name = readString8(reader)
+  const value = readString32(reader)
+  const oldValue = readString32(reader)
+
+  return {
+    type: PatchType.TextProperty,
+    targetId,
+    name,
+    value,
+    oldValue,
+  }
+}
+
+export function encodeNumberPropertyPatch(
+  patch: NumberPropertyPatch
+): ArrayBuffer {
+  const byteLength =
+    PATCH_TYPE_BYTE_LENGTH +
+    NODE_ID_BYTE_LENGTH +
+    UINT_8 +
+    getByteLength(patch.name) +
+    INT_32 +
+    INT_32
+
+  const buffer = new ArrayBuffer(byteLength)
+  const writer = new BufferWriter(buffer, 0, LITTLE_ENDIAN)
+
+  writer.writeUint8(patch.type)
+  writeNodeId(writer, patch.targetId)
+  writeString8(writer, patch.name)
+  writer.writeInt32(patch.value)
+  writer.writeInt32(patch.oldValue)
+
+  return buffer
+}
+
+export function decodeNumberPropertyPatch(
+  reader: BufferReader
+): NumberPropertyPatch {
+  const targetId = readNodeId(reader)
+  const name = readString8(reader)
+  const value = reader.readInt32()
+  const oldValue = reader.readInt32()
+
+  return {
+    type: PatchType.NumberProperty,
+    targetId,
+    name,
+    value,
+    oldValue,
+  }
+}
+
+export function encodeBooleanPropertyPatch(
+  patch: BooleanPropertyPatch
+): ArrayBuffer {
+  const byteLength =
+    PATCH_TYPE_BYTE_LENGTH +
+    NODE_ID_BYTE_LENGTH +
+    UINT_8 +
+    getByteLength(patch.name) +
+    UINT_8 +
+    UINT_8
+
+  const buffer = new ArrayBuffer(byteLength)
+  const writer = new BufferWriter(buffer, 0, LITTLE_ENDIAN)
+
+  writer.writeUint8(patch.type)
+  writeNodeId(writer, patch.targetId)
+  writeString8(writer, patch.name)
+  writer.writeUint8(Number(patch.value))
+  writer.writeUint8(Number(patch.oldValue))
+
+  return buffer
+}
+
+export function decodeBooleanPropertyPatch(
+  reader: BufferReader
+): BooleanPropertyPatch {
+  const targetId = readNodeId(reader)
+  const name = readString8(reader)
+  const value = !!reader.readUint8()
+  const oldValue = !!reader.readUint8()
+
+  return {
+    type: PatchType.BooleanProperty,
+    targetId,
+    name,
+    value,
+    oldValue,
+  }
 }

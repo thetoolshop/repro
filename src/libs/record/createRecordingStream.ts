@@ -15,6 +15,7 @@ import {
 import { Patch, VNode } from '@/types/vdom'
 import { isZeroPoint } from '@/utils/interaction'
 import { ArrayBufferBackedList, copyObjectDeep } from '@/utils/lang'
+import { ObserverLike } from '@/utils/observer'
 import { applyEventToSnapshot } from '@/utils/source'
 import { applyVTreePatch, getNodeId } from '@/utils/vdom'
 import { copy as copyArrayBuffer, LITTLE_ENDIAN } from '../codecs/common'
@@ -30,7 +31,7 @@ import { createBuffer, Unsubscribe } from './buffer-utils'
 import { createDOMObserver, createDOMTreeWalker, createDOMVisitor } from './dom'
 import { createInteractionObserver, createScrollVisitor } from './interaction'
 import { observePeriodic } from './periodic'
-import { ObserverLike, RecordingOptions } from './types'
+import { RecordingOptions } from './types'
 import { concat, NEVER, Observable, of } from 'rxjs'
 
 const defaultOptions: RecordingOptions = {

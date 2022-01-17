@@ -215,6 +215,21 @@ export function applyVTreePatch(
       break
     }
 
+    case PatchType.BooleanProperty:
+    case PatchType.NumberProperty:
+    case PatchType.TextProperty: {
+      let node = getVNodeById(vtree, patch.targetId)
+
+      if (node && isElementVNode(node)) {
+        const propertyName = patch.name as keyof VElement['properties']
+        // TODO: fix typings and type inference for element properties
+        // @ts-ignore
+        node.properties[propertyName] = revert ? patch.oldValue : patch.value
+      }
+
+      break
+    }
+
     case PatchType.Text: {
       let node = getVNodeById(vtree, patch.targetId)
 

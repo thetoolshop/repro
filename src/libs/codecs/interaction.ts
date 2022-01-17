@@ -13,7 +13,7 @@ import {
 import { POINT_BYTE_LENGTH, readPoint, writePoint } from './point'
 import {
   getByteLength,
-  HEADER_8,
+  UINT_8,
   LITTLE_ENDIAN,
   readString8,
   writeString8,
@@ -181,7 +181,7 @@ function encodePointerUpDown(
 ): ArrayBuffer {
   const byteLength =
     INTERACTION_TYPE_BYTE_LENGTH +
-    HEADER_8 +
+    UINT_8 +
     interaction.targets.length * NODE_ID_BYTE_LENGTH +
     POINT_BYTE_LENGTH
 
@@ -238,7 +238,7 @@ export function decodePointerDown(reader: BufferReader): PointerDown {
 
 function encodeKeyUpDown(interaction: KeyUp | KeyDown): ArrayBuffer {
   const byteLength =
-    INTERACTION_TYPE_BYTE_LENGTH + HEADER_8 + getByteLength(interaction.key)
+    INTERACTION_TYPE_BYTE_LENGTH + UINT_8 + getByteLength(interaction.key)
 
   const buffer = new ArrayBuffer(byteLength)
   const writer = new BufferWriter(buffer, 0, LITTLE_ENDIAN)

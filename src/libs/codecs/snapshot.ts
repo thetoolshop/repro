@@ -1,7 +1,7 @@
 import { PointerState, ScrollMap } from '@/types/interaction'
 import { InteractionSnapshot, Snapshot } from '@/types/recording'
 import { BufferReader, BufferWriter } from 'arraybuffer-utils'
-import { concat, ENUM_BYTE_LENGTH, HEADER_32, LITTLE_ENDIAN } from './common'
+import { concat, ENUM_BYTE_LENGTH, UINT_32, LITTLE_ENDIAN } from './common'
 import { POINT_BYTE_LENGTH, readPoint, writePoint } from './point'
 import {
   decodeVTree,
@@ -17,7 +17,7 @@ function encodeInteractionSnapshot(snapshot: InteractionSnapshot): ArrayBuffer {
   const byteLength =
     POINT_BYTE_LENGTH +
     ENUM_BYTE_LENGTH +
-    HEADER_32 +
+    UINT_32 +
     scrollMapEntries
       .flatMap(() => [NODE_ID_BYTE_LENGTH, POINT_BYTE_LENGTH])
       .reduce((a, b) => a + b, 0) +

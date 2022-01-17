@@ -7,7 +7,7 @@ import {
   SourceEvent,
   SourceEventType,
 } from '@/types/recording'
-import { concat, ENUM_BYTE_LENGTH, HEADER_32, LITTLE_ENDIAN } from './common'
+import { concat, ENUM_BYTE_LENGTH, UINT_32, LITTLE_ENDIAN } from './common'
 import { decodeInteraction, encodeInteraction } from './interaction'
 import { decodeSnapshot, encodeSnapshot } from './snapshot'
 import { decodePatch, encodePatch } from './vdom'
@@ -63,7 +63,7 @@ export function decodeEvent(reader: BufferReader): SourceEvent {
 }
 
 export function encodeSnapshotEvent(event: SnapshotEvent): ArrayBuffer {
-  const byteLength = ENUM_BYTE_LENGTH + HEADER_32
+  const byteLength = ENUM_BYTE_LENGTH + UINT_32
   const buffer = new ArrayBuffer(byteLength)
   const writer = new BufferWriter(buffer, 0, LITTLE_ENDIAN)
 
@@ -81,7 +81,7 @@ export function decodeSnapshotEvent(reader: BufferReader): SnapshotEvent {
 }
 
 export function encodeDOMPatchEvent(event: DOMPatchEvent): ArrayBuffer {
-  const byteLength = ENUM_BYTE_LENGTH + HEADER_32
+  const byteLength = ENUM_BYTE_LENGTH + UINT_32
   const buffer = new ArrayBuffer(byteLength)
   const writer = new BufferWriter(buffer, 0, LITTLE_ENDIAN)
 
@@ -99,7 +99,7 @@ export function decodeDOMPatchEvent(reader: BufferReader): DOMPatchEvent {
 }
 
 export function encodeInteractionEvent(event: InteractionEvent): ArrayBuffer {
-  const byteLength = ENUM_BYTE_LENGTH + HEADER_32
+  const byteLength = ENUM_BYTE_LENGTH + UINT_32
   const buffer = new ArrayBuffer(byteLength)
   const writer = new BufferWriter(buffer, 0, LITTLE_ENDIAN)
 
@@ -119,7 +119,7 @@ export function decodeInteractionEvent(reader: BufferReader): InteractionEvent {
 export function encodeCloseRecordingEvent(
   event: CloseRecordingEvent
 ): ArrayBuffer {
-  const byteLength = ENUM_BYTE_LENGTH + HEADER_32
+  const byteLength = ENUM_BYTE_LENGTH + UINT_32
   const buffer = new ArrayBuffer(byteLength)
   const writer = new BufferWriter(buffer, 0, LITTLE_ENDIAN)
 

@@ -1,6 +1,3 @@
-import { Immutable } from '@/types/extensions'
-import { VTree } from '@/types/vdom'
-
 export interface Visitor<T> {
   documentNode(node: Document): void
   documentFragmentNode(node: DocumentFragment): void
@@ -29,9 +26,4 @@ export interface RecordingOptions extends DOMOptions {
     resize: number
     scroll: number
   }
-}
-
-export interface ObserverLike<T extends any = any> {
-  disconnect(): void
-  observe(target: T, vtree: Immutable<VTree>): void
 }

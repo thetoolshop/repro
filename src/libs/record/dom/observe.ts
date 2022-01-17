@@ -1,8 +1,10 @@
 import { SyntheticId } from '@/types/common'
 import { Immutable } from '@/types/extensions'
 import { NodeType, Patch, PatchType, VText, VTree } from '@/types/vdom'
+import { isInputElement, isSelectElement, isTextAreaElement } from '@/utils/dom'
+import { createEventObserver, ObserverLike } from '@/utils/observer'
 import { createSyntheticId, getNodeId, isElementVNode } from '@/utils/vdom'
-import { ObserverLike, RecordingOptions } from '../types'
+import { RecordingOptions } from '../types'
 import { DOMTreeWalker, isIgnoredByNode, isIgnoredBySelector } from './utils'
 
 export function createDOMObserver(
@@ -12,17 +14,172 @@ export function createDOMObserver(
 ): ObserverLike {
   const domObserver = createMutationObserver(walkDOMTree, options, subscriber)
   const styleSheetObserver = createStyleSheetObserver(subscriber)
-  // TODO: input value + checked state observer (should this be interaction? or is 'form' a distinct recording type?)
+  const inputObserver = createInputObserver(subscriber)
 
   return {
     disconnect() {
       domObserver.disconnect()
       styleSheetObserver.disconnect()
+      inputObserver.disconnect()
     },
 
     observe(doc, vtree) {
       domObserver.observe(doc, vtree)
       styleSheetObserver.observe(doc, vtree)
+      inputObserver.observe(doc, vtree)
+    },
+  }
+}
+
+function createInputObserver(
+  subscriber: (patch: Patch) => void
+): ObserverLike<Document> {
+  let prevChangeMap = new WeakMap<EventTarget, string>()
+  let prevCheckedMap = new WeakMap<EventTarget, boolean>()
+  let prevSelectedIndexMap = new WeakMap<EventTarget, number>()
+
+  const handleChangeOrInput = (evt: Event) => {
+    const eventTarget = evt.target as Node
+    const isInput = isInputElement(eventTarget)
+    const isTextArea = isTextAreaElement(eventTarget)
+    const isSelect = isSelectElement(eventTarget)
+
+    if (isInput || isTextArea || isSelect) {
+      // TODO: read prev value from vtree
+      const prevValue =
+        prevChangeMap.get(eventTarget) ||
+        ('defaultValue' in eventTarget ? eventTarget.defaultValue : '')
+
+      if (eventTarget.value !== prevValue) {
+        subscriber({
+          type: PatchType.TextProperty,
+          targetId: getNodeId(eventTarget),
+          name: 'value',
+          value: eventTarget.value,
+          oldValue: prevValue,
+        })
+
+        prevChangeMap.set(eventTarget, eventTarget.value)
+      }
+    }
+
+    if (isInput) {
+      const inputType = eventTarget.type
+
+      if (inputType === 'checkbox' || inputType === 'radio') {
+        // TODO: read prev checked state from vtree
+        const prevChecked = prevCheckedMap.get(eventTarget) || false
+
+        subscriber({
+          type: PatchType.BooleanProperty,
+          targetId: getNodeId(eventTarget),
+          name: 'checked',
+          value: eventTarget.checked,
+          oldValue: prevChecked,
+        })
+
+        prevCheckedMap.set(eventTarget, eventTarget.checked)
+      }
+
+      if (inputType === 'radio') {
+        if (eventTarget.parentElement) {
+          const siblingInputs = eventTarget.parentElement.querySelectorAll(
+            `input[type="radio"][name="${eventTarget.name}"]`
+          )
+
+          for (const sibling of Array.from(siblingInputs)) {
+            if (sibling !== eventTarget) {
+              const prevChecked = prevCheckedMap.get(sibling) || false
+
+              subscriber({
+                type: PatchType.BooleanProperty,
+                targetId: getNodeId(eventTarget),
+                name: 'checked',
+                value: false,
+                oldValue: prevChecked,
+              })
+
+              prevCheckedMap.set(sibling, false)
+            }
+          }
+        }
+      }
+    }
+
+    if (isSelect) {
+      // TODO: read previous selected index from vtree
+      const prevSelectedIndex = prevSelectedIndexMap.get(eventTarget) || -1
+
+      subscriber({
+        type: PatchType.NumberProperty,
+        targetId: getNodeId(eventTarget),
+        name: 'selectedIndex',
+        value: eventTarget.selectedIndex,
+        oldValue: prevSelectedIndex,
+      })
+
+      prevSelectedIndexMap.set(eventTarget, eventTarget.selectedIndex)
+    }
+  }
+
+  const changeObserver = createEventObserver('change', handleChangeOrInput)
+  const inputObserver = createEventObserver('input', handleChangeOrInput)
+
+  const propertyOverrides = [
+    [HTMLInputElement.prototype, 'value'],
+    [HTMLInputElement.prototype, 'checked'],
+    [HTMLSelectElement.prototype, 'value'],
+    [HTMLTextAreaElement.prototype, 'value'],
+    [HTMLSelectElement.prototype, 'selectedIndex'],
+  ] as const
+
+  const originalPropertyDescriptors = propertyOverrides.map(([obj, name]) =>
+    Object.getOwnPropertyDescriptor(obj, name)
+  )
+
+  return {
+    disconnect() {
+      propertyOverrides.forEach(([obj, name], i) => {
+        const descriptor = originalPropertyDescriptors[i]
+
+        if (descriptor) {
+          Object.defineProperty(obj, name, descriptor)
+        }
+
+        // @ts-ignore
+        delete obj[`__original__${name}`]
+      })
+
+      changeObserver.disconnect()
+      inputObserver.disconnect()
+
+      prevChangeMap = new WeakMap()
+      prevCheckedMap = new WeakMap()
+      prevSelectedIndexMap = new WeakMap()
+    },
+
+    observe(doc, vtree) {
+      // TODO: make vtree available to enclosing scope
+      changeObserver.observe(doc, vtree)
+      inputObserver.observe(doc, vtree)
+
+      propertyOverrides.forEach(([obj, name], i) => {
+        const descriptor = originalPropertyDescriptors[i]
+
+        if (descriptor) {
+          Object.defineProperty(obj, `__original__${name}`, descriptor)
+        }
+
+        Object.defineProperty(obj, name, {
+          set(value: any) {
+            if (descriptor && descriptor.set) {
+              descriptor.set.call(this, value)
+            }
+
+            handleChangeOrInput({ target: this } as Event)
+          },
+        })
+      })
     },
   }
 }

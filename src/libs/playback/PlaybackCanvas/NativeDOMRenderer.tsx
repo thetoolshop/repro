@@ -8,6 +8,7 @@ import {
 } from '@/types/recording'
 import { PatchType, VTree } from '@/types/vdom'
 import { isElementNode, isHTMLElement, isTextNode } from '@/utils/dom'
+import { scheduleMicrotask } from '@/utils/schedule'
 import { interpolatePointFromSample } from '@/utils/source'
 import {
   isDocTypeVNode,
@@ -190,6 +191,32 @@ function applyDOMPatchEvent(event: DOMPatchEvent, nodeMap: MutableNodeMap) {
 
       if (node && isElementNode(node)) {
         node.setAttribute(event.data.name, event.data.value ?? '')
+      }
+
+      break
+    }
+
+    case PatchType.BooleanProperty:
+    case PatchType.NumberProperty:
+    case PatchType.TextProperty: {
+      const targetId = event.data.targetId
+      const node = nodeMap[targetId]
+
+      if (node && isElementNode(node)) {
+        // TODO: ensure property is valid for target element
+
+        if (
+          Object.getPrototypeOf(node).hasOwnProperty(
+            `__original__${event.data.name}`
+          )
+        ) {
+          // @ts-ignore
+          node[`__original__${event.data.name}`] = event.data.value
+          // @ts-ignore
+        } else {
+          // @ts-ignore
+          node[event.data.name] = event.data.value
+        }
       }
 
       break
@@ -383,6 +410,22 @@ function createDOMFromVTree(vtree: VTree): [Node | null, MutableNodeMap] {
       for (const [name, value] of Object.entries(vNode.attributes)) {
         element.setAttribute(name, value ?? '')
       }
+
+      scheduleMicrotask(() => {
+        for (const [name, value] of Object.entries(vNode.properties)) {
+          // TODO: ensure property is valid for target element
+
+          if (
+            Object.getPrototypeOf(element).hasOwnProperty(`__original__${name}`)
+          ) {
+            // @ts-ignore
+            element[`__original__${name}`] = value
+          } else {
+            // @ts-ignore
+            element[name] = value
+          }
+        }
+      })
 
       for (const childId of vNode.children) {
         element.appendChild(createNode(childId, nodeId, svgContext))

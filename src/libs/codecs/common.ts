@@ -1,8 +1,11 @@
 import { BufferReader, BufferWriter } from 'arraybuffer-utils'
 
-export const HEADER_8 = 1
-export const HEADER_16 = 2
-export const HEADER_32 = 4
+export const UINT_8 = 1
+export const INT_8 = 1
+export const UINT_16 = 2
+export const INT_16 = 2
+export const UINT_32 = 4
+export const INT_32 = 4
 
 export const ENUM_BYTE_LENGTH = 1
 

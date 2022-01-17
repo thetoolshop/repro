@@ -1,17 +1,6 @@
 import { useRecordingStream } from '@/libs/record'
-import { isElementNode } from '@/utils/dom'
 import { useAtomState } from '@/utils/state'
 import { useContext, useEffect, useState } from 'react'
-import {
-  fromEvent,
-  map,
-  mapTo,
-  NEVER,
-  of,
-  race,
-  Subscription,
-  take,
-} from 'rxjs'
 import { StateContext } from './context'
 
 export function useDevtoolsState() {

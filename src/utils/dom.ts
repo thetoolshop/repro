@@ -32,6 +32,18 @@ export function isIFrameElement(
   return matches(element.nodeName, 'iframe')
 }
 
+export function isInputElement(node: Node): node is HTMLInputElement {
+  return matches(node.nodeName, 'input')
+}
+
+export function isSelectElement(node: Node): node is HTMLSelectElement {
+  return matches(node.nodeName, 'select')
+}
+
+export function isTextAreaElement(node: Node): node is HTMLTextAreaElement {
+  return matches(node.nodeName, 'textarea')
+}
+
 export function isLocalStylesheet(
   element: Element
 ): element is HTMLStyleElement {
