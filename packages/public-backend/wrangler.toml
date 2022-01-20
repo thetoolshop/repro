@@ -1,0 +1,28 @@
+name = "public-backend"
+type = "javascript"
+
+account_id = "bc12e3978fbec832b092cd18394f9df5"
+
+route = "storage-api.repro.dev/public/*"
+zone_id = ""
+compatibility_date = "2022-01-17"
+
+kv_namespaces = [
+  { binding = "SESSION", id = "151f715bc7464ab09ddfa21d4693fde3" }
+]
+
+[env.staging]
+workers_dev = true
+kv_namespaces = [
+  { binding = "SESSION", id = "3140aa1b0c0e439f9c55a662bae39331" }
+]
+
+[vars]
+STORAGE_API_DEFAULT_BASE_URL = "https://api.backblaze.com"
+STORAGE_API_VERSION = "v2"
+STORAGE_API_KEY_ID = "00331ad9ade589b0000000003"
+STORAGE_API_BUCKET_ID = "83913afd89ba6d9e75e8091b"
+STORAGE_API_BUCKET_NAME = "recordings-public"
+
+# [secrets]
+# STORAGE_API_KEY
