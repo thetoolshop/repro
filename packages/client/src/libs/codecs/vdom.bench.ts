@@ -14,8 +14,6 @@ import {
   textNode,
   vtree,
 } from './fixtures/vdom'
-// @ts-ignore
-import vtree_big from './fixtures/vtree-big.json'
 
 console.table({
   VDocument: {
@@ -46,12 +44,5 @@ console.table({
     raw: approxByteLength(vtree),
     binary: approxByteLength(encodeVTree(vtree)),
     perf_encode: stress(() => encodeVTree(vtree)),
-  },
-
-  VTreeFull: {
-    raw: approxByteLength(vtree_big),
-    binary: approxByteLength(encodeVTree(vtree_big)),
-    // Too slow to run in benchmarks :(
-    // 'perf_encode': stress(() => encodeVTree(vtree_big)),
   },
 })
