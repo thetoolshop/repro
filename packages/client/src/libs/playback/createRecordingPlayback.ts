@@ -112,6 +112,8 @@ export function createRecordingPlayback(recording: Recording): Playback {
 
   subscription.add(
     $elapsed.subscribe(elapsed => {
+      // TODO: investigate performance implications (especially after
+      // resuming background/idle tab)
       const [before, after] = partitionEvents(
         queuedEvents,
         buffer => readEventTime(buffer) > elapsed,

@@ -61,7 +61,7 @@ export const ScaleToFitViewport: React.FC = ({ children }) => {
     <Block
       position="relative"
       height="100%"
-      background={colors.blueGray['200']}
+      background={colors.slate['200']}
       props={{ ref }}
     >
       <Block

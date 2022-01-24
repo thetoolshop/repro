@@ -33,6 +33,8 @@ import { createInteractionObserver, createScrollVisitor } from './interaction'
 import { observePeriodic } from './periodic'
 import { RecordingOptions } from './types'
 import { concat, NEVER, Observable, of } from 'rxjs'
+import { zlibSync } from 'fflate'
+import { encodeRecording } from '../codecs/recording'
 
 const defaultOptions: RecordingOptions = {
   types: new Set(['dom', 'interaction']),

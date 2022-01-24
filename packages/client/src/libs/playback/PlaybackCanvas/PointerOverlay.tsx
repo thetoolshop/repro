@@ -29,15 +29,16 @@ export const PointerOverlay: React.FC = () => {
           left={0}
           width={30}
           height={30}
-          borderColor={colors.cyan['500']}
-          borderStyle="solid"
-          borderWidth={4}
+          backgroundColor={colors.pink['200']}
           borderRadius={30}
           opacity={pointerState === PointerState.Up ? 0 : 0.75}
           transform="translate(-10px, -10px)"
           transition="opacity 100ms linear"
         />
-        <Cursor color={colors.pink['700']} />
+
+        <Block isolation="isolate">
+          <Cursor color={colors.pink['700']} />
+        </Block>
       </Block>
     </Block>
   )

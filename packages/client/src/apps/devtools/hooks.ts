@@ -12,6 +12,11 @@ export function useActive() {
   return useAtomState(state.$active)
 }
 
+export function useExporting() {
+  const state = useDevtoolsState()
+  return useAtomState(state.$exporting)
+}
+
 export function usePicker() {
   const state = useDevtoolsState()
   return useAtomState(state.$picker)

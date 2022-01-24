@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { MouseEvent } from 'react'
 import { Block, Row } from 'jsxstyle'
 import { colors } from '@/config/theme'
 
@@ -7,6 +7,7 @@ interface Props {
   height: string | number
   minWidth?: string | number
   minHeight?: string | number
+  onClose(): void
 }
 
 export const Modal: React.FC<Props> = ({
@@ -15,8 +16,9 @@ export const Modal: React.FC<Props> = ({
   height,
   minWidth,
   minHeight,
+  onClose,
 }) => (
-  <Backdrop>
+  <Backdrop onClick={onClose}>
     <Container
       width={width}
       height={height}
@@ -28,20 +30,29 @@ export const Modal: React.FC<Props> = ({
   </Backdrop>
 )
 
-const Backdrop: React.FC = ({ children }) => (
-  <Row
-    alignItems="center"
-    justifyContent="center"
-    background="rgba(0, 0, 0, 0.75)"
-    position="fixed"
-    top={0}
-    left={0}
-    bottom={0}
-    right={0}
-  >
-    {children}
-  </Row>
-)
+const Backdrop: React.FC<{ onClick(): void }> = ({ children, onClick }) => {
+  const handleClick = (evt: MouseEvent<HTMLDivElement>) => {
+    if (evt.target === evt.currentTarget) {
+      onClick()
+    }
+  }
+
+  return (
+    <Row
+      alignItems="center"
+      justifyContent="center"
+      background="rgba(0, 0, 0, 0.75)"
+      position="fixed"
+      top={0}
+      left={0}
+      bottom={0}
+      right={0}
+      props={{ onClick: handleClick }}
+    >
+      {children}
+    </Row>
+  )
+}
 
 type ContainerProps = Pick<Props, 'width' | 'height' | 'minWidth' | 'minHeight'>
 
@@ -55,6 +66,7 @@ const Container: React.FC<ContainerProps> = ({
   <Block
     background={colors.white}
     boxShadow="0 8px 16px rgba(0, 0, 0, 0.25)"
+    borderRadius={8}
     minHeight={minHeight}
     minWidth={minWidth}
     height={height}

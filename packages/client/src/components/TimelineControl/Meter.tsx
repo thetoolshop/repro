@@ -51,10 +51,10 @@ export const Meter = React.forwardRef<HTMLDivElement, Props>(
         <Block
           position="relative"
           height="100%"
-          background={colors.blueGray['100']}
+          background={colors.slate['100']}
           borderBottomWidth={1}
           borderBottomStyle="solid"
-          borderBottomColor={colors.blueGray['300']}
+          borderBottomColor={colors.slate['300']}
           overflow="hidden"
           props={{ ref }}
         >
@@ -64,7 +64,7 @@ export const Meter = React.forwardRef<HTMLDivElement, Props>(
             right={0}
             height="100%"
             width={Math.min(width, maxValue / SCALING_FACTOR)}
-            background={colors.blueGray['200']}
+            background={colors.slate['200']}
             props={{ ref: outerRef }}
           />
           <Block height="100%">
@@ -86,7 +86,7 @@ export const Meter = React.forwardRef<HTMLDivElement, Props>(
                         ? isMajorTick
                           ? colors.blue['400']
                           : colors.blue['300']
-                        : colors.blueGray['300']
+                        : colors.slate['300']
                     }
                   />
 
@@ -97,7 +97,7 @@ export const Meter = React.forwardRef<HTMLDivElement, Props>(
                       right={n * (100 / SCALING_FACTOR)}
                       fontSize={10}
                       lineHeight={1.5}
-                      color={colors.blueGray['700']}
+                      color={colors.slate['700']}
                       transform="translateX(50%)"
                       pointerEvents="none"
                     >

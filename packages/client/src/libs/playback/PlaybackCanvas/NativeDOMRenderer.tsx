@@ -1,3 +1,4 @@
+import { Stats } from '@/libs/diagnostics'
 import { usePlayback } from '@/libs/playback'
 import { SyntheticId } from '@/types/common'
 import { InteractionType, Point, ScrollMap } from '@/types/interaction'
@@ -19,13 +20,24 @@ import {
 } from '@/utils/vdom'
 import React, { useEffect } from 'react'
 import { asapScheduler, from, Subscription } from 'rxjs'
-import { distinctUntilChanged, map, observeOn, switchMap } from 'rxjs/operators'
+import {
+  distinctUntilChanged,
+  filter,
+  map,
+  observeOn,
+  switchMap,
+} from 'rxjs/operators'
 import { OUT_OF_BOUNDS_POINT } from '../constants'
+import { ControlFrame } from '../types'
 
 const HOVER_CLASS = '-repro-hover'
 const HOVER_SELECTOR = `.${HOVER_CLASS}`
 
 type MutableNodeMap = Record<SyntheticId, Node>
+
+function isNotIdle(controlFrame: ControlFrame) {
+  return controlFrame !== ControlFrame.Idle
+}
 
 interface Props {
   ownerDocument: Document | null
@@ -45,48 +57,42 @@ export const NativeDOMRenderer: React.FC<Props> = ({
 
     subscription.add(
       playback.$latestControlFrame
-        .pipe(observeOn(asapScheduler))
+        .pipe(filter(isNotIdle), observeOn(asapScheduler))
         .subscribe(() => {
-          const snapshot = playback.getSnapshot()
-          const pointer = snapshot.interaction?.pointer || OUT_OF_BOUNDS_POINT
-          const scrollMap = snapshot.interaction?.scroll || {}
+          Stats.time('NativeDOMRenderer (effect): render from snapshot', () => {
+            const snapshot = playback.getSnapshot()
+            const pointer = snapshot.interaction?.pointer || OUT_OF_BOUNDS_POINT
+            const scrollMap = snapshot.interaction?.scroll || {}
 
-          if (ownerDocument) {
-            clearDocument(ownerDocument)
+            if (ownerDocument) {
+              clearDocument(ownerDocument)
 
-            if (snapshot.dom) {
-              const documentElement = ownerDocument.documentElement
-              const [rootNode, vtreeNodeMap] = createDOMFromVTree(snapshot.dom)
+              if (snapshot.dom) {
+                const documentElement = ownerDocument.documentElement
+                const [rootNode, vtreeNodeMap] = createDOMFromVTree(
+                  snapshot.dom
+                )
 
-              patchDocumentElement(snapshot.dom, vtreeNodeMap, documentElement)
+                patchDocumentElement(
+                  snapshot.dom,
+                  vtreeNodeMap,
+                  documentElement
+                )
 
-              if (rootNode) {
-                documentElement.appendChild(rootNode)
-                nodeMap = vtreeNodeMap
+                if (rootNode) {
+                  documentElement.appendChild(rootNode)
+                  nodeMap = vtreeNodeMap
 
-                if (ownerDocument.defaultView) {
-                  console.log(
-                    'NativeDOMRenderer: window',
-                    ownerDocument.defaultView
-                  )
-                  console.log(
-                    'NativeDOMRenderer: document ready-state',
-                    ownerDocument.readyState
-                  )
-                  ownerDocument.defaultView.addEventListener('load', () =>
-                    console.log('NativeDOMRenderer: load')
-                  )
+                  if (onLoad) {
+                    onLoad()
+                  }
+
+                  updateAllScrollStates(nodeMap, scrollMap)
+                  updateHoverTargets(ownerDocument, pointer)
                 }
-
-                if (onLoad) {
-                  onLoad()
-                }
-
-                updateAllScrollStates(nodeMap, scrollMap)
-                updateHoverTargets(ownerDocument, pointer)
               }
             }
-          }
+          })
         })
     )
 

@@ -43,7 +43,7 @@ const Item: React.FC<ItemProps> = ({ children, disabled, view }) => {
   }
 
   const color = disabled
-    ? colors.blueGray['300']
+    ? colors.slate['300']
     : activeView === view
     ? colors.blue['900']
     : colors.blue['700']

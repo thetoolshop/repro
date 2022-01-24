@@ -28,7 +28,7 @@ export const Cursor: React.FC<Props> = React.memo(
         height="100%"
         width={2}
         backgroundColor={
-          type === 'cursor' ? colors.blue['500'] : colors.blueGray['400']
+          type === 'cursor' ? colors.blue['500'] : colors.slate['400']
         }
         position="absolute"
         top={0}

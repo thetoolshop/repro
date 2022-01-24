@@ -29,7 +29,7 @@ export const TextNodeRenderer: React.FC<Props> = ({ nodeId }) => {
       fontFamily="monospace"
       fontSize={FONT_SIZE}
       lineHeight={1.5}
-      color={colors.blueGray['700']}
+      color={colors.slate['700']}
     >
       {node.value}
     </InlineBlock>

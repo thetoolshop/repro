@@ -5,6 +5,7 @@ import { Snap, View } from './types'
 
 export interface State {
   $active: Atom<boolean>
+  $exporting: Atom<boolean>
   $picker: Atom<boolean>
   $currentDocument: Atom<Document | null>
   $targetNodeId: Atom<SyntheticId | null>
@@ -14,6 +15,7 @@ export interface State {
   $snap: Atom<Snap>
 
   setActive: Setter<boolean>
+  setExporting: Setter<boolean>
   setPicker: Setter<boolean>
   setCurrentDocument: Setter<Document | null>
   setTargetNodeId: Setter<SyntheticId | null>
@@ -25,6 +27,7 @@ export interface State {
 
 export function createState(): State {
   const [$active, _getActive, setActive] = createAtom(false)
+  const [$exporting, _getExporting, setExporting] = createAtom(false)
   const [$picker, _getPicker, setPicker] = createAtom(false)
   const [$currentDocument, _getCurrentDocument, setCurrentDocument] =
     createAtom<Document | null>(null)
@@ -37,6 +40,7 @@ export function createState(): State {
 
   return {
     $active,
+    $exporting,
     $picker,
     $currentDocument,
     $targetNodeId,
@@ -46,6 +50,7 @@ export function createState(): State {
     $snap,
 
     setActive,
+    setExporting,
     setPicker,
     setCurrentDocument,
     setTargetNodeId,

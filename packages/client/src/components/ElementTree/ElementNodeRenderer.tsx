@@ -79,7 +79,7 @@ export const ElementNodeRenderer: React.FC<Props> = ({ nodeId, depth }) => {
 }
 
 const Syntax: React.FC = ({ children }) => (
-  <Inline color={colors.blueGray['500']}>{children}</Inline>
+  <Inline color={colors.slate['500']}>{children}</Inline>
 )
 
 const TagName: React.FC = ({ children }) => (

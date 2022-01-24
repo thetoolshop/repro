@@ -20,7 +20,7 @@ export const DocTypeNodeRenderer: React.FC<Props> = ({ nodeId, depth }) => {
 
   return (
     <TreeRow nodeId={nodeId} key={nodeId} depth={depth}>
-      <Block color={colors.blueGray['500']}>{`<!DOCTYPE ${node.name}${
+      <Block color={colors.slate['500']}>{`<!DOCTYPE ${node.name}${
         node.publicId && `PUBLIC ${node.publicId}`
       }${node.systemId}>`}</Block>
     </TreeRow>

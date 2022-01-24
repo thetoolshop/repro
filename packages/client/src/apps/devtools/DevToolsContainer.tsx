@@ -3,6 +3,7 @@ import { useRecordingStream } from '@/libs/record'
 import {
   useActive,
   useCurrentDocument,
+  useExporting,
   usePicker,
   useTargetNodeId,
 } from './hooks'
@@ -24,6 +25,7 @@ export const DevToolsContainer: React.FC = () => {
   // TODO: lift all state into container component and memoize content to prevent render thrashing
   const [playback, setPlayback] = useState<Playback | null>(null)
   const [active, setActive] = useActive()
+  const [, setExporting] = useExporting()
   const [picker, setPicker] = usePicker()
   const [, setCurrentDocument] = useCurrentDocument()
   const [, setTargetNodeId] = useTargetNodeId()
@@ -155,7 +157,7 @@ export const DevToolsContainer: React.FC = () => {
     return () => {
       shortcuts.reset()
     }
-  }, [])
+  }, [setActive, setPicker])
 
   return (
     <PlaybackProvider playback={playback}>

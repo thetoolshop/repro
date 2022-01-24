@@ -49,7 +49,7 @@ const SidebarPane: React.FC = () => {
       height="100%"
       width={size}
       overflow="auto"
-      borderLeft={`1px solid ${colors.blueGray['200']}`}
+      borderLeft={`1px solid ${colors.slate['200']}`}
     >
       <TargetNodeComputedStyle />
     </Block>

@@ -4,13 +4,13 @@ import { colors } from '@/config/theme'
 import { INDENT } from './constants'
 
 const OpenIcon: React.FC = () => (
-  <Inline fontSize={INDENT} color={colors.blueGray['700']}>
+  <Inline fontSize={INDENT} color={colors.slate['700']}>
     {String.fromCharCode(0x25be)}
   </Inline>
 )
 
 const ClosedIcon: React.FC = () => (
-  <Inline fontSize={INDENT} color={colors.blueGray['700']}>
+  <Inline fontSize={INDENT} color={colors.slate['700']}>
     {String.fromCharCode(0x25b8)}
   </Inline>
 )

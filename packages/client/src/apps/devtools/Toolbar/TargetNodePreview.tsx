@@ -17,7 +17,7 @@ export const TargetNodePreview: React.FC = () => {
       gap={15}
       alignItems="center"
       alignSelf="stretch"
-      backgroundColor={colors.blueGray['100']}
+      backgroundColor={colors.slate['100']}
       transition="background-color 100ms linear"
     >
       {boundingBox && (
@@ -25,7 +25,7 @@ export const TargetNodePreview: React.FC = () => {
           <InlineBlock color={colors.pink['500']}>
             {round(boundingBox.width)}
           </InlineBlock>
-          <InlineBlock color={colors.blueGray['400']}>x</InlineBlock>
+          <InlineBlock color={colors.slate['400']}>x</InlineBlock>
           <InlineBlock color={colors.pink['500']}>
             {round(boundingBox.height)}
           </InlineBlock>

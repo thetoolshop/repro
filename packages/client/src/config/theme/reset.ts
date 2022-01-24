@@ -6,7 +6,7 @@ function createResetRules(rootSelector: string) {
     `html, body, ${rootSelector} {
       margin: 0;
       font: normal 10px/1em sans-serif; 
-      color: ${colors.blueGray['900']};
+      color: ${colors.slate['900']};
     }`,
   ]
 }

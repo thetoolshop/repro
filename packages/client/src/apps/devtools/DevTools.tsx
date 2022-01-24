@@ -1,5 +1,5 @@
 import { Block, Grid } from 'jsxstyle'
-import React from 'react'
+import React, { useCallback } from 'react'
 import { colors } from '@/config/theme'
 import { PlaybackCanvas } from '@/libs/playback'
 import { Toolbar } from './Toolbar'
@@ -13,18 +13,25 @@ import { MAX_INT32 } from './constants'
 import {
   useActive,
   useCurrentDocument,
+  useExporting,
   useMask,
   usePicker,
   useSize,
   useView,
 } from './hooks'
+import { ExporterModal } from './Exporter'
 
 export const DevTools: React.FC = React.memo(() => {
   const [, setCurrentDocument] = useCurrentDocument()
   const [active] = useActive()
+  const [exporting, setExporting] = useExporting()
   const [picker] = usePicker()
   const [mask] = useMask()
   const [view] = useView()
+
+  const closeExporter = useCallback(() => {
+    setExporting(false)
+  }, [setExporting])
 
   return (
     <Container open={active}>
@@ -53,6 +60,8 @@ export const DevTools: React.FC = React.memo(() => {
           </ContentRegion>
         )}
       </InspectorRegion>
+
+      {exporting && <ExporterModal onClose={closeExporter} />}
     </Container>
   )
 })
@@ -103,7 +112,7 @@ const ContentRegion: React.FC = ({ children }) => {
       height={size}
       borderTopStyle="solid"
       borderTopWidth={1}
-      borderTopColor={colors.blueGray['300']}
+      borderTopColor={colors.slate['300']}
       overflow="auto"
     >
       {children}
