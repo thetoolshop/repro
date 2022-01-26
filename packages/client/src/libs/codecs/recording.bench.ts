@@ -24,7 +24,7 @@ const eventReader = (buffer: ArrayBuffer) => {
 }
 
 const recording: Recording = {
-  id: nanoid(),
+  id: nanoid(21),
   duration: 60000,
   events: new ArrayBufferBackedList<SourceEvent>(
     [
@@ -42,7 +42,6 @@ const recording: Recording = {
     eventReader,
     eventWriter
   ),
-  snapshotIndex: [0, 7, 9],
 }
 
 console.table({

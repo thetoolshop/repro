@@ -1,12 +1,10 @@
 import { BufferReader } from 'arraybuffer-utils'
-import { nanoid } from 'nanoid'
 import { SyntheticId } from '@/types/common'
 import { Interaction, InteractionType, PointerState } from '@/types/interaction'
 import {
   DOMPatchEvent,
   InteractionEvent,
   InteractionSnapshot,
-  Recording,
   Snapshot,
   SnapshotEvent,
   SourceEvent,
@@ -16,7 +14,7 @@ import { Patch, VNode } from '@/types/vdom'
 import { isZeroPoint } from '@/utils/interaction'
 import { ArrayBufferBackedList, copyObjectDeep } from '@/utils/lang'
 import { ObserverLike } from '@/utils/observer'
-import { applyEventToSnapshot } from '@/utils/source'
+import { applyEventToSnapshot, createEmptySnapshot } from '@/utils/source'
 import { applyVTreePatch, getNodeId } from '@/utils/vdom'
 import { copy as copyArrayBuffer, LITTLE_ENDIAN } from '../codecs/common'
 import {
@@ -33,8 +31,7 @@ import { createInteractionObserver, createScrollVisitor } from './interaction'
 import { observePeriodic } from './periodic'
 import { RecordingOptions } from './types'
 import { concat, NEVER, Observable, of } from 'rxjs'
-import { zlibSync } from 'fflate'
-import { encodeRecording } from '../codecs/recording'
+import { createViewportVisitor } from './interaction/visitor'
 
 const defaultOptions: RecordingOptions = {
   types: new Set(['dom', 'interaction']),
@@ -50,12 +47,6 @@ const defaultOptions: RecordingOptions = {
 
 const MAX_BUFFER_SIZE_BYTES = 32_000_000
 
-function createEmptySnapshot(): Snapshot {
-  return {
-    dom: null,
-  }
-}
-
 function eventReader(buffer: ArrayBuffer): SourceEvent {
   const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
   return decodeEvent(reader)
@@ -65,18 +56,11 @@ function eventWriter(event: SourceEvent): ArrayBuffer {
   return encodeEvent(event)
 }
 
-export function createEmptyRecording(): Recording {
-  return {
-    id: nanoid(11),
-    duration: 0,
-    events: new ArrayBufferBackedList<SourceEvent>(
-      [],
-      eventReader,
-      eventWriter
-    ),
-    snapshotIndex: [],
-  }
-}
+const EMPTY_EVENT_LIST = new ArrayBufferBackedList<SourceEvent>(
+  [],
+  eventReader,
+  eventWriter
+)
 
 export function createEmptyInteractionSnapshot(): InteractionSnapshot {
   return {
@@ -92,7 +76,7 @@ export interface RecordingStream {
   stop(): void
   isStarted(): boolean
   peek(nodeId: SyntheticId): VNode | null
-  slice(): Promise<Recording>
+  slice(): Promise<ArrayBufferBackedList<SourceEvent>>
   tail(): Observable<SourceEvent>
 }
 
@@ -106,7 +90,7 @@ export const EMPTY_RECORDING_STREAM: RecordingStream = {
   stop: () => undefined,
   isStarted: () => false,
   peek: () => null,
-  slice: () => Promise.resolve(createEmptyRecording()),
+  slice: () => Promise.resolve(EMPTY_EVENT_LIST),
   tail: () => NEVER,
 }
 
@@ -129,8 +113,8 @@ export function createRecordingStream(
     onPush: null,
   }
 
-  const leadingSnapshot = createEmptySnapshot()
-  const trailingSnapshot = createEmptySnapshot()
+  let leadingSnapshot = createEmptySnapshot()
+  let trailingSnapshot = createEmptySnapshot()
 
   const domTreeWalker = createDOMTreeWalker({
     ignoredNodes: options.ignoredNodes,
@@ -147,6 +131,7 @@ export function createRecordingStream(
 
   if (options.types.has('interaction')) {
     registerScrollVisitor()
+    registerViewportVisitor()
     registerInteractionObserver()
   }
 
@@ -163,9 +148,10 @@ export function createRecordingStream(
       return
     }
 
+    ready = false
     started = true
 
-    trailingSnapshot.dom = null
+    trailingSnapshot = createEmptySnapshot()
 
     if (options.types.has('interaction')) {
       trailingSnapshot.interaction = createEmptyInteractionSnapshot()
@@ -181,6 +167,7 @@ export function createRecordingStream(
       throw new Error('RecordingStream#start: VTree is not initialized')
     }
 
+    leadingSnapshot = copyObjectDeep(trailingSnapshot)
     subscribeToBuffer()
     addEvent(createSnapshotEvent())
 
@@ -208,12 +195,10 @@ export function createRecordingStream(
     return started
   }
 
-  async function slice(): Promise<Recording> {
-    const recording = createEmptyRecording()
+  async function slice(): Promise<ArrayBufferBackedList<SourceEvent>> {
+    let events: Array<ArrayBuffer> = []
 
     Stats.time('RecordingStream#slice: total', () => {
-      let events: Array<ArrayBuffer> = []
-
       Stats.time('RecordingStream#slice: deep copy event buffer', () => {
         events = buffer.copy().map(copyArrayBuffer)
       })
@@ -229,10 +214,7 @@ export function createRecordingStream(
       })
 
       const firstEvent = events[0]
-      const lastEvent = events[events.length - 1]
-
       const timeOffset = firstEvent ? readEventTime(firstEvent) : 0
-      const duration = lastEvent ? readEventTime(lastEvent) - timeOffset : 0
 
       Stats.value('RecordingStream#slice: time offset', timeOffset)
 
@@ -259,13 +241,7 @@ export function createRecordingStream(
         })
       }
 
-      recording.duration = duration
-      recording.events = new ArrayBufferBackedList<SourceEvent>(
-        events,
-        eventReader,
-        eventWriter
-      )
-
+      /**
       Stats.time('RecordingStream#slice: index snapshot events', () => {
         for (let i = 0, len = events.length; i < len; i++) {
           const event = events[i]
@@ -279,9 +255,14 @@ export function createRecordingStream(
           }
         }
       })
+      /**/
     })
 
-    return recording
+    return new ArrayBufferBackedList<SourceEvent>(
+      events,
+      eventReader,
+      eventWriter
+    )
   }
 
   function peek(nodeId: SyntheticId): VNode | null {
@@ -440,6 +421,18 @@ export function createRecordingStream(
     })
 
     domTreeWalker.accept(scrollVisitor)
+  }
+
+  function registerViewportVisitor() {
+    const viewportVisitor = createViewportVisitor()
+
+    viewportVisitor.subscribe(viewport => {
+      if (trailingSnapshot.interaction) {
+        trailingSnapshot.interaction.viewport = viewport
+      }
+    })
+
+    domTreeWalker.accept(viewportVisitor)
   }
 
   function registerNetworkObserver() {}

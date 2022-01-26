@@ -1,4 +1,5 @@
 import { Snapshot, SourceEvent, SourceEventType } from '@/types/recording'
+import { ArrayBufferBackedList } from '@/utils/lang'
 import { Atom } from '@/utils/state'
 
 export enum PlaybackState {
@@ -31,6 +32,7 @@ export interface Playback {
   getLatestControlFrame(): ControlFrame
   getPlaybackState(): PlaybackState
   getSnapshot(): Snapshot
+  getSourceEvents(): ArrayBufferBackedList<SourceEvent> | null
 
   // Controls
   play(): void
@@ -41,4 +43,7 @@ export interface Playback {
   // Lifecycle
   open(): void
   close(): void
+
+  // Operations
+  copy(): Playback
 }

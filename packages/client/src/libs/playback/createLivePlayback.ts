@@ -37,6 +37,10 @@ export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
     return null
   }
 
+  function getSourceEvents() {
+    return null
+  }
+
   function play() {}
   function pause() {}
   function seekToEvent() {}
@@ -74,7 +78,12 @@ export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
     subscription.unsubscribe()
   }
 
+  function copy() {
+    return createLivePlayback(event$)
+  }
+
   return {
+    // Read-only atoms
     $activeIndex,
     $buffer,
     $elapsed,
@@ -82,6 +91,7 @@ export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
     $playbackState,
     $snapshot,
 
+    // Accessors
     getActiveIndex,
     getBuffer,
     getDuration,
@@ -91,13 +101,19 @@ export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
     getLatestControlFrame,
     getPlaybackState,
     getSnapshot,
+    getSourceEvents,
 
+    // Services
     play,
     pause,
     seekToEvent,
     seekToTime,
 
+    // Lifecycle
     open,
     close,
+
+    // Operations
+    copy,
   }
 }

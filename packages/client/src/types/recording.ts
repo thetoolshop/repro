@@ -68,7 +68,6 @@ export interface Recording {
   id: SyntheticId
   duration: number
   events: ArrayBufferBackedList<SourceEvent>
-  snapshotIndex: Array<number>
 }
 
 export interface Metadata {

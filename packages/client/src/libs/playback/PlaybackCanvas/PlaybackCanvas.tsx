@@ -1,4 +1,5 @@
 import { FrameRealm } from '@/components/FrameRealm'
+import { colors } from '@/config/theme'
 import { Block } from 'jsxstyle'
 import React, {
   MutableRefObject,
@@ -54,7 +55,12 @@ export const PlaybackCanvas: React.FC<Props> = ({
   )
 
   return (
-    <Block overflow="hidden" height="100%" display={loaded ? 'block' : 'none'}>
+    <Block
+      overflow="hidden"
+      height="100%"
+      background={colors.slate['200']}
+      visibility={loaded ? 'visible' : 'hidden'}
+    >
       {scaling === 'full-width' && (
         <FullWidthViewport>{viewportContents}</FullWidthViewport>
       )}

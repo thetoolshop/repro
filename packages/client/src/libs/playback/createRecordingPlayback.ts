@@ -2,7 +2,6 @@ import { animationFrames, connectable, NEVER, Subscription } from 'rxjs'
 import { map, pairwise, switchMap } from 'rxjs/operators'
 import { Stats } from '@/libs/diagnostics'
 import {
-  Recording,
   Sample,
   Snapshot,
   SnapshotEvent,
@@ -13,8 +12,14 @@ import { ArrayBufferBackedList, copyObject } from '@/utils/lang'
 import { applyEventToSnapshot, isSample } from '@/utils/source'
 import { createAtom } from '@/utils/state'
 import { ControlFrame, Playback, PlaybackState } from './types'
-import { createEmptyRecording } from '../record'
-import { readEventTime, readEventType } from '../codecs/event'
+import {
+  decodeEvent,
+  encodeEvent,
+  readEventTime,
+  readEventType,
+} from '../codecs/event'
+import { BufferReader } from 'arraybuffer-utils'
+import { LITTLE_ENDIAN } from '../codecs/common'
 
 const EMPTY_SNAPSHOT: Snapshot = {
   dom: null,
@@ -22,24 +27,81 @@ const EMPTY_SNAPSHOT: Snapshot = {
 
 const EMPTY_BUFFER: Array<SourceEvent> = []
 
-export const EMPTY_PLAYBACK = createRecordingPlayback(createEmptyRecording())
+function eventReader(buffer: ArrayBuffer): SourceEvent {
+  const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
+  return decodeEvent(reader)
+}
 
-export function createRecordingPlayback(recording: Recording): Playback {
+function eventWriter(event: SourceEvent): ArrayBuffer {
+  return encodeEvent(event)
+}
+
+const EMPTY_EVENT_LIST = new ArrayBufferBackedList<SourceEvent>(
+  [],
+  eventReader,
+  eventWriter
+)
+
+export const EMPTY_PLAYBACK = createRecordingPlayback(EMPTY_EVENT_LIST)
+
+export function createRecordingPlayback(
+  events: ArrayBufferBackedList<SourceEvent>
+): Playback {
   const subscription = new Subscription()
 
   const [$activeIndex, getActiveIndex, setActveIndex] = createAtom(-1)
   const [$buffer, getBuffer, setBuffer] = createAtom<Array<SourceEvent>>([])
-  const [$elapsed, getElapsed, setElapsed] = createAtom(0)
+  const [$elapsed, getElapsed, setElapsed] = createAtom(-1)
   const [$playbackState, getPlaybackState, setPlaybackState] = createAtom(
     PlaybackState.Paused
   )
-  const [$snapshot, getSnapshot, setSnapshot] =
-    createAtom<Snapshot>(EMPTY_SNAPSHOT)
+  const [$snapshot, getSnapshot, setSnapshot] = createAtom<Snapshot>(
+    getLeadingSnapshot()
+  )
   const [$latestControlFrame, getLatestControlFrame, setLatestControlFrame] =
     createAtom<ControlFrame>(ControlFrame.Idle)
 
+  const firstEvent = events.at(0)
+  const lastEvent = events.at(events.size() - 1)
+
+  let duration = 0
+
+  Stats.time('RecordingPlayback: calculate duration', () => {
+    if (firstEvent && lastEvent) {
+      duration = readEventTime(lastEvent) - readEventTime(firstEvent)
+    }
+  })
+
+  const snapshotIndex: Array<number> = []
+
+  Stats.time('RecordingPlayback: index snapshot events', () => {
+    for (let i = 0, len = events.size(); i < len; i++) {
+      const event = events.at(i)
+
+      if (event && readEventType(event) === SourceEventType.Snapshot) {
+        snapshotIndex.push(i)
+      }
+    }
+  })
+
   function loadEvents() {
-    return recording.events.slice()
+    return events.slice()
+  }
+
+  function getLeadingSnapshot() {
+    if (events.size() === 0) {
+      return EMPTY_SNAPSHOT
+    }
+
+    const firstEvent = events.read(0)
+
+    if (!firstEvent || firstEvent.type !== SourceEventType.Snapshot) {
+      throw new Error(
+        'Playback: could not find leading snapshot in events (index = 0)'
+      )
+    }
+
+    return firstEvent.data
   }
 
   function partitionEvents(
@@ -106,7 +168,7 @@ export function createRecordingPlayback(recording: Recording): Playback {
 
   subscription.add(
     eventLoop.subscribe(delta => {
-      setElapsed(elapsed => Math.min(recording.duration, elapsed + delta))
+      setElapsed(elapsed => Math.min(duration, elapsed + delta))
     })
   )
 
@@ -143,17 +205,21 @@ export function createRecordingPlayback(recording: Recording): Playback {
   )
 
   function getEventTimeAtIndex(index: number) {
-    const event = recording.events.at(index)
+    const event = events.at(index)
     return event ? readEventTime(event) : null
   }
 
   function getEventTypeAtIndex(index: number) {
-    const event = recording.events.at(index)
+    const event = events.at(index)
     return event ? readEventType(event) : null
   }
 
+  function getSourceEvents() {
+    return events
+  }
+
   function getDuration() {
-    return recording.duration
+    return duration
   }
 
   function play() {
@@ -179,8 +245,8 @@ export function createRecordingPlayback(recording: Recording): Playback {
 
     let snapshot: Snapshot | null = null
 
-    for (let i = recording.snapshotIndex.length - 1; i >= 0; i--) {
-      const index = recording.snapshotIndex[i]
+    for (let i = snapshotIndex.length - 1; i >= 0; i--) {
+      const index = snapshotIndex[i]
 
       if (typeof index === 'number') {
         if (index <= nextIndex) {
@@ -223,8 +289,8 @@ export function createRecordingPlayback(recording: Recording): Playback {
 
       let snapshot: Snapshot | null = null
 
-      for (let i = recording.snapshotIndex.length - 1; i >= 0; i--) {
-        const index = recording.snapshotIndex[i]
+      for (let i = snapshotIndex.length - 1; i >= 0; i--) {
+        const index = snapshotIndex[i]
 
         if (typeof index === 'number') {
           const buffer = allEvents.at(index)
@@ -268,6 +334,10 @@ export function createRecordingPlayback(recording: Recording): Playback {
     subscription.unsubscribe()
   }
 
+  function copy() {
+    return createRecordingPlayback(events)
+  }
+
   return {
     // Read-only atoms
     $activeIndex,
@@ -287,6 +357,7 @@ export function createRecordingPlayback(recording: Recording): Playback {
     getLatestControlFrame,
     getPlaybackState,
     getSnapshot,
+    getSourceEvents,
 
     // Services
     play,
@@ -297,5 +368,8 @@ export function createRecordingPlayback(recording: Recording): Playback {
     // Lifecycle
     open,
     close,
+
+    // Operations
+    copy,
   }
 }

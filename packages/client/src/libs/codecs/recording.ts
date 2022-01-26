@@ -2,10 +2,10 @@ import { SyntheticId } from '@/types/common'
 import { Recording, SourceEvent } from '@/types/recording'
 import { ArrayBufferBackedList } from '@/utils/lang'
 import { BufferReader, BufferWriter } from 'arraybuffer-utils'
-import { concat, LITTLE_ENDIAN, UINT_16, UINT_32 } from './common'
+import { concat, LITTLE_ENDIAN, UINT_32 } from './common'
 import { decodeEvent, encodeEvent } from './event'
 
-const RECORDING_ID_BYTE_LENGTH = 11
+const RECORDING_ID_BYTE_LENGTH = 21
 
 const textEncoder = new TextEncoder()
 const textDecoder = new TextDecoder()
@@ -54,17 +54,7 @@ export function encodeRecording(recording: Recording): ArrayBuffer {
     }
   }
 
-  const indexByteLength = UINT_16 + recording.snapshotIndex.length * UINT_32
-  const indexBuffer = new ArrayBuffer(indexByteLength)
-  const indexWriter = new BufferWriter(indexBuffer, 0, LITTLE_ENDIAN)
-
-  indexWriter.writeUint16(recording.snapshotIndex.length)
-
-  for (const index of recording.snapshotIndex) {
-    indexWriter.writeUint32(index)
-  }
-
-  return concat([headerBuffer, ...eventBuffers, indexBuffer])
+  return concat([headerBuffer, ...eventBuffers])
 }
 
 function eventReader(buffer: ArrayBuffer): SourceEvent {
@@ -93,17 +83,9 @@ export function decodeRecording(reader: BufferReader): Recording {
     events.push(new Uint8Array(bytes).buffer)
   }
 
-  const indexCount = reader.readUint16()
-  const snapshotIndex: Array<number> = []
-
-  for (let i = 0; i < indexCount; i++) {
-    snapshotIndex.push(reader.readUint32())
-  }
-
   return {
     id,
     duration,
     events: new ArrayBufferBackedList(events, eventReader, eventWriter),
-    snapshotIndex,
   }
 }

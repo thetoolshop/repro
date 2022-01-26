@@ -1,6 +1,5 @@
-import { createEmptyRecording } from '@/libs/record'
 import { SyntheticId } from '@/types/common'
-import { Recording, Source } from '@/types/recording'
+import { Source } from '@/types/recording'
 import { createAtom } from '@/utils/state'
 import { NullSource } from './NullSource'
 
@@ -14,9 +13,6 @@ export const [$focusedNode, getFocusedNode, setFocusedNode] =
   createAtom<SyntheticId | null>(null)
 export const [$readyState, getReadyState, setReadyState] = createAtom(
   ReadyState.Loading
-)
-export const [$recording, getRecording, setRecording] = createAtom<Recording>(
-  createEmptyRecording()
 )
 export const [$source, getSource, setSource] = createAtom<Source>(
   new NullSource()

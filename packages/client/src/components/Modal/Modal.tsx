@@ -66,11 +66,12 @@ const Container: React.FC<ContainerProps> = ({
   <Block
     background={colors.white}
     boxShadow="0 8px 16px rgba(0, 0, 0, 0.25)"
-    borderRadius={8}
+    borderRadius={4}
     minHeight={minHeight}
     minWidth={minWidth}
     height={height}
     width={width}
+    overflow="hidden"
   >
     {children}
   </Block>

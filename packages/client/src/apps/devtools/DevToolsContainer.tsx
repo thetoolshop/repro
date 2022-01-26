@@ -22,7 +22,6 @@ export const DevToolsContainer: React.FC = () => {
   const initialDocumentOverflow = useRef<string>('auto')
   const stream = useRecordingStream()
 
-  // TODO: lift all state into container component and memoize content to prevent render thrashing
   const [playback, setPlayback] = useState<Playback | null>(null)
   const [active, setActive] = useActive()
   const [, setExporting] = useExporting()
@@ -114,8 +113,8 @@ export const DevToolsContainer: React.FC = () => {
 
     if (active) {
       subscription.add(
-        from(stream.slice()).subscribe(events => {
-          setPlayback(createRecordingPlayback(events))
+        from(stream.slice()).subscribe(recording => {
+          setPlayback(createRecordingPlayback(recording))
         })
       )
     } else {
@@ -145,19 +144,39 @@ export const DevToolsContainer: React.FC = () => {
     shortcuts.add([
       {
         shortcut: 'CmdOrCtrl+Alt+Shift+I',
-        handler: () => setActive(active => !active),
-      },
-
-      {
-        shortcut: 'CmdOrCtrl+Alt+Shift+C',
-        handler: () => setPicker(picker => !picker),
+        handler: () => {
+          setPicker(false)
+          setExporting(false)
+          setActive(active => !active)
+        },
       },
     ])
 
     return () => {
       shortcuts.reset()
     }
-  }, [setActive, setPicker])
+  }, [setActive, setPicker, setExporting])
+
+  useEffect(() => {
+    const shortcuts = new Shortcuts()
+
+    if (active) {
+      shortcuts.add([
+        {
+          shortcut: 'CmdOrCtrl+Alt+Shift+C',
+          handler: () => setPicker(picker => !picker),
+        },
+        {
+          shortcut: 'CmdOrCtrl+Alt+Shift+E',
+          handler: () => setExporting(exporting => !exporting),
+        },
+      ])
+    }
+
+    return () => {
+      shortcuts.reset()
+    }
+  }, [active, setPicker, setExporting])
 
   return (
     <PlaybackProvider playback={playback}>

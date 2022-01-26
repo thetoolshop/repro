@@ -97,17 +97,6 @@ function createViewportResizeObserver(
       if (win) {
         prevWidth = win.innerWidth
         prevHeight = win.innerHeight
-
-        callback(
-          {
-            type: InteractionType.ViewportResize,
-            from: [prevWidth, prevHeight],
-            to: [prevWidth, prevHeight],
-            duration: 0,
-          },
-          0
-        )
-
         viewportResizeObserver.observe(win, vtree)
       }
     },
@@ -169,18 +158,6 @@ function createPointerMoveObserver(
   let prevX: number | null = null
   let prevY: number | null = null
 
-  function dispatchInitialPointer() {
-    callback(
-      {
-        type: InteractionType.PointerMove,
-        from: [0, 0],
-        to: [0, 0],
-        duration: 0,
-      },
-      0
-    )
-  }
-
   const handlePointerMove = sampleEventsByKey(
     () => 'pointermove',
     (evt: PointerEvent) => [evt.pageX, evt.pageY] as Point,
@@ -203,21 +180,7 @@ function createPointerMoveObserver(
     sampling
   )
 
-  const pointerMoveObserver = createEventObserver(
-    'pointermove',
-    handlePointerMove
-  )
-
-  return {
-    observe(target, vtree) {
-      dispatchInitialPointer()
-      pointerMoveObserver.observe(target, vtree)
-    },
-
-    disconnect() {
-      pointerMoveObserver.disconnect()
-    },
-  }
+  return createEventObserver('pointermove', handlePointerMove)
 }
 
 function createPointerDownObserver(callback: Callback): ObserverLike<Document> {

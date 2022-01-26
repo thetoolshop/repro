@@ -1,14 +1,13 @@
 import { useContext } from 'react'
 import { createValueHook, useAtomValue } from '@/utils/state'
 import { PlaybackContext } from './context'
-import { $focusedNode, $readyState, $recording, $source } from './state'
+import { $focusedNode, $readyState, $source } from './state'
 import { EMPTY_PLAYBACK } from './createRecordingPlayback'
 import { PointerState } from '@/types/interaction'
 import { OUT_OF_BOUNDS_POINT, ZERO_POINT } from './constants'
 
 export const useFocusedNode = createValueHook($focusedNode)
 export const useReadyState = createValueHook($readyState)
-export const useRecording = createValueHook($recording)
 export const useSource = createValueHook($source)
 
 export function usePlayback() {

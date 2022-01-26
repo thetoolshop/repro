@@ -1,3 +1,4 @@
+import { nanoid } from 'nanoid'
 import { InteractionType, Point, PointerState } from '@/types/interaction'
 
 import {
@@ -11,6 +12,16 @@ import {
 
 import { copyArray } from '@/utils/lang'
 import { applyVTreePatch } from '@/utils/vdom'
+
+export function createRecordingId() {
+  return nanoid(21)
+}
+
+export function createEmptySnapshot(): Snapshot {
+  return {
+    dom: null,
+  }
+}
 
 export function isSample(data: object): data is Sample<any> {
   return 'from' in data && 'to' in data && 'duration' in data
@@ -38,9 +49,13 @@ export function interpolatePointFromSample(
   }
 }
 
-function applyDOMEventToSnapshot(snapshot: Snapshot, event: DOMPatchEvent) {
+function applyDOMEventToSnapshot(
+  snapshot: Snapshot,
+  event: DOMPatchEvent,
+  revert: boolean = false
+) {
   if (snapshot.dom) {
-    applyVTreePatch(snapshot.dom, event.data)
+    applyVTreePatch(snapshot.dom, event.data, revert)
   }
 }
 
@@ -88,11 +103,12 @@ function applyInteractionEventToSnapshot(
 export function applyEventToSnapshot(
   snapshot: Snapshot,
   event: SourceEvent,
-  elapsed: number
+  elapsed: number,
+  revert: boolean = false
 ) {
   switch (event.type) {
     case SourceEventType.DOMPatch:
-      applyDOMEventToSnapshot(snapshot, event)
+      applyDOMEventToSnapshot(snapshot, event, revert)
       break
 
     case SourceEventType.Interaction:

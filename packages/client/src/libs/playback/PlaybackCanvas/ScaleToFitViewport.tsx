@@ -58,12 +58,7 @@ export const ScaleToFitViewport: React.FC = ({ children }) => {
   }, [ref, onScale])
 
   return (
-    <Block
-      position="relative"
-      height="100%"
-      background={colors.slate['200']}
-      props={{ ref }}
-    >
+    <Block position="relative" height="100%" props={{ ref }}>
       <Block
         width={viewport[0]}
         height={viewport[1]}
