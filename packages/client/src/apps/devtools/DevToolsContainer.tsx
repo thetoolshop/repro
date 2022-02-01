@@ -4,6 +4,7 @@ import {
   useActive,
   useCurrentDocument,
   useExporting,
+  useInspecting,
   usePicker,
   useTargetNodeId,
 } from './hooks'
@@ -23,7 +24,8 @@ export const DevToolsContainer: React.FC = () => {
   const stream = useRecordingStream()
 
   const [playback, setPlayback] = useState<Playback | null>(null)
-  const [active, setActive] = useActive()
+  const active = useActive()
+  const [inspecting, setInspecting] = useInspecting()
   const [, setExporting] = useExporting()
   const [picker, setPicker] = usePicker()
   const [, setCurrentDocument] = useCurrentDocument()
@@ -36,7 +38,7 @@ export const DevToolsContainer: React.FC = () => {
   }, [initialDocumentOverflow])
 
   useEffect(() => {
-    if (active) {
+    if (inspecting) {
       const overrideStyles = document.createElement('style')
       overrideStyles.classList.add('repro-ignore')
       overrideStyles.id = 'repro-style-overrides'
@@ -54,7 +56,7 @@ export const DevToolsContainer: React.FC = () => {
         overrideStyles.remove()
       }
     }
-  }, [active])
+  }, [inspecting])
 
   useEffect(() => {
     const subscription = new Subscription()
@@ -146,29 +148,28 @@ export const DevToolsContainer: React.FC = () => {
         shortcut: 'CmdOrCtrl+Alt+Shift+I',
         handler: () => {
           setPicker(false)
-          setExporting(false)
-          setActive(active => !active)
+          setInspecting(inspecting => !inspecting)
         },
+      },
+      {
+        shortcut: 'CmdOrCtrl+Alt+Shift+S',
+        handler: () => setExporting(exporting => !exporting),
       },
     ])
 
     return () => {
       shortcuts.reset()
     }
-  }, [setActive, setPicker, setExporting])
+  }, [setPicker, setExporting, setInspecting])
 
   useEffect(() => {
     const shortcuts = new Shortcuts()
 
-    if (active) {
+    if (inspecting) {
       shortcuts.add([
         {
           shortcut: 'CmdOrCtrl+Alt+Shift+C',
           handler: () => setPicker(picker => !picker),
-        },
-        {
-          shortcut: 'CmdOrCtrl+Alt+Shift+E',
-          handler: () => setExporting(exporting => !exporting),
         },
       ])
     }
@@ -176,7 +177,7 @@ export const DevToolsContainer: React.FC = () => {
     return () => {
       shortcuts.reset()
     }
-  }, [active, setPicker, setExporting])
+  }, [inspecting, setPicker, setExporting])
 
   return (
     <PlaybackProvider playback={playback}>

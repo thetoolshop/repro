@@ -4,7 +4,7 @@ import { INITIAL_SIZE } from './constants'
 import { Snap, View } from './types'
 
 export interface State {
-  $active: Atom<boolean>
+  $inspecting: Atom<boolean>
   $exporting: Atom<boolean>
   $picker: Atom<boolean>
   $currentDocument: Atom<Document | null>
@@ -14,7 +14,7 @@ export interface State {
   $size: Atom<number>
   $snap: Atom<Snap>
 
-  setActive: Setter<boolean>
+  setInspecting: Setter<boolean>
   setExporting: Setter<boolean>
   setPicker: Setter<boolean>
   setCurrentDocument: Setter<Document | null>
@@ -26,7 +26,7 @@ export interface State {
 }
 
 export function createState(): State {
-  const [$active, _getActive, setActive] = createAtom(false)
+  const [$inspecting, _getInspecting, setInspecting] = createAtom(false)
   const [$exporting, _getExporting, setExporting] = createAtom(false)
   const [$picker, _getPicker, setPicker] = createAtom(false)
   const [$currentDocument, _getCurrentDocument, setCurrentDocument] =
@@ -39,7 +39,7 @@ export function createState(): State {
   const [$snap, _getSnap, setSnap] = createAtom<Snap>('bottom')
 
   return {
-    $active,
+    $inspecting,
     $exporting,
     $picker,
     $currentDocument,
@@ -49,7 +49,7 @@ export function createState(): State {
     $size,
     $snap,
 
-    setActive,
+    setInspecting,
     setExporting,
     setPicker,
     setCurrentDocument,

@@ -10,16 +10,17 @@ import {
 } from '@/libs/playback'
 import { Block, InlineBlock, Row } from 'jsxstyle'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { Code as InspectorIcon } from 'react-feather'
+import { Code as InspectorIcon, Share as ShareIcon } from 'react-feather'
 import { ExporterButton } from '../Exporter'
-import { useActive, useExporting, useMask } from '../hooks'
+import { useInspecting, useExporting, useMask } from '../hooks'
 import { Picker } from './Picker'
 import { Tabs } from './Tabs'
-import { TargetNodePreview } from './TargetNodePreview'
+
+// TODO: split "active" and "inspecting" state to allow export while inspector closed
 
 export const Toolbar: React.FC = () => {
   const playback = usePlayback()
-  const [active, setActive] = useActive()
+  const [inspecting, setInspecting] = useInspecting()
   const [, setExporting] = useExporting()
   const lastestControlFrame = useLatestControlFrame()
   const playbackState = usePlaybackState()
@@ -31,9 +32,9 @@ export const Toolbar: React.FC = () => {
     setInitialElapsed(playback.getElapsed())
   }, [playback, lastestControlFrame, setInitialElapsed])
 
-  const toggleActive = useCallback(() => {
-    setActive(active => !active)
-  }, [setActive])
+  const toggleInspector = useCallback(() => {
+    setInspecting(inspecting => !inspecting)
+  }, [setInspecting])
 
   const onPlay = useCallback(() => {
     playback.play()
@@ -79,21 +80,29 @@ export const Toolbar: React.FC = () => {
         alignItems="center"
         paddingH={10}
         cursor="pointer"
-        props={{ onClick: toggleActive }}
+        props={{ onClick: toggleInspector }}
       >
         <Logo size={20} />
       </Row>
 
-      {!active && (
-        <Block alignSelf="center" marginRight={8}>
-          <Button variant="secondary" size="small" onClick={toggleActive}>
-            <InspectorIcon size={16} />
-            <InlineBlock>Open Inspector</InlineBlock>
-          </Button>
-        </Block>
+      {!inspecting && (
+        <React.Fragment>
+          <Block alignSelf="center" marginRight={8}>
+            <Button variant="secondary" size="small" onClick={toggleInspector}>
+              <InspectorIcon size={16} />
+              <InlineBlock>Open Inspector</InlineBlock>
+            </Button>
+          </Block>
+          <Block alignSelf="center" marginRight={8}>
+            <Button variant="secondary" size="small" onClick={openExporter}>
+              <ShareIcon size={16} />
+              <InlineBlock>Save Replay</InlineBlock>
+            </Button>
+          </Block>
+        </React.Fragment>
       )}
 
-      {active && (
+      {inspecting && (
         <React.Fragment>
           <Separator />
           <Picker />
@@ -118,8 +127,6 @@ export const Toolbar: React.FC = () => {
           </Block>
         </React.Fragment>
       )}
-
-      {!active && <TargetNodePreview />}
     </Container>
   )
 }

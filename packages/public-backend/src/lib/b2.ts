@@ -52,7 +52,7 @@ export async function getFile(fileName: string): Promise<Response | null> {
   return getFileRes
 }
 
-export async function uploadFile(file: File): Promise<string | null> {
+export async function uploadFile(data: ArrayBuffer): Promise<string | null> {
   const uploadUrlDetails = await getUploadUrlDetails()
 
   if (!uploadUrlDetails) {
@@ -61,6 +61,7 @@ export async function uploadFile(file: File): Promise<string | null> {
 
   // TODO: collision detection
   const fileName = `${await nanoid()}.repro`
+  const file = new File([data], fileName)
 
   const res = await fetch(uploadUrlDetails.uploadUrl, {
     method: 'POST',

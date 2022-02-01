@@ -148,7 +148,6 @@ export function createRecordingStream(
       return
     }
 
-    ready = false
     started = true
 
     trailingSnapshot = createEmptySnapshot()

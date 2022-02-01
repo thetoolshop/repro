@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react'
-import { Block, Grid } from 'jsxstyle'
+import React, { useEffect, useRef, useState } from 'react'
+import { X as CloseIcon } from 'react-feather'
+import { Block, Grid, InlineBlock } from 'jsxstyle'
 import { Shortcuts } from 'shortcuts'
 import { Logo } from '@/components/Logo'
 import { Modal } from '@/components/Modal'
@@ -27,9 +28,11 @@ import {
   writeEventTimeOffset,
 } from '@/libs/codecs/event'
 import { copy as copyArrayBuffer } from '@/libs/codecs/common'
+import { encodeRecording } from '@/libs/codecs/recording'
 import { MAX_INT32 } from '../constants'
 import { ExporterButton } from './ExporterButton'
-import { encodeRecording } from '@/libs/codecs/recording'
+import { RangeSelector } from './RangeSelector'
+import { zlib } from 'fflate'
 
 type PlaybackRange = [number, number]
 
@@ -144,10 +147,31 @@ function createRecordingAtRange(
   }
 }
 
+function compressRecording(buffer: ArrayBuffer) {
+  return new Promise<ArrayBuffer>((resolve, reject) =>
+    zlib(
+      new Uint8Array(buffer),
+      {
+        consume: true,
+      },
+      (err, data) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(data)
+        }
+      }
+    )
+  )
+}
+
 export const ExporterModal: React.FC<Props> = ({ onClose }) => {
   const sourcePlayback = usePlayback()
   const [playback, setPlayback] = useState(EMPTY_PLAYBACK)
-  const [range, setRange] = useState<PlaybackRange>([0, playback.getDuration()])
+
+  const initialRange: PlaybackRange = [0, playback.getDuration()]
+  const [range, setRange] = useState<PlaybackRange>(initialRange)
+  const [uploading, setUploading] = useState(false)
 
   useEffect(() => {
     setPlayback(sourcePlayback.copy())
@@ -155,8 +179,11 @@ export const ExporterModal: React.FC<Props> = ({ onClose }) => {
 
   useEffect(() => {
     setRange([0, playback.getDuration()])
-    playback.seekToTime(0)
   }, [playback, setRange])
+
+  useEffect(() => {
+    playback.seekToTime(range[0])
+  }, [playback, range])
 
   useEffect(() => {
     const shortcuts = new Shortcuts()
@@ -171,40 +198,91 @@ export const ExporterModal: React.FC<Props> = ({ onClose }) => {
     }
   }, [onClose])
 
-  const handleExport = () => {
+  const handleExport = async () => {
     const events = playback.getSourceEvents()
 
     if (events) {
       const recording = createRecordingAtRange(events, range)
       const encoded = encodeRecording(recording)
+      const compressed = await compressRecording(encoded)
+
+      await fetch('http://localhost:8787', {
+        method: 'POST',
+        body: new Blob([compressed]),
+      })
     }
   }
 
   return (
     <PlaybackProvider playback={playback}>
       <Block isolation="isolate" zIndex={MAX_INT32}>
-        <Modal width="auto" height="auto" onClose={onClose}>
-          <Grid width="80vw" height="80vh" gridTemplateRows="1fr auto">
-            <PlaybackCanvas interactive={false} scaling="scale-to-fit" />
-            <Grid
-              gridColumnGap={16}
-              gridTemplateColumns="auto 1fr auto"
-              height={50}
-              alignItems="center"
-              paddingH={16}
-              background={colors.white}
-              borderTopStyle="solid"
-              borderTopWidth={1}
-              borderTopColor={colors.slate['300']}
-              boxShadow={`0 -4px 16px rgba(0, 0, 0, 0.1)`}
-            >
+        <Modal width="auto" height="auto">
+          <Grid width="80vw" height="80vh" gridTemplateRows="auto 1fr auto">
+            <HeaderRegion>
               <Logo size={20} />
-              <Block />
-              <ExporterButton onClick={handleExport} />
-            </Grid>
+              <Block justifySelf="center" fontSize={14} fontWeight={700}>
+                Edit & Save Recording
+              </Block>
+              <InlineBlock
+                justifySelf="end"
+                cursor="pointer"
+                props={{ onClick: onClose }}
+              >
+                <CloseIcon size={16} />
+              </InlineBlock>
+            </HeaderRegion>
+            <PlaybackCanvas interactive={false} scaling="scale-to-fit" />
+            <FooterRegion>
+              <RangeSelector
+                disabled={uploading}
+                minValue={0}
+                maxValue={playback.getDuration()}
+                value={range}
+                onChange={setRange}
+              />
+              <ExporterButton disabled={uploading} onClick={handleExport} />
+            </FooterRegion>
           </Grid>
         </Modal>
       </Block>
     </PlaybackProvider>
   )
 }
+
+const HeaderRegion: React.FC = ({ children }) => (
+  <Grid
+    gridColumnGap={16}
+    gridTemplateColumns="100px 1fr 100px"
+    height={50}
+    alignItems="center"
+    paddingH={16}
+    background={colors.white}
+    borderBottomStyle="solid"
+    borderBottomWidth={1}
+    borderBottomColor={colors.slate['300']}
+    boxShadow="0 4px 16px rgba(0, 0, 0, 0.1)"
+    isolation="isolate"
+    zIndex={MAX_INT32}
+  >
+    {children}
+  </Grid>
+)
+
+const FooterRegion: React.FC = ({ children }) => (
+  <Grid
+    gridColumnGap={16}
+    gridTemplateColumns="1fr auto"
+    height={50}
+    alignItems="center"
+    paddingH={16}
+    background={colors.white}
+    borderTopStyle="solid"
+    borderTopWidth={1}
+    borderTopColor={colors.slate['300']}
+    boxShadow="0 -4px 16px rgba(0, 0, 0, 0.1)"
+    isolation="isolate"
+    zIndex={MAX_INT32}
+  >
+    {children}
+  </Grid>
+)

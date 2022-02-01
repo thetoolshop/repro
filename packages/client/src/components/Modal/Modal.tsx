@@ -1,4 +1,4 @@
-import React, { MouseEvent } from 'react'
+import React from 'react'
 import { Block, Row } from 'jsxstyle'
 import { colors } from '@/config/theme'
 
@@ -7,7 +7,6 @@ interface Props {
   height: string | number
   minWidth?: string | number
   minHeight?: string | number
-  onClose(): void
 }
 
 export const Modal: React.FC<Props> = ({
@@ -16,9 +15,8 @@ export const Modal: React.FC<Props> = ({
   height,
   minWidth,
   minHeight,
-  onClose,
 }) => (
-  <Backdrop onClick={onClose}>
+  <Backdrop>
     <Container
       width={width}
       height={height}
@@ -30,13 +28,7 @@ export const Modal: React.FC<Props> = ({
   </Backdrop>
 )
 
-const Backdrop: React.FC<{ onClick(): void }> = ({ children, onClick }) => {
-  const handleClick = (evt: MouseEvent<HTMLDivElement>) => {
-    if (evt.target === evt.currentTarget) {
-      onClick()
-    }
-  }
-
+const Backdrop: React.FC = ({ children }) => {
   return (
     <Row
       alignItems="center"
@@ -47,7 +39,6 @@ const Backdrop: React.FC<{ onClick(): void }> = ({ children, onClick }) => {
       left={0}
       bottom={0}
       right={0}
-      props={{ onClick: handleClick }}
     >
       {children}
     </Row>

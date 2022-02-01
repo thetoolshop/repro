@@ -64,6 +64,7 @@ export const ScaleToFitViewport: React.FC = ({ children }) => {
         height={viewport[1]}
         transform={`translate(${offset[0]}px, ${offset[1]}px) scale(${scale})`}
         transformOrigin="center"
+        background={colors.white}
       >
         {children}
       </Block>

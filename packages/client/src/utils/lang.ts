@@ -18,6 +18,10 @@ export class ArrayBufferBackedList<T> {
     return this.source[index] || null
   }
 
+  delete(index: number): void {
+    this.source.splice(index, 1)
+  }
+
   read(index: number): T | null {
     const entry = this.at(index)
     return entry ? this.reader(entry) : null
@@ -31,21 +35,11 @@ export class ArrayBufferBackedList<T> {
     )
   }
 
-  shift(): T | null {
-    const buf = this.source.shift()
-    return buf ? this.reader(buf) : null
-  }
-
-  unshift(...entries: Array<T>): number {
+  prepend(...entries: Array<T>): number {
     return this.source.unshift(...entries.map(this.writer))
   }
 
-  pop(): T | null {
-    const buf = this.source.pop()
-    return buf ? this.reader(buf) : null
-  }
-
-  push(...entries: Array<T>): number {
+  append(...entries: Array<T>): number {
     return this.source.push(...entries.map(this.writer))
   }
 

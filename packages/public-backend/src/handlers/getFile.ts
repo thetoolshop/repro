@@ -1,4 +1,5 @@
 import { getFile } from '@/lib/b2'
+import { corsHeaders } from './cors-headers'
 
 const VALID_URL_PATH = /^\/[^\/]+\.repro$/
 
@@ -8,6 +9,7 @@ export async function handleGetFile(request: Request): Promise<Response> {
   if (!VALID_URL_PATH.test(url.pathname)) {
     return new Response('{ "error": "File not found" }', {
       status: 404,
+      headers: corsHeaders,
     })
   }
 
@@ -17,6 +19,7 @@ export async function handleGetFile(request: Request): Promise<Response> {
   if (!file) {
     return new Response('{ "error": "File not found" }', {
       status: 404,
+      headers: corsHeaders,
     })
   }
 

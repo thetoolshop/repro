@@ -111,42 +111,55 @@ export function createRecordingPlayback(
   ) {
     const eventsBefore: Array<SourceEvent> = []
     const eventsAfter = events.slice()
-    const unresolvedSampleEvents: Array<SourceEvent> = []
 
-    let buffer: ArrayBuffer | null
-    let i = 0
+    Stats.time('RecordingPlayback~partitionEvents: total', () => {
+      const unresolvedSampleEvents: Array<SourceEvent> = []
 
-    while ((buffer = eventsAfter.at(0))) {
-      if (readEventType(buffer) === SourceEventType.Snapshot) {
-        eventsAfter.shift()
-        continue
+      let buffer: ArrayBuffer | null
+      let i = 0
+
+      while ((buffer = eventsAfter.at(0))) {
+        if (readEventType(buffer) === SourceEventType.Snapshot) {
+          eventsAfter.delete(0)
+          continue
+        }
+
+        if (shouldPartition(buffer, i)) {
+          break
+        }
+
+        const event = eventsAfter.read(0)
+
+        if (!event) {
+          break
+        }
+
+        eventsBefore.push(event)
+
+        if (
+          'data' in event &&
+          isSample(event.data) &&
+          isUnresolvedSample(event.data, event.time)
+        ) {
+          unresolvedSampleEvents.push(event)
+        }
+
+        eventsAfter.delete(0)
+        i++
       }
 
-      if (shouldPartition(buffer, i)) {
-        break
-      }
+      eventsAfter.prepend(...unresolvedSampleEvents)
+    })
 
-      const event = eventsAfter.read(0)
+    Stats.value(
+      'RecordingPlayback~partitionEvents: partition before',
+      eventsBefore.length
+    )
 
-      if (!event) {
-        break
-      }
-
-      eventsBefore.push(event)
-
-      if (
-        'data' in event &&
-        isSample(event.data) &&
-        isUnresolvedSample(event.data, event.time)
-      ) {
-        unresolvedSampleEvents.push(event)
-      }
-
-      eventsAfter.shift()
-      i++
-    }
-
-    eventsAfter.unshift(...unresolvedSampleEvents)
+    Stats.value(
+      'RecordingPlayback~partitionEvents: partition after',
+      eventsAfter.size()
+    )
 
     return [eventsBefore, eventsAfter] as const
   }
@@ -282,26 +295,34 @@ export function createRecordingPlayback(
   }
 
   function seekToTime(elapsed: number) {
-    Stats.time('RecordingPlayback: seek to time', () => {
+    Stats.time('RecordingPlayback#seekToTime: total', () => {
       setBuffer(EMPTY_BUFFER)
       const allEvents = loadEvents()
       queuedEvents = allEvents
 
       let snapshot: Snapshot | null = null
 
-      for (let i = snapshotIndex.length - 1; i >= 0; i--) {
-        const index = snapshotIndex[i]
+      Stats.time('RecordingPlayback#seekToTime: find nearest snapshot', () => {
+        for (let i = snapshotIndex.length - 1; i >= 0; i--) {
+          const index = snapshotIndex[i]
 
-        if (typeof index === 'number') {
-          const buffer = allEvents.at(index)
+          if (typeof index === 'number') {
+            const buffer = allEvents.at(index)
 
-          if (buffer && readEventTime(buffer) <= elapsed) {
-            snapshot = (allEvents.read(index) as SnapshotEvent).data
-            queuedEvents = allEvents.slice(index + 1)
-            break
+            if (buffer && readEventTime(buffer) <= elapsed) {
+              snapshot = (allEvents.read(index) as SnapshotEvent).data
+              queuedEvents = allEvents.slice(index + 1)
+
+              Stats.value(
+                'RecordingPlayback#seekToTime: snapshots read',
+                snapshotIndex.length - i
+              )
+
+              break
+            }
           }
         }
-      }
+      })
 
       const [before, after] = partitionEvents(
         queuedEvents,
@@ -311,13 +332,23 @@ export function createRecordingPlayback(
 
       queuedEvents = after
 
-      if (snapshot && before.length) {
-        snapshot = copyObject(snapshot)
+      Stats.value(
+        'RecordingPlayback#seekToTime: events to apply',
+        before.length
+      )
 
-        for (const event of before) {
-          applyEventToSnapshot(snapshot, event, elapsed)
+      Stats.time(
+        'RecordingPlayback#seekToTime: apply events to snapshot',
+        () => {
+          if (snapshot && before.length) {
+            snapshot = copyObject(snapshot)
+
+            for (const event of before) {
+              applyEventToSnapshot(snapshot, event, elapsed)
+            }
+          }
         }
-      }
+      )
 
       setSnapshot(snapshot || EMPTY_SNAPSHOT)
       setActveIndex(before.length - 1)

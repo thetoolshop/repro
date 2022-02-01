@@ -11,9 +11,9 @@ import { ConsolePanel } from './ConsolePanel'
 import { DragHandle } from './DragHandle'
 import { MAX_INT32 } from './constants'
 import {
-  useActive,
   useCurrentDocument,
   useExporting,
+  useInspecting,
   useMask,
   usePicker,
   useSize,
@@ -23,7 +23,7 @@ import { ExporterModal } from './Exporter'
 
 export const DevTools: React.FC = React.memo(() => {
   const [, setCurrentDocument] = useCurrentDocument()
-  const [active] = useActive()
+  const [inspecting] = useInspecting()
   const [exporting, setExporting] = useExporting()
   const [picker] = usePicker()
   const [mask] = useMask()
@@ -34,8 +34,8 @@ export const DevTools: React.FC = React.memo(() => {
   }, [setExporting])
 
   return (
-    <Container open={active}>
-      {active && (
+    <Container open={inspecting}>
+      {inspecting && (
         <PlaybackRegion mask={mask}>
           <PlaybackCanvas
             interactive={false}
@@ -48,11 +48,11 @@ export const DevTools: React.FC = React.memo(() => {
       {picker && <PickerOverlay />}
 
       <InspectorRegion>
-        {active && <DragHandle />}
+        {inspecting && <DragHandle />}
 
         <Toolbar />
 
-        {active && (
+        {inspecting && (
           <ContentRegion>
             {view === View.Elements && <ElementsPanel />}
             {view === View.Network && <NetworkPanel />}

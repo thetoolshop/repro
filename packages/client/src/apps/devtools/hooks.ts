@@ -1,5 +1,5 @@
 import { useRecordingStream } from '@/libs/record'
-import { useAtomState } from '@/utils/state'
+import { useAtomState, useAtomValue } from '@/utils/state'
 import { useContext, useEffect, useState } from 'react'
 import { StateContext } from './context'
 
@@ -9,7 +9,14 @@ export function useDevtoolsState() {
 
 export function useActive() {
   const state = useDevtoolsState()
-  return useAtomState(state.$active)
+  const inspecting = useAtomValue(state.$inspecting)
+  const exporting = useAtomValue(state.$exporting)
+  return inspecting || exporting
+}
+
+export function useInspecting() {
+  const state = useDevtoolsState()
+  return useAtomState(state.$inspecting)
 }
 
 export function useExporting() {

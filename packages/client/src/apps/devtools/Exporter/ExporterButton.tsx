@@ -4,12 +4,13 @@ import { Share as ShareIcon } from 'react-feather'
 import { Button } from '@/components/Button'
 
 interface Props {
+  disabled?: boolean
   onClick(): void
 }
 
-export const ExporterButton: React.FC<Props> = ({ onClick }) => (
+export const ExporterButton: React.FC<Props> = ({ disabled, onClick }) => (
   <Button variant="primary" size="small" context="success" onClick={onClick}>
     <ShareIcon size={16} />
-    <InlineBlock>Export</InlineBlock>
+    <InlineBlock>Save</InlineBlock>
   </Button>
 )

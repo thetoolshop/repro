@@ -6,10 +6,10 @@ import React, { useEffect, useState } from 'react'
 import { fromEvent, Subscription } from 'rxjs'
 import { distinctUntilChanged, map, share } from 'rxjs/operators'
 import { MAX_INT32 } from '../constants'
-import { useActive, useCurrentDocument, useTargetNodeId } from '../hooks'
+import { useCurrentDocument, useInspecting, useTargetNodeId } from '../hooks'
 
 export const PickerOverlay: React.FC = React.memo(() => {
-  const [, setActive] = useActive()
+  const [, setInspecting] = useInspecting()
   const [currentDocument] = useCurrentDocument()
   const [, setTargetNodeId] = useTargetNodeId()
   const [boundingBox, setBoundingBox] = useState<DOMRect | null>(null)
@@ -56,7 +56,7 @@ export const PickerOverlay: React.FC = React.memo(() => {
   }, [currentDocument, setBoundingBox, setTargetNodeId])
 
   const handleClick = () => {
-    setActive(true)
+    setInspecting(true)
   }
 
   return (
