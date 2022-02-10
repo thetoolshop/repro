@@ -3,7 +3,19 @@ export const copyObject = <T extends object>(obj: T): T => ({ ...obj })
 export const copyObjectDeep = <T extends object>(obj: T): T =>
   JSON.parse(JSON.stringify(obj))
 
+function noopReader<T>() {
+  return (_buf: ArrayBuffer) => undefined as unknown as T
+}
+
+function noopWriter<T>() {
+  return (_entry: T) => undefined as unknown as ArrayBuffer
+}
+
 export class ArrayBufferBackedList<T> {
+  static NoOp<T>(): ArrayBufferBackedList<T> {
+    return new ArrayBufferBackedList([], noopReader<T>(), noopWriter<T>())
+  }
+
   constructor(
     private readonly source: Array<ArrayBuffer>,
     private readonly reader: (buf: ArrayBuffer) => T,

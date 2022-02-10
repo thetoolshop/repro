@@ -25,18 +25,38 @@ export interface State {
   setSnap: Setter<Snap>
 }
 
-export function createState(): State {
-  const [$inspecting, _getInspecting, setInspecting] = createAtom(false)
-  const [$exporting, _getExporting, setExporting] = createAtom(false)
-  const [$picker, _getPicker, setPicker] = createAtom(false)
+const defaultValues = {
+  inspecting: false,
+  exporting: false,
+  picker: false,
+  currentDocument: null,
+  targetNodeId: null,
+  view: View.Elements,
+  mask: false,
+  size: INITIAL_SIZE,
+  snap: 'bottom' as Snap,
+}
+
+export function createState(
+  initialValues: Partial<typeof defaultValues> = defaultValues
+): State {
+  const [$inspecting, _getInspecting, setInspecting] = createAtom(
+    initialValues.inspecting ?? false
+  )
+  const [$exporting, _getExporting, setExporting] = createAtom(
+    initialValues.exporting ?? false
+  )
+  const [$picker, _getPicker, setPicker] = createAtom(
+    initialValues.picker ?? false
+  )
   const [$currentDocument, _getCurrentDocument, setCurrentDocument] =
-    createAtom<Document | null>(null)
+    createAtom<Document | null>(initialValues.currentDocument ?? null)
   const [$targetNodeId, _getTargetNodeId, setTargetNodeId] =
-    createAtom<SyntheticId | null>(null)
-  const [$view, _getView, setView] = createAtom(View.Elements)
-  const [$mask, _getMask, setMask] = createAtom(false)
-  const [$size, _getSize, setSize] = createAtom(INITIAL_SIZE)
-  const [$snap, _getSnap, setSnap] = createAtom<Snap>('bottom')
+    createAtom<SyntheticId | null>(initialValues.targetNodeId ?? null)
+  const [$view, _getView, setView] = createAtom(initialValues.view ?? View.Elements)
+  const [$mask, _getMask, setMask] = createAtom(initialValues.mask ?? false)
+  const [$size, _getSize, setSize] = createAtom(initialValues.size ?? INITIAL_SIZE)
+  const [$snap, _getSnap, setSnap] = createAtom<Snap>(initialValues.snap ?? 'bottom')
 
   return {
     $inspecting,

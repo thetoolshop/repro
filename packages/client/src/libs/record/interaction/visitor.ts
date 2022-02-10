@@ -40,7 +40,7 @@ export function createScrollVisitor() {
 }
 
 export function createViewportVisitor() {
-  let viewport: Point = [0, 0]
+  let viewport: Point | null = null
   const subscribers: Array<Subscriber<Point>> = []
 
   const viewportVisitor: Visitor<Point> & Subscribable<Point> = {
@@ -61,11 +61,13 @@ export function createViewportVisitor() {
     done() {
       const value = viewport
 
-      for (const subscriber of subscribers) {
-        subscriber(value)
+      if (value) {
+        for (const subscriber of subscribers) {
+          subscriber(value)
+        }
       }
 
-      viewport = [0, 0]
+      viewport = null
       return value
     },
 

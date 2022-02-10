@@ -12,7 +12,7 @@ watch=false
 entries="\
 background=background.ts \
 content=content/index.ts \
-devtools=../devtools/index.tsx"
+devtools=../devtools/embedded.tsx"
 
 while getopts "w" param; do
   case "$param" in

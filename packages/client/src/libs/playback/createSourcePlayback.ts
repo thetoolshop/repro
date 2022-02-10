@@ -42,9 +42,9 @@ const EMPTY_EVENT_LIST = new ArrayBufferBackedList<SourceEvent>(
   eventWriter
 )
 
-export const EMPTY_PLAYBACK = createRecordingPlayback(EMPTY_EVENT_LIST)
+export const EMPTY_PLAYBACK = createSourcePlayback(EMPTY_EVENT_LIST)
 
-export function createRecordingPlayback(
+export function createSourcePlayback(
   events: ArrayBufferBackedList<SourceEvent>
 ): Playback {
   const subscription = new Subscription()
@@ -366,7 +366,7 @@ export function createRecordingPlayback(
   }
 
   function copy() {
-    return createRecordingPlayback(events)
+    return createSourcePlayback(events)
   }
 
   return {

@@ -21,50 +21,60 @@ import {
 } from './hooks'
 import { ExporterModal } from './Exporter'
 
-export const DevTools: React.FC = React.memo(() => {
-  const [, setCurrentDocument] = useCurrentDocument()
-  const [inspecting] = useInspecting()
-  const [exporting, setExporting] = useExporting()
-  const [picker] = usePicker()
-  const [mask] = useMask()
-  const [view] = useView()
+interface Props {
+  disableExport?: boolean
+  disableToggle?: boolean
+}
 
-  const closeExporter = useCallback(() => {
-    setExporting(false)
-  }, [setExporting])
+export const DevTools: React.FC<Props> = React.memo(
+  ({ disableExport, disableToggle }) => {
+    const [, setCurrentDocument] = useCurrentDocument()
+    const [inspecting] = useInspecting()
+    const [exporting, setExporting] = useExporting()
+    const [picker] = usePicker()
+    const [mask] = useMask()
+    const [view] = useView()
 
-  return (
-    <Container open={inspecting}>
-      {inspecting && (
-        <PlaybackRegion mask={mask}>
-          <PlaybackCanvas
-            interactive={false}
-            scaling="full-width"
-            onDocumentReady={setCurrentDocument}
-          />
-        </PlaybackRegion>
-      )}
+    const closeExporter = useCallback(() => {
+      setExporting(false)
+    }, [setExporting])
 
-      {picker && <PickerOverlay />}
-
-      <InspectorRegion>
-        {inspecting && <DragHandle />}
-
-        <Toolbar />
-
+    return (
+      <Container open={inspecting}>
         {inspecting && (
-          <ContentRegion>
-            {view === View.Elements && <ElementsPanel />}
-            {view === View.Network && <NetworkPanel />}
-            {view === View.Console && <ConsolePanel />}
-          </ContentRegion>
+          <PlaybackRegion mask={mask}>
+            <PlaybackCanvas
+              interactive={false}
+              scaling="full-width"
+              onDocumentReady={setCurrentDocument}
+            />
+          </PlaybackRegion>
         )}
-      </InspectorRegion>
 
-      {exporting && <ExporterModal onClose={closeExporter} />}
-    </Container>
-  )
-})
+        {picker && <PickerOverlay />}
+
+        <InspectorRegion>
+          {inspecting && <DragHandle />}
+
+          <Toolbar
+            disableExport={disableExport}
+            disableToggle={disableToggle}
+          />
+
+          {inspecting && (
+            <ContentRegion>
+              {view === View.Elements && <ElementsPanel />}
+              {view === View.Network && <NetworkPanel />}
+              {view === View.Console && <ConsolePanel />}
+            </ContentRegion>
+          )}
+        </InspectorRegion>
+
+        {exporting && <ExporterModal onClose={closeExporter} />}
+      </Container>
+    )
+  }
+)
 
 const Container: React.FC<{ open: boolean }> = ({ children, open }) => (
   <Grid

@@ -206,10 +206,16 @@ export const ExporterModal: React.FC<Props> = ({ onClose }) => {
       const encoded = encodeRecording(recording)
       const compressed = await compressRecording(encoded)
 
-      await fetch('http://localhost:8787', {
+      setUploading(true)
+
+      const response = await fetch('http://localhost:8787', {
         method: 'POST',
         body: new Blob([compressed]),
       })
+
+      const { fileName } = await response.json()
+
+      setUploading(false)
     }
   }
 

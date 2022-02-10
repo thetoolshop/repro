@@ -8,7 +8,7 @@ import ReactDOM from 'react-dom'
 import { REPRO_ROOT_ID } from './constants'
 import { StateProvider } from './context'
 import { createState } from './createState'
-import { DevToolsContainer } from './DevToolsContainer'
+import { EmbeddedController } from './EmbeddedController'
 
 Stats.enable()
 Trace.enable()
@@ -89,7 +89,7 @@ class ReproDevTools extends HTMLElement {
     ReactDOM.render(
       <RecordingStreamProvider stream={stream}>
         <StateProvider state={this.state}>
-          <DevToolsContainer />
+          <EmbeddedController />
         </StateProvider>
       </RecordingStreamProvider>,
       this.renderRoot

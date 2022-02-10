@@ -10,7 +10,7 @@ import {
 } from './hooks'
 import { Shortcuts } from 'shortcuts'
 import {
-  createRecordingPlayback,
+  createSourcePlayback,
   Playback,
   PlaybackProvider,
 } from '@/libs/playback'
@@ -19,7 +19,7 @@ import { first, from, map, Subscription } from 'rxjs'
 import { VTree } from '@/types/vdom'
 import { isDocumentVNode, isElementVNode } from '@/utils/vdom'
 
-export const DevToolsContainer: React.FC = () => {
+export const EmbeddedController: React.FC = () => {
   const initialDocumentOverflow = useRef<string>('auto')
   const stream = useRecordingStream()
 
@@ -116,7 +116,7 @@ export const DevToolsContainer: React.FC = () => {
     if (active) {
       subscription.add(
         from(stream.slice()).subscribe(recording => {
-          setPlayback(createRecordingPlayback(recording))
+          setPlayback(createSourcePlayback(recording))
         })
       )
     } else {

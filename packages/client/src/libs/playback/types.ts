@@ -1,4 +1,9 @@
-import { Snapshot, SourceEvent, SourceEventType } from '@/types/recording'
+import {
+  Recording,
+  Snapshot,
+  SourceEvent,
+  SourceEventType,
+} from '@/types/recording'
 import { ArrayBufferBackedList } from '@/utils/lang'
 import { Atom } from '@/utils/state'
 
@@ -46,4 +51,11 @@ export interface Playback {
 
   // Operations
   copy(): Playback
+}
+
+export type ReadyState = 'waiting' | 'ready' | 'failed'
+
+export interface Source {
+  $events: Atom<ArrayBufferBackedList<SourceEvent>>
+  $readyState: Atom<ReadyState>
 }

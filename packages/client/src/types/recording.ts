@@ -69,12 +69,3 @@ export interface Recording {
   duration: number
   events: ArrayBufferBackedList<SourceEvent>
 }
-
-export interface Metadata {
-  duration: number
-}
-
-export interface Source {
-  events(): Observable<Array<SourceEvent>>
-  metadata(): Observable<Metadata>
-}

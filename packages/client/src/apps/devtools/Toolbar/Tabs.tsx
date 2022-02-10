@@ -1,5 +1,5 @@
 import { Inline, Row } from 'jsxstyle'
-import React, { useContext } from 'react'
+import React from 'react'
 import {
   Code as ElementsIcon,
   Globe as NetworkIcon,

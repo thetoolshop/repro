@@ -5,7 +5,6 @@ import {
   DOMPatchEvent,
   InteractionEvent,
   InteractionSnapshot,
-  Snapshot,
   SnapshotEvent,
   SourceEvent,
   SourceEventType,
@@ -295,6 +294,7 @@ export function createRecordingStream(
   }
 
   function createSnapshotEvent(): SnapshotEvent {
+    console.log(copyObjectDeep(trailingSnapshot))
     return {
       time: performance.now(),
       type: SourceEventType.Snapshot,
@@ -390,6 +390,7 @@ export function createRecordingStream(
             break
 
           case InteractionType.ViewportResize:
+            console.log('observer', interaction)
             trailingInteraction.viewport = interaction.to
             break
         }

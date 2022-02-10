@@ -1,6 +1,10 @@
 import { SyntheticId } from '@/types/common'
 import { VNode, VTree } from '@/types/vdom'
-import { isExternalStyleSheet, isLocalStylesheet } from '@/utils/dom'
+import {
+  isExternalResource,
+  isExternalStyleSheet,
+  isLocalStylesheet,
+} from '@/utils/dom'
 import {
   addVNode,
   createVTreeWithRoot,
@@ -101,6 +105,10 @@ export function createDOMVisitor() {
             }
           }
         }
+      }
+
+      if (isExternalResource(node)) {
+        return
       }
 
       const vNode = createVElement(node)

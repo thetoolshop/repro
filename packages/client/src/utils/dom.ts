@@ -62,6 +62,12 @@ export function isExternalStyleSheet(
   return false
 }
 
+export function isExternalResource(
+  element: Element
+): element is HTMLLinkElement {
+  return matches(element.nodeName, 'link')
+}
+
 export function isScriptElement(
   element: Element
 ): element is HTMLScriptElement {

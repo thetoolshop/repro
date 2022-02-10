@@ -23,5 +23,11 @@ export async function handleGetFile(request: Request): Promise<Response> {
     })
   }
 
-  return file
+  return new Response(file.body, {
+    status: file.status,
+    headers: {
+      ...file.headers,
+      ...corsHeaders,
+    },
+  })
 }

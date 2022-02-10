@@ -9,6 +9,7 @@
     "start:replay": "./scripts/replay -p 8080 -s",
     "build:chrome-extension": "./scripts/chrome-extension",
     "watch:chrome-extension": "./scripts/chrome-extension -w",
+    "serve:standalone-devtools": "./scripts/standalone-devtools.mjs",
     "bench:codecs": "./scripts/bench-codecs",
     "test": "jest"
   },
@@ -22,6 +23,8 @@
     "react-dom": "^17.0.2",
     "react-feather": "^2.0.9",
     "react-merge-refs": "^1.1.0",
+    "react-router": "^6.2.1",
+    "react-router-dom": "^6.2.1",
     "rxjs": "^7.5.2",
     "shortcuts": "^1.8.1",
     "tailwindcss": "^3.0.15",

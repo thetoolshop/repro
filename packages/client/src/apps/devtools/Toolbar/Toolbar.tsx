@@ -16,9 +16,12 @@ import { useInspecting, useExporting, useMask } from '../hooks'
 import { Picker } from './Picker'
 import { Tabs } from './Tabs'
 
-// TODO: split "active" and "inspecting" state to allow export while inspector closed
+interface Props {
+  disableExport?: boolean
+  disableToggle?: boolean
+}
 
-export const Toolbar: React.FC = () => {
+export const Toolbar: React.FC<Props> = ({ disableExport, disableToggle }) => {
   const playback = usePlayback()
   const [inspecting, setInspecting] = useInspecting()
   const [, setExporting] = useExporting()
@@ -79,26 +82,35 @@ export const Toolbar: React.FC = () => {
       <Row
         alignItems="center"
         paddingH={10}
-        cursor="pointer"
-        props={{ onClick: toggleInspector }}
+        cursor={!disableToggle ? 'pointer' : 'default'}
+        props={{ onClick: !disableToggle ? toggleInspector : undefined }}
       >
         <Logo size={20} />
       </Row>
 
       {!inspecting && (
         <React.Fragment>
-          <Block alignSelf="center" marginRight={8}>
-            <Button variant="secondary" size="small" onClick={toggleInspector}>
-              <InspectorIcon size={16} />
-              <InlineBlock>Open Inspector</InlineBlock>
-            </Button>
-          </Block>
-          <Block alignSelf="center" marginRight={8}>
-            <Button variant="secondary" size="small" onClick={openExporter}>
-              <ShareIcon size={16} />
-              <InlineBlock>Save Replay</InlineBlock>
-            </Button>
-          </Block>
+          {!disableToggle && (
+            <Block alignSelf="center" marginRight={8}>
+              <Button
+                variant="secondary"
+                size="small"
+                onClick={toggleInspector}
+              >
+                <InspectorIcon size={16} />
+                <InlineBlock>Open Inspector</InlineBlock>
+              </Button>
+            </Block>
+          )}
+
+          {!disableExport && (
+            <Block alignSelf="center" marginRight={8}>
+              <Button variant="secondary" size="small" onClick={openExporter}>
+                <ShareIcon size={16} />
+                <InlineBlock>Save Replay</InlineBlock>
+              </Button>
+            </Block>
+          )}
         </React.Fragment>
       )}
 
@@ -122,9 +134,11 @@ export const Toolbar: React.FC = () => {
             />
           </TimelineRegion>
 
-          <Block alignSelf="center" marginLeft="auto" marginRight={16}>
-            <ExporterButton onClick={openExporter} />
-          </Block>
+          {!disableExport && (
+            <Block alignSelf="center" marginLeft="auto" marginRight={16}>
+              <ExporterButton onClick={openExporter} />
+            </Block>
+          )}
         </React.Fragment>
       )}
     </Container>

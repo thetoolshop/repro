@@ -1,7 +1,4 @@
-import { SyntheticId } from '@/types/common'
-import { Source } from '@/types/recording'
 import { createAtom } from '@/utils/state'
-import { NullSource } from './NullSource'
 
 export enum ReadyState {
   Loading,
@@ -13,7 +10,4 @@ export const [$focusedNode, getFocusedNode, setFocusedNode] =
   createAtom<SyntheticId | null>(null)
 export const [$readyState, getReadyState, setReadyState] = createAtom(
   ReadyState.Loading
-)
-export const [$source, getSource, setSource] = createAtom<Source>(
-  new NullSource()
 )
