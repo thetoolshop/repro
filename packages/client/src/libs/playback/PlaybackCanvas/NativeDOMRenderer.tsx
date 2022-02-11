@@ -29,11 +29,10 @@ import {
 } from 'rxjs/operators'
 import { OUT_OF_BOUNDS_POINT } from '../constants'
 import { ControlFrame } from '../types'
+import { MutableNodeMap } from './types'
 
 const HOVER_CLASS = '-repro-hover'
 const HOVER_SELECTOR = `.${HOVER_CLASS}`
-
-type MutableNodeMap = Record<SyntheticId, Node>
 
 function isNotIdle(controlFrame: ControlFrame) {
   return controlFrame !== ControlFrame.Idle
@@ -41,7 +40,7 @@ function isNotIdle(controlFrame: ControlFrame) {
 
 interface Props {
   ownerDocument: Document | null
-  onLoad?: () => void
+  onLoad?: (nodeMap: MutableNodeMap) => void
 }
 
 export const NativeDOMRenderer: React.FC<Props> = ({
@@ -84,7 +83,7 @@ export const NativeDOMRenderer: React.FC<Props> = ({
                   nodeMap = vtreeNodeMap
 
                   if (onLoad) {
-                    onLoad()
+                    onLoad(nodeMap)
                   }
 
                   updateAllScrollStates(nodeMap, scrollMap)

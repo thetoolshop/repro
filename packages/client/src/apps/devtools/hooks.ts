@@ -1,4 +1,5 @@
 import { useRecordingStream } from '@/libs/record'
+import { isElementNode } from '@/utils/dom'
 import { useAtomState, useAtomValue } from '@/utils/state'
 import { useContext, useEffect, useState } from 'react'
 import { StateContext } from './context'
@@ -34,6 +35,11 @@ export function useCurrentDocument() {
   return useAtomState(state.$currentDocument)
 }
 
+export function useNodeMap() {
+  const state = useDevtoolsState()
+  return useAtomState(state.$nodeMap)
+}
+
 export function useTargetNodeId() {
   const state = useDevtoolsState()
   return useAtomState(state.$targetNodeId)
@@ -55,12 +61,10 @@ export function useView() {
 }
 
 export function useTargetElement() {
-  const [currentDocument] = useCurrentDocument()
+  const [nodeMap] = useNodeMap()
   const [targetNodeId] = useTargetNodeId()
-
-  return currentDocument && targetNodeId
-    ? currentDocument.querySelector(`[data-repro-node="${targetNodeId}"]`)
-    : null
+  const node = targetNodeId ? nodeMap[targetNodeId] || null : null
+  return node && isElementNode(node) ? node : null
 }
 
 export function useTargetElementBoundingBox() {

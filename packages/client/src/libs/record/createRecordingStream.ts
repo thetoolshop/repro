@@ -294,7 +294,6 @@ export function createRecordingStream(
   }
 
   function createSnapshotEvent(): SnapshotEvent {
-    console.log(copyObjectDeep(trailingSnapshot))
     return {
       time: performance.now(),
       type: SourceEventType.Snapshot,

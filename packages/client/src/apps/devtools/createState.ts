@@ -1,13 +1,14 @@
 import { SyntheticId } from '@/types/common'
 import { Atom, createAtom, Setter } from '@/utils/state'
 import { INITIAL_SIZE } from './constants'
-import { Snap, View } from './types'
+import { MutableNodeMap, Snap, View } from './types'
 
 export interface State {
   $inspecting: Atom<boolean>
   $exporting: Atom<boolean>
   $picker: Atom<boolean>
   $currentDocument: Atom<Document | null>
+  $nodeMap: Atom<MutableNodeMap>
   $targetNodeId: Atom<SyntheticId | null>
   $view: Atom<View>
   $mask: Atom<boolean>
@@ -18,6 +19,7 @@ export interface State {
   setExporting: Setter<boolean>
   setPicker: Setter<boolean>
   setCurrentDocument: Setter<Document | null>
+  setNodeMap: Setter<MutableNodeMap>
   setTargetNodeId: Setter<SyntheticId | null>
   setView: Setter<View>
   setMask: Setter<boolean>
@@ -51,18 +53,26 @@ export function createState(
   )
   const [$currentDocument, _getCurrentDocument, setCurrentDocument] =
     createAtom<Document | null>(initialValues.currentDocument ?? null)
+  const [$nodeMap, _getNodeMap, setNodeMap] = createAtom<MutableNodeMap>({})
   const [$targetNodeId, _getTargetNodeId, setTargetNodeId] =
     createAtom<SyntheticId | null>(initialValues.targetNodeId ?? null)
-  const [$view, _getView, setView] = createAtom(initialValues.view ?? View.Elements)
+  const [$view, _getView, setView] = createAtom(
+    initialValues.view ?? View.Elements
+  )
   const [$mask, _getMask, setMask] = createAtom(initialValues.mask ?? false)
-  const [$size, _getSize, setSize] = createAtom(initialValues.size ?? INITIAL_SIZE)
-  const [$snap, _getSnap, setSnap] = createAtom<Snap>(initialValues.snap ?? 'bottom')
+  const [$size, _getSize, setSize] = createAtom(
+    initialValues.size ?? INITIAL_SIZE
+  )
+  const [$snap, _getSnap, setSnap] = createAtom<Snap>(
+    initialValues.snap ?? 'bottom'
+  )
 
   return {
     $inspecting,
     $exporting,
     $picker,
     $currentDocument,
+    $nodeMap,
     $targetNodeId,
     $view,
     $mask,
@@ -73,6 +83,7 @@ export function createState(
     setExporting,
     setPicker,
     setCurrentDocument,
+    setNodeMap,
     setTargetNodeId,
     setView,
     setMask,

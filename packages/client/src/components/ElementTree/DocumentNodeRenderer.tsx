@@ -49,6 +49,7 @@ export const DocumentNodeRenderer: React.FC<Props> = ({ nodeId, depth }) => {
         depth={depth}
       >
         {hasChildren && <Toggle isOpen={isOpen} onClick={toggleNode} />}
+        #document
       </TreeRow>
       {children}
     </Block>

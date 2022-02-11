@@ -15,6 +15,7 @@ import {
   useExporting,
   useInspecting,
   useMask,
+  useNodeMap,
   usePicker,
   useSize,
   useView,
@@ -29,6 +30,7 @@ interface Props {
 export const DevTools: React.FC<Props> = React.memo(
   ({ disableExport, disableToggle }) => {
     const [, setCurrentDocument] = useCurrentDocument()
+    const [, setNodeMap] = useNodeMap()
     const [inspecting] = useInspecting()
     const [exporting, setExporting] = useExporting()
     const [picker] = usePicker()
@@ -47,6 +49,7 @@ export const DevTools: React.FC<Props> = React.memo(
               interactive={false}
               scaling="full-width"
               onDocumentReady={setCurrentDocument}
+              onLoad={setNodeMap}
             />
           </PlaybackRegion>
         )}

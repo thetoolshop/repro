@@ -12,23 +12,35 @@ import { NativeDOMRenderer } from './NativeDOMRenderer'
 import { PointerOverlay } from './PointerOverlay'
 import { FullWidthViewport } from './FullWidthViewport'
 import { ScaleToFitViewport } from './ScaleToFitViewport'
+import { MutableNodeMap } from './types'
 
 interface Props {
   interactive: boolean
   scaling: 'full-width' | 'scale-to-fit'
   onDocumentReady?: (doc: Document) => void
+  onLoad?: (nodeMap: MutableNodeMap) => void
 }
 
 export const PlaybackCanvas: React.FC<Props> = ({
   interactive,
   scaling,
   onDocumentReady,
+  onLoad,
 }) => {
   const frameRef = useRef() as MutableRefObject<HTMLIFrameElement>
   const [ownerDocument, setOwnerDocument] = useState<Document | null>(null)
   const [loaded, setLoaded] = useState(false)
 
-  const onLoad = useCallback(() => setLoaded(true), [setLoaded])
+  const handleLoad = useCallback(
+    (nodeMap: MutableNodeMap) => {
+      if (onLoad) {
+        onLoad(nodeMap)
+      }
+
+      setLoaded(true)
+    },
+    [onLoad, setLoaded]
+  )
 
   useEffect(() => {
     if (!frameRef.current) {
@@ -47,7 +59,7 @@ export const PlaybackCanvas: React.FC<Props> = ({
   const viewportContents = (
     <React.Fragment>
       <FrameRealm ref={frameRef}>
-        <NativeDOMRenderer ownerDocument={ownerDocument} onLoad={onLoad} />
+        <NativeDOMRenderer ownerDocument={ownerDocument} onLoad={handleLoad} />
       </FrameRealm>
 
       {!interactive && <PointerOverlay />}
