@@ -107,7 +107,7 @@ export function createDOMVisitor() {
         }
       }
 
-      if (isExternalResource(node)) {
+      if (isExternalResource(node) && !isExternalStyleSheet(node)) {
         return
       }
 

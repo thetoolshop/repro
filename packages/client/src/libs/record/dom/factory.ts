@@ -111,11 +111,17 @@ export function createStyleSheetVTree(
     children.push(childId)
   }
 
+  const attributes: Record<string, string | null> = {}
+
+  if (node.hasAttribute('media')) {
+    attributes.media = node.getAttribute('media')
+  }
+
   vTree.nodes[parentId] = {
     id: parentId,
     type: NodeType.Element,
     tagName: 'style',
-    attributes: {},
+    attributes,
     properties: {},
     children,
   }

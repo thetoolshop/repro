@@ -389,7 +389,6 @@ export function createRecordingStream(
             break
 
           case InteractionType.ViewportResize:
-            console.log('observer', interaction)
             trailingInteraction.viewport = interaction.to
             break
         }
