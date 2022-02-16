@@ -1,4 +1,5 @@
 import { Interaction, InteractionType, Point } from '@/types/interaction'
+import { isElementNode } from '@/utils/dom'
 import { ObserverLike, createEventObserver } from '@/utils/observer'
 import { getNodeId } from '@/utils/vdom'
 import { RecordingOptions } from '../types'
@@ -94,7 +95,8 @@ function createViewportResizeObserver(
     observe(doc, vtree) {
       const win = doc.defaultView
 
-      if (win) {
+      // Only capture viewport size for root window
+      if (win && win === win.top) {
         prevWidth = win.innerWidth
         prevHeight = win.innerHeight
         viewportResizeObserver.observe(win, vtree)
@@ -160,7 +162,26 @@ function createPointerMoveObserver(
 
   const handlePointerMove = sampleEventsByKey(
     () => 'pointermove',
-    (evt: PointerEvent) => [evt.pageX, evt.pageY] as Point,
+    (evt: PointerEvent) => {
+      let offsetX = 0
+      let offsetY = 0
+
+      const eventTarget = evt.target
+
+      if (eventTarget && isElementNode(eventTarget as Node)) {
+        const ownerDocument = (eventTarget as Element).ownerDocument
+        const defaultView = ownerDocument.defaultView
+        const frameElement = defaultView ? defaultView.frameElement : null
+
+        if (frameElement) {
+          const { x, y } = frameElement.getBoundingClientRect()
+          offsetX = x
+          offsetY = y
+        }
+      }
+
+      return [evt.pageX + offsetX, evt.pageY + offsetY] as Point
+    },
     (value, duration) => {
       const [x, y] = value
 

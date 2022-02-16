@@ -25,7 +25,12 @@ import {
 } from '../codecs/event'
 import { Stats } from '../diagnostics'
 import { createBuffer, Unsubscribe } from './buffer-utils'
-import { createDOMObserver, createDOMTreeWalker, createDOMVisitor } from './dom'
+import {
+  createDOMObserver,
+  createDOMTreeWalker,
+  createDOMVisitor,
+  createIFrameVisitor,
+} from './dom'
 import { createInteractionObserver, createScrollVisitor } from './interaction'
 import { observePeriodic } from './periodic'
 import { RecordingOptions } from './types'
@@ -94,7 +99,7 @@ export const EMPTY_RECORDING_STREAM: RecordingStream = {
 }
 
 export function createRecordingStream(
-  doc: Document,
+  rootDocument: Document,
   customOptions: Partial<RecordingOptions>
 ): RecordingStream {
   const options: RecordingOptions = {
@@ -114,6 +119,7 @@ export function createRecordingStream(
 
   let leadingSnapshot = createEmptySnapshot()
   let trailingSnapshot = createEmptySnapshot()
+  let sourceDocuments = [rootDocument]
 
   const domTreeWalker = createDOMTreeWalker({
     ignoredNodes: options.ignoredNodes,
@@ -125,6 +131,7 @@ export function createRecordingStream(
 
   if (options.types.has('dom')) {
     registerDOMVisitor()
+    registerIFrameVisitor()
     registerDOMObserver()
   }
 
@@ -149,6 +156,7 @@ export function createRecordingStream(
 
     started = true
 
+    sourceDocuments = [rootDocument]
     trailingSnapshot = createEmptySnapshot()
 
     if (options.types.has('interaction')) {
@@ -156,7 +164,8 @@ export function createRecordingStream(
     }
 
     Stats.time('RecordingStream#start: build VTree snapshot', () => {
-      domTreeWalker(doc)
+      // TODO: collect iframes to observe nested documents
+      domTreeWalker(rootDocument)
     })
 
     const trailingVTree = trailingSnapshot.dom
@@ -170,7 +179,9 @@ export function createRecordingStream(
     addEvent(createSnapshotEvent())
 
     for (const observer of observers) {
-      observer.observe(doc, trailingVTree)
+      for (const doc of sourceDocuments) {
+        observer.observe(doc, trailingVTree)
+      }
     }
   }
 
@@ -335,7 +346,7 @@ export function createRecordingStream(
   }
 
   function registerDOMVisitor() {
-    const rootId = getNodeId(doc)
+    const rootId = getNodeId(rootDocument)
     const domVisitor = createDOMVisitor()
 
     domVisitor.subscribe(vtree => {
@@ -345,6 +356,16 @@ export function createRecordingStream(
     })
 
     domTreeWalker.acceptDOMVisitor(domVisitor)
+  }
+
+  function registerIFrameVisitor() {
+    const iframeVisitor = createIFrameVisitor()
+
+    iframeVisitor.subscribe(contentDocuments => {
+      sourceDocuments.push(...contentDocuments)
+    })
+
+    domTreeWalker.accept(iframeVisitor)
   }
 
   function createInteractionEvent(

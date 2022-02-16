@@ -3,6 +3,7 @@ import { VNode, VTree } from '@/types/vdom'
 import {
   isExternalResource,
   isExternalStyleSheet,
+  isIFrameElement,
   isLocalStylesheet,
 } from '@/utils/dom'
 import {
@@ -137,4 +138,47 @@ export function createDOMVisitor() {
   }
 
   return domVisitor
+}
+
+export function createIFrameVisitor() {
+  let iframes: Array<Document> = []
+  const subscribers: Array<Subscriber<Array<Document>>> = []
+
+  function publish(value: Array<Document>) {
+    for (const subscriber of subscribers) {
+      subscriber(value)
+    }
+  }
+
+  const iframeVisitor: Visitor<Array<Document>> &
+    Subscribable<Array<Document>> = {
+    elementNode(node) {
+      if (isIFrameElement(node)) {
+        const doc = node.contentDocument
+
+        if (doc) {
+          iframes.push(doc)
+        }
+      }
+    },
+
+    // Unimplemented
+    documentNode() {},
+    documentTypeNode() {},
+    documentFragmentNode() {},
+    textNode() {},
+
+    done() {
+      const value = iframes
+      publish(value)
+      iframes = []
+      return value
+    },
+
+    subscribe(subscriber) {
+      subscribers.push(subscriber)
+    },
+  }
+
+  return iframeVisitor
 }
