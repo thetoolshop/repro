@@ -193,7 +193,7 @@ export function encodeVElement(node: VElement): ArrayBuffer {
   const attrEntries = Object.entries(node.attributes)
   const attrByteLength = attrEntries.flatMap(([key, value]) => [
     UINT_8 + getByteLength(key),
-    UINT_16 + (value !== null ? getByteLength(value) : 0),
+    UINT_32 + (value !== null ? getByteLength(value) : 0),
   ])
   const attrByteLengthTotal = attrByteLength.reduce(
     (acc, byteLength) => acc + byteLength,
@@ -246,7 +246,7 @@ export function encodeVElement(node: VElement): ArrayBuffer {
   writer.writeUint16(attrEntries.length)
   for (const [key, value] of attrEntries) {
     writeString8(writer, key)
-    writeString16(writer, value ?? '')
+    writeString32(writer, value ?? '')
   }
 
   writer.writeUint16(propEntries.length)
@@ -292,7 +292,7 @@ export function decodeVElement(reader: BufferReader): VElement {
   const attrEntries: Array<[string, string | null]> = []
 
   for (let j = 0; j < attrLength; j++) {
-    attrEntries.push([readString8(reader), readString16(reader)])
+    attrEntries.push([readString8(reader), readString32(reader)])
   }
 
   const attributes: Record<string, string | null> = attrEntries.reduce(
