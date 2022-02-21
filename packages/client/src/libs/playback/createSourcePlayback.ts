@@ -198,6 +198,10 @@ export function createSourcePlayback(
       queuedEvents = after
       setBuffer(before)
       setActveIndex(activeIndex => activeIndex + before.length)
+
+      if (elapsed >= duration) {
+        setPlaybackState(PlaybackState.Paused)
+      }
     })
   )
 
