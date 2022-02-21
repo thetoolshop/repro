@@ -1,11 +1,17 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { X as CloseIcon } from 'react-feather'
-import { Block, Grid, InlineBlock } from 'jsxstyle'
+import { Block, Grid, InlineBlock, Row } from 'jsxstyle'
+import React, { useEffect, useState } from 'react'
+import {
+  CheckCircle as SuccessIcon,
+  Loader as LoaderIcon,
+  X as CloseIcon,
+} from 'react-feather'
 import { Shortcuts } from 'shortcuts'
+import { Spin } from '@/components/FX'
 import { Logo } from '@/components/Logo'
 import { Modal } from '@/components/Modal'
 import { colors } from '@/config/theme'
 import { Stats } from '@/libs/diagnostics'
+import { useMessaging } from '@/libs/messaging'
 import {
   EMPTY_PLAYBACK,
   PlaybackCanvas,
@@ -32,9 +38,9 @@ import { encodeRecording } from '@/libs/codecs/recording'
 import { MAX_INT32 } from '../constants'
 import { ExporterButton } from './ExporterButton'
 import { RangeSelector } from './RangeSelector'
-import { zlib } from 'fflate'
 
 type PlaybackRange = [number, number]
+type UploadingState = 'ready' | 'uploading' | 'done' | 'failed'
 
 interface Props {
   onClose(): void
@@ -147,31 +153,15 @@ function createRecordingAtRange(
   }
 }
 
-function compressRecording(buffer: ArrayBuffer) {
-  return new Promise<ArrayBuffer>((resolve, reject) =>
-    zlib(
-      new Uint8Array(buffer),
-      {
-        consume: true,
-      },
-      (err, data) => {
-        if (err) {
-          reject(err)
-        } else {
-          resolve(data)
-        }
-      }
-    )
-  )
-}
-
 export const ExporterModal: React.FC<Props> = ({ onClose }) => {
+  const agent = useMessaging()
   const sourcePlayback = usePlayback()
   const [playback, setPlayback] = useState(EMPTY_PLAYBACK)
 
   const initialRange: PlaybackRange = [0, playback.getDuration()]
   const [range, setRange] = useState<PlaybackRange>(initialRange)
-  const [uploading, setUploading] = useState(false)
+  const [uploading, setUploading] = useState<UploadingState>('ready')
+  const [recordingURL, setRecordingURL] = useState<string | null>(null)
 
   useEffect(() => {
     setPlayback(sourcePlayback.copy())
@@ -188,35 +178,47 @@ export const ExporterModal: React.FC<Props> = ({ onClose }) => {
   useEffect(() => {
     const shortcuts = new Shortcuts()
 
-    shortcuts.add({
-      shortcut: 'Escape',
-      handler: onClose,
-    })
+    if (!uploading) {
+      shortcuts.add({
+        shortcut: 'Escape',
+        handler: onClose,
+      })
+    }
 
     return () => {
       shortcuts.reset()
     }
-  }, [onClose])
+  }, [uploading, onClose])
 
   const handleExport = async () => {
     const events = playback.getSourceEvents()
 
     if (events) {
       const recording = createRecordingAtRange(events, range)
-      const encoded = encodeRecording(recording)
-      const compressed = await compressRecording(encoded)
+      const data = encodeRecording(recording)
 
-      setUploading(true)
+      setUploading('uploading')
 
-      const response = await fetch('http://localhost:8787', {
-        method: 'POST',
-        body: new Blob([compressed]),
+      const [ok, url]: [boolean, string] = await agent.raiseIntent({
+        type: 'upload',
+        payload: {
+          id: recording.id,
+          recording: Array.from(new Uint8Array(data)),
+          assets: [],
+        },
       })
 
-      const { fileName } = await response.json()
-
-      setUploading(false)
+      if (ok) {
+        setUploading('done')
+        setRecordingURL(url)
+      } else {
+        setUploading('failed')
+      }
     }
+  }
+
+  if (recordingURL) {
+    console.log(`http://localhost:8000${recordingURL}`)
   }
 
   return (
@@ -240,14 +242,19 @@ export const ExporterModal: React.FC<Props> = ({ onClose }) => {
             <PlaybackCanvas interactive={false} scaling="scale-to-fit" />
             <FooterRegion>
               <RangeSelector
-                disabled={uploading}
+                disabled={uploading === 'uploading'}
                 minValue={0}
                 maxValue={playback.getDuration()}
                 value={range}
                 onChange={setRange}
               />
-              <ExporterButton disabled={uploading} onClick={handleExport} />
+              <ExporterButton
+                disabled={uploading === 'uploading'}
+                onClick={handleExport}
+              />
             </FooterRegion>
+            {uploading === 'uploading' && <UploadingInterstitial />}
+            {uploading === 'done' && <SuccessInterstitial />}
           </Grid>
         </Modal>
       </Block>
@@ -291,4 +298,45 @@ const FooterRegion: React.FC = ({ children }) => (
   >
     {children}
   </Grid>
+)
+
+const UploadingInterstitial: React.FC = () => (
+  <Row
+    alignItems="center"
+    justifyContent="center"
+    position="absolute"
+    top={0}
+    bottom={0}
+    left={0}
+    right={0}
+    zIndex={MAX_INT32}
+    background="rgba(0, 0, 0, 0.85)"
+    color={colors.white}
+    fontSize={24}
+  >
+    <Spin>
+      <LoaderIcon size={24} />
+    </Spin>
+
+    <InlineBlock marginLeft={8}>Saving recording...</InlineBlock>
+  </Row>
+)
+
+const SuccessInterstitial: React.FC = () => (
+  <Row
+    alignItems="center"
+    justifyContent="center"
+    position="absolute"
+    top={0}
+    bottom={0}
+    left={0}
+    right={0}
+    zIndex={MAX_INT32}
+    background="rgba(0, 0, 0, 0.85)"
+    color={colors.white}
+    fontSize={24}
+  >
+    <SuccessIcon size={24} />
+    <InlineBlock marginLeft={8}>Saved</InlineBlock>
+  </Row>
 )

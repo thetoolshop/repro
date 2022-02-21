@@ -55,9 +55,9 @@ const Container: React.FC<ContainerProps> = ({
   minHeight,
 }) => (
   <Block
+    position="relative"
     background={colors.white}
     boxShadow="0 8px 16px rgba(0, 0, 0, 0.25)"
-    borderRadius={4}
     minHeight={minHeight}
     minWidth={minWidth}
     height={height}

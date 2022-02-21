@@ -1,6 +1,6 @@
-import { GLOBAL_CHANNEL_NAME } from '@/config/constants'
 import { applyResetStyles } from '@/config/theme'
 import { Stats, Trace } from '@/libs/diagnostics'
+import { createPTPAgent, MessagingProvider } from '@/libs/messaging'
 import { createRecordingStream, RecordingStreamProvider } from '@/libs/record'
 import { cache as styleCache } from 'jsxstyle'
 import React from 'react'
@@ -29,6 +29,9 @@ const refs: Refs = {
 }
 
 const _initialInjectOptions = styleCache.injectOptions
+
+// Should PTP agent replace Broadcast agent?
+const agent = createPTPAgent()
 
 class ReproDevTools extends HTMLElement {
   private renderRoot: HTMLDivElement
@@ -89,7 +92,9 @@ class ReproDevTools extends HTMLElement {
     ReactDOM.render(
       <RecordingStreamProvider stream={stream}>
         <StateProvider state={this.state}>
-          <EmbeddedController />
+          <MessagingProvider agent={agent}>
+            <EmbeddedController />
+          </MessagingProvider>
         </StateProvider>
       </RecordingStreamProvider>,
       this.renderRoot
@@ -101,32 +106,21 @@ class ReproDevTools extends HTMLElement {
   }
 }
 
-const messageBus = new BroadcastChannel(GLOBAL_CHANNEL_NAME)
-
-interface Message {
-  action: string
-  value: any
-}
-
-messageBus.onmessage = (message: MessageEvent<Message>) => {
-  switch (message.data.action) {
-    case 'enable':
-      if (!window.customElements.get(NODE_NAME)) {
-        window.customElements.define(NODE_NAME, ReproDevTools)
-      }
-
-      if (!document.querySelector(NODE_NAME)) {
-        const devtools = document.createElement(NODE_NAME)
-        document.body.appendChild(devtools)
-      }
-      break
-
-    case 'disable':
-      const root = document.querySelector(NODE_NAME)
-
-      if (root) {
-        root.remove()
-      }
-      break
+agent.subscribeToIntent('enable', async () => {
+  if (!window.customElements.get(NODE_NAME)) {
+    window.customElements.define(NODE_NAME, ReproDevTools)
   }
-}
+
+  if (!document.querySelector(NODE_NAME)) {
+    const devtools = document.createElement(NODE_NAME)
+    document.body.appendChild(devtools)
+  }
+})
+
+agent.subscribeToIntent('disable', async () => {
+  const root = document.querySelector(NODE_NAME)
+
+  if (root) {
+    root.remove()
+  }
+})

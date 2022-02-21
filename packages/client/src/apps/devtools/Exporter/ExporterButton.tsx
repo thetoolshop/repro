@@ -9,7 +9,13 @@ interface Props {
 }
 
 export const ExporterButton: React.FC<Props> = ({ disabled, onClick }) => (
-  <Button variant="primary" size="small" context="success" onClick={onClick}>
+  <Button
+    variant="primary"
+    size="small"
+    context="success"
+    onClick={onClick}
+    disabled={disabled}
+  >
     <ShareIcon size={16} />
     <InlineBlock>Save</InlineBlock>
   </Button>

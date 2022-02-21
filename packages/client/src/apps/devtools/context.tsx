@@ -7,3 +7,5 @@ export const StateProvider: React.FC<{ state: State }> = ({
   children,
   state,
 }) => <StateContext.Provider value={state}>{children}</StateContext.Provider>
+
+export const NavigationContext = React.createContext((pathname: string) => {})

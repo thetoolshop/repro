@@ -2,7 +2,7 @@ import { useRecordingStream } from '@/libs/record'
 import { isElementNode } from '@/utils/dom'
 import { useAtomState, useAtomValue } from '@/utils/state'
 import { useContext, useEffect, useState } from 'react'
-import { StateContext } from './context'
+import { NavigationContext, StateContext } from './context'
 
 export function useDevtoolsState() {
   return useContext(StateContext)
@@ -84,4 +84,8 @@ export function useTargetVNode() {
   const stream = useRecordingStream()
   const [targetNodeId] = useTargetNodeId()
   return targetNodeId ? stream.peek(targetNodeId) : null
+}
+
+export function useNavigate() {
+  return useContext(NavigationContext)
 }

@@ -1,6 +1,6 @@
 import { handleGetFile } from './handlers/getFile'
 import { handlePreflight } from './handlers/preflight'
-import { handleUploadFile } from './handlers/uploadFile'
+import { handleUploadRecording } from './handlers/uploadRecording'
 
 addEventListener('fetch', event => {
   switch (event.request.method) {
@@ -12,8 +12,8 @@ addEventListener('fetch', event => {
       event.respondWith(handleGetFile(event.request))
       break
 
-    case 'POST':
-      event.respondWith(handleUploadFile(event.request))
+    case 'PUT':
+      event.respondWith(handleUploadRecording(event.request))
       break
   }
 })

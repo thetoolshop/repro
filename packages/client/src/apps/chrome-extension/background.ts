@@ -1,3 +1,34 @@
+import { zlibSync } from 'fflate'
+import { encrypt } from '@/libs/crypto'
+import { createRuntimeAgent } from './createRuntimeAgent'
+
+const agent = createRuntimeAgent()
+
+agent.subscribeToIntent('upload', async (payload: any) => {
+  const compressed = zlibSync(new Uint8Array(payload.recording))
+  const [data, encryptionKey] = await encrypt(compressed)
+
+  const formData = new FormData()
+
+  formData.set(
+    'recording',
+    new File([data], payload.id, {
+      type: 'application/octet-stream',
+    })
+  )
+
+  const res = await fetch(`http://localhost:8787/${payload.id}`, {
+    method: 'PUT',
+    body: formData,
+  })
+
+  if (res.ok) {
+    return [true, `/${payload.id}#${encryptionKey}`]
+  }
+
+  return [false, null]
+})
+
 const StorageKeys = {
   ENABLED: 'enabled',
 }
@@ -20,13 +51,14 @@ async function enableAll() {
   chrome.tabs.query({}, tabs => {
     for (const tab of tabs) {
       if (tab.id) {
-        showActionBadge()
-        chrome.tabs.sendMessage(tab.id, { action: 'enable' })
-        chrome.storage.local.set({
-          [StorageKeys.ENABLED]: true,
-        })
+        agent.raiseIntent({ type: 'enable' }, { target: tab.id })
       }
     }
+
+    showActionBadge()
+    chrome.storage.local.set({
+      [StorageKeys.ENABLED]: true,
+    })
   })
 }
 
@@ -34,13 +66,14 @@ async function disableAll() {
   chrome.tabs.query({}, tabs => {
     for (const tab of tabs) {
       if (tab.id) {
-        hideActionBadge()
-        chrome.tabs.sendMessage(tab.id, { action: 'disable' })
-        chrome.storage.local.set({
-          [StorageKeys.ENABLED]: false,
-        })
+        agent.raiseIntent({ type: 'disable' }, { target: tab.id })
       }
     }
+
+    hideActionBadge()
+    chrome.storage.local.set({
+      [StorageKeys.ENABLED]: false,
+    })
   })
 }
 

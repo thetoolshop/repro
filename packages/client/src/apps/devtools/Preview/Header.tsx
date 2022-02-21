@@ -7,7 +7,7 @@ import { Logo } from '@/components/Logo'
 import { TimelineControl } from '@/components/TimelineControl'
 import { PlaybackState, usePlayback, usePlaybackState } from '@/libs/playback'
 import { MAX_INT32 } from '../constants'
-import { useNavigate } from 'react-router'
+import { useNavigate } from '../hooks'
 
 export const Header: React.FC = () => {
   const playback = usePlayback()

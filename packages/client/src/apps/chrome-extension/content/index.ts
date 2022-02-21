@@ -1,8 +1,13 @@
-import { GLOBAL_CHANNEL_NAME } from '@/config/constants'
+import { createPTPAgent } from '@/libs/messaging'
+import { SyntheticId } from '@/types/common'
+import { createRuntimeAgent } from '../createRuntimeAgent'
+
+chrome.runtime.connect()
 
 let scriptElement: HTMLScriptElement | null = null
 
-const messageBus = new BroadcastChannel(GLOBAL_CHANNEL_NAME)
+const inPageAgent = createPTPAgent()
+const runtimeAgent = createRuntimeAgent()
 
 function addPageScript() {
   return new Promise(resolve => {
@@ -21,41 +26,34 @@ function addPageScript() {
 
 async function enableDevTools() {
   await addPageScript()
-  messageBus.postMessage({
-    action: 'enable',
-  })
+  inPageAgent.raiseIntent({ type: 'enable' })
 }
 
 async function disableDevTools() {
-  messageBus.postMessage({
-    action: 'disable',
+  inPageAgent.raiseIntent({ type: 'disable' })
+}
+
+interface UploadPayload {
+  id: SyntheticId
+  recording: Array<number>
+  assets: Array<never>
+}
+
+inPageAgent.subscribeToIntent('upload', (payload: UploadPayload) => {
+  return runtimeAgent.raiseIntent({
+    type: 'upload',
+    payload,
   })
-}
+})
 
-interface Message {
-  action: string
-  value: any
-}
+runtimeAgent.subscribeToIntent('enable', async () => {
+  enableDevTools()
+  return true
+})
 
-function onMessage(
-  message: Message,
-  _: chrome.runtime.MessageSender,
-  sendResponse: (response: boolean) => void
-) {
-  switch (message.action) {
-    case 'enable':
-      enableDevTools()
-      break
-
-    case 'disable':
-      disableDevTools()
-      break
-  }
-
-  sendResponse(true)
-}
-
-chrome.runtime.onMessage.addListener(onMessage)
-chrome.runtime.connect({ name: 'bridge' })
+runtimeAgent.subscribeToIntent('disable', async () => {
+  disableDevTools()
+  return true
+})
 
 export {}
