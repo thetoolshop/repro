@@ -4,7 +4,7 @@ import { Inline, InlineBlock } from 'jsxstyle'
 import React from 'react'
 import colors from 'tailwindcss/colors'
 import { FONT_SIZE } from './constants'
-import { useNode, useNodeState } from './context'
+import { useNode } from './context'
 import { TreeRow } from './TreeRow'
 
 interface Props {
@@ -14,7 +14,6 @@ interface Props {
 
 export const TextNodeRenderer: React.FC<Props> = ({ depth, nodeId }) => {
   const node = useNode<VText>(nodeId)
-  const [targetNodeId] = useNodeState(nodeId)
 
   if (!node) {
     return null
@@ -27,11 +26,7 @@ export const TextNodeRenderer: React.FC<Props> = ({ depth, nodeId }) => {
 
   return (
     <InlineBlock key={nodeId}>
-      <TreeRow
-        nodeId={nodeId}
-        highlight={nodeId === targetNodeId}
-        depth={depth}
-      >
+      <TreeRow nodeId={nodeId} depth={depth}>
         <Inline
           fontFamily="monospace"
           fontSize={FONT_SIZE}

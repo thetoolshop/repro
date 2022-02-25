@@ -2,34 +2,34 @@ import { useElapsed, useLatestControlFrame } from '@/libs/playback'
 import { isElementNode } from '@/utils/dom'
 import { Block } from 'jsxstyle'
 import React, { useEffect, useState } from 'react'
-import { useTargetElement } from '../hooks'
+import { useSelectedElement } from '../hooks'
 
 type CSSProperties = keyof CSSStyleDeclaration
 
-export const TargetNodeComputedStyle: React.FC = () => {
-  const targetElement = useTargetElement()
+export const SelectedNodeComputedStyle: React.FC = () => {
+  const selectedElement = useSelectedElement()
   const latestControlFrame = useLatestControlFrame()
   const elapsed = useElapsed()
   const [computedStyle, setComputedStyle] =
     useState<CSSStyleDeclaration | null>(null)
 
   useEffect(() => {
-    if (!targetElement) {
+    if (!selectedElement) {
       setComputedStyle(null)
       return
     }
 
-    if (!isElementNode(targetElement)) {
+    if (!isElementNode(selectedElement)) {
       setComputedStyle(null)
       return
     }
 
-    const doc = targetElement.ownerDocument
+    const doc = selectedElement.ownerDocument
     const win = doc ? doc.defaultView : null
-    const computedStyle = win ? win.getComputedStyle(targetElement) : null
+    const computedStyle = win ? win.getComputedStyle(selectedElement) : null
 
     setComputedStyle(computedStyle)
-  }, [targetElement, latestControlFrame, setComputedStyle])
+  }, [selectedElement, latestControlFrame, setComputedStyle])
 
   useEffect(() => {
     // TODO: exclude unapplied styles

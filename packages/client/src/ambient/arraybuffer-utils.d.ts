@@ -5,6 +5,10 @@ declare module 'arraybuffer-utils' {
       offset?: number,
       isLittleEndian?: boolean
     ): BufferReader
+
+    // Internal buffer view
+    buffer: DataView
+
     /** @deprecated Read uint8 stream and decode with TextDecoder */
     readString(): string
     /** @deprecated Read uint8 stream and decode with TextDecoder */
@@ -31,6 +35,10 @@ declare module 'arraybuffer-utils' {
       offset?: number,
       isLittleEndian?: boolean
     ): BufferWriter
+
+    // Internal buffer view
+    buffer: DataView
+
     /** @deprecated Use TextEncoder and write stream of uint8 */
     writeString(str: string): this
     /** @deprecated Use TextEncoder and write stream of uint8 */

@@ -3,8 +3,8 @@ import React, { useState } from 'react'
 import { ElementTree } from '@/components/ElementTree'
 import { colors } from '@/config/theme'
 import { useSnapshot } from '@/libs/playback'
-import { useTargetNodeId } from '../hooks'
-import { TargetNodeComputedStyle } from './TargetNodeComputedStyle'
+import { useSelectedNode, useFocusedNode, usePicker } from '../hooks'
+import { SelectedNodeComputedStyle } from './SelectedNodeComputedStyle'
 
 export const ElementsPanel: React.FC = () => {
   return (
@@ -22,7 +22,9 @@ const Container: React.FC = ({ children }) => (
 )
 
 const MainPane: React.FC = React.memo(() => {
-  const [targetNodeId, setTargetNodeId] = useTargetNodeId()
+  const [focusedNode, setFocusedNode] = useFocusedNode()
+  const [selectedNode, setSelectedNode] = useSelectedNode()
+  const [picker] = usePicker()
   const snapshot = useSnapshot()
 
   return (
@@ -30,8 +32,11 @@ const MainPane: React.FC = React.memo(() => {
       {snapshot.dom && (
         <ElementTree
           vtree={snapshot.dom}
-          targetNodeId={targetNodeId}
-          selectNode={setTargetNodeId}
+          focusedNode={focusedNode}
+          selectedNode={selectedNode}
+          onFocusNode={setFocusedNode}
+          onSelectNode={setSelectedNode}
+          usingPicker={picker}
         />
       )}
     </Block>
@@ -51,7 +56,7 @@ const SidebarPane: React.FC = () => {
       overflow="auto"
       borderLeft={`1px solid ${colors.slate['200']}`}
     >
-      <TargetNodeComputedStyle />
+      <SelectedNodeComputedStyle />
     </Block>
   )
 }

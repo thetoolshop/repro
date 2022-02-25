@@ -1,63 +1,102 @@
 import { colors } from '@/config/theme'
-import { SyntheticId } from '@/types/common'
-import { getNodeId } from '@/utils/vdom'
+import { isIFrameElement } from '@/utils/dom'
 import { Block } from 'jsxstyle'
-import React, { useEffect, useState } from 'react'
+import React, { MutableRefObject, useEffect, useRef, useState } from 'react'
 import { fromEvent, Subscription } from 'rxjs'
 import { distinctUntilChanged, map, share } from 'rxjs/operators'
 import { MAX_INT32 } from '../constants'
-import { useCurrentDocument, useInspecting, useTargetNodeId } from '../hooks'
+import {
+  useCurrentDocument,
+  useFocusedNode,
+  useSelectedNode,
+  usePicker,
+} from '../hooks'
+
+function getTargetElementAtPoint(doc: Document | null, x: number, y: number) {
+  if (!doc) {
+    return null
+  }
+
+  let targetElement = doc.elementsFromPoint(x, y)[0]
+
+  while (targetElement && isIFrameElement(targetElement)) {
+    const doc = targetElement.contentDocument
+    const offsetX = targetElement.offsetLeft
+    const offsetY = targetElement.offsetTop
+
+    if (doc) {
+      targetElement = doc.elementsFromPoint(x - offsetX, y - offsetY)[0]
+    }
+  }
+
+  return targetElement
+}
 
 export const PickerOverlay: React.FC = React.memo(() => {
-  const [, setInspecting] = useInspecting()
+  const [picker, setPicker] = usePicker()
   const [currentDocument] = useCurrentDocument()
-  const [, setTargetNodeId] = useTargetNodeId()
+  const [focusedNode, setFocusedNode] = useFocusedNode()
+  const [, setSelectedNode] = useSelectedNode()
+  const [targetElement, setTargetElement] = useState<Element | null>(null)
   const [boundingBox, setBoundingBox] = useState<DOMRect | null>(null)
+  const ref = useRef() as MutableRefObject<HTMLDivElement>
+
+  useEffect(() => {
+    setTargetElement(
+      focusedNode && currentDocument
+        ? currentDocument.querySelector(`[data-repro-node="${focusedNode}"]`)
+        : null
+    )
+  }, [focusedNode, setTargetElement])
+
+  useEffect(() => {
+    setBoundingBox(targetElement ? targetElement.getBoundingClientRect() : null)
+  }, [targetElement, setBoundingBox])
 
   useEffect(() => {
     const subscription = new Subscription()
 
-    const targetElement$ = fromEvent<PointerEvent>(window, 'pointermove').pipe(
-      map(evt => {
-        if (!currentDocument) {
-          return null
-        }
+    if (picker) {
+      const elem$ = fromEvent<PointerEvent>(ref.current, 'pointermove').pipe(
+        map(evt =>
+          getTargetElementAtPoint(currentDocument, evt.clientX, evt.clientY)
+        ),
+        distinctUntilChanged(),
+        share()
+      )
 
-        return (
-          currentDocument.elementsFromPoint(evt.clientX, evt.clientY)[1] || null
-        )
-      }),
-      distinctUntilChanged(),
-      share()
-    )
+      subscription.add(
+        elem$.subscribe(target => {
+          setFocusedNode(target ? target.getAttribute('data-repro-node') : null)
+        })
+      )
 
-    subscription.add(
-      targetElement$.subscribe(target => {
-        setBoundingBox(target ? target.getBoundingClientRect() : null)
-      })
-    )
+      // TODO: set bounding box from focused node
+      subscription.add(
+        fromEvent<PointerEvent>(ref.current, 'pointerdown')
+          .pipe(
+            map(evt => {
+              const target = getTargetElementAtPoint(
+                currentDocument,
+                evt.clientX,
+                evt.clientY
+              )
 
-    subscription.add(
-      targetElement$.subscribe(target => {
-        let targetNodeId: SyntheticId | null = null
-
-        if (target) {
-          targetNodeId =
-            target.getAttribute('data-repro-node') || getNodeId(target)
-        }
-
-        setTargetNodeId(targetNodeId)
-      })
-    )
+              return target ? target.getAttribute('data-repro-node') : null
+            })
+          )
+          .subscribe(nodeId => {
+            setSelectedNode(nodeId)
+            setFocusedNode(null)
+            setPicker(false)
+          })
+      )
+    }
 
     return () => {
       subscription.unsubscribe()
     }
-  }, [currentDocument, setBoundingBox, setTargetNodeId])
-
-  const handleClick = () => {
-    setInspecting(true)
-  }
+  }, [currentDocument, ref, setBoundingBox, setFocusedNode, picker, setPicker])
 
   return (
     <Block
@@ -67,9 +106,8 @@ export const PickerOverlay: React.FC = React.memo(() => {
       left={0}
       right={0}
       zIndex={MAX_INT32}
-      props={{
-        onClick: handleClick,
-      }}
+      pointerEvents={picker ? 'all' : 'none'}
+      props={{ ref }}
     >
       <svg width="100%" height="100%">
         {boundingBox && (

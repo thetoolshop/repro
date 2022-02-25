@@ -344,6 +344,7 @@ function createStyleSheetObserver(
                 [id]: {
                   type: NodeType.Text,
                   id,
+                  parentId,
                   value: rule,
                 },
               },

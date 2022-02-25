@@ -1,23 +1,24 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { useRecordingStream } from '@/libs/record'
-import {
-  useActive,
-  useCurrentDocument,
-  useExporting,
-  useInspecting,
-  usePicker,
-  useTargetNodeId,
-} from './hooks'
+import { first, from, map, Subscription } from 'rxjs'
 import { Shortcuts } from 'shortcuts'
+import { useRecordingStream } from '@/libs/record'
 import {
   createSourcePlayback,
   Playback,
   PlaybackProvider,
 } from '@/libs/playback'
-import { DevTools } from './DevTools'
-import { first, from, map, Subscription } from 'rxjs'
-import { VTree } from '@/types/vdom'
+import { VElement, VTree } from '@/types/vdom'
 import { isDocumentVNode, isElementVNode } from '@/utils/vdom'
+import { DevTools } from './DevTools'
+import {
+  useActive,
+  useCurrentDocument,
+  useExporting,
+  useFocusedNode,
+  useSelectedNode,
+  useInspecting,
+  usePicker,
+} from './hooks'
 
 export const EmbeddedController: React.FC = () => {
   const initialDocumentOverflow = useRef<string>('auto')
@@ -29,7 +30,8 @@ export const EmbeddedController: React.FC = () => {
   const [, setExporting] = useExporting()
   const [picker, setPicker] = usePicker()
   const [, setCurrentDocument] = useCurrentDocument()
-  const [, setTargetNodeId] = useTargetNodeId()
+  const [, setFocusedNode] = useFocusedNode()
+  const [, setSelectedNode] = useSelectedNode()
 
   useEffect(() => {
     initialDocumentOverflow.current = window.getComputedStyle(
@@ -63,7 +65,7 @@ export const EmbeddedController: React.FC = () => {
 
     if (!active) {
       setCurrentDocument(document)
-      setTargetNodeId(null)
+      setSelectedNode(null)
     } else {
       if (playback) {
         subscription.add(
@@ -73,10 +75,8 @@ export const EmbeddedController: React.FC = () => {
               map(snapshot => snapshot.dom as VTree),
               map(vtree => getBodyVElement(vtree))
             )
-            .subscribe(node => {
-              if (node) {
-                setTargetNodeId(node.id)
-              }
+            .subscribe(bodyElement => {
+              setSelectedNode(bodyElement ? bodyElement.id : null)
             })
         )
       }
@@ -85,7 +85,7 @@ export const EmbeddedController: React.FC = () => {
     return () => {
       subscription.unsubscribe()
     }
-  }, [active, playback, setTargetNodeId])
+  }, [active, playback, setSelectedNode])
 
   useEffect(() => {
     stream.start()
@@ -136,9 +136,9 @@ export const EmbeddedController: React.FC = () => {
 
   useEffect(() => {
     if (!picker) {
-      setTargetNodeId(null)
+      setFocusedNode(null)
     }
-  }, [picker, setTargetNodeId])
+  }, [picker, setFocusedNode])
 
   useEffect(() => {
     const shortcuts = new Shortcuts()
@@ -186,7 +186,7 @@ export const EmbeddedController: React.FC = () => {
   )
 }
 
-function getBodyVElement(vtree: VTree) {
+function getBodyVElement(vtree: VTree): VElement | null {
   const rootNode = vtree.nodes[vtree.rootId]
 
   if (!rootNode || !isDocumentVNode(rootNode)) {

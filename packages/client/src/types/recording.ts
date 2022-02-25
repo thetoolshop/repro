@@ -1,4 +1,3 @@
-import { Observable } from 'rxjs'
 import { PointerState } from '@/types/interaction'
 import { SyntheticId } from './common'
 import { Interaction, Point, ScrollMap } from './interaction'

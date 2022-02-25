@@ -1,61 +1,124 @@
 import { SyntheticId } from '@/types/common'
 import { VTree } from '@/types/vdom'
-import { isDocumentVNode, isElementVNode } from '@/utils/vdom'
 import { Block } from 'jsxstyle'
-import React, { useCallback, useState } from 'react'
-import { NodeStateContext } from './context'
+import React, {
+  MutableRefObject,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
+import { fromEvent, Subscription } from 'rxjs'
+import { NodeState, NodeStateContext, Tag } from './context'
 import { TreeRenderer } from './TreeRenderer'
 
 interface Props {
   vtree: VTree
-  targetNodeId: SyntheticId | null
-  selectNode(nodeId: SyntheticId): void
+  focusedNode: SyntheticId | null
+  selectedNode: SyntheticId | null
+  onFocusNode(nodeId: SyntheticId | null): void
+  onSelectNode(nodeId: SyntheticId | null): void
+  usingPicker: boolean
 }
 
 export const ElementTree: React.FC<Props> = ({
   vtree,
-  targetNodeId,
-  selectNode,
+  focusedNode,
+  selectedNode,
+  onFocusNode,
+  onSelectNode,
+  usingPicker,
 }) => {
-  const [openNodes, setOpenNodes] = useState(() => {
-    const initialOpenNodes = []
+  const containerRef = useRef() as MutableRefObject<HTMLDivElement>
+  const activeRef = useRef(false)
+  const [visibleNodes, setVisibleNodes] = useState(new Set<SyntheticId>())
+  const [openNodes, setOpenNodes] = useState(new Set<SyntheticId>())
+  const [focusedNodeTag, setFocusedNodeTag] = useState<Tag>('open')
+  const [selectedNodeTag, setSelectedNodeTag] = useState<Tag>('open')
 
-    // TODO: add materialized path for target node to open nodes
-    // TODO: set body element as initial target node if not set
-    initialOpenNodes.push(vtree.rootId)
+  useEffect(() => {
+    const subscription = new Subscription()
 
-    const rootNode = vtree.nodes[vtree.rootId]
+    subscription.add(
+      fromEvent<PointerEvent>(containerRef.current, 'pointerenter').subscribe(
+        () => (activeRef.current = true)
+      )
+    )
 
-    if (rootNode && isDocumentVNode(rootNode)) {
-      const documentElementNode = rootNode.children
-        .map(childId => vtree.nodes[childId])
-        .find(
-          childNode =>
-            childNode &&
-            isElementVNode(childNode) &&
-            childNode.tagName === 'html'
-        )
+    subscription.add(
+      fromEvent<PointerEvent>(containerRef.current, 'pointerleave').subscribe(
+        () => (activeRef.current = false)
+      )
+    )
 
-      if (documentElementNode && isElementVNode(documentElementNode)) {
-        initialOpenNodes.push(documentElementNode.id)
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [containerRef, activeRef])
 
-        const bodyNode = documentElementNode.children
-          .map(childId => vtree.nodes[childId])
-          .find(
-            childNode =>
-              childNode &&
-              isElementVNode(childNode) &&
-              childNode.tagName === 'body'
-          )
+  useEffect(() => {
+    if (!activeRef.current) {
+      setOpenNodes(openNodes => {
+        const nextOpenNodes = new Set(openNodes)
 
-        if (bodyNode) {
-          initialOpenNodes.push(bodyNode.id)
+        let nodeId = selectedNode
+
+        while (nodeId) {
+          const node = vtree.nodes[nodeId]
+
+          if (!node) {
+            break
+          }
+
+          nodeId = node.parentId
+
+          if (nodeId) {
+            nextOpenNodes.add(nodeId)
+          }
+        }
+
+        return nextOpenNodes
+      })
+    }
+  }, [activeRef, vtree, setOpenNodes, selectedNode])
+
+  useEffect(() => {
+    const nextVisibleNodes = new Set(openNodes)
+
+    if (!activeRef.current) {
+      let nodeId = focusedNode
+
+      while (nodeId) {
+        const node = vtree.nodes[nodeId]
+
+        if (!node) {
+          break
+        }
+
+        nodeId = node.parentId
+
+        if (nodeId) {
+          nextVisibleNodes.add(nodeId)
         }
       }
     }
 
-    return new Set<SyntheticId>(initialOpenNodes)
-  })
+    setVisibleNodes(nextVisibleNodes)
+  }, [activeRef, vtree, focusedNode, openNodes, setVisibleNodes])
+
+  useEffect(() => {
+    if (usingPicker && !activeRef.current && focusedNode) {
+      const treeRow = containerRef.current.querySelector(
+        `[data-tree-node="${focusedNode}~open"]`
+      )
+
+      if (treeRow) {
+        treeRow.scrollIntoView({
+          block: 'center',
+        })
+      }
+    }
+  }, [usingPicker, activeRef, containerRef, focusedNode])
 
   const toggleNode = useCallback(
     (nodeId: SyntheticId) =>
@@ -73,11 +136,30 @@ export const ElementTree: React.FC<Props> = ({
     [setOpenNodes]
   )
 
+  const nodeStateContext: NodeState = {
+    focusedNode,
+    focusedNodeTag,
+    onFocusNode: (nodeId, tag) => {
+      setFocusedNodeTag(tag)
+      onFocusNode(nodeId)
+    },
+    selectedNode,
+    selectedNodeTag,
+    onSelectNode: (nodeId, tag) => {
+      setSelectedNodeTag(tag)
+      onSelectNode(nodeId)
+    },
+    visibleNodes,
+    onToggleNodeVisibility: toggleNode,
+  }
+
   return (
-    <NodeStateContext.Provider
-      value={[targetNodeId, selectNode, openNodes, toggleNode]}
-    >
-      <Block paddingV={8} userSelect="none">
+    <NodeStateContext.Provider value={nodeStateContext}>
+      <Block
+        paddingV={8}
+        userSelect="none"
+        props={{ onPointerLeave: () => onFocusNode(null), ref: containerRef }}
+      >
         <TreeRenderer vtree={vtree} />
       </Block>
     </NodeStateContext.Provider>

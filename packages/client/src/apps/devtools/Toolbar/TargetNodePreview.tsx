@@ -1,10 +1,10 @@
 import { InlineBlock, Row } from 'jsxstyle'
 import React from 'react'
 import colors from 'tailwindcss/colors'
-import { useTargetElementBoundingBox, useTargetVNode } from '../hooks'
+import { useFocusedElementBoundingBox, useTargetVNode } from '../hooks'
 
 export const TargetNodePreview: React.FC = () => {
-  const boundingBox = useTargetElementBoundingBox()
+  const boundingBox = useFocusedElementBoundingBox()
   const targetVNode = useTargetVNode()
 
   if (!targetVNode) {

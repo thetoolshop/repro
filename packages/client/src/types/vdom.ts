@@ -9,6 +9,7 @@ export enum NodeType {
 
 export interface VDocType {
   id: SyntheticId
+  parentId: SyntheticId | null
   type: NodeType.DocType
   name: string
   publicId: string
@@ -17,12 +18,14 @@ export interface VDocType {
 
 export interface VDocument {
   id: SyntheticId
+  parentId: SyntheticId | null
   type: NodeType.Document
   children: Array<SyntheticId>
 }
 
 export interface VElement {
   id: SyntheticId
+  parentId: SyntheticId | null
   type: NodeType.Element
   tagName: string
   attributes: Record<string, string | null>
@@ -37,6 +40,7 @@ export interface VElement {
 
 export interface VText {
   id: SyntheticId
+  parentId: SyntheticId | null
   type: NodeType.Text
   value: string
 }

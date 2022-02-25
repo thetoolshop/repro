@@ -18,6 +18,7 @@ import { createSyntheticId, getNodeId } from '@/utils/vdom'
 export function createVDocument(doc: Document): VDocument {
   return {
     id: getNodeId(doc),
+    parentId: doc.parentNode ? getNodeId(doc.parentNode) : null,
     type: NodeType.Document,
     children: [],
   }
@@ -26,6 +27,7 @@ export function createVDocument(doc: Document): VDocument {
 export function createVDocType(doctype: DocumentType): VDocType {
   return {
     id: getNodeId(doctype),
+    parentId: doctype.parentNode ? getNodeId(doctype.parentNode) : null,
     type: NodeType.DocType,
     name: doctype.name,
     publicId: doctype.publicId,
@@ -68,6 +70,7 @@ export function createVElement(
 
   return {
     id: getNodeId(element),
+    parentId: element.parentNode ? getNodeId(element.parentNode) : null,
     type: NodeType.Element,
     tagName: element.nodeName.toLowerCase(),
     attributes,
@@ -79,6 +82,7 @@ export function createVElement(
 export function createVText(text: Text): VText {
   return {
     id: getNodeId(text),
+    parentId: text.parentNode ? getNodeId(text.parentNode) : null,
     type: NodeType.Text,
     value: text.data,
   }
@@ -91,11 +95,12 @@ export function createStyleSheetVTree(
     return null
   }
 
-  const parentId = getNodeId(node)
+  const rootId = getNodeId(node)
+  const parentId = node.parentNode ? getNodeId(node.parentNode) : null
   const children: Array<SyntheticId> = []
 
   const vTree: VTree = {
-    rootId: parentId,
+    rootId,
     nodes: {},
   }
 
@@ -104,6 +109,7 @@ export function createStyleSheetVTree(
 
     vTree.nodes[childId] = {
       id: childId,
+      parentId: rootId,
       type: NodeType.Text,
       value: rule.cssText,
     }
@@ -117,8 +123,9 @@ export function createStyleSheetVTree(
     attributes.media = node.getAttribute('media')
   }
 
-  vTree.nodes[parentId] = {
-    id: parentId,
+  vTree.nodes[rootId] = {
+    id: rootId,
+    parentId,
     type: NodeType.Element,
     tagName: 'style',
     attributes,

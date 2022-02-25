@@ -9,7 +9,8 @@ export interface State {
   $picker: Atom<boolean>
   $currentDocument: Atom<Document | null>
   $nodeMap: Atom<MutableNodeMap>
-  $targetNodeId: Atom<SyntheticId | null>
+  $focusedNode: Atom<SyntheticId | null>
+  $selectedNode: Atom<SyntheticId | null>
   $view: Atom<View>
   $mask: Atom<boolean>
   $size: Atom<number>
@@ -20,7 +21,8 @@ export interface State {
   setPicker: Setter<boolean>
   setCurrentDocument: Setter<Document | null>
   setNodeMap: Setter<MutableNodeMap>
-  setTargetNodeId: Setter<SyntheticId | null>
+  setFocusedNode: Setter<SyntheticId | null>
+  setSelectedNode: Setter<SyntheticId | null>
   setView: Setter<View>
   setMask: Setter<boolean>
   setSize: Setter<number>
@@ -32,7 +34,8 @@ const defaultValues = {
   exporting: false,
   picker: false,
   currentDocument: null,
-  targetNodeId: null,
+  focusedNode: null,
+  selectedNode: null,
   view: View.Elements,
   mask: false,
   size: INITIAL_SIZE,
@@ -54,8 +57,10 @@ export function createState(
   const [$currentDocument, _getCurrentDocument, setCurrentDocument] =
     createAtom<Document | null>(initialValues.currentDocument ?? null)
   const [$nodeMap, _getNodeMap, setNodeMap] = createAtom<MutableNodeMap>({})
-  const [$targetNodeId, _getTargetNodeId, setTargetNodeId] =
-    createAtom<SyntheticId | null>(initialValues.targetNodeId ?? null)
+  const [$focusedNode, _getFocusedNode, setFocusedNode] =
+    createAtom<SyntheticId | null>(initialValues.focusedNode ?? null)
+  const [$selectedNode, _getSelectedNode, setSelectedNode] =
+    createAtom<SyntheticId | null>(null)
   const [$view, _getView, setView] = createAtom(
     initialValues.view ?? View.Elements
   )
@@ -73,7 +78,8 @@ export function createState(
     $picker,
     $currentDocument,
     $nodeMap,
-    $targetNodeId,
+    $focusedNode,
+    $selectedNode,
     $view,
     $mask,
     $size,
@@ -84,7 +90,8 @@ export function createState(
     setPicker,
     setCurrentDocument,
     setNodeMap,
-    setTargetNodeId,
+    setFocusedNode,
+    setSelectedNode,
     setView,
     setMask,
     setSize,

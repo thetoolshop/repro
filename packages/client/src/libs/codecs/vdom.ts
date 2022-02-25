@@ -69,6 +69,28 @@ export function readNodeId(reader: BufferReader): SyntheticId {
   return textDecoder.decode(new Uint8Array(bytes))
 }
 
+export function writeNullableNodeId(
+  writer: BufferWriter,
+  nodeId: SyntheticId | null
+) {
+  if (nodeId !== null) {
+    writeNodeId(writer, nodeId)
+    return
+  }
+
+  // Zero-pad buffer where VNode ID is null
+  for (let i = 0; i < NODE_ID_BYTE_LENGTH; i++) {
+    writer.writeUint8(0)
+  }
+}
+
+export function readNullableNodeId(reader: BufferReader): SyntheticId | null {
+  const nextByte = reader.buffer.getUint8(reader.getOffset())
+  const nodeId = readNodeId(reader)
+
+  return nextByte !== 0 ? nodeId : null
+}
+
 export function encodeVNode(node: VNode): ArrayBuffer {
   switch (node.type) {
     case NodeType.DocType:
@@ -107,6 +129,7 @@ export function encodeVDocType(node: VDocType): ArrayBuffer {
   const byteLength =
     NODE_TYPE_BYTE_LENGTH +
     NODE_ID_BYTE_LENGTH +
+    NODE_ID_BYTE_LENGTH +
     UINT_8 +
     getByteLength(node.name) +
     UINT_8 +
@@ -119,6 +142,7 @@ export function encodeVDocType(node: VDocType): ArrayBuffer {
 
   writer.writeUint8(node.type)
   writeNodeId(writer, node.id)
+  writeNullableNodeId(writer, node.parentId)
   writeString8(writer, node.name)
   writeString8(writer, node.publicId)
   writeString8(writer, node.systemId)
@@ -129,6 +153,7 @@ export function encodeVDocType(node: VDocType): ArrayBuffer {
 export function decodeVDocType(reader: BufferReader): VDocType {
   const type = NodeType.DocType
   const id = readNodeId(reader)
+  const parentId = readNullableNodeId(reader)
   const name = readString8(reader)
   const publicId = readString8(reader)
   const systemId = readString8(reader)
@@ -136,6 +161,7 @@ export function decodeVDocType(reader: BufferReader): VDocType {
   return {
     type,
     id,
+    parentId,
     name,
     publicId,
     systemId,
@@ -146,6 +172,7 @@ export function encodeVDocument(node: VDocument): ArrayBuffer {
   const byteLength =
     NODE_TYPE_BYTE_LENGTH +
     NODE_ID_BYTE_LENGTH +
+    NODE_ID_BYTE_LENGTH +
     UINT_16 +
     node.children.length * NODE_ID_BYTE_LENGTH
 
@@ -154,6 +181,7 @@ export function encodeVDocument(node: VDocument): ArrayBuffer {
 
   writer.writeUint8(node.type)
   writeNodeId(writer, node.id)
+  writeNullableNodeId(writer, node.parentId)
   writer.writeUint16(node.children.length)
 
   for (const child of node.children) {
@@ -166,6 +194,7 @@ export function encodeVDocument(node: VDocument): ArrayBuffer {
 export function decodeVDocument(reader: BufferReader): VDocument {
   const type = NodeType.Document
   const id = readNodeId(reader)
+  const parentId = readNullableNodeId(reader)
 
   const len = reader.readUint16()
   const children: Array<SyntheticId> = []
@@ -177,6 +206,7 @@ export function decodeVDocument(reader: BufferReader): VDocument {
   return {
     type,
     id,
+    parentId,
     children,
   }
 }
@@ -222,6 +252,7 @@ export function encodeVElement(node: VElement): ArrayBuffer {
   const byteLength =
     NODE_TYPE_BYTE_LENGTH +
     NODE_ID_BYTE_LENGTH +
+    NODE_ID_BYTE_LENGTH +
     UINT_8 +
     tagNameByteLength +
     UINT_16 +
@@ -236,6 +267,7 @@ export function encodeVElement(node: VElement): ArrayBuffer {
 
   writer.writeUint8(node.type)
   writeNodeId(writer, node.id)
+  writeNullableNodeId(writer, node.parentId)
   writeString8(writer, node.tagName)
 
   writer.writeUint16(node.children.length)
@@ -279,6 +311,7 @@ export function encodeVElement(node: VElement): ArrayBuffer {
 export function decodeVElement(reader: BufferReader): VElement {
   const type = NodeType.Element
   const id = readNodeId(reader)
+  const parentId = readNullableNodeId(reader)
   const tagName = readString8(reader)
 
   const childrenLength = reader.readUint16()
@@ -325,6 +358,7 @@ export function decodeVElement(reader: BufferReader): VElement {
   return {
     type,
     id,
+    parentId,
     tagName,
     children,
     attributes,
@@ -336,6 +370,7 @@ export function encodeVText(node: VText): ArrayBuffer {
   const byteLength =
     NODE_TYPE_BYTE_LENGTH +
     NODE_ID_BYTE_LENGTH +
+    NODE_ID_BYTE_LENGTH +
     UINT_32 +
     getByteLength(node.value)
 
@@ -344,6 +379,7 @@ export function encodeVText(node: VText): ArrayBuffer {
 
   writer.writeUint8(node.type)
   writeNodeId(writer, node.id)
+  writeNullableNodeId(writer, node.parentId)
   writeString32(writer, node.value)
 
   return buffer
@@ -352,11 +388,13 @@ export function encodeVText(node: VText): ArrayBuffer {
 export function decodeVText(reader: BufferReader): VText {
   const type = NodeType.Text
   const id = readNodeId(reader)
+  const parentId = readNullableNodeId(reader)
   const value = readString32(reader)
 
   return {
     type,
     id,
+    parentId,
     value,
   }
 }

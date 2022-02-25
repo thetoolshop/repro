@@ -13,10 +13,10 @@ import { MAX_INT32 } from './constants'
 import {
   useCurrentDocument,
   useExporting,
+  useFocusedNode,
   useInspecting,
   useMask,
   useNodeMap,
-  usePicker,
   useSize,
   useView,
 } from './hooks'
@@ -33,13 +33,14 @@ export const DevTools: React.FC<Props> = React.memo(
     const [, setNodeMap] = useNodeMap()
     const [inspecting] = useInspecting()
     const [exporting, setExporting] = useExporting()
-    const [picker] = usePicker()
+    const [, setFocusedNode] = useFocusedNode()
     const [mask] = useMask()
     const [view] = useView()
 
     const closeExporter = useCallback(() => {
       setExporting(false)
-    }, [setExporting])
+      setFocusedNode(null)
+    }, [setExporting, setFocusedNode])
 
     return (
       <Container open={inspecting}>
@@ -54,7 +55,7 @@ export const DevTools: React.FC<Props> = React.memo(
           </PlaybackRegion>
         )}
 
-        {picker && <PickerOverlay />}
+        {inspecting && <PickerOverlay />}
 
         <InspectorRegion>
           {inspecting && <DragHandle />}

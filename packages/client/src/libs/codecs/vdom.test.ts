@@ -39,6 +39,7 @@ describe('VDOM codec', () => {
     expect(buffer.byteLength).toBe(
       NODE_TYPE_BYTE_LENGTH +
         NODE_ID_BYTE_LENGTH +
+        NODE_ID_BYTE_LENGTH +
         UINT_16 +
         input.children.length * NODE_ID_BYTE_LENGTH
     )
@@ -54,6 +55,7 @@ describe('VDOM codec', () => {
     expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
     expect(buffer.byteLength).toBe(
       NODE_TYPE_BYTE_LENGTH +
+        NODE_ID_BYTE_LENGTH +
         NODE_ID_BYTE_LENGTH +
         UINT_8 +
         getByteLength(input.name) +
@@ -75,6 +77,7 @@ describe('VDOM codec', () => {
     expect(buffer.byteLength).toBe(
       NODE_TYPE_BYTE_LENGTH +
         NODE_ID_BYTE_LENGTH +
+        NODE_ID_BYTE_LENGTH +
         UINT_8 +
         getByteLength(input.tagName) +
         UINT_16 +
@@ -83,7 +86,7 @@ describe('VDOM codec', () => {
         Object.entries(input.attributes)
           .flatMap(([key, value]) => [
             UINT_8 + getByteLength(key),
-            UINT_16 + (value !== null ? getByteLength(value) : 0),
+            UINT_32 + (value !== null ? getByteLength(value) : 0),
           ])
           .reduce((a, b) => a + b, 0) +
         UINT_16 +
@@ -111,6 +114,7 @@ describe('VDOM codec', () => {
     expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
     expect(buffer.byteLength).toBe(
       NODE_TYPE_BYTE_LENGTH +
+        NODE_ID_BYTE_LENGTH +
         NODE_ID_BYTE_LENGTH +
         UINT_32 +
         getByteLength(input.value)

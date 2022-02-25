@@ -3,7 +3,7 @@ import React from 'react'
 import { SyntheticId } from '@/types/common'
 import { VDocument } from '@/types/vdom'
 import { useContext } from 'react'
-import { VTreeContext, useNodeState, useNode } from './context'
+import { VTreeContext, useNode, useNodeVisibility } from './context'
 import { Toggle } from './Toggle'
 import { TreeRow } from './TreeRow'
 import { NodeRenderer } from './NodeRenderer'
@@ -16,7 +16,7 @@ interface Props {
 export const DocumentNodeRenderer: React.FC<Props> = ({ nodeId, depth }) => {
   const vtree = useContext(VTreeContext)
   const node = useNode<VDocument>(nodeId)
-  const [targetNodeId, , isOpen, toggleNode] = useNodeState(nodeId)
+  const { isVisible, onToggleNodeVisibility } = useNodeVisibility(nodeId)
 
   if (!vtree || !node) {
     return null
@@ -25,7 +25,7 @@ export const DocumentNodeRenderer: React.FC<Props> = ({ nodeId, depth }) => {
   const isRootNode = nodeId === vtree.rootId
   const hasChildren = node.children.length > 0
 
-  const children = isOpen && (
+  const children = isVisible && (
     <Block>
       {node.children.map(childId => (
         <NodeRenderer
@@ -43,12 +43,10 @@ export const DocumentNodeRenderer: React.FC<Props> = ({ nodeId, depth }) => {
 
   return (
     <Block key={nodeId}>
-      <TreeRow
-        nodeId={nodeId}
-        highlight={nodeId === targetNodeId}
-        depth={depth}
-      >
-        {hasChildren && <Toggle isOpen={isOpen} onClick={toggleNode} />}
+      <TreeRow nodeId={nodeId} depth={depth}>
+        {hasChildren && (
+          <Toggle isOpen={isVisible} onClick={onToggleNodeVisibility} />
+        )}
         #document
       </TreeRow>
       {children}

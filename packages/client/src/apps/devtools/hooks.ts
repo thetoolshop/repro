@@ -40,9 +40,14 @@ export function useNodeMap() {
   return useAtomState(state.$nodeMap)
 }
 
-export function useTargetNodeId() {
+export function useFocusedNode() {
   const state = useDevtoolsState()
-  return useAtomState(state.$targetNodeId)
+  return useAtomState(state.$focusedNode)
+}
+
+export function useSelectedNode() {
+  const state = useDevtoolsState()
+  return useAtomState(state.$selectedNode)
 }
 
 export function useMask() {
@@ -60,15 +65,15 @@ export function useView() {
   return useAtomState(state.$view)
 }
 
-export function useTargetElement() {
+export function useFocusedElement() {
   const [nodeMap] = useNodeMap()
-  const [targetNodeId] = useTargetNodeId()
-  const node = targetNodeId ? nodeMap[targetNodeId] || null : null
+  const [focusedNode] = useFocusedNode()
+  const node = focusedNode ? nodeMap[focusedNode] || null : null
   return node && isElementNode(node) ? node : null
 }
 
-export function useTargetElementBoundingBox() {
-  const targetElement = useTargetElement()
+export function useFocusedElementBoundingBox() {
+  const targetElement = useFocusedElement()
   const [boundingBox, setBoundingBox] = useState<DOMRect | null>(null)
 
   useEffect(() => {
@@ -80,10 +85,17 @@ export function useTargetElementBoundingBox() {
   return boundingBox
 }
 
-export function useTargetVNode() {
+export function useFocusedVNode() {
   const stream = useRecordingStream()
-  const [targetNodeId] = useTargetNodeId()
-  return targetNodeId ? stream.peek(targetNodeId) : null
+  const [focusedNode] = useFocusedNode()
+  return focusedNode ? stream.peek(focusedNode) : null
+}
+
+export function useSelectedElement() {
+  const [nodeMap] = useNodeMap()
+  const [selectedNode] = useSelectedNode()
+  const node = selectedNode ? nodeMap[selectedNode] || null : null
+  return node && isElementNode(node) ? node : null
 }
 
 export function useNavigate() {

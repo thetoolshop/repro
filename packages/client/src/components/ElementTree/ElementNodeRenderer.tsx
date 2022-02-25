@@ -5,7 +5,7 @@ import { Block, Inline } from 'jsxstyle'
 import React, { useContext } from 'react'
 import colors from 'tailwindcss/colors'
 import { FONT_SIZE } from './constants'
-import { useNode, useNodeState, VTreeContext } from './context'
+import { useNode, useNodeVisibility, VTreeContext } from './context'
 import { NodeRenderer } from './NodeRenderer'
 import { Toggle } from './Toggle'
 import { TreeRow } from './TreeRow'
@@ -18,7 +18,7 @@ interface Props {
 export const ElementNodeRenderer: React.FC<Props> = ({ nodeId, depth }) => {
   const vtree = useContext(VTreeContext)
   const node = useNode<VElement>(nodeId)
-  const [targetNodeId, , isOpen, toggleNode] = useNodeState(nodeId)
+  const { isVisible, onToggleNodeVisibility } = useNodeVisibility(nodeId)
 
   if (!vtree || !node) {
     return null
@@ -32,13 +32,9 @@ export const ElementNodeRenderer: React.FC<Props> = ({ nodeId, depth }) => {
 
   return (
     <Block key={nodeId}>
-      <TreeRow
-        nodeId={nodeId}
-        highlight={nodeId === targetNodeId}
-        depth={depth}
-      >
+      <TreeRow nodeId={nodeId} depth={depth} tag="open">
         {!isTopLevelNode && hasChildren && (
-          <Toggle isOpen={isOpen} onClick={toggleNode} />
+          <Toggle isOpen={isVisible} onClick={onToggleNodeVisibility} />
         )}
 
         <Inline>
@@ -50,7 +46,7 @@ export const ElementNodeRenderer: React.FC<Props> = ({ nodeId, depth }) => {
           <Syntax>{`>`}</Syntax>
         </Inline>
 
-        {!isEmptyElement && !isOpen && (
+        {!isEmptyElement && !isVisible && (
           <Inline>
             <Syntax>{`</`}</Syntax>
             <TagName>{node.tagName}</TagName>
@@ -59,7 +55,7 @@ export const ElementNodeRenderer: React.FC<Props> = ({ nodeId, depth }) => {
         )}
       </TreeRow>
 
-      {!isEmptyElement && isOpen && (
+      {!isEmptyElement && isVisible && (
         <Block>
           {node.children.map(childId => (
             <NodeRenderer key={childId} nodeId={childId} depth={depth + 1} />
@@ -67,8 +63,8 @@ export const ElementNodeRenderer: React.FC<Props> = ({ nodeId, depth }) => {
         </Block>
       )}
 
-      {!isEmptyElement && isOpen && (
-        <TreeRow nodeId={nodeId} depth={depth}>
+      {!isEmptyElement && isVisible && (
+        <TreeRow nodeId={nodeId} depth={depth} tag="close">
           <Syntax>{`</`}</Syntax>
           <TagName>{node.tagName}</TagName>
           <Syntax>{`>`}</Syntax>
