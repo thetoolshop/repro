@@ -26,6 +26,10 @@ export function isHTMLElement(node: Node): node is HTMLElement {
   return node.nodeType === Node.ELEMENT_NODE && 'style' in node
 }
 
+export function isBodyElement(element: Element): element is HTMLBodyElement {
+  return matches(element.nodeName, 'body')
+}
+
 export function isIFrameElement(
   element: Element
 ): element is HTMLIFrameElement {

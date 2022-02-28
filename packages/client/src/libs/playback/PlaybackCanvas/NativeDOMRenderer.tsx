@@ -8,7 +8,12 @@ import {
   SourceEventType,
 } from '@/types/recording'
 import { PatchType, VTree } from '@/types/vdom'
-import { isElementNode, isHTMLElement, isTextNode } from '@/utils/dom'
+import {
+  isBodyElement,
+  isElementNode,
+  isHTMLElement,
+  isTextNode,
+} from '@/utils/dom'
 import { scheduleMicrotask } from '@/utils/schedule'
 import { interpolatePointFromSample } from '@/utils/source'
 import {
@@ -142,6 +147,8 @@ function clearDocument(doc: Document) {
   while (doc.documentElement.firstChild) {
     doc.documentElement.firstChild.remove()
   }
+
+  updateScroll(doc.documentElement, 0, 0)
 }
 
 function updateHoverTargets(doc: Document, pointer: Point) {
@@ -161,18 +168,30 @@ function updateAllScrollStates(nodeMap: MutableNodeMap, scrollMap: ScrollMap) {
   for (const [nodeId, [x, y]] of Object.entries(scrollMap)) {
     const node = nodeMap[nodeId]
 
-    if (node && isElementNode(node)) {
-      // Override CSS `scroll-behavior` if set
-      if (isHTMLElement(node)) {
-        node.style.scrollBehavior = 'auto'
-      }
+    if (node) {
+      updateScroll(node, x, y)
+    }
+  }
+}
 
-      node.scrollTo(x, y)
+function updateScroll(node: Node, x: number, y: number) {
+  if (node && isElementNode(node)) {
+    let element = node
 
-      // Revert CSS `scroll-behavior`
-      if (isHTMLElement(node)) {
-        node.style.scrollBehavior = ''
-      }
+    if (isBodyElement(element)) {
+      element = element.ownerDocument.documentElement
+    }
+
+    // Override CSS `scroll-behavior` if set
+    if (isHTMLElement(element)) {
+      element.style.scrollBehavior = 'auto'
+    }
+
+    element.scrollTo(x, y)
+
+    // Revert CSS `scroll-behavior`
+    if (isHTMLElement(element)) {
+      element.style.scrollBehavior = ''
     }
   }
 }
@@ -308,7 +327,13 @@ function applyInteractionEvent(
         elapsed
       )
 
-      node.scrollTo({
+      let element = node
+
+      if (isBodyElement(element)) {
+        element = node.ownerDocument.documentElement
+      }
+
+      element.scrollTo({
         left,
         top,
         behavior: 'smooth',
