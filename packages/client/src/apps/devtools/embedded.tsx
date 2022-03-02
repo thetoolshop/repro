@@ -1,3 +1,5 @@
+import '@/config/theme/fonts'
+
 import { applyResetStyles } from '@/config/theme'
 import { Stats, Trace } from '@/libs/diagnostics'
 import { createPTPAgent, MessagingProvider } from '@/libs/messaging'

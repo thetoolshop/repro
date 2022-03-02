@@ -29,7 +29,7 @@
 
   "web_accessible_resources": [
     {
-      "resources": ["devtools.js"],
+      "resources": ["devtools.js", "*.woff", "*.woff2"],
       "matches": ["<all_urls>"]
     }
   ]

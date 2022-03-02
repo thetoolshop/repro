@@ -32,6 +32,9 @@ module.exports = {
         minify: true,
         target: 'es2015',
       }
+    }, {
+      test: /\.css$/,
+      use: ['style-loader', 'css-loader'],
     }]
   },
 

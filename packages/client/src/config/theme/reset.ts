@@ -5,7 +5,10 @@ function createResetRules(rootSelector: string) {
     '* { box-sizing: border-box; }',
     `html, body, ${rootSelector} {
       margin: 0;
-      font: normal 10px/1em sans-serif; 
+      font-family: sans-serif;
+      font-size: 10px;
+      font-weight: normal;
+      line-height: 1em;
       color: ${colors.slate['900']};
     }`,
   ]
