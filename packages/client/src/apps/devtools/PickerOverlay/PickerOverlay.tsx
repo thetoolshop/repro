@@ -3,7 +3,7 @@ import { isIFrameElement } from '@/utils/dom'
 import { Block } from 'jsxstyle'
 import React, { MutableRefObject, useEffect, useRef, useState } from 'react'
 import { fromEvent, Subscription } from 'rxjs'
-import { distinctUntilChanged, map, share } from 'rxjs/operators'
+import { debounceTime, distinctUntilChanged, map, share } from 'rxjs/operators'
 import { MAX_INT32 } from '../constants'
 import {
   useCurrentDocument,
@@ -29,7 +29,7 @@ function getTargetElementAtPoint(doc: Document | null, x: number, y: number) {
     }
   }
 
-  return targetElement
+  return targetElement || null
 }
 
 export const PickerOverlay: React.FC = React.memo(() => {
@@ -57,7 +57,10 @@ export const PickerOverlay: React.FC = React.memo(() => {
     const subscription = new Subscription()
 
     if (picker) {
-      const elem$ = fromEvent<PointerEvent>(ref.current, 'pointermove').pipe(
+      const elem$ = fromEvent<PointerEvent>(ref.current, 'pointermove', {
+        capture: true,
+        passive: true,
+      }).pipe(
         map(evt =>
           getTargetElementAtPoint(currentDocument, evt.clientX, evt.clientY)
         ),
@@ -65,13 +68,19 @@ export const PickerOverlay: React.FC = React.memo(() => {
         share()
       )
 
+      /**
+       * TODO: investigate performance regression
+       * - Likely requires optimisation of ElementTree (native renderer?)
+       *
       subscription.add(
         elem$.subscribe(target => {
           setFocusedNode(target ? target.getAttribute('data-repro-node') : null)
         })
       )
+      /**/
 
-      // TODO: set bounding box from focused node
+      subscription.add(elem$.subscribe(target => setTargetElement(target)))
+
       subscription.add(
         fromEvent<PointerEvent>(ref.current, 'pointerdown')
           .pipe(

@@ -1,4 +1,4 @@
-import colors from 'tailwindcss/colors'
+import { colors } from './colors'
 
 function createResetRules(rootSelector: string) {
   return [

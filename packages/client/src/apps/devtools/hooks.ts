@@ -65,26 +65,6 @@ export function useView() {
   return useAtomState(state.$view)
 }
 
-export function useFocusedElement() {
-  const [nodeMap] = useNodeMap()
-  const [focusedNode] = useFocusedNode()
-  const node = focusedNode ? nodeMap[focusedNode] || null : null
-  return node && isElementNode(node) ? node : null
-}
-
-export function useFocusedElementBoundingBox() {
-  const targetElement = useFocusedElement()
-  const [boundingBox, setBoundingBox] = useState<DOMRect | null>(null)
-
-  useEffect(() => {
-    setBoundingBox(
-      targetElement !== null ? targetElement.getBoundingClientRect() : null
-    )
-  }, [targetElement, setBoundingBox])
-
-  return boundingBox
-}
-
 export function useFocusedVNode() {
   const stream = useRecordingStream()
   const [focusedNode] = useFocusedNode()

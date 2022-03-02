@@ -21,6 +21,7 @@ import {
   useView,
 } from './hooks'
 import { ExporterModal } from './Exporter'
+import { ReferenceStyleProvider } from '@/libs/styles'
 
 interface Props {
   disableExport?: boolean
@@ -43,39 +44,41 @@ export const DevTools: React.FC<Props> = React.memo(
     }, [setExporting, setFocusedNode])
 
     return (
-      <Container open={inspecting}>
-        {inspecting && (
-          <PlaybackRegion mask={mask}>
-            <PlaybackCanvas
-              interactive={false}
-              scaling="full-width"
-              onDocumentReady={setCurrentDocument}
-              onLoad={setNodeMap}
-            />
-          </PlaybackRegion>
-        )}
-
-        {inspecting && <PickerOverlay />}
-
-        <InspectorRegion>
-          {inspecting && <DragHandle />}
-
-          <Toolbar
-            disableExport={disableExport}
-            disableToggle={disableToggle}
-          />
-
+      <ReferenceStyleProvider>
+        <Container open={inspecting}>
           {inspecting && (
-            <ContentRegion>
-              {view === View.Elements && <ElementsPanel />}
-              {view === View.Network && <NetworkPanel />}
-              {view === View.Console && <ConsolePanel />}
-            </ContentRegion>
+            <PlaybackRegion mask={mask}>
+              <PlaybackCanvas
+                interactive={false}
+                scaling="full-width"
+                onDocumentReady={setCurrentDocument}
+                onLoad={setNodeMap}
+              />
+            </PlaybackRegion>
           )}
-        </InspectorRegion>
 
-        {exporting && <ExporterModal onClose={closeExporter} />}
-      </Container>
+          {inspecting && <PickerOverlay />}
+
+          <InspectorRegion>
+            {inspecting && <DragHandle />}
+
+            <Toolbar
+              disableExport={disableExport}
+              disableToggle={disableToggle}
+            />
+
+            {inspecting && (
+              <ContentRegion>
+                {view === View.Elements && <ElementsPanel />}
+                {view === View.Network && <NetworkPanel />}
+                {view === View.Console && <ConsolePanel />}
+              </ContentRegion>
+            )}
+          </InspectorRegion>
+
+          {exporting && <ExporterModal onClose={closeExporter} />}
+        </Container>
+      </ReferenceStyleProvider>
     )
   }
 )
