@@ -79,16 +79,21 @@ export const SelectedNodeComputedStyle: React.FC = () => {
         return (
           <Block
             key={name}
+            component="details"
             paddingTop={i > 0 ? 16 : 0}
             paddingBottom={16}
             borderTop={i > 0 ? `1px solid ${colors.slate['200']}` : ''}
+            props={{ open: true }}
           >
             <Block
+              component="summary"
+              display="list-item"
               paddingBottom={8}
               textTransform="uppercase"
               fontSize={13}
               fontWeight={700}
               color={colors.slate['700']}
+              userSelect="none"
             >
               {name}
             </Block>

@@ -44,7 +44,7 @@ export const ReferenceStyleProvider: React.FC = ({ children }) => {
 
   return (
     <ReferenceStyleContext.Provider value={getReferenceStyle}>
-      <FrameRealm ref={frameRef} width={0} height={0} />
+      <FrameRealm ref={frameRef} style={{ width: 0, height: 0 }} />
       {children}
     </ReferenceStyleContext.Provider>
   )

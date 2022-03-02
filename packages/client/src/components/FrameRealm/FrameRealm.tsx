@@ -6,7 +6,7 @@ import mergeRefs from 'react-merge-refs'
 type Props = React.HTMLProps<HTMLIFrameElement>
 
 export const FrameRealm = React.forwardRef<HTMLIFrameElement, Props>(
-  ({ children }, outerRef) => {
+  ({ children, ...props }, outerRef) => {
     const innerRef = useRef() as MutableRefObject<HTMLIFrameElement>
     const ref = mergeRefs([innerRef, outerRef])
     const [root, setRoot] = useState<Document | null>(null)
@@ -36,7 +36,7 @@ export const FrameRealm = React.forwardRef<HTMLIFrameElement, Props>(
     return (
       <Block
         component="iframe"
-        props={{ ref }}
+        props={{ ref, ...props }}
         border={0}
         width="100%"
         height="100%"

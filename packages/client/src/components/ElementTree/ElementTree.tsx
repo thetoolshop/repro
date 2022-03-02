@@ -109,7 +109,7 @@ export const ElementTree: React.FC<Props> = ({
   useEffect(() => {
     if (usingPicker && !activeRef.current && focusedNode) {
       const treeRow = containerRef.current.querySelector(
-        `[data-tree-node="${focusedNode}~open"]`
+        `[data-tree-node="${focusedNode ?? selectedNode}~open"]`
       )
 
       if (treeRow) {
@@ -118,7 +118,7 @@ export const ElementTree: React.FC<Props> = ({
         })
       }
     }
-  }, [usingPicker, activeRef, containerRef, focusedNode])
+  }, [usingPicker, activeRef, containerRef, focusedNode, selectedNode])
 
   const toggleNode = useCallback(
     (nodeId: SyntheticId) =>
