@@ -21,7 +21,6 @@ interface Props {
 export const Meter = React.forwardRef<HTMLDivElement, Props>(
   ({ maxValue }, outerRef) => {
     const innerRef = useRef() as MutableRefObject<HTMLDivElement>
-    const ref = mergeRefs([outerRef, innerRef])
     const [width, setWidth] = useState(0)
 
     const ticks = Math.ceil(width / 10)
@@ -56,7 +55,7 @@ export const Meter = React.forwardRef<HTMLDivElement, Props>(
           borderBottomStyle="solid"
           borderBottomColor={colors.slate['300']}
           overflow="hidden"
-          props={{ ref }}
+          props={{ ref: innerRef }}
         >
           <Block
             position="absolute"

@@ -69,13 +69,14 @@ export const NativeDOMRenderer: React.FC<Props> = ({
             const scrollMap = snapshot.interaction?.scroll || {}
 
             if (ownerDocument) {
-              clearDocument(ownerDocument)
-
               if (snapshot.dom) {
-                const documentElement = ownerDocument.documentElement
                 const [rootNode, vtreeNodeMap] = createDOMFromVTree(
                   snapshot.dom
                 )
+
+                clearDocument(ownerDocument)
+
+                const documentElement = ownerDocument.documentElement
 
                 patchDocumentElement(
                   snapshot.dom,
