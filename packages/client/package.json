@@ -38,6 +38,7 @@
     "@types/tailwindcss": "^3.0.2",
     "@types/trusted-types": "^2.0.2",
     "css-loader": "^6.6.0",
+    "dotenv-webpack": "^7.1.0",
     "esbuild": "^0.14.23",
     "esbuild-loader": "^2.18.0",
     "jest": "^27.4.7",

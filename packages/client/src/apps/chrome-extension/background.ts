@@ -4,6 +4,8 @@ import { createRuntimeAgent } from './createRuntimeAgent'
 
 const agent = createRuntimeAgent()
 
+const apiUrl = (process.env.SHARE_API_URL || '').replace(/\/$/, '')
+
 agent.subscribeToIntent('upload', async (payload: any) => {
   const compressed = zlibSync(new Uint8Array(payload.recording))
   const [data, encryptionKey] = await encrypt(compressed)
@@ -17,7 +19,7 @@ agent.subscribeToIntent('upload', async (payload: any) => {
     })
   )
 
-  const res = await fetch(`http://localhost:8787/${payload.id}`, {
+  const res = await fetch(`${apiUrl}/${payload.id}`, {
     method: 'PUT',
     body: formData,
   })

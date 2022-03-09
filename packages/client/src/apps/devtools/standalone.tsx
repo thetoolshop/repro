@@ -11,8 +11,6 @@ import { Preview } from './Preview'
 import { SourceContainer } from './SourceContainer'
 import { StandaloneController } from './StandaloneController'
 
-const API_BASE_URL = 'http://localhost:8787'
-
 const state = createState({
   inspecting: true,
 })
@@ -38,7 +36,9 @@ ReactDOM.render(
       <Routes>
         <Route
           path=":sourceId"
-          element={<SourceContainer baseUrl={API_BASE_URL} />}
+          element={
+            <SourceContainer baseUrl={process.env.SHARE_API_URL || ''} />
+          }
         >
           <Route element={<StandaloneController />}>
             <Route index={true} element={<Preview />} />

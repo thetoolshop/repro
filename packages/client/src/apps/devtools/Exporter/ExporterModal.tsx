@@ -218,7 +218,7 @@ export const ExporterModal: React.FC<Props> = ({ onClose }) => {
   }
 
   if (recordingURL) {
-    console.log(`http://localhost:8000${recordingURL}`)
+    console.log(`${process.env.SHARE_BASE_URL}${recordingURL}`)
   }
 
   return (
