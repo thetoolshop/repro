@@ -26,10 +26,11 @@ import { ReferenceStyleProvider } from '@/libs/styles'
 interface Props {
   disableExport?: boolean
   disableToggle?: boolean
+  hideLogo?: boolean
 }
 
 export const DevTools: React.FC<Props> = React.memo(
-  ({ disableExport, disableToggle }) => {
+  ({ disableExport, disableToggle, hideLogo }) => {
     const [, setCurrentDocument] = useCurrentDocument()
     const [, setNodeMap] = useNodeMap()
     const [inspecting] = useInspecting()
@@ -44,8 +45,8 @@ export const DevTools: React.FC<Props> = React.memo(
     }, [setExporting, setFocusedNode])
 
     return (
-      <ReferenceStyleProvider>
-        <Container open={inspecting}>
+      <Container open={inspecting}>
+        <ReferenceStyleProvider>
           {inspecting && (
             <PlaybackRegion mask={mask}>
               <PlaybackCanvas
@@ -65,6 +66,7 @@ export const DevTools: React.FC<Props> = React.memo(
             <Toolbar
               disableExport={disableExport}
               disableToggle={disableToggle}
+              hideLogo={hideLogo}
             />
 
             {inspecting && (
@@ -77,22 +79,17 @@ export const DevTools: React.FC<Props> = React.memo(
           </InspectorRegion>
 
           {exporting && <ExporterModal onClose={closeExporter} />}
-        </Container>
-      </ReferenceStyleProvider>
+        </ReferenceStyleProvider>
+      </Container>
     )
   }
 )
 
 const Container: React.FC<{ open: boolean }> = ({ children, open }) => (
   <Grid
-    position="fixed"
-    top={open ? 0 : 'auto'}
-    bottom={0}
-    left={0}
-    right={0}
+    height="100%"
     gridTemplateRows={open ? '1fr auto' : 'auto'}
     gridTemplateAreas={`"playback" "inspector"`}
-    zIndex={MAX_INT32}
   >
     {children}
   </Grid>

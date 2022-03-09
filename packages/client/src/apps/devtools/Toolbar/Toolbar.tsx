@@ -19,9 +19,14 @@ import { Tabs } from './Tabs'
 interface Props {
   disableExport?: boolean
   disableToggle?: boolean
+  hideLogo?: boolean
 }
 
-export const Toolbar: React.FC<Props> = ({ disableExport, disableToggle }) => {
+export const Toolbar: React.FC<Props> = ({
+  disableExport,
+  disableToggle,
+  hideLogo,
+}) => {
   const playback = usePlayback()
   const [inspecting, setInspecting] = useInspecting()
   const [, setExporting] = useExporting()
@@ -79,14 +84,16 @@ export const Toolbar: React.FC<Props> = ({ disableExport, disableToggle }) => {
 
   return (
     <Container>
-      <Row
-        alignItems="center"
-        paddingH={10}
-        cursor={!disableToggle ? 'pointer' : 'default'}
-        props={{ onClick: !disableToggle ? toggleInspector : undefined }}
-      >
-        <Logo size={20} />
-      </Row>
+      {!hideLogo && (
+        <Row
+          alignItems="center"
+          paddingH={10}
+          cursor={!disableToggle ? 'pointer' : 'default'}
+          props={{ onClick: !disableToggle ? toggleInspector : undefined }}
+        >
+          <Logo size={20} />
+        </Row>
+      )}
 
       {!inspecting && (
         <React.Fragment>

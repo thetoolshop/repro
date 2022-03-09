@@ -44,7 +44,13 @@ ReactDOM.render(
             <Route index={true} element={<Preview />} />
             <Route
               path="devtools"
-              element={<DevTools disableExport={true} disableToggle={true} />}
+              element={
+                <DevTools
+                  disableExport={true}
+                  disableToggle={true}
+                  hideLogo={true}
+                />
+              }
             />
           </Route>
         </Route>

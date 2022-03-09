@@ -1,8 +1,10 @@
-import { usePlayback } from '@/libs/playback'
+import { Grid } from 'jsxstyle'
 import React, { useEffect } from 'react'
 import { Outlet } from 'react-router'
 import { Shortcuts } from 'shortcuts'
+import { usePlayback } from '@/libs/playback'
 import { usePicker } from './hooks'
+import { Header } from './Header'
 
 export const StandaloneController: React.FC = () => {
   const playback = usePlayback()
@@ -25,5 +27,10 @@ export const StandaloneController: React.FC = () => {
     }
   }, [setPicker])
 
-  return <Outlet />
+  return (
+    <Grid height="100vh" gridTemplateRows="auto 1fr">
+      <Header />
+      <Outlet />
+    </Grid>
+  )
 }

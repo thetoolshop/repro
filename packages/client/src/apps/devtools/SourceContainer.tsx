@@ -7,7 +7,7 @@ import {
   createNullSource,
   PlaybackFromSourceProvider,
 } from '@/libs/playback'
-import {NavigationContext} from './context'
+import { NavigationContext } from './context'
 
 function unzlibP(data: Uint8Array, opts: AsyncGunzipOptions) {
   return new Promise<ArrayBuffer>((resolve, reject) => {
@@ -56,11 +56,11 @@ export const SourceContainer: React.FC<Props> = ({ baseUrl }) => {
   const navigate = useCallback(
     (pathname: string) => {
       routerNavigate({
-        pathname,
+        pathname: `/${params.sourceId}/${pathname.replace(/^\//, '')}`,
         hash: keyParts.current,
       })
     },
-    [routerNavigate, keyParts]
+    [routerNavigate, keyParts, params.sourceId]
   )
 
   return (

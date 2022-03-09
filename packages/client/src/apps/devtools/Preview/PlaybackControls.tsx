@@ -2,22 +2,14 @@ import { Block, InlineBlock, Row } from 'jsxstyle'
 import React, { useCallback, useRef } from 'react'
 import { Code as DevToolsIcon } from 'react-feather'
 import { colors } from '@/config/theme'
-import { Button } from '@/components/Button'
-import { Logo } from '@/components/Logo'
 import { TimelineControl } from '@/components/TimelineControl'
 import { PlaybackState, usePlayback, usePlaybackState } from '@/libs/playback'
 import { MAX_INT32 } from '../constants'
-import { useNavigate } from '../hooks'
 
-export const Header: React.FC = () => {
+export const PlaybackControls: React.FC = () => {
   const playback = usePlayback()
   const playbackState = usePlaybackState()
-  const navigate = useNavigate()
   const resumeOnNext = useRef(false)
-
-  const openDevTools = () => {
-    navigate('devtools')
-  }
 
   const onPlay = useCallback(() => {
     playback.play()
@@ -50,17 +42,6 @@ export const Header: React.FC = () => {
 
   return (
     <Container>
-      <Row alignItems="center" paddingH={10}>
-        <Logo size={20} />
-      </Row>
-
-      <Block alignSelf="center" marginRight={8}>
-        <Button variant="secondary" size="small" onClick={openDevTools}>
-          <DevToolsIcon size={16} />
-          <InlineBlock>Open DevTools</InlineBlock>
-        </Button>
-      </Block>
-
       <TimelineRegion>
         <TimelineControl
           initialValue={0}

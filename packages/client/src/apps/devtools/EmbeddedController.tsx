@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { first, from, map, Subscription } from 'rxjs'
+import { from, Subscription } from 'rxjs'
 import { Shortcuts } from 'shortcuts'
 import { useRecordingStream } from '@/libs/record'
 import {
@@ -7,7 +7,7 @@ import {
   Playback,
   PlaybackProvider,
 } from '@/libs/playback'
-import { VTree } from '@/types/vdom'
+import { MAX_INT32 } from './constants'
 import { DevTools } from './DevTools'
 import {
   useActive,
@@ -18,6 +18,7 @@ import {
   useInspecting,
   usePicker,
 } from './hooks'
+import { Block } from 'jsxstyle'
 
 export const EmbeddedController: React.FC = () => {
   const initialDocumentOverflow = useRef<string>('auto')
@@ -166,7 +167,16 @@ export const EmbeddedController: React.FC = () => {
 
   return (
     <PlaybackProvider playback={playback}>
-      <DevTools />
+      <Block
+        position="fixed"
+        top={inspecting ? 0 : 'auto'}
+        bottom={0}
+        left={0}
+        right={0}
+        zIndex={MAX_INT32}
+      >
+        <DevTools />
+      </Block>
     </PlaybackProvider>
   )
 }
