@@ -24,6 +24,14 @@ if (rootStyleSheet) {
   applyResetStyles(rootSelector, rootStyleSheet)
 }
 
+declare global {
+  interface Window {
+    __REPRO_STANDALONE: boolean
+  }
+}
+
+window.__REPRO_STANDALONE = true
+
 ReactDOM.render(
   <StateProvider state={state}>
     <BrowserRouter>

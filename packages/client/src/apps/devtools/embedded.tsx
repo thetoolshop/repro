@@ -108,21 +108,29 @@ class ReproDevTools extends HTMLElement {
   }
 }
 
-agent.subscribeToIntent('enable', async () => {
-  if (!window.customElements.get(NODE_NAME)) {
-    window.customElements.define(NODE_NAME, ReproDevTools)
+declare global {
+  interface Window {
+    __REPRO_STANDALONE: boolean
   }
+}
 
-  if (!document.querySelector(NODE_NAME)) {
-    const devtools = document.createElement(NODE_NAME)
-    document.body.appendChild(devtools)
-  }
-})
+if (!window.__REPRO_STANDALONE) {
+  agent.subscribeToIntent('enable', async () => {
+    if (!window.customElements.get(NODE_NAME)) {
+      window.customElements.define(NODE_NAME, ReproDevTools)
+    }
 
-agent.subscribeToIntent('disable', async () => {
-  const root = document.querySelector(NODE_NAME)
+    if (!document.querySelector(NODE_NAME)) {
+      const devtools = document.createElement(NODE_NAME)
+      document.body.appendChild(devtools)
+    }
+  })
 
-  if (root) {
-    root.remove()
-  }
-})
+  agent.subscribeToIntent('disable', async () => {
+    const root = document.querySelector(NODE_NAME)
+
+    if (root) {
+      root.remove()
+    }
+  })
+}
