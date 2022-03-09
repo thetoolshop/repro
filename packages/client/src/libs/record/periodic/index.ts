@@ -4,15 +4,20 @@ export function observePeriodic(
   period: number,
   callback: () => void
 ): ObserverLike {
-  let handle: number
+  let handle: number | null = null
 
   return {
     disconnect() {
-      clearInterval(handle)
+      if (handle !== null) {
+        clearInterval(handle)
+      }
     },
 
     observe() {
-      handle = window.setInterval(callback, period)
+      // Make `observe` idempotent. To be investigated whether this is "correct".
+      if (handle === null) {
+        handle = window.setInterval(callback, period)
+      }
     },
   }
 }
