@@ -6,7 +6,7 @@ project_dir=$(realpath "$(dirname $0)/..")
 source_dir="$project_dir/src/apps/chrome-extension"
 build_dir="$project_dir/dist/chrome-extension"
 
-flags=""
+flags="--config webpack.chrome-extension.config.js"
 watch=false
 
 while getopts "w" param; do
