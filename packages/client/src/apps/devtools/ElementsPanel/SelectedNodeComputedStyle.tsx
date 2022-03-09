@@ -94,6 +94,7 @@ export const SelectedNodeComputedStyle: React.FC = () => {
               fontWeight={700}
               color={colors.slate['700']}
               userSelect="none"
+              props={{ tabIndex: -1 }}
             >
               {name}
             </Block>
