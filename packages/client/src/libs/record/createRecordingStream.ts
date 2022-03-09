@@ -460,15 +460,17 @@ export function createRecordingStream(
   function subscribeToBuffer() {
     bufferSubscriptions.onEvict = buffer.onEvict(evicted => {
       for (const evictee of evicted) {
-        const reader = new BufferReader(evictee, 0, LITTLE_ENDIAN)
-        const event = decodeEvent(reader)
+        const type = readEventType(evictee)
 
-        if (event.type === SourceEventType.Snapshot) {
-          Object.assign(leadingSnapshot, event.data)
+        // We rebuild a snapshot from incremental events after
+        // eviction, so snapshots on the buffer can be discarded
+        if (type === SourceEventType.Snapshot) {
           continue
         }
 
         if (leadingSnapshot) {
+          const reader = new BufferReader(evictee, 0, LITTLE_ENDIAN)
+          const event = decodeEvent(reader)
           applyEventToSnapshot(leadingSnapshot, event, event.time)
         }
       }
