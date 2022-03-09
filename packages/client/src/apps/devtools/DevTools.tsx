@@ -55,10 +55,10 @@ export const DevTools: React.FC<Props> = React.memo(
                 onDocumentReady={setCurrentDocument}
                 onLoad={setNodeMap}
               />
+
+              <PickerOverlay />
             </PlaybackRegion>
           )}
-
-          {inspecting && <PickerOverlay />}
 
           <InspectorRegion>
             {inspecting && <DragHandle />}
@@ -97,6 +97,7 @@ const Container: React.FC<{ open: boolean }> = ({ children, open }) => (
 
 const PlaybackRegion: React.FC<{ mask: boolean }> = ({ children, mask }) => (
   <Block
+    position="relative"
     gridArea="playback"
     pointerEvents={mask ? 'none' : 'all'}
     backgroundColor={colors.white}
