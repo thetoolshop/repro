@@ -1,3 +1,5 @@
+import { memoize } from '@/utils/fn'
+
 function matches(actual: string, expected: string) {
   return new RegExp(`^${expected}$`, 'i').test(actual)
 }
@@ -85,6 +87,17 @@ export function isTextNode(node: Node): node is Text {
 export function isCSSImportRule(rule: CSSRule): rule is CSSImportRule {
   return rule.constructor.name === 'CSSImportRule'
 }
+
+export const isValidAttributeName = memoize(function isValidAttributeName(
+  name: string
+) {
+  try {
+    document.createAttribute(name)
+    return true
+  } catch {
+    return false
+  }
+})
 
 const inlineEventAttributes = new Set([
   'onabort',

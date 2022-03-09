@@ -13,6 +13,7 @@ import {
   isElementNode,
   isHTMLElement,
   isTextNode,
+  isValidAttributeName,
 } from '@/utils/dom'
 import { scheduleMicrotask } from '@/utils/schedule'
 import { interpolatePointFromSample } from '@/utils/source'
@@ -215,7 +216,9 @@ function applyDOMPatchEvent(event: DOMPatchEvent, nodeMap: MutableNodeMap) {
       const node = nodeMap[targetId]
 
       if (node && isElementNode(node)) {
-        node.setAttribute(event.data.name, event.data.value ?? '')
+        if (isValidAttributeName(event.data.name)) {
+          node.setAttribute(event.data.name, event.data.value ?? '')
+        }
       }
 
       break
@@ -395,7 +398,9 @@ function createDOMFromVTree(vtree: VTree): [Node | null, MutableNodeMap] {
       const frame = document.createElement('iframe')
 
       for (const [name, value] of Object.entries(vNode.attributes)) {
-        frame.setAttribute(name, value ?? '')
+        if (isValidAttributeName(name)) {
+          frame.setAttribute(name, value ?? '')
+        }
       }
 
       frame.addEventListener(
@@ -439,7 +444,9 @@ function createDOMFromVTree(vtree: VTree): [Node | null, MutableNodeMap] {
       }
 
       for (const [name, value] of Object.entries(vNode.attributes)) {
-        element.setAttribute(name, value ?? '')
+        if (isValidAttributeName(name)) {
+          element.setAttribute(name, value ?? '')
+        }
       }
 
       scheduleMicrotask(() => {
@@ -498,7 +505,9 @@ function patchDocumentElement(
       nodeMap[nodeId] = documentElement
 
       for (const [name, value] of Object.entries(vNode.attributes)) {
-        documentElement.setAttribute(name, value ?? '')
+        if (isValidAttributeName(name)) {
+          documentElement.setAttribute(name, value ?? '')
+        }
       }
 
       break
