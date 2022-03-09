@@ -1,8 +1,10 @@
 import { Block, Grid } from 'jsxstyle'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { ElementTree } from '@/components/ElementTree'
 import { colors } from '@/config/theme'
 import { useSnapshot } from '@/libs/playback'
+import { VElement, VTree } from '@/types/vdom'
+import { isDocumentVNode, isElementVNode } from '@/utils/vdom'
 import { useSelectedNode, useFocusedNode, usePicker } from '../hooks'
 import { SelectedNodeComputedStyle } from './SelectedNodeComputedStyle'
 
@@ -26,6 +28,22 @@ const MainPane: React.FC = React.memo(() => {
   const [selectedNode, setSelectedNode] = useSelectedNode()
   const [picker] = usePicker()
   const snapshot = useSnapshot()
+
+  useEffect(() => {
+    setSelectedNode(selectedNode => {
+      if (selectedNode) {
+        return selectedNode
+      }
+
+      const bodyElement = snapshot.dom ? getBodyVElement(snapshot.dom) : null
+
+      if (bodyElement) {
+        return bodyElement.id
+      }
+
+      return null
+    })
+  }, [setSelectedNode, snapshot.dom])
 
   return (
     <Block height="100%" overflow="auto">
@@ -59,4 +77,30 @@ const SidebarPane: React.FC = () => {
       <SelectedNodeComputedStyle />
     </Block>
   )
+}
+
+function getBodyVElement(vtree: VTree): VElement | null {
+  const rootNode = vtree.nodes[vtree.rootId]
+
+  if (!rootNode || !isDocumentVNode(rootNode)) {
+    return null
+  }
+
+  const documentElementNode = rootNode.children
+    .map(childId => vtree.nodes[childId])
+    .find(node => node && isElementVNode(node) && node.tagName === 'html')
+
+  if (!documentElementNode || !isElementVNode(documentElementNode)) {
+    return null
+  }
+
+  const bodyNode = documentElementNode.children
+    .map(childId => vtree.nodes[childId])
+    .find(node => node && isElementVNode(node) && node.tagName === 'body')
+
+  if (!bodyNode || !isElementVNode(bodyNode)) {
+    return null
+  }
+
+  return bodyNode
 }

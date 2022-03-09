@@ -7,8 +7,7 @@ import {
   Playback,
   PlaybackProvider,
 } from '@/libs/playback'
-import { VElement, VTree } from '@/types/vdom'
-import { isDocumentVNode, isElementVNode } from '@/utils/vdom'
+import { VTree } from '@/types/vdom'
 import { DevTools } from './DevTools'
 import {
   useActive,
@@ -66,20 +65,6 @@ export const EmbeddedController: React.FC = () => {
     if (!active) {
       setCurrentDocument(document)
       setSelectedNode(null)
-    } else {
-      if (playback) {
-        subscription.add(
-          playback.$snapshot
-            .pipe(
-              first(snapshot => snapshot.dom !== null),
-              map(snapshot => snapshot.dom as VTree),
-              map(vtree => getBodyVElement(vtree))
-            )
-            .subscribe(bodyElement => {
-              setSelectedNode(bodyElement ? bodyElement.id : null)
-            })
-        )
-      }
     }
 
     return () => {
@@ -184,30 +169,4 @@ export const EmbeddedController: React.FC = () => {
       <DevTools />
     </PlaybackProvider>
   )
-}
-
-function getBodyVElement(vtree: VTree): VElement | null {
-  const rootNode = vtree.nodes[vtree.rootId]
-
-  if (!rootNode || !isDocumentVNode(rootNode)) {
-    return null
-  }
-
-  const documentElementNode = rootNode.children
-    .map(childId => vtree.nodes[childId])
-    .find(node => node && isElementVNode(node) && node.tagName === 'html')
-
-  if (!documentElementNode || !isElementVNode(documentElementNode)) {
-    return null
-  }
-
-  const bodyNode = documentElementNode.children
-    .map(childId => vtree.nodes[childId])
-    .find(node => node && isElementVNode(node) && node.tagName === 'body')
-
-  if (!bodyNode || !isElementVNode(bodyNode)) {
-    return null
-  }
-
-  return bodyNode
 }
