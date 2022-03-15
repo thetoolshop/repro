@@ -180,7 +180,7 @@ function createPointerMoveObserver(
         }
       }
 
-      return [evt.pageX + offsetX, evt.pageY + offsetY] as Point
+      return [evt.clientX + offsetX, evt.clientY + offsetY] as Point
     },
     (value, duration) => {
       const [x, y] = value
@@ -214,8 +214,8 @@ function createPointerDownObserver(callback: Callback): ObserverLike<Document> {
       return
     }
 
-    const x = evt.pageX
-    const y = evt.pageY
+    const x = evt.clientX
+    const y = evt.clientY
 
     const targets = doc.elementsFromPoint(x, y).map(elem => getNodeId(elem))
 
@@ -237,8 +237,8 @@ function createPointerUpObserver(callback: Callback): ObserverLike<Document> {
       return
     }
 
-    const x = evt.pageX
-    const y = evt.pageY
+    const x = evt.clientX
+    const y = evt.clientY
 
     const targets = doc.elementsFromPoint(x, y).map(elem => getNodeId(elem))
 
