@@ -6,15 +6,31 @@ import mergeRefs from 'react-merge-refs'
 type Props = React.HTMLProps<HTMLIFrameElement>
 
 // Bypass trusted-types CSP when writing doctype
-const passthroughHTMLPolicy =
-  window.trustedTypes && window.trustedTypes.createPolicy
-    ? window.trustedTypes.createPolicy('passthrough-html', {
-        createHTML: html => html,
-      })
-    : null
+let passthroughHTMLPolicy: Pick<TrustedTypePolicy, 'name' | 'createHTML'> | null
+
+try {
+  passthroughHTMLPolicy =
+    window.trustedTypes && window.trustedTypes.createPolicy
+      ? window.trustedTypes.createPolicy('passthrough-html', {
+          createHTML: html => html,
+        })
+      : null
+} catch (err) {
+  console.error(err)
+  passthroughHTMLPolicy = null
+}
 
 function createTrustedHTMLIfSupported(html: string) {
   return passthroughHTMLPolicy ? passthroughHTMLPolicy.createHTML(html) : html
+}
+
+function attemptWriteToDocument(doc: Document, html: string) {
+  try {
+    // The type for Document.write sink in lib.dom does not currently
+    // support passing TrustedHTML object. Cast as string to keep
+    // the type-checker happy.
+    doc.write(createTrustedHTMLIfSupported(html) as string)
+  } catch {}
 }
 
 export const FrameRealm = React.forwardRef<HTMLIFrameElement, Props>(
@@ -29,10 +45,7 @@ export const FrameRealm = React.forwardRef<HTMLIFrameElement, Props>(
 
         if (doc) {
           doc.open()
-          // The type for Document.write sink in lib.dom does not currently
-          // support passing TrustedHTML object. Cast as string to keep
-          // the type-checker happy.
-          doc.write(createTrustedHTMLIfSupported('<!doctype html>') as string)
+          attemptWriteToDocument(doc, '<!doctype html>')
           doc.close()
 
           doc.domain = document.domain
