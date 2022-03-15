@@ -1,7 +1,8 @@
-import { Block, Grid, InlineBlock, Row } from 'jsxstyle'
+import { Block, Col, Grid, InlineBlock, Row } from 'jsxstyle'
 import React, { useEffect, useState } from 'react'
 import {
   CheckCircle as SuccessIcon,
+  Copy as CopyIcon,
   Loader as LoaderIcon,
   X as CloseIcon,
 } from 'react-feather'
@@ -38,6 +39,8 @@ import { encodeRecording } from '@/libs/codecs/recording'
 import { MAX_INT32 } from '../constants'
 import { ExporterButton } from './ExporterButton'
 import { RangeSelector } from './RangeSelector'
+
+const baseUrl = (process.env.SHARE_BASE_URL || '').replace(/\/$/, '')
 
 type PlaybackRange = [number, number]
 type UploadingState = 'ready' | 'uploading' | 'done' | 'failed'
@@ -210,15 +213,11 @@ export const ExporterModal: React.FC<Props> = ({ onClose }) => {
 
       if (ok) {
         setUploading('done')
-        setRecordingURL(url)
+        setRecordingURL(`${baseUrl}${url}`)
       } else {
         setUploading('failed')
       }
     }
-  }
-
-  if (recordingURL) {
-    console.log(`${process.env.SHARE_BASE_URL}${recordingURL}`)
   }
 
   return (
@@ -254,7 +253,9 @@ export const ExporterModal: React.FC<Props> = ({ onClose }) => {
               />
             </FooterRegion>
             {uploading === 'uploading' && <UploadingInterstitial />}
-            {uploading === 'done' && <SuccessInterstitial />}
+            {uploading === 'done' && (
+              <SuccessInterstitial url={recordingURL} onClose={onClose} />
+            )}
           </Grid>
         </Modal>
       </Block>
@@ -322,21 +323,73 @@ const UploadingInterstitial: React.FC = () => (
   </Row>
 )
 
-const SuccessInterstitial: React.FC = () => (
-  <Row
-    alignItems="center"
-    justifyContent="center"
-    position="absolute"
-    top={0}
-    bottom={0}
-    left={0}
-    right={0}
-    zIndex={MAX_INT32}
-    background="rgba(0, 0, 0, 0.85)"
-    color={colors.white}
-    fontSize={24}
-  >
-    <SuccessIcon size={24} />
-    <InlineBlock marginLeft={8}>Saved</InlineBlock>
-  </Row>
-)
+const SuccessInterstitial: React.FC<{
+  url: string | null
+  onClose: () => void
+}> = ({ url, onClose }) => {
+  const [copied, setCopied] = useState(false)
+
+  async function copyToClipboard() {
+    if (url) {
+      await navigator.clipboard.writeText(url)
+      setCopied(true)
+    }
+  }
+
+  return (
+    <Col
+      alignItems="center"
+      justifyContent="center"
+      gap={16}
+      position="absolute"
+      top={0}
+      bottom={0}
+      left={0}
+      right={0}
+      zIndex={MAX_INT32}
+      background="rgba(0, 0, 0, 0.85)"
+      color={colors.white}
+    >
+      <Row alignItems="center" justifyContent="center" gap={8} fontSize={24}>
+        <SuccessIcon size={24} />
+        <InlineBlock>Saved</InlineBlock>
+      </Row>
+
+      <Row
+        alignItems="center"
+        justifyContent="center"
+        gap={12}
+        paddingH={12}
+        paddingV={8}
+        fontSize={16}
+        borderRadius={4}
+        backgroundColor="rgba(255, 255, 255, 0.05)"
+        hoverBackgroundColor="rgba(255, 255, 255, 0.15)"
+        cursor="pointer"
+        transition="background-color linear 100ms"
+        props={{ onClick: copyToClipboard }}
+      >
+        <InlineBlock
+          padding={8}
+          background={colors.pink['500']}
+          borderRadius={4}
+        >
+          <CopyIcon size={16} />
+        </InlineBlock>
+        <InlineBlock>{url}</InlineBlock>
+      </Row>
+      <Block fontSize={14} height={14} lineHeight={1}>
+        {copied ? 'Copied to clipboard!' : null}
+      </Block>
+      <Block
+        position="absolute"
+        top={16}
+        right={16}
+        cursor="pointer"
+        props={{ onClick: onClose }}
+      >
+        <CloseIcon size={36} />
+      </Block>
+    </Col>
+  )
+}
