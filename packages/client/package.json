@@ -4,7 +4,7 @@
   "description": "Bug reporting that captures every detail",
   "main": "index.js",
   "scripts": {
-    "postinstall": "ls -la; pwd; echo $PATH; patch-package",
+    "postinstall": "ls -la node_modules/.bin; pwd; echo $PATH; patch-package",
     "build:chrome-extension": "NODE_ENV=production ./scripts/chrome-extension",
     "watch:chrome-extension": "./scripts/chrome-extension -w",
     "build:standalone-devtools": "./scripts/standalone",
