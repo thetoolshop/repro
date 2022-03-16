@@ -3,7 +3,7 @@ const { ESBuildMinifyPlugin } = require('esbuild-loader')
 const path = require('path')
 
 module.exports = {
-  mode: process.env.NODE_ENV === 'production'
+  mode: process.env.BUILD_ENV === 'production'
     ? 'production'
     : 'development',
 
