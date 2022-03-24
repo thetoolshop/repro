@@ -1,15 +1,19 @@
 import { uploadFile } from '@/lib/b2'
 import { corsHeaders } from './cors-headers'
 
-const badRequest = new Response(JSON.stringify({ error: 'Bad request' }), {
-  status: 400,
-  headers: corsHeaders,
-})
+function badRequest() {
+  return new Response(JSON.stringify({ error: 'Bad request' }), {
+    status: 400,
+    headers: corsHeaders,
+  })
+}
 
-const methodNotAllowed = new Response(
-  JSON.stringify({ error: 'Method not allowed' }),
-  { status: 400, headers: corsHeaders }
-)
+function methodNotAllowed() {
+  return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+    status: 400,
+    headers: corsHeaders,
+  })
+}
 
 const VALID_URL_PATH = /^\/([^\/]+)/
 
@@ -17,14 +21,14 @@ export async function handleUploadRecording(
   request: Request
 ): Promise<Response> {
   if (request.method !== 'PUT') {
-    return methodNotAllowed
+    return methodNotAllowed()
   }
 
   const url = new URL(request.url)
   const match = VALID_URL_PATH.exec(url.pathname)
 
   if (!match) {
-    return badRequest
+    return badRequest()
   }
 
   const recordingId = match[1]
@@ -33,16 +37,16 @@ export async function handleUploadRecording(
   const assets = data.getAll('asset')
 
   if (!recording || typeof recording === 'string') {
-    return badRequest
+    return badRequest()
   }
 
   if (recording.name !== recordingId) {
-    return badRequest
+    return badRequest()
   }
 
   for (const asset of assets) {
     if (typeof asset === 'string') {
-      return badRequest
+      return badRequest()
     }
   }
 

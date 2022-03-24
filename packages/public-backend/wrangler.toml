@@ -1,20 +1,20 @@
-name = "public-backend"
+name = "share-api"
 type = "javascript"
 
 account_id = "bc12e3978fbec832b092cd18394f9df5"
 
-route = "storage-api.repro.dev/public/*"
-zone_id = ""
+route = "share-api.repro.dev/*"
+zone_id = "e7d88b916f0632589e8c54384114c06d"
 compatibility_date = "2022-01-17"
 
 kv_namespaces = [
-  { binding = "SESSION", id = "151f715bc7464ab09ddfa21d4693fde3" }
+  { binding = "SESSION", id = "92f942aac7874d9a8cccc09d642fbd7a" }
 ]
 
 [env.staging]
 workers_dev = true
 kv_namespaces = [
-  { binding = "SESSION", id = "3140aa1b0c0e439f9c55a662bae39331" }
+  { binding = "SESSION", id = "7f4c06d4b3c143c48c338ce4fbb77790" }
 ]
 
 [vars]
