@@ -17,6 +17,7 @@ import {
   EMPTY_PLAYBACK,
   PlaybackCanvas,
   PlaybackProvider,
+  PlaybackTimeline,
   usePlayback,
 } from '@/libs/playback'
 import {
@@ -161,22 +162,19 @@ export const ExporterModal: React.FC<Props> = ({ onClose }) => {
   const sourcePlayback = usePlayback()
   const [playback, setPlayback] = useState(EMPTY_PLAYBACK)
 
-  const initialRange: PlaybackRange = [0, playback.getDuration()]
-  const [range, setRange] = useState<PlaybackRange>(initialRange)
   const [uploading, setUploading] = useState<UploadingState>('ready')
   const [recordingURL, setRecordingURL] = useState<string | null>(null)
+
+  const minTime = Math.max(0, playback.getDuration() - 30_000)
+  const maxTime = playback.getDuration()
 
   useEffect(() => {
     setPlayback(sourcePlayback.copy())
   }, [sourcePlayback, setPlayback])
 
   useEffect(() => {
-    setRange([0, playback.getDuration()])
-  }, [playback, setRange])
-
-  useEffect(() => {
-    playback.seekToTime(range[0])
-  }, [playback, range])
+    playback.seekToTime(minTime)
+  }, [playback, minTime])
 
   useEffect(() => {
     const shortcuts = new Shortcuts()
@@ -197,7 +195,7 @@ export const ExporterModal: React.FC<Props> = ({ onClose }) => {
     const events = playback.getSourceEvents()
 
     if (events) {
-      const recording = createRecordingAtRange(events, range)
+      const recording = createRecordingAtRange(events, [minTime, maxTime])
       const data = encodeRecording(recording)
 
       setUploading('uploading')
@@ -240,12 +238,9 @@ export const ExporterModal: React.FC<Props> = ({ onClose }) => {
             </HeaderRegion>
             <PlaybackCanvas interactive={false} scaling="scale-to-fit" />
             <FooterRegion>
-              <RangeSelector
-                disabled={uploading === 'uploading'}
-                minValue={0}
-                maxValue={playback.getDuration()}
-                value={range}
-                onChange={setRange}
+              <PlaybackTimeline.Simple
+                min={Math.max(0, playback.getDuration() - 30_000)}
+                max={playback.getDuration()}
               />
               <ExporterButton
                 disabled={uploading === 'uploading'}

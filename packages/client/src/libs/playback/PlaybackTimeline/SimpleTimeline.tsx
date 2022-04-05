@@ -16,7 +16,12 @@ import { usePlayback } from '../hooks'
 import { PlaybackState } from '../types'
 import { PlayAction } from './PlayAction'
 
-export const SimpleTimeline: React.FC = () => {
+interface Props {
+  min?: number
+  max?: number
+}
+
+export const SimpleTimeline: React.FC<Props> = ({ min, max }) => {
   const ref = useRef() as MutableRefObject<HTMLDivElement>
   const playback = usePlayback()
 
@@ -32,6 +37,14 @@ export const SimpleTimeline: React.FC = () => {
 
       root.append(background, ghost, progress, tooltip)
 
+      function getMinValue() {
+        return min !== undefined ? min : 0
+      }
+
+      function getMaxValue() {
+        return max !== undefined ? max : playback.getDuration()
+      }
+
       function mapPointerEventToOffset(evt: PointerEvent) {
         const { x: rootOffsetX, width: rootWidth } =
           root.getBoundingClientRect()
@@ -39,12 +52,17 @@ export const SimpleTimeline: React.FC = () => {
       }
 
       function mapOffsetToValue(offset: number) {
-        const maxValue = playback.getDuration()
-        return Math.max(0, Math.min(maxValue, maxValue * offset))
+        const minValue = getMinValue()
+        const maxValue = getMaxValue()
+        const value = minValue + (maxValue - minValue) * offset
+        return Math.max(minValue, Math.min(maxValue, value))
       }
 
       function mapValueToOffset(value: number) {
-        return value / playback.getDuration()
+        const minValue = getMinValue()
+        const maxValue = getMaxValue()
+        const offset = (value - minValue) / (maxValue - minValue)
+        return Math.max(0, Math.min(1, offset))
       }
 
       // Direct events
@@ -79,9 +97,12 @@ export const SimpleTimeline: React.FC = () => {
             })
           )
           .subscribe(([offset, value]) => {
-            const maxValue = playback.getDuration()
             updateBarOffset(ghost, offset)
-            updateTooltip(tooltip, offset, `-${Math.round(maxValue - value)}ms`)
+            updateTooltip(
+              tooltip,
+              offset,
+              `-${Math.round(getMaxValue() - value)}ms`
+            )
             showTooltip(tooltip)
           })
       )
@@ -135,15 +156,14 @@ export const SimpleTimeline: React.FC = () => {
       subscription.add(
         playback.$playbackState
           .pipe(
-            switchMap(playbackState =>
-              playbackState === PlaybackState.Playing
-                ? createAnimationObservable(
-                    progress,
-                    playback.getElapsed(),
-                    playback.getDuration()
-                  )
+            switchMap(playbackState => {
+              const initialOffset = mapValueToOffset(playback.getElapsed())
+              const duration = (1 - initialOffset) * getMaxValue()
+
+              return playbackState === PlaybackState.Playing
+                ? createAnimationObservable(progress, initialOffset, duration)
                 : NEVER
-            )
+            })
           )
           .subscribe(animation => animation.play())
       )
@@ -167,7 +187,7 @@ export const SimpleTimeline: React.FC = () => {
         }
       }
     }
-  }, [playback, ref])
+  }, [playback, ref, min, max])
 
   return (
     <Row alignItems="center" height="100%" gap={8}>
@@ -186,20 +206,18 @@ export const SimpleTimeline: React.FC = () => {
 
 function createAnimationObservable(
   target: HTMLElement,
-  from: number,
-  to: number
+  initialOffset: number,
+  duration: number
 ) {
   return new Observable<Animation>(observer => {
-    const scaleFrom = from / to
-    const scaleTo = 1.0
-
+    console.log('animation', initialOffset, duration)
     const keyframes: Array<Keyframe> = [
-      { transform: `scaleX(${scaleFrom})` },
-      { transform: `scaleX(${scaleTo})` },
+      { transform: `scaleX(${initialOffset})` },
+      { transform: `scaleX(1.0)` },
     ]
 
     const options: KeyframeEffectOptions = {
-      duration: to - from,
+      duration,
       easing: 'linear',
       fill: 'forwards',
       iterations: 1,
@@ -211,9 +229,8 @@ function createAnimationObservable(
     observer.next(animation)
 
     return () => {
-      const duration = to - from
       const completed = (animation.currentTime ?? 0) / duration
-      const finalOffset = (from + duration * completed) / to
+      const finalOffset = initialOffset + (1 - initialOffset) * completed
       updateBarOffset(target, finalOffset)
       animation.cancel()
     }

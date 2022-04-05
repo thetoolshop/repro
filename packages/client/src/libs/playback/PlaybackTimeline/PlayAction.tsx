@@ -5,10 +5,12 @@ import { Shortcuts } from 'shortcuts'
 import { colors } from '@/config/theme'
 import { usePlayback } from '../hooks'
 import { PlaybackState } from '../types'
+import { usePlaybackState } from '..'
 
 export const PlayAction: React.FC = () => {
   const playback = usePlayback()
-  const playing = playback.getPlaybackState() === PlaybackState.Playing
+  const playbackState = usePlaybackState()
+  const playing = playbackState === PlaybackState.Playing
 
   const togglePlayback = useCallback(
     (evt: Event) => {

@@ -81,7 +81,10 @@ export const Toolbar: React.FC<Props> = ({
           <Tabs />
           <Separator />
           <TimelineRegion>
-            <PlaybackTimeline.Simple />
+            <PlaybackTimeline.Simple
+              min={Math.max(0, playback.getDuration() - 30_000)}
+              max={playback.getDuration()}
+            />
           </TimelineRegion>
           {!disableExport && (
             <Block alignSelf="center" marginLeft="auto" marginRight={16}>
