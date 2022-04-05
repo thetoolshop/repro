@@ -1,5 +1,11 @@
-import { animationFrames, connectable, NEVER, Subscription } from 'rxjs'
-import { map, pairwise, switchMap } from 'rxjs/operators'
+import {
+  animationFrames,
+  asyncScheduler,
+  connectable,
+  NEVER,
+  Subscription,
+} from 'rxjs'
+import { map, observeOn, pairwise, switchMap } from 'rxjs/operators'
 import { Stats } from '@/libs/diagnostics'
 import {
   Sample,
@@ -168,6 +174,7 @@ export function createSourcePlayback(
 
   const eventLoop = connectable(
     $playbackState.pipe(
+      observeOn(asyncScheduler),
       switchMap(playbackState => {
         return playbackState !== PlaybackState.Playing
           ? NEVER
