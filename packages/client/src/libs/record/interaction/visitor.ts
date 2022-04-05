@@ -11,6 +11,8 @@ export function createScrollVisitor() {
 
   const scrollVisitor: Visitor<ScrollMap> & Subscribable<ScrollMap> = {
     elementNode(node) {
+      // Note: this triggers a reflow for every element
+      // TODO: investigate performance
       scrollMap[getNodeId(node)] = [node.scrollLeft, node.scrollTop]
     },
 

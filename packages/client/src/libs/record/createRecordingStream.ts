@@ -136,7 +136,9 @@ export function createRecordingStream(
   }
 
   if (options.types.has('interaction')) {
-    registerScrollVisitor()
+    // TODO: investigate performance
+    // Reading scrollLeft/scrollTop triggers a reflow for each element.
+    // registerScrollVisitor()
     registerViewportVisitor()
     registerInteractionObserver()
   }
