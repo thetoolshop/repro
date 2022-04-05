@@ -10,6 +10,7 @@ function createResetRules(rootSelector: string) {
       font-weight: normal;
       line-height: 1em;
       color: ${colors.slate['900']};
+      text-align: initial;
     }`,
   ]
 }
