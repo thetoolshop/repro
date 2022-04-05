@@ -50,7 +50,7 @@ export const DevTools: React.FC<Props> = React.memo(
           {inspecting && (
             <PlaybackRegion mask={mask}>
               <PlaybackCanvas
-                interactive={false}
+                interactive={true}
                 scaling="full-width"
                 onDocumentReady={setCurrentDocument}
                 onLoad={setNodeMap}
