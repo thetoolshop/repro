@@ -1,5 +1,6 @@
 export * from './PlaybackCanvas'
 export * from './PlaybackErrorBoundary'
+export * from './PlaybackTimeline'
 
 export * from './createFixtureSource'
 export * from './createHttpSource'

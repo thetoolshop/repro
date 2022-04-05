@@ -3,25 +3,24 @@ import React, { useCallback, useEffect } from 'react'
 import { Play as PlayIcon, Pause as PauseIcon } from 'react-feather'
 import { Shortcuts } from 'shortcuts'
 import { colors } from '@/config/theme'
+import { usePlayback } from '../hooks'
+import { PlaybackState } from '../types'
 
-interface Props {
-  playing: boolean
-  onPlay(): void
-  onPause(): void
-}
+export const PlayAction: React.FC = () => {
+  const playback = usePlayback()
+  const playing = playback.getPlaybackState() === PlaybackState.Playing
 
-export const PlayAction: React.FC<Props> = ({ playing, onPlay, onPause }) => {
   const togglePlayback = useCallback(
     (evt: Event) => {
       evt.preventDefault()
 
       if (playing) {
-        onPause()
+        playback.pause()
       } else {
-        onPlay()
+        playback.play()
       }
     },
-    [onPlay, onPause, playing]
+    [playback, playing]
   )
 
   useEffect(() => {
