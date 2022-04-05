@@ -48,8 +48,6 @@ export const FrameRealm = React.forwardRef<HTMLIFrameElement, Props>(
           attemptWriteToDocument(doc, '<!doctype html>')
           doc.close()
 
-          doc.domain = document.domain
-
           const root = document.createElement('html')
           doc.documentElement.remove()
           doc.appendChild(root)
