@@ -8,6 +8,7 @@ import {
 import { colors } from '@/config/theme'
 import { View } from '../types'
 import { useView } from '../hooks'
+import { Tooltip } from '@/components/Tooltip'
 
 export const Tabs: React.FC = () => {
   return (
@@ -20,11 +21,13 @@ export const Tabs: React.FC = () => {
       <Item view={View.Network} disabled>
         <NetworkIcon size={16} />
         <Inline>Network</Inline>
+        <Tooltip position="bottom">Coming soon</Tooltip>
       </Item>
 
       <Item view={View.Console} disabled>
         <ConsoleIcon size={16} />
         <Inline>Console</Inline>
+        <Tooltip position="bottom">Coming soon</Tooltip>
       </Item>
     </Row>
   )
@@ -39,7 +42,9 @@ const Item: React.FC<ItemProps> = ({ children, disabled, view }) => {
   const [activeView, setActiveView] = useView()
 
   const handleClick = () => {
-    setActiveView(view)
+    if (!disabled) {
+      setActiveView(view)
+    }
   }
 
   const color = disabled
@@ -62,7 +67,7 @@ const Item: React.FC<ItemProps> = ({ children, disabled, view }) => {
       gap={5}
       marginH={10}
       paddingH={5}
-      pointerEvents={disabled ? 'none' : 'auto'}
+      position="relative"
       userSelect="none"
       props={{
         onClick: handleClick,

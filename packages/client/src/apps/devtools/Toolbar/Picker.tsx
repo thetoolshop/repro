@@ -1,3 +1,4 @@
+import { Tooltip } from '@/components/Tooltip'
 import { Row } from 'jsxstyle'
 import React, { useCallback } from 'react'
 import { Crosshair } from 'react-feather'
@@ -12,7 +13,7 @@ export const Picker: React.FC = () => {
   }, [setPicker])
 
   return (
-    <Row alignItems="center" cursor="pointer" paddingH={10}>
+    <Row position="relative" alignItems="center" cursor="pointer" paddingH={10}>
       <Row
         alignItems="center"
         justifyContent="center"
@@ -25,6 +26,7 @@ export const Picker: React.FC = () => {
       >
         <Crosshair size={16} />
       </Row>
+      <Tooltip position="bottom">Ctrl+Shift+C</Tooltip>
     </Row>
   )
 }

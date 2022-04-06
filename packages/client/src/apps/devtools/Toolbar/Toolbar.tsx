@@ -1,5 +1,6 @@
 import { Button } from '@/components/Button'
 import { Logo } from '@/components/Logo'
+import { Tooltip } from '@/components/Tooltip'
 import { colors } from '@/config/theme'
 import { PlaybackTimeline, usePlayback } from '@/libs/playback'
 import { Block, InlineBlock, Row } from 'jsxstyle'
@@ -50,7 +51,7 @@ export const Toolbar: React.FC<Props> = ({
       {!inspecting && (
         <React.Fragment>
           {!disableToggle && (
-            <Block alignSelf="center" marginRight={8}>
+            <Block position="relative" alignSelf="center" marginRight={8}>
               <Button
                 variant="secondary"
                 size="small"
@@ -59,6 +60,7 @@ export const Toolbar: React.FC<Props> = ({
                 <InspectorIcon size={16} />
                 <InlineBlock>Open Inspector</InlineBlock>
               </Button>
+              <Tooltip>Ctrl+Shift+I</Tooltip>
             </Block>
           )}
         </React.Fragment>
