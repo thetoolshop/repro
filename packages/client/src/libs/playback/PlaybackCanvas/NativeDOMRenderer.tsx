@@ -46,11 +46,13 @@ function isNotIdle(controlFrame: ControlFrame) {
 
 interface Props {
   ownerDocument: Document | null
+  trackScroll: boolean
   onLoad?: (nodeMap: MutableNodeMap) => void
 }
 
 export const NativeDOMRenderer: React.FC<Props> = ({
   ownerDocument,
+  trackScroll,
   onLoad,
 }) => {
   const playback = usePlayback()
@@ -93,7 +95,10 @@ export const NativeDOMRenderer: React.FC<Props> = ({
                     onLoad(nodeMap)
                   }
 
-                  updateAllScrollStates(nodeMap, scrollMap)
+                  if (trackScroll) {
+                    updateAllScrollStates(nodeMap, scrollMap)
+                  }
+
                   updateHoverTargets(ownerDocument, pointer)
                 }
               }
@@ -127,7 +132,12 @@ export const NativeDOMRenderer: React.FC<Props> = ({
               break
 
             case SourceEventType.Interaction:
-              applyInteractionEvent(event, nodeMap, playback.getElapsed())
+              applyInteractionEvent(
+                event,
+                nodeMap,
+                playback.getElapsed(),
+                trackScroll
+              )
               break
           }
         })
@@ -318,9 +328,10 @@ function applyDOMPatchEvent(event: DOMPatchEvent, nodeMap: MutableNodeMap) {
 function applyInteractionEvent(
   event: InteractionEvent,
   nodeMap: MutableNodeMap,
-  elapsed: number
+  elapsed: number,
+  trackScroll: boolean
 ) {
-  if (event.data.type === InteractionType.Scroll) {
+  if (trackScroll && event.data.type === InteractionType.Scroll) {
     const target = event.data.target
     const node = nodeMap[target]
 

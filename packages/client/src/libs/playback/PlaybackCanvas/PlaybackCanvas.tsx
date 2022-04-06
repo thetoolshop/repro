@@ -59,7 +59,11 @@ export const PlaybackCanvas: React.FC<Props> = ({
   const viewportContents = (
     <React.Fragment>
       <FrameRealm ref={frameRef}>
-        <NativeDOMRenderer ownerDocument={ownerDocument} onLoad={handleLoad} />
+        <NativeDOMRenderer
+          trackScroll={!interactive}
+          ownerDocument={ownerDocument}
+          onLoad={handleLoad}
+        />
       </FrameRealm>
 
       {!interactive && <PointerOverlay />}
