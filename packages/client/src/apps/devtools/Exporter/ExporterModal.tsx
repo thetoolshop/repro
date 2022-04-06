@@ -40,6 +40,7 @@ import { encodeRecording } from '@/libs/codecs/recording'
 import { MAX_INT32 } from '../constants'
 import { ExporterButton } from './ExporterButton'
 import { RangeSelector } from './RangeSelector'
+import { CODEC_VERSION } from '@/config/constants'
 
 const baseUrl = (process.env.SHARE_BASE_URL || '').replace(/\/$/, '')
 
@@ -151,6 +152,7 @@ function createRecordingAtRange(
   })
 
   return {
+    codecVersion: CODEC_VERSION,
     id: createRecordingId(),
     events: new ArrayBufferBackedList(eventBuffers, eventDecoder, eventEncoder),
     duration,

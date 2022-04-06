@@ -35,11 +35,13 @@ function readRecordingId(reader: BufferReader): SyntheticId {
 }
 
 export function encodeRecording(recording: Recording): ArrayBuffer {
-  const headerByteLength = RECORDING_ID_BYTE_LENGTH + UINT_32 + UINT_32
+  const headerByteLength =
+    UINT_32 + RECORDING_ID_BYTE_LENGTH + UINT_32 + UINT_32
 
   const headerBuffer = new ArrayBuffer(headerByteLength)
   const headerWriter = new BufferWriter(headerBuffer, 0, LITTLE_ENDIAN)
 
+  headerWriter.writeUint32(recording.codecVersion)
   writeRecordingId(headerWriter, recording.id)
   headerWriter.writeUint32(recording.duration)
   headerWriter.writeUint32(recording.events.size())
@@ -67,6 +69,7 @@ function eventWriter(event: SourceEvent): ArrayBuffer {
 }
 
 export function decodeRecording(reader: BufferReader): Recording {
+  const codecVersion = reader.readUint32()
   const id = readRecordingId(reader)
   const duration = reader.readUint32()
   const eventCount = reader.readUint32()
@@ -84,6 +87,7 @@ export function decodeRecording(reader: BufferReader): Recording {
   }
 
   return {
+    codecVersion,
     id,
     duration,
     events: new ArrayBufferBackedList(events, eventReader, eventWriter),

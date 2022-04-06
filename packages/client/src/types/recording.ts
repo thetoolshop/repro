@@ -64,6 +64,7 @@ export interface Sample<T> {
 }
 
 export interface Recording {
+  codecVersion: number
   id: SyntheticId
   duration: number
   events: ArrayBufferBackedList<SourceEvent>

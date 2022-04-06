@@ -24,6 +24,7 @@ const eventReader = (buffer: ArrayBuffer) => {
 }
 
 const recording: Recording = {
+  codecVersion: 1,
   id: nanoid(21),
   duration: 60000,
   events: new ArrayBufferBackedList<SourceEvent>(
