@@ -137,10 +137,6 @@ export const EmbeddedController: React.FC = () => {
           setInspecting(inspecting => !inspecting)
         },
       },
-      {
-        shortcut: 'CmdOrCtrl+Alt+Shift+S',
-        handler: () => setExporting(exporting => !exporting),
-      },
     ])
 
     return () => {
@@ -156,6 +152,10 @@ export const EmbeddedController: React.FC = () => {
         {
           shortcut: 'CmdOrCtrl+Alt+Shift+C',
           handler: () => setPicker(picker => !picker),
+        },
+        {
+          shortcut: 'CmdOrCtrl+Alt+Shift+S',
+          handler: () => setExporting(exporting => !exporting),
         },
       ])
     }

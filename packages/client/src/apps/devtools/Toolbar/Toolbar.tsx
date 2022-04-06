@@ -4,7 +4,7 @@ import { colors } from '@/config/theme'
 import { PlaybackTimeline, usePlayback } from '@/libs/playback'
 import { Block, InlineBlock, Row } from 'jsxstyle'
 import React, { useCallback } from 'react'
-import { Code as InspectorIcon, Share as ShareIcon } from 'react-feather'
+import { Code as InspectorIcon } from 'react-feather'
 import { ExporterButton } from '../Exporter'
 import { useInspecting, useExporting } from '../hooks'
 import { Picker } from './Picker'
@@ -58,15 +58,6 @@ export const Toolbar: React.FC<Props> = ({
               >
                 <InspectorIcon size={16} />
                 <InlineBlock>Open Inspector</InlineBlock>
-              </Button>
-            </Block>
-          )}
-
-          {!disableExport && (
-            <Block alignSelf="center" marginRight={8}>
-              <Button variant="secondary" size="small" onClick={openExporter}>
-                <ShareIcon size={16} />
-                <InlineBlock>Save Replay</InlineBlock>
               </Button>
             </Block>
           )}
