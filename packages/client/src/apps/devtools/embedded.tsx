@@ -1,6 +1,7 @@
 import '@/config/theme/fonts'
 
 import { applyResetStyles } from '@/config/theme'
+import { Analytics } from '@/libs/analytics'
 import { Stats, Trace } from '@/libs/diagnostics'
 import { createPTPAgent, MessagingProvider } from '@/libs/messaging'
 import { createRecordingStream, RecordingStreamProvider } from '@/libs/record'
@@ -12,8 +13,10 @@ import { StateProvider } from './context'
 import { createState } from './createState'
 import { EmbeddedController } from './EmbeddedController'
 
-Stats.enable()
-Trace.enable()
+if (process.env.NODE_ENV === 'development') {
+  Stats.enable()
+  Trace.enable()
+}
 
 const NODE_NAME = 'repro-devtools'
 
@@ -34,6 +37,8 @@ const _initialInjectOptions = styleCache.injectOptions
 
 // Should PTP agent replace Broadcast agent?
 const agent = createPTPAgent()
+
+Analytics.setAgent(agent)
 
 class ReproDevTools extends HTMLElement {
   private renderRoot: HTMLDivElement

@@ -41,6 +41,7 @@ import { MAX_INT32 } from '../constants'
 import { ExporterButton } from './ExporterButton'
 import { RangeSelector } from './RangeSelector'
 import { CODEC_VERSION } from '@/config/constants'
+import { Analytics } from '@/libs/analytics'
 
 const baseUrl = (process.env.SHARE_BASE_URL || '').replace(/\/$/, '')
 
@@ -202,6 +203,10 @@ export const ExporterModal: React.FC<Props> = ({ onClose }) => {
 
       setUploading('uploading')
 
+      Analytics.track('export:start', {
+        recordingSize: data.byteLength.toString(),
+      })
+
       const [ok, url]: [boolean, string] = await agent.raiseIntent({
         type: 'upload',
         payload: {
@@ -212,9 +217,11 @@ export const ExporterModal: React.FC<Props> = ({ onClose }) => {
       })
 
       if (ok) {
+        Analytics.track('export:success')
         setUploading('done')
         setRecordingURL(`${baseUrl}${url}`)
       } else {
+        Analytics.track('export:failure')
         setUploading('failed')
       }
     }

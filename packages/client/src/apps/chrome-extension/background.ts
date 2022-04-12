@@ -1,10 +1,43 @@
 import { zlibSync } from 'fflate'
+import { nanoid } from 'nanoid/non-secure'
+import { Analytics } from '@/libs/analytics'
 import { encrypt } from '@/libs/crypto'
 import { createRuntimeAgent } from './createRuntimeAgent'
 
+const StorageKeys = {
+  INSTALLER_ID: 'installed_id',
+  ENABLED: 'enabled',
+}
+
 const agent = createRuntimeAgent()
 
-const apiUrl = (process.env.SHARE_API_URL || '').replace(/\/$/, '')
+async function getInstallerId() {
+  return new Promise<string>(resolve => {
+    chrome.storage.local.get([StorageKeys.INSTALLER_ID], result => {
+      if (result[StorageKeys.INSTALLER_ID]) {
+        resolve(result[StorageKeys.INSTALLER_ID])
+        return
+      }
+
+      const installerId = nanoid()
+
+      chrome.storage.local.set({
+        [StorageKeys.INSTALLER_ID]: installerId,
+      })
+
+      resolve(installerId)
+    })
+  })
+}
+
+async function setUpAnalytics() {
+  const installerId = await getInstallerId()
+  Analytics.setIdentity(installerId)
+  Analytics.setAgent(agent)
+  Analytics.registerConsumer('httpApi')
+}
+
+const shareApiUrl = (process.env.SHARE_API_URL || '').replace(/\/$/, '')
 
 agent.subscribeToIntent('upload', async (payload: any) => {
   const compressed = zlibSync(new Uint8Array(payload.recording))
@@ -19,7 +52,7 @@ agent.subscribeToIntent('upload', async (payload: any) => {
     })
   )
 
-  const res = await fetch(`${apiUrl}/${payload.id}`, {
+  const res = await fetch(`${shareApiUrl}/${payload.id}`, {
     method: 'PUT',
     body: formData,
   })
@@ -31,12 +64,10 @@ agent.subscribeToIntent('upload', async (payload: any) => {
   return [false, null]
 })
 
-const StorageKeys = {
-  ENABLED: 'enabled',
-}
-
 chrome.runtime.onConnect.addListener(() => {
   ;(async function () {
+    await setUpAnalytics()
+
     const enabled = await isEnabled()
 
     if (enabled) {

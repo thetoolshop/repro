@@ -46,6 +46,19 @@ inPageAgent.subscribeToIntent('upload', (payload: UploadPayload) => {
   })
 })
 
+interface TrackPayload {
+  event: string
+  time: number
+  props: Record<string, string>
+}
+
+inPageAgent.subscribeToIntent('analytics:track', (payload: TrackPayload) => {
+  return runtimeAgent.raiseIntent({
+    type: 'analytics:track',
+    payload,
+  })
+})
+
 runtimeAgent.subscribeToIntent('enable', async () => {
   enableDevTools()
   return true

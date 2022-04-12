@@ -1,5 +1,5 @@
 import { Block, Grid } from 'jsxstyle'
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { colors } from '@/config/theme'
 import { PlaybackCanvas } from '@/libs/playback'
 import { Toolbar } from './Toolbar'
@@ -22,6 +22,7 @@ import {
 } from './hooks'
 import { ExporterModal } from './Exporter'
 import { ReferenceStyleProvider } from '@/libs/styles'
+import { Analytics } from '@/libs/analytics'
 
 interface Props {
   disableExport?: boolean
@@ -38,6 +39,18 @@ export const DevTools: React.FC<Props> = React.memo(
     const [, setFocusedNode] = useFocusedNode()
     const [mask] = useMask()
     const [view] = useView()
+
+    useEffect(() => {
+      if (inspecting) {
+        Analytics.track('inspect:open-devtools')
+      }
+    }, [inspecting])
+
+    useEffect(() => {
+      if (exporting) {
+        Analytics.track('export:open-modal')
+      }
+    }, [exporting])
 
     const closeExporter = useCallback(() => {
       setExporting(false)

@@ -210,7 +210,6 @@ function createAnimationObservable(
   duration: number
 ) {
   return new Observable<Animation>(observer => {
-    console.log('animation', initialOffset, duration)
     const keyframes: Array<Keyframe> = [
       { transform: `scaleX(${initialOffset})` },
       { transform: `scaleX(1.0)` },

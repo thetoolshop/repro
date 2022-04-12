@@ -19,6 +19,7 @@
     "fflate": "^0.7.3",
     "jsxstyle": "^2.5.1",
     "jsxstyle-utils": "^2.5.0",
+    "mixpanel-browser": "^2.45.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-feather": "^2.0.9",
@@ -33,6 +34,7 @@
   "devDependencies": {
     "@types/chrome": "^0.0.176",
     "@types/jest": "^27.4.0",
+    "@types/mixpanel-browser": "^2.38.0",
     "@types/react": "^17.0.38",
     "@types/react-dom": "^17.0.11",
     "@types/tailwindcss": "^3.0.2",

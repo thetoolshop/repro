@@ -4,12 +4,23 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { applyResetStyles } from '@/config/theme'
+import { Analytics } from '@/libs/analytics'
+import { Stats, Trace } from '@/libs/diagnostics'
+import { DEFAULT_AGENT } from '@/libs/messaging'
 import { StateProvider } from './context'
 import { createState } from './createState'
 import { DevTools } from './DevTools'
 import { Preview } from './Preview'
 import { SourceContainer } from './SourceContainer'
 import { StandaloneController } from './StandaloneController'
+
+if (process.env.NODE_ENV === 'development') {
+  Stats.enable()
+  Trace.enable()
+}
+
+Analytics.setAgent(DEFAULT_AGENT)
+Analytics.registerConsumer('browser')
 
 const state = createState({
   inspecting: true,

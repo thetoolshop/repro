@@ -1,10 +1,8 @@
 import React from 'react'
-import { createLoopbackAgent } from './createLoopbackAgent'
+import { DEFAULT_AGENT } from './defaults'
 import { Agent } from './types'
 
-export const MessagingContext = React.createContext<Agent>(
-  createLoopbackAgent()
-)
+export const MessagingContext = React.createContext<Agent>(DEFAULT_AGENT)
 
 interface Props {
   agent: Agent
