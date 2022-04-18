@@ -80,6 +80,10 @@ export function isScriptElement(
   return matches(element.nodeName, 'script')
 }
 
+export function isCustomElement(tagName: string) {
+  return window.customElements.get(tagName) !== undefined
+}
+
 export function isTextNode(node: Node): node is Text {
   return node.nodeType === Node.TEXT_NODE
 }

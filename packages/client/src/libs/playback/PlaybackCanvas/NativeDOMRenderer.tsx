@@ -10,6 +10,7 @@ import {
 import { PatchType, VTree } from '@/types/vdom'
 import {
   isBodyElement,
+  isCustomElement,
   isElementNode,
   isHTMLElement,
   isTextNode,
@@ -71,10 +72,13 @@ export const NativeDOMRenderer: React.FC<Props> = ({
             const pointer = snapshot.interaction?.pointer || OUT_OF_BOUNDS_POINT
             const scrollMap = snapshot.interaction?.scroll || {}
 
+            nodeMap = {}
+
             if (ownerDocument) {
               if (snapshot.dom) {
                 const [rootNode, vtreeNodeMap] = createDOMFromVTree(
-                  snapshot.dom
+                  snapshot.dom,
+                  nodeMap
                 )
 
                 clearDocument(ownerDocument)
@@ -209,118 +213,150 @@ function updateScroll(node: Node, x: number, y: number) {
 }
 
 function applyDOMPatchEvent(event: DOMPatchEvent, nodeMap: MutableNodeMap) {
-  switch (event.data.type) {
-    case PatchType.Text: {
-      const targetId = event.data.targetId
-      const node = nodeMap[targetId]
+  outer: {
+    switch (event.data.type) {
+      case PatchType.Text: {
+        const targetId = event.data.targetId
+        const node = nodeMap[targetId]
 
-      if (node && isTextNode(node)) {
-        node.textContent = event.data.value
-      }
-
-      break
-    }
-
-    case PatchType.Attribute: {
-      const targetId = event.data.targetId
-      const node = nodeMap[targetId]
-
-      if (node && isElementNode(node)) {
-        if (isValidAttributeName(event.data.name)) {
-          node.setAttribute(event.data.name, event.data.value ?? '')
+        if (node && isTextNode(node)) {
+          node.textContent = event.data.value
         }
+
+        break
       }
 
-      break
-    }
+      case PatchType.Attribute: {
+        const targetId = event.data.targetId
+        const node = nodeMap[targetId]
 
-    case PatchType.BooleanProperty:
-    case PatchType.NumberProperty:
-    case PatchType.TextProperty: {
-      const targetId = event.data.targetId
-      const node = nodeMap[targetId]
-
-      if (node && isElementNode(node)) {
-        // TODO: ensure property is valid for target element
-
-        if (
-          Object.getPrototypeOf(node).hasOwnProperty(
-            `__original__${event.data.name}`
-          )
-        ) {
-          // @ts-ignore
-          node[`__original__${event.data.name}`] = event.data.value
-          // @ts-ignore
-        } else {
-          // @ts-ignore
-          node[event.data.name] = event.data.value
+        if (node && isElementNode(node)) {
+          if (isValidAttributeName(event.data.name)) {
+            node.setAttribute(event.data.name, event.data.value ?? '')
+          }
         }
+
+        break
       }
 
-      break
-    }
+      case PatchType.BooleanProperty:
+      case PatchType.NumberProperty:
+      case PatchType.TextProperty: {
+        const targetId = event.data.targetId
+        const node = nodeMap[targetId]
 
-    case PatchType.AddNodes: {
-      const parentId = event.data.parentId
-      const nextSiblingId = event.data.nextSiblingId
+        if (node && isElementNode(node)) {
+          // TODO: ensure property is valid for target element
 
-      const parent = nodeMap[parentId]
+          if (
+            Object.getPrototypeOf(node).hasOwnProperty(
+              `__original__${event.data.name}`
+            )
+          ) {
+            // @ts-ignore
+            node[`__original__${event.data.name}`] = event.data.value
+            // @ts-ignore
+          } else {
+            // @ts-ignore
+            node[event.data.name] = event.data.value
+          }
+        }
 
-      if (parent) {
-        const [fragment, newNodeMap] = event.data.nodes
-          .map(vtree => createDOMFromVTree(vtree))
-          .reduce(
-            ([fragment, nodeMap], [node, nextNodeMap]) => {
-              if (fragment && node) {
-                fragment.appendChild(node)
-                Object.assign(nodeMap, nextNodeMap)
+        break
+      }
+
+      case PatchType.AddNodes: {
+        const parentId = event.data.parentId
+        const previousSiblingId = event.data.previousSiblingId
+        const nextSiblingId = event.data.nextSiblingId
+
+        const parent = nodeMap[parentId]
+
+        for (const vtree of event.data.nodes) {
+          if (nodeMap.hasOwnProperty(vtree.rootId)) {
+            break outer
+          }
+        }
+
+        if (parent) {
+          const [fragment, newNodeMap] = event.data.nodes
+            .map(vtree => createDOMFromVTree(vtree, nodeMap))
+            .reduce(
+              ([fragment, nodeMap], [node, nextNodeMap]) => {
+                if (fragment && node) {
+                  fragment.appendChild(node)
+                  Object.assign(nodeMap, nextNodeMap)
+                }
+
+                return [fragment, nodeMap]
+              },
+              [document.createDocumentFragment(), {}]
+            )
+
+          if (!fragment) {
+            break
+          }
+
+          const prev =
+            previousSiblingId !== null
+              ? nodeMap[previousSiblingId] ?? null
+              : null
+
+          const next =
+            nextSiblingId !== null ? nodeMap[nextSiblingId] ?? null : null
+
+          let didMount = false
+
+          if (prev && prev.parentNode) {
+            if (prev.parentNode === parent) {
+              if (prev.nextSibling) {
+                parent.insertBefore(fragment, prev.nextSibling)
+                didMount = true
+              } else {
+                parent.appendChild(fragment)
+                didMount = true
               }
+            }
+          } else if (next && next.parentNode) {
+            if (next.parentNode === parent) {
+              parent.insertBefore(fragment, next)
+              didMount = true
+            }
+          } else {
+            parent.appendChild(fragment)
+            didMount = true
+          }
 
-              return [fragment, nodeMap]
-            },
-            [document.createDocumentFragment(), {}]
-          )
-
-        if (!fragment) {
-          break
+          if (didMount) {
+            Object.assign(nodeMap, newNodeMap)
+          }
         }
 
-        const next =
-          nextSiblingId !== null ? nodeMap[nextSiblingId] ?? null : null
+        break
+      }
 
-        if (next) {
-          parent.insertBefore(fragment, next)
-        } else {
-          parent.appendChild(fragment)
+      case PatchType.RemoveNodes: {
+        const rootNodeIds = event.data.nodes.map(vtree => vtree.rootId)
+
+        const nodeIds = event.data.nodes.flatMap(vtree =>
+          Object.keys(vtree.nodes)
+        )
+
+        for (const nodeId of rootNodeIds) {
+          const node = nodeMap[nodeId]
+          const parent = node?.parentNode || null
+
+          if (node && parent) {
+            parent.removeChild(node)
+          }
         }
 
-        Object.assign(nodeMap, newNodeMap)
-      }
-
-      break
-    }
-
-    case PatchType.RemoveNodes: {
-      const rootNodeIds = event.data.nodes.map(vtree => vtree.rootId)
-
-      const nodeIds = event.data.nodes.flatMap(vtree =>
-        Object.keys(vtree.nodes)
-      )
-
-      for (const nodeId of rootNodeIds) {
-        const node = nodeMap[nodeId]
-        const parent = node?.parentNode || null
-
-        if (node && parent) {
-          parent.removeChild(node)
+        for (const nodeId of nodeIds) {
+          delete nodeMap[nodeId]
         }
-      }
 
-      for (const nodeId of nodeIds) {
-        delete nodeMap[nodeId]
+        break
       }
-
-      break
     }
   }
 }
@@ -357,7 +393,10 @@ function applyInteractionEvent(
   }
 }
 
-function createDOMFromVTree(vtree: VTree): [Node | null, MutableNodeMap] {
+function createDOMFromVTree(
+  vtree: VTree,
+  rootNodeMap: MutableNodeMap
+): [Node | null, MutableNodeMap] {
   const nodeMap: MutableNodeMap = {}
 
   const createNode = (
@@ -368,13 +407,17 @@ function createDOMFromVTree(vtree: VTree): [Node | null, MutableNodeMap] {
     const vNode = vtree.nodes[nodeId] || null
     const parentVNode = (parentId && vtree.nodes[parentId]) || null
 
-    if (nodeMap.hasOwnProperty(nodeId)) {
+    if (rootNodeMap.hasOwnProperty(nodeId)) {
       console.warn(
-        `Duplicate node(${nodeId}) of parent(${parentId})`,
-        nodeMap[nodeId],
+        `render: Duplicate node(${nodeId}) of parent(${parentId})`,
+        rootNodeMap[nodeId],
         vNode,
-        parentVNode
+        parentVNode,
+        vtree
       )
+
+      // TODO: investigate why web component slots have duplicate renders
+      return document.createDocumentFragment()
     }
 
     if (!vNode) {
@@ -446,9 +489,11 @@ function createDOMFromVTree(vtree: VTree): [Node | null, MutableNodeMap] {
         svgContext = true
       }
 
+      let tagName = isCustomElement(vNode.tagName) ? 'div' : vNode.tagName
+
       const element = svgContext
-        ? document.createElementNS('http://www.w3.org/2000/svg', vNode.tagName)
-        : document.createElement(vNode.tagName)
+        ? document.createElementNS('http://www.w3.org/2000/svg', tagName)
+        : document.createElement(tagName)
 
       if (vNode.tagName === 'foreignObject') {
         svgContext = false

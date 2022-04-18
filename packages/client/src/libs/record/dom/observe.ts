@@ -184,118 +184,133 @@ function createInputObserver(
   }
 }
 
+export function internal__processMutationRecords(
+  records: Array<MutationRecord>,
+  walkDOMTree: DOMTreeWalker,
+  options: RecordingOptions,
+  subscriber: (patch: Patch) => void
+) {
+  const patches: Array<Patch> = []
+  const addedNodes = new Set<SyntheticId>()
+
+  for (const record of records) {
+    if (isIgnoredByNode(record.target, options.ignoredNodes)) {
+      continue
+    }
+
+    if (isIgnoredBySelector(record.target, options.ignoredSelectors)) {
+      continue
+    }
+
+    switch (record.type) {
+      case 'attributes':
+        const name = record.attributeName as string
+        const attribute = (record.target as Element).attributes.getNamedItem(
+          name
+        )
+
+        patches.push({
+          type: PatchType.Attribute,
+          targetId: getNodeId(record.target),
+          name,
+          value: attribute ? attribute.value : null,
+          oldValue: record.oldValue,
+        })
+
+        break
+
+      case 'characterData':
+        patches.push({
+          type: PatchType.Text,
+          targetId: getNodeId(record.target),
+          value: (record.target as Text).data,
+          oldValue: record.oldValue || '',
+        })
+
+        break
+
+      case 'childList':
+        // TODO: optimization - handle moving nodes without destroying vnode
+        const removedVTrees = Array.from(record.removedNodes)
+          .filter(node => !isIgnoredBySelector(node, options.ignoredSelectors))
+          .filter(node => !isIgnoredByNode(node, options.ignoredNodes))
+          .map(node => walkDOMTree(node))
+          .filter(vtree => vtree !== null) as Array<VTree>
+
+        const addedVTrees = Array.from(record.addedNodes)
+          .filter(node => !isIgnoredBySelector(node, options.ignoredSelectors))
+          .filter(node => !isIgnoredByNode(node, options.ignoredNodes))
+          .map(node => walkDOMTree(node))
+          .filter(vtree => vtree !== null) as Array<VTree>
+
+        if (removedVTrees.length) {
+          for (const vtree of removedVTrees) {
+            for (const nodeId of Object.keys(vtree.nodes)) {
+              addedNodes.delete(nodeId)
+            }
+          }
+
+          patches.push({
+            type: PatchType.RemoveNodes,
+            parentId: getNodeId(record.target),
+            previousSiblingId:
+              record.previousSibling !== null
+                ? getNodeId(record.previousSibling)
+                : null,
+            nextSiblingId:
+              record.nextSibling !== null
+                ? getNodeId(record.nextSibling)
+                : null,
+            nodes: removedVTrees,
+          })
+        }
+
+        if (addedVTrees.length) {
+          outer: {
+            for (const vtree of addedVTrees) {
+              if (addedNodes.has(vtree.rootId)) {
+                break outer
+              }
+            }
+
+            for (const vtree of addedVTrees) {
+              for (const nodeId of Object.keys(vtree.nodes)) {
+                addedNodes.add(nodeId)
+              }
+            }
+
+            patches.push({
+              type: PatchType.AddNodes,
+              parentId: getNodeId(record.target),
+              previousSiblingId:
+                record.previousSibling !== null
+                  ? getNodeId(record.previousSibling)
+                  : null,
+              nextSiblingId:
+                record.nextSibling !== null
+                  ? getNodeId(record.nextSibling)
+                  : null,
+              nodes: addedVTrees,
+            })
+          }
+        }
+
+        break
+    }
+  }
+
+  for (const patch of patches) {
+    subscriber(patch)
+  }
+}
+
 function createMutationObserver(
   walkDOMTree: DOMTreeWalker,
   options: RecordingOptions,
   subscriber: (patch: Patch) => void
 ): ObserverLike<Document> {
-  const domObserver = new MutationObserver(entries => {
-    const addedNodeIds = new Set<SyntheticId>()
-    const removedNodeIds = new Set<SyntheticId>()
-
-    for (const entry of entries) {
-      if (isIgnoredByNode(entry.target, options.ignoredNodes)) {
-        continue
-      }
-
-      if (isIgnoredBySelector(entry.target, options.ignoredSelectors)) {
-        continue
-      }
-
-      switch (entry.type) {
-        case 'attributes':
-          const name = entry.attributeName as string
-          const attribute = (entry.target as Element).attributes.getNamedItem(
-            name
-          )
-
-          subscriber({
-            type: PatchType.Attribute,
-            targetId: getNodeId(entry.target),
-            name,
-            value: attribute ? attribute.value : null,
-            oldValue: entry.oldValue,
-          })
-
-          break
-
-        case 'characterData':
-          subscriber({
-            type: PatchType.Text,
-            targetId: getNodeId(entry.target),
-            value: (entry.target as Text).data,
-            oldValue: entry.oldValue || '',
-          })
-
-          break
-
-        case 'childList':
-          // TODO: optimization - handle moving nodes without destroying vnode
-          const removedVTrees = Array.from(entry.removedNodes)
-            .filter(node => !removedNodeIds.has(getNodeId(node)))
-            .filter(
-              node => !isIgnoredBySelector(node, options.ignoredSelectors)
-            )
-            .filter(node => !isIgnoredByNode(node, options.ignoredNodes))
-            .map(node => walkDOMTree(node))
-            .filter(vtree => vtree !== null) as Array<VTree>
-
-          const addedVTrees = Array.from(entry.addedNodes)
-            .filter(node => !addedNodeIds.has(getNodeId(node)))
-            .filter(
-              node => !isIgnoredBySelector(node, options.ignoredSelectors)
-            )
-            .filter(node => !isIgnoredByNode(node, options.ignoredNodes))
-            .map(node => walkDOMTree(node))
-            .filter(vtree => vtree !== null) as Array<VTree>
-
-          if (removedVTrees.length) {
-            for (const vtree of removedVTrees) {
-              for (const nodeId of Object.keys(vtree.nodes)) {
-                removedNodeIds.add(nodeId)
-              }
-            }
-
-            subscriber({
-              type: PatchType.RemoveNodes,
-              parentId: getNodeId(entry.target),
-              previousSiblingId:
-                entry.previousSibling !== null
-                  ? getNodeId(entry.previousSibling)
-                  : null,
-              nextSiblingId:
-                entry.nextSibling !== null
-                  ? getNodeId(entry.nextSibling)
-                  : null,
-              nodes: removedVTrees,
-            })
-          }
-
-          if (addedVTrees.length) {
-            for (const vtree of addedVTrees) {
-              for (const nodeId of Object.keys(vtree.nodes)) {
-                addedNodeIds.add(nodeId)
-              }
-            }
-
-            subscriber({
-              type: PatchType.AddNodes,
-              parentId: getNodeId(entry.target),
-              previousSiblingId:
-                entry.previousSibling !== null
-                  ? getNodeId(entry.previousSibling)
-                  : null,
-              nextSiblingId:
-                entry.nextSibling !== null
-                  ? getNodeId(entry.nextSibling)
-                  : null,
-              nodes: addedVTrees,
-            })
-          }
-
-          break
-      }
-    }
+  const domObserver = new MutationObserver(records => {
+    internal__processMutationRecords(records, walkDOMTree, options, subscriber)
   })
 
   return {

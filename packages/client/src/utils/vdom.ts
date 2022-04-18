@@ -150,7 +150,18 @@ export function insertSubTreesAtNode(
   const childIds: Array<SyntheticId> = []
 
   for (const subtree of subtrees) {
-    childIds.push(subtree.rootId)
+    const childId = subtree.rootId
+
+    if (parent.children.indexOf(childId) === -1) {
+      childIds.push(childId)
+    } else {
+      console.debug(
+        `vdom: Overwriting subtree under node(${childId}) of parent(${parent.id})`,
+        subtree,
+        parent
+      )
+    }
+
     Object.assign(vtree.nodes, copyObjectDeep(subtree.nodes))
   }
 
@@ -165,6 +176,10 @@ export function removeSubTreesAtNode(
   const childIds: Array<SyntheticId> = []
 
   for (const subtree of subtrees) {
+    if (parent.children.indexOf(subtree.rootId) === -1) {
+      continue
+    }
+
     childIds.push(subtree.rootId)
 
     const queue = [subtree.rootId]
