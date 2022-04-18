@@ -64,6 +64,15 @@ agent.subscribeToIntent('upload', async (payload: any) => {
   return [false, null]
 })
 
+chrome.runtime.onInstalled.addListener(() => {
+  ;(async function () {
+    if (await isFirstRun()) {
+      Analytics.track('extension:install')
+      enableAll()
+    }
+  })()
+})
+
 chrome.runtime.onConnect.addListener(() => {
   ;(async function () {
     await setUpAnalytics()
@@ -92,6 +101,8 @@ async function enableAll() {
     chrome.storage.local.set({
       [StorageKeys.ENABLED]: true,
     })
+
+    Analytics.track('extension:enable')
   })
 }
 
@@ -107,6 +118,8 @@ async function disableAll() {
     chrome.storage.local.set({
       [StorageKeys.ENABLED]: false,
     })
+
+    Analytics.track('extension:disable')
   })
 }
 
@@ -126,6 +139,14 @@ async function toggleAll() {
   } else {
     enableAll()
   }
+}
+
+async function isFirstRun(): Promise<boolean> {
+  return new Promise(resolve => {
+    chrome.storage.local.get([StorageKeys.ENABLED], result => {
+      resolve(result[StorageKeys.ENABLED] === undefined)
+    })
+  })
 }
 
 function showActionBadge() {

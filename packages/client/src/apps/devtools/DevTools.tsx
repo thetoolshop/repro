@@ -17,6 +17,7 @@ import {
   useInspecting,
   useMask,
   useNodeMap,
+  usePicker,
   useSize,
   useView,
 } from './hooks'
@@ -35,6 +36,7 @@ export const DevTools: React.FC<Props> = React.memo(
     const [, setCurrentDocument] = useCurrentDocument()
     const [, setNodeMap] = useNodeMap()
     const [inspecting] = useInspecting()
+    const [picker] = usePicker()
     const [exporting, setExporting] = useExporting()
     const [, setFocusedNode] = useFocusedNode()
     const [mask] = useMask()
@@ -45,6 +47,12 @@ export const DevTools: React.FC<Props> = React.memo(
         Analytics.track('inspect:open-devtools')
       }
     }, [inspecting])
+
+    useEffect(() => {
+      if (picker) {
+        Analytics.track('inspect:use-picker')
+      }
+    }, [picker])
 
     useEffect(() => {
       if (exporting) {

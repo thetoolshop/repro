@@ -6,6 +6,7 @@ import { colors } from '@/config/theme'
 import { usePlayback } from '../hooks'
 import { PlaybackState } from '../types'
 import { usePlaybackState } from '..'
+import { Analytics } from '@/libs/analytics'
 
 export const PlayAction: React.FC = () => {
   const playback = usePlayback()
@@ -18,8 +19,10 @@ export const PlayAction: React.FC = () => {
 
       if (playing) {
         playback.pause()
+        Analytics.track('playback:pause')
       } else {
         playback.play()
+        Analytics.track('playback:play')
       }
     },
     [playback, playing]
