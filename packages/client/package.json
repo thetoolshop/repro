@@ -14,7 +14,6 @@
   },
   "license": "UNLICENSED",
   "dependencies": {
-    "@fontsource/caveat": "^4.5.3",
     "arraybuffer-utils": "^1.1.1",
     "fflate": "^0.7.3",
     "jsxstyle": "^2.5.1",

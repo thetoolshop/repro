@@ -1,5 +1,3 @@
-import '@/config/theme/fonts'
-
 import { applyResetStyles } from '@/config/theme'
 import { Analytics } from '@/libs/analytics'
 import { Stats, Trace } from '@/libs/diagnostics'

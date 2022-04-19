@@ -1,5 +1,3 @@
-import '@/config/theme/fonts'
-
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
