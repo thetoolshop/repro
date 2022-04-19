@@ -47,6 +47,7 @@ export const Tooltip: React.FC<Props> = ({ children, position = 'top' }) => {
       pointerEvents="none"
       opacity={active ? 1 : 0}
       transition="opacity linear 100ms"
+      userSelect="none"
       zIndex={MAX_INT32}
       props={{ ref }}
     >
