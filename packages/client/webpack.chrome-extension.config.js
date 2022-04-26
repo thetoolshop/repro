@@ -49,6 +49,7 @@ module.exports = {
 
   plugins: [
     new DotenvPlugin({
+      path: process.env.BUILD_ENV === 'production' ? './.env.production' : './.env',
       safe: true,
       systemvars: true,
     }),

@@ -37,6 +37,8 @@ async function setUpAnalytics() {
   Analytics.registerConsumer('httpApi')
 }
 
+setUpAnalytics()
+
 const shareApiUrl = (process.env.SHARE_API_URL || '').replace(/\/$/, '')
 
 agent.subscribeToIntent('upload', async (payload: any) => {
@@ -67,60 +69,63 @@ agent.subscribeToIntent('upload', async (payload: any) => {
 chrome.runtime.onInstalled.addListener(() => {
   ;(async function () {
     if (await isFirstRun()) {
+      setEnabledState(true)
       Analytics.track('extension:install')
-      enableAll()
     }
   })()
 })
 
-chrome.runtime.onConnect.addListener(() => {
+chrome.runtime.onStartup.addListener(() => {
   ;(async function () {
-    await setUpAnalytics()
-
-    const enabled = await isEnabled()
-
-    if (enabled) {
-      enableAll()
+    if (await isEnabled()) {
+      showActionBadge()
     }
   })()
 })
 
 chrome.action.onClicked.addListener(() => {
-  toggleAll()
+  ;(async function () {
+    await toggleEnabledState()
+
+    const activeTabId = await getActiveTabId()
+
+    if (activeTabId) {
+      syncTab(activeTabId)
+    }
+  })()
 })
 
-async function enableAll() {
-  chrome.tabs.query({}, tabs => {
-    for (const tab of tabs) {
-      if (tab.id) {
-        agent.raiseIntent({ type: 'enable' }, { target: tab.id })
-      }
-    }
+chrome.tabs.onActivated.addListener(({ tabId }) => {
+  syncTab(tabId)
+})
 
-    showActionBadge()
-    chrome.storage.local.set({
-      [StorageKeys.ENABLED]: true,
+chrome.tabs.onUpdated.addListener(tabId => {
+  syncTab(tabId)
+})
+
+async function getActiveTabId() {
+  return new Promise<number | null>(resolve => {
+    chrome.tabs.query({ active: true }, result => {
+      const activeTabId = result[0]?.id
+      resolve(activeTabId ?? null)
     })
-
-    Analytics.track('extension:enable')
   })
 }
 
-async function disableAll() {
-  chrome.tabs.query({}, tabs => {
-    for (const tab of tabs) {
-      if (tab.id) {
-        agent.raiseIntent({ type: 'disable' }, { target: tab.id })
-      }
-    }
+async function syncTab(tabId: number) {
+  if (await isEnabled()) {
+    enableInTab(tabId)
+  } else {
+    disableInTab(tabId)
+  }
+}
 
-    hideActionBadge()
-    chrome.storage.local.set({
-      [StorageKeys.ENABLED]: false,
-    })
+async function enableInTab(tabId: number) {
+  agent.raiseIntent({ type: 'enable' }, { target: tabId })
+}
 
-    Analytics.track('extension:disable')
-  })
+async function disableInTab(tabId: number) {
+  agent.raiseIntent({ type: 'disable' }, { target: tabId })
 }
 
 function isEnabled(): Promise<boolean> {
@@ -131,13 +136,22 @@ function isEnabled(): Promise<boolean> {
   })
 }
 
-async function toggleAll() {
+async function toggleEnabledState() {
   const enabled = await isEnabled()
+  await setEnabledState(!enabled)
+}
+
+async function setEnabledState(enabled: boolean) {
+  await chrome.storage.local.set({
+    [StorageKeys.ENABLED]: enabled,
+  })
 
   if (enabled) {
-    disableAll()
+    showActionBadge()
+    Analytics.track('extension:enable')
   } else {
-    enableAll()
+    hideActionBadge()
+    Analytics.track('extension:disable')
   }
 }
 

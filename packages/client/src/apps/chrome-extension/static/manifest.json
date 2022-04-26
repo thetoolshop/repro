@@ -25,11 +25,11 @@
     "matches": ["<all_urls>"]
   }],
 
-  "permissions": ["activeTab", "scripting", "storage"],
+  "permissions": ["activeTab", "storage"],
 
   "web_accessible_resources": [
     {
-      "resources": ["devtools.js", "*.woff", "*.woff2"],
+      "resources": ["devtools.js"],
       "matches": ["<all_urls>"]
     }
   ]
