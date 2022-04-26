@@ -1,6 +1,7 @@
 import { zlibSync } from 'fflate'
 import { nanoid } from 'nanoid/non-secure'
 import { Analytics } from '@/libs/analytics'
+import { register as httpApiConsumer } from '@/libs/analytics/http-api'
 import { encrypt } from '@/libs/crypto'
 import { createRuntimeAgent } from './createRuntimeAgent'
 
@@ -34,7 +35,7 @@ async function setUpAnalytics() {
   const installerId = await getInstallerId()
   Analytics.setIdentity(installerId)
   Analytics.setAgent(agent)
-  Analytics.registerConsumer('httpApi')
+  Analytics.registerConsumer(httpApiConsumer)
 }
 
 setUpAnalytics()
@@ -70,7 +71,6 @@ chrome.runtime.onInstalled.addListener(() => {
   ;(async function () {
     if (await isFirstRun()) {
       setEnabledState(true)
-      Analytics.track('extension:install')
     }
   })()
 })
@@ -99,8 +99,10 @@ chrome.tabs.onActivated.addListener(({ tabId }) => {
   syncTab(tabId)
 })
 
-chrome.tabs.onUpdated.addListener(tabId => {
-  syncTab(tabId)
+chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+  if (changeInfo.status === 'complete') {
+    syncTab(tabId)
+  }
 })
 
 async function getActiveTabId() {
@@ -113,10 +115,14 @@ async function getActiveTabId() {
 }
 
 async function syncTab(tabId: number) {
-  if (await isEnabled()) {
-    enableInTab(tabId)
-  } else {
-    disableInTab(tabId)
+  try {
+    if (await isEnabled()) {
+      await enableInTab(tabId)
+    } else {
+      await disableInTab(tabId)
+    }
+  } catch (err) {
+    console.log('syncTab error', err)
   }
 }
 
@@ -148,10 +154,8 @@ async function setEnabledState(enabled: boolean) {
 
   if (enabled) {
     showActionBadge()
-    Analytics.track('extension:enable')
   } else {
     hideActionBadge()
-    Analytics.track('extension:disable')
   }
 }
 

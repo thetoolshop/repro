@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { applyResetStyles } from '@/config/theme'
 import { Analytics } from '@/libs/analytics'
+import { register as browserConsumer } from '@/libs/analytics/browser'
 import { Stats, Trace } from '@/libs/diagnostics'
 import { DEFAULT_AGENT } from '@/libs/messaging'
 import { StateProvider } from './context'
@@ -18,7 +19,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 Analytics.setAgent(DEFAULT_AGENT)
-Analytics.registerConsumer('browser')
+Analytics.registerConsumer(browserConsumer)
 
 const state = createState({
   inspecting: true,

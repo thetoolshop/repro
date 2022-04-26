@@ -27,11 +27,21 @@ export function createRuntimeAgent(): Agent {
     intent: Intent<T, P>,
     options?: RuntimeOptions
   ): Promise<R> {
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
+      function callback(response: R) {
+        if (chrome.runtime.lastError) {
+          console.log(chrome.runtime.lastError)
+          console.log(intent)
+          reject()
+        } else {
+          resolve(response)
+        }
+      }
+
       if (options?.target !== undefined) {
-        chrome.tabs.sendMessage(options.target, intent)
+        chrome.tabs.sendMessage(options.target, intent, callback)
       } else {
-        chrome.runtime.sendMessage(intent, resolve)
+        chrome.runtime.sendMessage(intent, callback)
       }
     })
   }

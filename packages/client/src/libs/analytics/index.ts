@@ -1,7 +1,5 @@
 import { nanoid } from 'nanoid'
 import { Agent, DEFAULT_AGENT } from '@/libs/messaging'
-import * as browser from './browser'
-import * as httpApi from './http-api'
 import { TrackedEvent } from './types'
 
 type Properties = Record<string, string>
@@ -9,10 +7,7 @@ type Properties = Record<string, string>
 let activeAgent: Agent = DEFAULT_AGENT
 let activeIdentityId: string | null = null
 
-const modules = {
-  browser,
-  httpApi,
-}
+type Consumer = (agent: Agent, identityId?: string | null) => void
 
 function createEventId() {
   return nanoid()
@@ -27,9 +22,8 @@ export const Analytics = {
     activeAgent = agent
   },
 
-  registerConsumer(name: keyof typeof modules) {
-    const module = modules[name]
-    module.register(activeAgent, activeIdentityId)
+  registerConsumer(consumer: Consumer) {
+    consumer(activeAgent, activeIdentityId)
   },
 
   track(event: string, props: Properties = {}) {

@@ -2,8 +2,6 @@ import { createPTPAgent } from '@/libs/messaging'
 import { SyntheticId } from '@/types/common'
 import { createRuntimeAgent } from '../createRuntimeAgent'
 
-chrome.runtime.connect()
-
 let scriptElement: HTMLScriptElement | null = null
 
 const inPageAgent = createPTPAgent()
