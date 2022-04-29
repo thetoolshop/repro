@@ -1,4 +1,4 @@
-![](/packages/client/src/app/chrome-extension/static/logo-full.png)
+![](/packages/client/src/apps/chrome-extension/static/logo-48.png)
 
 ## Repro
 
