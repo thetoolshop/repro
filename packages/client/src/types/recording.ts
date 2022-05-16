@@ -1,6 +1,6 @@
 import { SyntheticId } from './common'
 import { Interaction, InteractionSnapshot } from './interaction'
-import { NetworkSnapshot } from './network'
+import { NetworkMessage, NetworkSnapshot } from './network'
 import { Patch, VTree } from './vdom'
 import { ArrayBufferBackedList } from '@/utils/lang'
 
@@ -8,6 +8,7 @@ export enum SourceEventType {
   Snapshot = 0,
   DOMPatch = 10,
   Interaction = 20,
+  Network = 30,
   CloseRecording = 99,
 }
 
@@ -36,6 +37,11 @@ export interface InteractionEvent extends BaseEvent {
   data: Interaction
 }
 
+export interface NetworkEvent extends BaseEvent {
+  type: SourceEventType.Network
+  data: NetworkMessage
+}
+
 export interface CloseRecordingEvent extends BaseEvent {
   type: SourceEventType.CloseRecording
 }
@@ -44,6 +50,7 @@ export type SourceEvent =
   | SnapshotEvent
   | DOMPatchEvent
   | InteractionEvent
+  | NetworkEvent
   | CloseRecordingEvent
 
 export interface Sample<T> {

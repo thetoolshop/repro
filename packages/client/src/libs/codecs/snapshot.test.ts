@@ -7,7 +7,7 @@ import { elementNode, vtree } from './fixtures/vdom'
 import { decodeSnapshot, encodeSnapshot } from './snapshot'
 import {
   BinaryType,
-  NetworkEventType,
+  NetworkMessageType,
   RequestType,
   WebSocketStatus,
 } from '@/types/network'
@@ -30,7 +30,7 @@ describe('Snapshot codecs', () => {
             1234: {
               correlationId: '1234',
               request: {
-                type: NetworkEventType.FetchRequest,
+                type: NetworkMessageType.FetchRequest,
                 correlationId: '1234',
                 requestType: RequestType.Fetch,
                 url: 'http://example.com',
@@ -41,7 +41,7 @@ describe('Snapshot codecs', () => {
                 body: new ArrayBuffer(0),
               },
               response: {
-                type: NetworkEventType.FetchResponse,
+                type: NetworkMessageType.FetchResponse,
                 correlationId: '1234',
                 status: 200,
                 headers: {
@@ -64,7 +64,7 @@ describe('Snapshot codecs', () => {
               status: WebSocketStatus.Connected,
               messages: [
                 {
-                  type: NetworkEventType.WebSocketInbound,
+                  type: NetworkMessageType.WebSocketInbound,
                   connectionId: '1234',
                   binaryType: BinaryType.ArrayBuffer,
                   data: new TextEncoder().encode(`{ "bar": "baz" }`).buffer,

@@ -2,7 +2,7 @@ import { approxByteLength } from '@/libs/record/buffer-utils'
 import { PointerState } from '@/types/interaction'
 import {
   BinaryType,
-  NetworkEventType,
+  NetworkMessageType,
   RequestType,
   WebSocketStatus,
 } from '@/types/network'
@@ -43,7 +43,7 @@ const snapshot: Snapshot = {
         1234: {
           correlationId: '1234',
           request: {
-            type: NetworkEventType.FetchRequest,
+            type: NetworkMessageType.FetchRequest,
             correlationId: '1234',
             requestType: RequestType.Fetch,
             url: 'http://example.com',
@@ -54,7 +54,7 @@ const snapshot: Snapshot = {
             body: new ArrayBuffer(0),
           },
           response: {
-            type: NetworkEventType.FetchResponse,
+            type: NetworkMessageType.FetchResponse,
             correlationId: '1234',
             status: 200,
             headers: {
@@ -77,7 +77,7 @@ const snapshot: Snapshot = {
           status: WebSocketStatus.Connected,
           messages: [
             {
-              type: NetworkEventType.WebSocketInbound,
+              type: NetworkMessageType.WebSocketInbound,
               connectionId: '1234',
               binaryType: BinaryType.ArrayBuffer,
               data: new TextEncoder().encode(`{ "bar": "baz" }`).buffer,

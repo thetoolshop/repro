@@ -9,6 +9,7 @@ import {
 import {
   DOMPatchEvent,
   InteractionEvent,
+  NetworkEvent,
   SnapshotEvent,
   SourceEvent,
   SourceEventType,
@@ -40,6 +41,7 @@ import { observePeriodic } from './periodic'
 import { RecordingOptions } from './types'
 import { concat, NEVER, Observable, of } from 'rxjs'
 import { createViewportVisitor } from './interaction/visitor'
+import { NetworkMessage, NetworkSnapshot } from '@/types/network'
 
 const defaultOptions: RecordingOptions = {
   types: new Set(['dom', 'interaction']),
@@ -69,6 +71,20 @@ const EMPTY_EVENT_LIST = new ArrayBufferBackedList<SourceEvent>(
   eventReader,
   eventWriter
 )
+
+export function createEmptyNetworkSnapshot(): NetworkSnapshot {
+  return {
+    fetchRequests: {
+      data: {},
+      index: [],
+    },
+
+    websockets: {
+      data: {},
+      index: [],
+    },
+  }
+}
 
 export function createEmptyInteractionSnapshot(): InteractionSnapshot {
   return {
@@ -167,6 +183,10 @@ export function createRecordingStream(
 
     if (options.types.has('interaction')) {
       trailingSnapshot.interaction = createEmptyInteractionSnapshot()
+    }
+
+    if (options.types.has('network')) {
+      trailingSnapshot.network = createEmptyNetworkSnapshot()
     }
 
     Stats.time('RecordingStream#start: build VTree snapshot', () => {

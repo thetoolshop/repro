@@ -1,12 +1,15 @@
 import { InteractionType, PointerState } from '@/types/interaction'
+import { NetworkMessageType, RequestType } from '@/types/network'
 import {
   CloseRecordingEvent,
   DOMPatchEvent,
   InteractionEvent,
+  NetworkEvent,
   SnapshotEvent,
   SourceEventType,
 } from '@/types/recording'
 import { BufferReader } from 'arraybuffer-utils'
+import { nanoid } from 'nanoid'
 import { approxByteLength } from '../record/buffer-utils'
 import { LITTLE_ENDIAN } from './common'
 import { decodeEvent, encodeEvent } from './event'
@@ -62,6 +65,31 @@ describe('Event codecs', () => {
         from: [0, 0],
         to: [100, 100],
         duration: 250,
+      },
+    }
+
+    const buffer = encodeEvent(input)
+    const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
+    const output = decodeEvent(reader)
+
+    expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
+    expect(output).toEqual(input)
+  })
+
+  it('should encode and decode a network event', () => {
+    const input: NetworkEvent = {
+      type: SourceEventType.Network,
+      time: 123456,
+      data: {
+        type: NetworkMessageType.FetchRequest,
+        correlationId: nanoid(4),
+        requestType: RequestType.Fetch,
+        url: 'http://example.com',
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: new TextEncoder().encode(JSON.stringify({ foo: 'bar' })).buffer,
       },
     }
 

@@ -3,7 +3,7 @@ import {
   FetchRequest,
   FetchResponse,
   RequestType,
-  NetworkEventType,
+  NetworkMessageType,
   WebSocketOpen,
   WebSocketClose,
   WebSocketInbound,
@@ -13,8 +13,8 @@ import {
 import {
   CONNECTION_ID_BYTE_LENGTH,
   CORRELATION_ID_BYTE_LENGTH,
-  decodeNetworkEvent,
-  encodeNetworkEvent,
+  decodeNetworkMessage,
+  encodeNetworkMessage,
 } from './network'
 import { LITTLE_ENDIAN } from './common'
 import { approxByteLength } from '../record/buffer-utils'
@@ -36,7 +36,7 @@ function encodeBody(body: string): ArrayBuffer {
 describe('Network codecs', () => {
   it('should encode and decode a fetch request', () => {
     const input: FetchRequest = {
-      type: NetworkEventType.FetchRequest,
+      type: NetworkMessageType.FetchRequest,
       correlationId: createCorrelationId(),
       requestType: RequestType.Fetch,
       url: 'http://example.com/path/to/resource',
@@ -47,9 +47,9 @@ describe('Network codecs', () => {
       body: encodeBody('{ "foo": "bar" }'),
     }
 
-    const buffer = encodeNetworkEvent(input)
+    const buffer = encodeNetworkMessage(input)
     const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
-    const output = decodeNetworkEvent(reader)
+    const output = decodeNetworkMessage(reader)
 
     expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
     expect(output).toEqual(input)
@@ -57,7 +57,7 @@ describe('Network codecs', () => {
 
   it('should encode and decode and fetch response', () => {
     const input: FetchResponse = {
-      type: NetworkEventType.FetchResponse,
+      type: NetworkMessageType.FetchResponse,
       correlationId: createCorrelationId(),
       status: 200,
       headers: {
@@ -66,9 +66,9 @@ describe('Network codecs', () => {
       body: encodeBody('{ "bar": "baz" }'),
     }
 
-    const buffer = encodeNetworkEvent(input)
+    const buffer = encodeNetworkMessage(input)
     const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
-    const output = decodeNetworkEvent(reader)
+    const output = decodeNetworkMessage(reader)
 
     expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
     expect(output).toEqual(input)
@@ -76,14 +76,14 @@ describe('Network codecs', () => {
 
   it('should encode and decode a WebSocket open', () => {
     const input: WebSocketOpen = {
-      type: NetworkEventType.WebSocketOpen,
+      type: NetworkMessageType.WebSocketOpen,
       connectionId: createConnectionId(),
       url: 'ws://example.com/path/to/resource',
     }
 
-    const buffer = encodeNetworkEvent(input)
+    const buffer = encodeNetworkMessage(input)
     const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
-    const output = decodeNetworkEvent(reader)
+    const output = decodeNetworkMessage(reader)
 
     expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
     expect(output).toEqual(input)
@@ -91,13 +91,13 @@ describe('Network codecs', () => {
 
   it('should encode and decode a WebSocket close', () => {
     const input: WebSocketClose = {
-      type: NetworkEventType.WebSocketClose,
+      type: NetworkMessageType.WebSocketClose,
       connectionId: createConnectionId(),
     }
 
-    const buffer = encodeNetworkEvent(input)
+    const buffer = encodeNetworkMessage(input)
     const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
-    const output = decodeNetworkEvent(reader)
+    const output = decodeNetworkMessage(reader)
 
     expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
     expect(output).toEqual(input)
@@ -105,15 +105,15 @@ describe('Network codecs', () => {
 
   it('should encode and decode a WebSocket inbound message', () => {
     const input: WebSocketInbound = {
-      type: NetworkEventType.WebSocketInbound,
+      type: NetworkMessageType.WebSocketInbound,
       connectionId: createConnectionId(),
       binaryType: BinaryType.Blob,
       data: encodeBody('{ "foo": "bar" }'),
     }
 
-    const buffer = encodeNetworkEvent(input)
+    const buffer = encodeNetworkMessage(input)
     const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
-    const output = decodeNetworkEvent(reader)
+    const output = decodeNetworkMessage(reader)
 
     expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
     expect(output).toEqual(input)
@@ -121,15 +121,15 @@ describe('Network codecs', () => {
 
   it('should encode and decode a WebSocket outbound message', () => {
     const input: WebSocketOutbound = {
-      type: NetworkEventType.WebSocketOutbound,
+      type: NetworkMessageType.WebSocketOutbound,
       connectionId: createConnectionId(),
       binaryType: BinaryType.Blob,
       data: encodeBody('{ "foo": "bar" }'),
     }
 
-    const buffer = encodeNetworkEvent(input)
+    const buffer = encodeNetworkMessage(input)
     const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
-    const output = decodeNetworkEvent(reader)
+    const output = decodeNetworkMessage(reader)
 
     expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
     expect(output).toEqual(input)

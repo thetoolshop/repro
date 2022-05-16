@@ -3,8 +3,8 @@ import {
   FetchRequest,
   FetchResponse,
   RequestType,
-  NetworkEvent,
-  NetworkEventType,
+  NetworkMessage,
+  NetworkMessageType,
   WebSocketClose,
   WebSocketInbound,
   WebSocketOpen,
@@ -32,7 +32,7 @@ export const REQUEST_INITIATOR_BYTE_LENGTH = 1
 export const CONNECTION_ID_BYTE_LENGTH = 4
 export const BINARY_TYPE_BYTE_LENGTH = 1
 
-export function readNetworkEventType(reader: BufferReader): NetworkEventType {
+export function readNetworkEventType(reader: BufferReader): NetworkMessageType {
   return reader.readUint8()
 }
 
@@ -101,48 +101,48 @@ function readRequestType(reader: BufferReader): RequestType {
   return reader.readUint8()
 }
 
-export function encodeNetworkEvent(event: NetworkEvent): ArrayBuffer {
-  switch (event.type) {
-    case NetworkEventType.FetchRequest:
-      return encodeFetchRequest(event)
+export function encodeNetworkMessage(message: NetworkMessage): ArrayBuffer {
+  switch (message.type) {
+    case NetworkMessageType.FetchRequest:
+      return encodeFetchRequest(message)
 
-    case NetworkEventType.FetchResponse:
-      return encodeFetchResponse(event)
+    case NetworkMessageType.FetchResponse:
+      return encodeFetchResponse(message)
 
-    case NetworkEventType.WebSocketOpen:
-      return encodeWebSocketOpen(event)
+    case NetworkMessageType.WebSocketOpen:
+      return encodeWebSocketOpen(message)
 
-    case NetworkEventType.WebSocketClose:
-      return encodeWebSocketClose(event)
+    case NetworkMessageType.WebSocketClose:
+      return encodeWebSocketClose(message)
 
-    case NetworkEventType.WebSocketInbound:
-      return encodeWebSocketInbound(event)
+    case NetworkMessageType.WebSocketInbound:
+      return encodeWebSocketInbound(message)
 
-    case NetworkEventType.WebSocketOutbound:
-      return encodeWebSocketOutbound(event)
+    case NetworkMessageType.WebSocketOutbound:
+      return encodeWebSocketOutbound(message)
   }
 }
 
-export function decodeNetworkEvent(reader: BufferReader): NetworkEvent {
+export function decodeNetworkMessage(reader: BufferReader): NetworkMessage {
   const type = readNetworkEventType(reader)
 
   switch (type) {
-    case NetworkEventType.FetchRequest:
+    case NetworkMessageType.FetchRequest:
       return decodeFetchRequest(reader)
 
-    case NetworkEventType.FetchResponse:
+    case NetworkMessageType.FetchResponse:
       return decodeFetchResponse(reader)
 
-    case NetworkEventType.WebSocketOpen:
+    case NetworkMessageType.WebSocketOpen:
       return decodeWebSocketOpen(reader)
 
-    case NetworkEventType.WebSocketClose:
+    case NetworkMessageType.WebSocketClose:
       return decodeWebSocketClose(reader)
 
-    case NetworkEventType.WebSocketInbound:
+    case NetworkMessageType.WebSocketInbound:
       return decodeWebSocketInbound(reader)
 
-    case NetworkEventType.WebSocketOutbound:
+    case NetworkMessageType.WebSocketOutbound:
       return decodeWebSocketOutbound(reader)
   }
 }
@@ -192,7 +192,7 @@ export function encodeFetchRequest(event: FetchRequest): ArrayBuffer {
 }
 
 export function decodeFetchRequest(reader: BufferReader): FetchRequest {
-  const type = NetworkEventType.FetchRequest
+  const type = NetworkMessageType.FetchRequest
   const correlationId = readCorrelationId(reader)
   const requestType = readRequestType(reader)
   const url = readString32(reader)
@@ -264,7 +264,7 @@ export function encodeFetchResponse(event: FetchResponse): ArrayBuffer {
 }
 
 export function decodeFetchResponse(reader: BufferReader): FetchResponse {
-  const type = NetworkEventType.FetchResponse
+  const type = NetworkMessageType.FetchResponse
   const correlationId = readCorrelationId(reader)
   const status = reader.readUint16()
 
@@ -315,7 +315,7 @@ export function encodeWebSocketOpen(event: WebSocketOpen): ArrayBuffer {
 }
 
 export function decodeWebSocketOpen(reader: BufferReader): WebSocketOpen {
-  const type = NetworkEventType.WebSocketOpen
+  const type = NetworkMessageType.WebSocketOpen
   const connectionId = readConnectionId(reader)
   const url = readString32(reader)
 
@@ -338,7 +338,7 @@ export function encodeWebSocketClose(event: WebSocketClose): ArrayBuffer {
 }
 
 export function decodeWebSocketClose(reader: BufferReader): WebSocketClose {
-  const type = NetworkEventType.WebSocketClose
+  const type = NetworkMessageType.WebSocketClose
   const connectionId = readConnectionId(reader)
 
   return {
@@ -368,7 +368,7 @@ export function encodeWebSocketInbound(event: WebSocketInbound): ArrayBuffer {
 }
 
 export function decodeWebSocketInbound(reader: BufferReader): WebSocketInbound {
-  const type = NetworkEventType.WebSocketInbound
+  const type = NetworkMessageType.WebSocketInbound
   const connectionId = readConnectionId(reader)
   const binaryType = reader.readUint8()
 
@@ -411,7 +411,7 @@ export function encodeWebSocketOutbound(event: WebSocketOutbound): ArrayBuffer {
 export function decodeWebSocketOutbound(
   reader: BufferReader
 ): WebSocketOutbound {
-  const type = NetworkEventType.WebSocketOutbound
+  const type = NetworkMessageType.WebSocketOutbound
   const connectionId = readConnectionId(reader)
   const binaryType = reader.readUint8()
 

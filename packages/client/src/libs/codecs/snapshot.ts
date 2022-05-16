@@ -7,7 +7,7 @@ import {
 import {
   FetchRequestSnapshot,
   FetchResponse,
-  NetworkEventType,
+  NetworkMessageType,
   NetworkSnapshot,
   WebSocketInbound,
   WebSocketOutbound,
@@ -181,7 +181,7 @@ export function encodeNetworkSnapshot(
       new Uint32Array([snapshot.messages.length]).buffer,
       concat(
         snapshot.messages.map(message =>
-          message.type === NetworkEventType.WebSocketInbound
+          message.type === NetworkMessageType.WebSocketInbound
             ? encodeWebSocketInbound(message)
             : encodeWebSocketOutbound(message)
         )
@@ -250,11 +250,11 @@ export function decodeNetworkSnapshot(reader: BufferReader): NetworkSnapshot {
 
     for (let j = 0; j < messagesLength; j++) {
       const messageType:
-        | NetworkEventType.WebSocketInbound
-        | NetworkEventType.WebSocketOutbound = reader.readUint8()
+        | NetworkMessageType.WebSocketInbound
+        | NetworkMessageType.WebSocketOutbound = reader.readUint8()
 
       messages.push(
-        messageType === NetworkEventType.WebSocketInbound
+        messageType === NetworkMessageType.WebSocketInbound
           ? decodeWebSocketInbound(reader)
           : decodeWebSocketOutbound(reader)
       )

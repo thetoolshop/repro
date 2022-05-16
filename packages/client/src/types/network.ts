@@ -1,6 +1,6 @@
 import type { IndexedRecord, SyntheticId } from './common'
 
-export enum NetworkEventType {
+export enum NetworkMessageType {
   FetchRequest = 2,
   FetchResponse = 3,
   WebSocketOutbound = 4,
@@ -15,7 +15,7 @@ export enum RequestType {
 }
 
 export interface FetchRequest {
-  type: NetworkEventType.FetchRequest
+  type: NetworkMessageType.FetchRequest
   correlationId: SyntheticId
   requestType: RequestType
   url: string
@@ -25,7 +25,7 @@ export interface FetchRequest {
 }
 
 export interface FetchResponse {
-  type: NetworkEventType.FetchResponse
+  type: NetworkMessageType.FetchResponse
   correlationId: SyntheticId
   status: number
   headers: Record<string, string>
@@ -46,25 +46,25 @@ export enum BinaryType {
 }
 
 export interface WebSocketOpen {
-  type: NetworkEventType.WebSocketOpen
+  type: NetworkMessageType.WebSocketOpen
   connectionId: SyntheticId
   url: string
 }
 
 export interface WebSocketClose {
-  type: NetworkEventType.WebSocketClose
+  type: NetworkMessageType.WebSocketClose
   connectionId: SyntheticId
 }
 
 export interface WebSocketInbound {
-  type: NetworkEventType.WebSocketInbound
+  type: NetworkMessageType.WebSocketInbound
   connectionId: SyntheticId
   binaryType: BinaryType
   data: ArrayBufferLike
 }
 
 export interface WebSocketOutbound {
-  type: NetworkEventType.WebSocketOutbound
+  type: NetworkMessageType.WebSocketOutbound
   connectionId: SyntheticId
   binaryType: BinaryType
   data: ArrayBufferLike
@@ -86,7 +86,7 @@ export interface WebSocketSnapshot {
   endAt: number | null
 }
 
-export type NetworkEvent =
+export type NetworkMessage =
   | FetchRequest
   | FetchResponse
   | WebSocketInbound

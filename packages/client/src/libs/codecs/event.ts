@@ -3,6 +3,7 @@ import {
   CloseRecordingEvent,
   DOMPatchEvent,
   InteractionEvent,
+  NetworkEvent,
   SnapshotEvent,
   SourceEvent,
   SourceEventType,
@@ -11,6 +12,7 @@ import { concat, ENUM_BYTE_LENGTH, UINT_32, LITTLE_ENDIAN } from './common'
 import { decodeInteraction, encodeInteraction } from './interaction'
 import { decodeSnapshot, encodeSnapshot } from './snapshot'
 import { decodePatch, encodePatch } from './vdom'
+import { decodeNetworkMessage, encodeNetworkMessage } from './network'
 
 export function readEventType(buffer: ArrayBuffer): SourceEventType {
   const view = new DataView(buffer)
@@ -52,6 +54,9 @@ export function encodeEvent(event: SourceEvent): ArrayBuffer {
     case SourceEventType.Interaction:
       return encodeInteractionEvent(event)
 
+    case SourceEventType.Network:
+      return encodeNetworkEvent(event)
+
     case SourceEventType.CloseRecording:
       return encodeCloseRecordingEvent(event)
   }
@@ -69,6 +74,9 @@ export function decodeEvent(reader: BufferReader): SourceEvent {
 
     case SourceEventType.Interaction:
       return decodeInteractionEvent(reader)
+
+    case SourceEventType.Network:
+      return decodeNetworkEvent(reader)
 
     case SourceEventType.CloseRecording:
       return decodeCloseRecordingEvent(reader)
@@ -126,6 +134,24 @@ export function decodeInteractionEvent(reader: BufferReader): InteractionEvent {
   const type = SourceEventType.Interaction
   const time = reader.readUint32()
   const data = decodeInteraction(reader)
+  return { type, time, data }
+}
+
+export function encodeNetworkEvent(event: NetworkEvent): ArrayBuffer {
+  const byteLength = ENUM_BYTE_LENGTH + UINT_32
+  const buffer = new ArrayBuffer(byteLength)
+  const writer = new BufferWriter(buffer, 0, LITTLE_ENDIAN)
+
+  writer.writeUint8(event.type)
+  writer.writeUint32(event.time)
+
+  return concat([buffer, encodeNetworkMessage(event.data)])
+}
+
+export function decodeNetworkEvent(reader: BufferReader): NetworkEvent {
+  const type = SourceEventType.Network
+  const time = reader.readUint32()
+  const data = decodeNetworkMessage(reader)
   return { type, time, data }
 }
 
