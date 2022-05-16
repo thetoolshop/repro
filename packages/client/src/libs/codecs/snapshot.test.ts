@@ -5,6 +5,12 @@ import { approxByteLength } from '../record/buffer-utils'
 import { LITTLE_ENDIAN } from './common'
 import { elementNode, vtree } from './fixtures/vdom'
 import { decodeSnapshot, encodeSnapshot } from './snapshot'
+import {
+  BinaryType,
+  NetworkEventType,
+  RequestType,
+  WebSocketStatus,
+} from '@/types/network'
 
 describe('Snapshot codecs', () => {
   it('should encode and decode a full snapshot', () => {
@@ -17,6 +23,59 @@ describe('Snapshot codecs', () => {
           [elementNode.id]: [0, 250],
         },
         viewport: [1200, 800],
+      },
+      network: {
+        fetchRequests: {
+          data: {
+            1234: {
+              correlationId: '1234',
+              request: {
+                type: NetworkEventType.FetchRequest,
+                correlationId: '1234',
+                requestType: RequestType.Fetch,
+                url: 'http://example.com',
+                method: 'GET',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: new ArrayBuffer(0),
+              },
+              response: {
+                type: NetworkEventType.FetchResponse,
+                correlationId: '1234',
+                status: 200,
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: new TextEncoder().encode(`{ "foo": "bar" }`).buffer,
+              },
+              startAt: 100,
+              endAt: 350,
+            },
+          },
+          index: ['1234'],
+        },
+
+        websockets: {
+          data: {
+            1234: {
+              connectionId: '1234',
+              url: 'ws://example.com',
+              status: WebSocketStatus.Connected,
+              messages: [
+                {
+                  type: NetworkEventType.WebSocketInbound,
+                  connectionId: '1234',
+                  binaryType: BinaryType.ArrayBuffer,
+                  data: new TextEncoder().encode(`{ "bar": "baz" }`).buffer,
+                },
+              ],
+              startAt: 300,
+              endAt: null,
+            },
+          },
+          index: ['1234'],
+        },
       },
     }
 

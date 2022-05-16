@@ -1,7 +1,47 @@
-import { PointerState, ScrollMap } from '@/types/interaction'
-import { InteractionSnapshot, Snapshot } from '@/types/recording'
+import { IndexedRecord, SyntheticId } from '@/types/common'
+import {
+  InteractionSnapshot,
+  PointerState,
+  ScrollMap,
+} from '@/types/interaction'
+import {
+  FetchRequestSnapshot,
+  FetchResponse,
+  NetworkEventType,
+  NetworkSnapshot,
+  WebSocketInbound,
+  WebSocketOutbound,
+  WebSocketSnapshot,
+  WebSocketStatus,
+} from '@/types/network'
+import { Snapshot } from '@/types/recording'
 import { BufferReader, BufferWriter } from 'arraybuffer-utils'
-import { concat, ENUM_BYTE_LENGTH, UINT_32, LITTLE_ENDIAN } from './common'
+import {
+  concat,
+  ENUM_BYTE_LENGTH,
+  UINT_32,
+  LITTLE_ENDIAN,
+  getByteLength,
+  writeString32,
+  readString32,
+} from './common'
+import {
+  CORRELATION_ID_BYTE_LENGTH,
+  decodeFetchRequest,
+  encodeFetchRequest,
+  decodeFetchResponse,
+  encodeFetchResponse,
+  readConnectionId,
+  writeConnectionId,
+  readCorrelationId,
+  writeCorrelationId,
+  CONNECTION_ID_BYTE_LENGTH,
+  encodeWebSocketInbound,
+  encodeWebSocketOutbound,
+  readNetworkEventType,
+  decodeWebSocketInbound,
+  decodeWebSocketOutbound,
+} from './network'
 import { POINT_BYTE_LENGTH, readPoint, writePoint } from './point'
 import {
   decodeVTree,
@@ -62,6 +102,186 @@ function decodeInteractionSnapshot(reader: BufferReader): InteractionSnapshot {
   }
 }
 
+export function encodeNetworkSnapshot(
+  networkSnapshot: NetworkSnapshot
+): ArrayBuffer {
+  const { fetchRequests, websockets } = networkSnapshot
+  const buffers: Array<ArrayBuffer> = []
+
+  buffers.push(new Uint32Array([fetchRequests.index.length]).buffer)
+
+  for (const correlationId of fetchRequests.index) {
+    const snapshot = fetchRequests.data[correlationId]
+
+    if (!snapshot) {
+      throw new Error(
+        `NetworkSnapshot codec: could not find fetch request with correlationId = ${correlationId}`
+      )
+    }
+
+    const requestBuffer = encodeFetchRequest(snapshot.request)
+    const responseBuffer = snapshot.response
+      ? encodeFetchResponse(snapshot.response)
+      : new ArrayBuffer(0)
+
+    const correlationIdBuffer = new ArrayBuffer(CORRELATION_ID_BYTE_LENGTH)
+    writeCorrelationId(
+      new BufferWriter(correlationIdBuffer, 0, LITTLE_ENDIAN),
+      snapshot.correlationId
+    )
+
+    const timingBuffer = new ArrayBuffer(UINT_32 + UINT_32)
+    const timingBufferWriter = new BufferWriter(timingBuffer, 0, LITTLE_ENDIAN)
+    timingBufferWriter.writeUint32(snapshot.startAt)
+    timingBufferWriter.writeUint32(snapshot.endAt ?? 0)
+
+    const buffer = concat([
+      correlationIdBuffer,
+      requestBuffer,
+
+      new Uint8Array([snapshot.response ? 1 : 0]).buffer,
+      responseBuffer,
+
+      timingBuffer,
+    ])
+
+    buffers.push(buffer)
+  }
+
+  buffers.push(new Uint32Array([websockets.index.length]).buffer)
+
+  for (const connectionId of websockets.index) {
+    const snapshot = websockets.data[connectionId]
+
+    if (!snapshot) {
+      throw new Error(
+        `NetworkSnapshot codec: could not find websocket with connectionId = ${connectionId}`
+      )
+    }
+
+    const connectionIdBuffer = new ArrayBuffer(CONNECTION_ID_BYTE_LENGTH)
+    writeConnectionId(
+      new BufferWriter(connectionIdBuffer, 0, LITTLE_ENDIAN),
+      snapshot.connectionId
+    )
+
+    const urlBuffer = new ArrayBuffer(UINT_32 + getByteLength(snapshot.url))
+    writeString32(new BufferWriter(urlBuffer, 0, LITTLE_ENDIAN), snapshot.url)
+
+    const timingBuffer = new ArrayBuffer(UINT_32 + UINT_32)
+    const timingBufferWriter = new BufferWriter(timingBuffer, 0, LITTLE_ENDIAN)
+    timingBufferWriter.writeUint32(snapshot.startAt)
+    timingBufferWriter.writeUint32(snapshot.endAt ?? 0)
+
+    const buffer = concat([
+      connectionIdBuffer,
+      urlBuffer,
+      new Uint8Array([snapshot.status]).buffer,
+
+      new Uint32Array([snapshot.messages.length]).buffer,
+      concat(
+        snapshot.messages.map(message =>
+          message.type === NetworkEventType.WebSocketInbound
+            ? encodeWebSocketInbound(message)
+            : encodeWebSocketOutbound(message)
+        )
+      ),
+
+      timingBuffer,
+    ])
+
+    buffers.push(buffer)
+  }
+
+  return concat(buffers)
+}
+
+export function decodeNetworkSnapshot(reader: BufferReader): NetworkSnapshot {
+  const fetchRequestsLength = reader.readUint32()
+
+  const fetchRequests: IndexedRecord<SyntheticId, FetchRequestSnapshot> = {
+    data: {},
+    index: [],
+  }
+
+  for (let i = 0; i < fetchRequestsLength; i++) {
+    const correlationId = readCorrelationId(reader)
+
+    // The FetchRequest decoder expects the event type to have already been read
+    readNetworkEventType(reader)
+    const request = decodeFetchRequest(reader)
+    const hasResponse = reader.readUint8() === 1
+    let response: FetchResponse | null = null
+
+    if (hasResponse) {
+      // The FetchResponse decoder expects the event type to have already been read
+      readNetworkEventType(reader)
+      response = decodeFetchResponse(reader)
+    }
+
+    const startAt = reader.readUint32()
+    const endAt = reader.readUint32() || null
+
+    const snapshot: FetchRequestSnapshot = {
+      correlationId,
+      request,
+      response,
+      startAt,
+      endAt,
+    }
+
+    fetchRequests.data[correlationId] = snapshot
+    fetchRequests.index.push(correlationId)
+  }
+
+  const websocketsLength = reader.readUint32()
+
+  const websockets: IndexedRecord<SyntheticId, WebSocketSnapshot> = {
+    data: {},
+    index: [],
+  }
+
+  for (let i = 0; i < websocketsLength; i++) {
+    const connectionId = readConnectionId(reader)
+    const url = readString32(reader)
+    const status: WebSocketStatus = reader.readUint8()
+    const messagesLength = reader.readUint32()
+    const messages: Array<WebSocketInbound | WebSocketOutbound> = []
+
+    for (let j = 0; j < messagesLength; j++) {
+      const messageType:
+        | NetworkEventType.WebSocketInbound
+        | NetworkEventType.WebSocketOutbound = reader.readUint8()
+
+      messages.push(
+        messageType === NetworkEventType.WebSocketInbound
+          ? decodeWebSocketInbound(reader)
+          : decodeWebSocketOutbound(reader)
+      )
+    }
+
+    const startAt = reader.readUint32()
+    const endAt = reader.readUint32() || null
+
+    const snapshot: WebSocketSnapshot = {
+      connectionId,
+      url,
+      status,
+      messages,
+      startAt,
+      endAt,
+    }
+
+    websockets.data[connectionId] = snapshot
+    websockets.index.push(connectionId)
+  }
+
+  return {
+    fetchRequests,
+    websockets,
+  }
+}
+
 export function encodeSnapshot(snapshot: Snapshot): ArrayBuffer {
   const domHeader = new Uint8Array([snapshot.dom ? 1 : 0]).buffer
   const domBuffer = snapshot.dom
@@ -74,7 +294,19 @@ export function encodeSnapshot(snapshot: Snapshot): ArrayBuffer {
     ? encodeInteractionSnapshot(snapshot.interaction)
     : new ArrayBuffer(0)
 
-  return concat([domHeader, domBuffer, interactionHeader, interactionBuffer])
+  const networkHeader = new Uint8Array([snapshot.network ? 1 : 0]).buffer
+  const networkBuffer = snapshot.network
+    ? encodeNetworkSnapshot(snapshot.network)
+    : new ArrayBuffer(0)
+
+  return concat([
+    domHeader,
+    domBuffer,
+    interactionHeader,
+    interactionBuffer,
+    networkHeader,
+    networkBuffer,
+  ])
 }
 
 export function decodeSnapshot(reader: BufferReader): Snapshot {
@@ -92,6 +324,12 @@ export function decodeSnapshot(reader: BufferReader): Snapshot {
 
   if (interactionHeader === 1) {
     snapshot.interaction = decodeInteractionSnapshot(reader)
+  }
+
+  const networkHeader = reader.readUint8()
+
+  if (networkHeader === 1) {
+    snapshot.network = decodeNetworkSnapshot(reader)
   }
 
   return snapshot

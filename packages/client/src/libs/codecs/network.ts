@@ -32,14 +32,17 @@ export const REQUEST_INITIATOR_BYTE_LENGTH = 1
 export const CONNECTION_ID_BYTE_LENGTH = 4
 export const BINARY_TYPE_BYTE_LENGTH = 1
 
-function readNetworkEventType(reader: BufferReader): NetworkEventType {
+export function readNetworkEventType(reader: BufferReader): NetworkEventType {
   return reader.readUint8()
 }
 
 const textEncoder = new TextEncoder()
 const textDecoder = new TextDecoder()
 
-function writeCorrelationId(writer: BufferWriter, correlationId: SyntheticId) {
+export function writeCorrelationId(
+  writer: BufferWriter,
+  correlationId: SyntheticId
+) {
   const bytes = textEncoder.encode(correlationId)
 
   if (bytes.byteLength !== CORRELATION_ID_BYTE_LENGTH) {
@@ -53,7 +56,7 @@ function writeCorrelationId(writer: BufferWriter, correlationId: SyntheticId) {
   }
 }
 
-function readCorrelationId(reader: BufferReader): SyntheticId {
+export function readCorrelationId(reader: BufferReader): SyntheticId {
   const bytes: Array<number> = []
 
   for (let i = 0; i < CORRELATION_ID_BYTE_LENGTH; i++) {
@@ -63,7 +66,10 @@ function readCorrelationId(reader: BufferReader): SyntheticId {
   return textDecoder.decode(new Uint8Array(bytes))
 }
 
-function writeConnectionId(writer: BufferWriter, connectionId: SyntheticId) {
+export function writeConnectionId(
+  writer: BufferWriter,
+  connectionId: SyntheticId
+) {
   const bytes = textEncoder.encode(connectionId)
 
   if (bytes.byteLength !== CONNECTION_ID_BYTE_LENGTH) {
@@ -77,7 +83,7 @@ function writeConnectionId(writer: BufferWriter, connectionId: SyntheticId) {
   }
 }
 
-function readConnectionId(reader: BufferReader): SyntheticId {
+export function readConnectionId(reader: BufferReader): SyntheticId {
   const bytes: Array<number> = []
 
   for (let i = 0; i < CONNECTION_ID_BYTE_LENGTH; i++) {
@@ -275,8 +281,12 @@ export function decodeFetchResponse(reader: BufferReader): FetchResponse {
   )
 
   const bodyLength = reader.readUint32()
-  const bodyOffset = reader.getOffset()
-  const body = reader.buffer.buffer.slice(bodyOffset, bodyOffset + bodyLength)
+  const body = new ArrayBuffer(bodyLength)
+  const bodyWriter = new BufferWriter(body, 0, LITTLE_ENDIAN)
+
+  for (let i = 0; i < bodyLength; i++) {
+    bodyWriter.writeUint8(reader.readUint8())
+  }
 
   return {
     type,
@@ -363,8 +373,12 @@ export function decodeWebSocketInbound(reader: BufferReader): WebSocketInbound {
   const binaryType = reader.readUint8()
 
   const dataLength = reader.readUint32()
-  const dataOffset = reader.getOffset()
-  const data = reader.buffer.buffer.slice(dataOffset, dataOffset + dataLength)
+  const data = new ArrayBuffer(dataLength)
+  const dataWriter = new BufferWriter(data, 0, LITTLE_ENDIAN)
+
+  for (let i = 0; i < dataLength; i++) {
+    dataWriter.writeUint8(reader.readUint8())
+  }
 
   return {
     type,
@@ -402,8 +416,12 @@ export function decodeWebSocketOutbound(
   const binaryType = reader.readUint8()
 
   const dataLength = reader.readUint32()
-  const dataOffset = reader.getOffset()
-  const data = reader.buffer.buffer.slice(dataOffset, dataOffset + dataLength)
+  const data = new ArrayBuffer(dataLength)
+  const dataWriter = new BufferWriter(data, 0, LITTLE_ENDIAN)
+
+  for (let i = 0; i < dataLength; i++) {
+    dataWriter.writeUint8(reader.readUint8())
+  }
 
   return {
     type,

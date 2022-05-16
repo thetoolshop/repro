@@ -1,4 +1,4 @@
-import type { SyntheticId } from './common'
+import type { IndexedRecord, SyntheticId } from './common'
 
 export enum NetworkEventType {
   FetchRequest = 2,
@@ -32,6 +32,14 @@ export interface FetchResponse {
   body: ArrayBufferLike
 }
 
+export interface FetchRequestSnapshot {
+  correlationId: SyntheticId
+  request: FetchRequest
+  response: FetchResponse | null
+  startAt: number
+  endAt: number | null
+}
+
 export enum BinaryType {
   Blob = 0,
   ArrayBuffer = 1,
@@ -62,6 +70,22 @@ export interface WebSocketOutbound {
   data: ArrayBufferLike
 }
 
+export enum WebSocketStatus {
+  Connecting = 0,
+  Connected = 1,
+  Closing = 2,
+  Closed = 3,
+}
+
+export interface WebSocketSnapshot {
+  connectionId: SyntheticId
+  url: string
+  status: WebSocketStatus
+  messages: Array<WebSocketInbound | WebSocketOutbound>
+  startAt: number
+  endAt: number | null
+}
+
 export type NetworkEvent =
   | FetchRequest
   | FetchResponse
@@ -69,3 +93,8 @@ export type NetworkEvent =
   | WebSocketOutbound
   | WebSocketOpen
   | WebSocketClose
+
+export interface NetworkSnapshot {
+  fetchRequests: IndexedRecord<SyntheticId, FetchRequestSnapshot>
+  websockets: IndexedRecord<SyntheticId, WebSocketSnapshot>
+}

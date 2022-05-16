@@ -1,10 +1,14 @@
 import { BufferReader } from 'arraybuffer-utils'
 import { SyntheticId } from '@/types/common'
-import { Interaction, InteractionType, PointerState } from '@/types/interaction'
+import {
+  Interaction,
+  InteractionSnapshot,
+  InteractionType,
+  PointerState,
+} from '@/types/interaction'
 import {
   DOMPatchEvent,
   InteractionEvent,
-  InteractionSnapshot,
   SnapshotEvent,
   SourceEvent,
   SourceEventType,

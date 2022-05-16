@@ -63,3 +63,10 @@ export type Interaction =
   | KeyUp
 
 export type ScrollMap = Record<SyntheticId, Point>
+
+export interface InteractionSnapshot {
+  pointer: Point
+  pointerState: PointerState
+  scroll: ScrollMap
+  viewport: Point
+}

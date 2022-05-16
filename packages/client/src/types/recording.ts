@@ -1,6 +1,6 @@
-import { PointerState } from '@/types/interaction'
 import { SyntheticId } from './common'
-import { Interaction, Point, ScrollMap } from './interaction'
+import { Interaction, InteractionSnapshot } from './interaction'
+import { NetworkSnapshot } from './network'
 import { Patch, VTree } from './vdom'
 import { ArrayBufferBackedList } from '@/utils/lang'
 
@@ -15,21 +15,10 @@ interface BaseEvent {
   time: number
 }
 
-export interface InteractionSnapshot {
-  pointer: Point
-  pointerState: PointerState
-  scroll: ScrollMap
-  viewport: Point
-}
-
 export interface Snapshot {
   dom: VTree | null
-  interaction?: {
-    pointer: Point
-    pointerState: PointerState
-    scroll: ScrollMap
-    viewport: Point
-  }
+  interaction?: InteractionSnapshot
+  network?: NetworkSnapshot
 }
 
 export interface SnapshotEvent extends BaseEvent {
