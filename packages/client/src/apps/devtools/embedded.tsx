@@ -85,7 +85,7 @@ class ReproDevTools extends HTMLElement {
     }
 
     const stream = createRecordingStream(document, {
-      types: new Set(['dom', 'interaction']),
+      types: new Set(['dom', 'interaction', 'network']),
       ignoredNodes,
       ignoredSelectors,
     })

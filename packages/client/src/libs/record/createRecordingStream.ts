@@ -37,6 +37,7 @@ import {
   createIFrameVisitor,
 } from './dom'
 import { createInteractionObserver, createScrollVisitor } from './interaction'
+import { createNetworkObserver } from './network'
 import { observePeriodic } from './periodic'
 import { RecordingOptions } from './types'
 import { concat, NEVER, Observable, of } from 'rxjs'
@@ -480,7 +481,23 @@ export function createRecordingStream(
     domTreeWalker.accept(viewportVisitor)
   }
 
-  function registerNetworkObserver() {}
+  function createNetworkEvent(message: NetworkMessage): NetworkEvent {
+    return {
+      type: SourceEventType.Network,
+      time: performance.now(),
+      data: message,
+    }
+  }
+
+  function registerNetworkObserver() {
+    observers.push(
+      createNetworkObserver(message => {
+        // TODO: apply event to trailing snapshot
+        addEvent(createNetworkEvent(message))
+      })
+    )
+  }
+
   function registerPerformanceObserver() {}
 
   function subscribeToBuffer() {
