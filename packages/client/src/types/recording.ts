@@ -1,9 +1,9 @@
 import { SyntheticId } from './common'
 import { Interaction, InteractionSnapshot } from './interaction'
-import { NetworkMessage, NetworkSnapshot } from './network'
+import { NetworkMessage } from './network'
 import { Patch, VTree } from './vdom'
 import { ArrayBufferBackedList } from '@/utils/lang'
-import { ConsoleMessage, ConsoleSnapshot } from './console'
+import { ConsoleMessage } from './console'
 
 export enum SourceEventType {
   Snapshot = 0,
@@ -21,8 +21,6 @@ interface BaseEvent {
 export interface Snapshot {
   dom: VTree | null
   interaction?: InteractionSnapshot
-  network?: NetworkSnapshot
-  console?: ConsoleSnapshot
 }
 
 export interface SnapshotEvent extends BaseEvent {
