@@ -1,4 +1,5 @@
 import { Stats } from '@/libs/diagnostics'
+import { logger } from '@/libs/logger'
 import { usePlayback } from '@/libs/playback'
 import { SyntheticId } from '@/types/common'
 import { InteractionType, Point, ScrollMap } from '@/types/interaction'
@@ -408,7 +409,7 @@ function createDOMFromVTree(
     const parentVNode = (parentId && vtree.nodes[parentId]) || null
 
     if (rootNodeMap.hasOwnProperty(nodeId)) {
-      console.warn(
+      logger.warn(
         `render: Duplicate node(${nodeId}) of parent(${parentId})`,
         rootNodeMap[nodeId],
         vNode,

@@ -1,4 +1,5 @@
 import { IndexedRecord, SyntheticId } from '@/types/common'
+import { ConsoleMessage, ConsoleSnapshot } from '@/types/console'
 import {
   InteractionSnapshot,
   PointerState,
@@ -25,6 +26,7 @@ import {
   writeString32,
   readString32,
 } from './common'
+import { decodeConsoleMessage, encodeConsoleMessage } from './console'
 import {
   CORRELATION_ID_BYTE_LENGTH,
   decodeFetchRequest,
@@ -282,6 +284,30 @@ export function decodeNetworkSnapshot(reader: BufferReader): NetworkSnapshot {
   }
 }
 
+export function encodeConsoleSnapshot(snapshot: ConsoleSnapshot): ArrayBuffer {
+  return concat([
+    new Uint32Array([snapshot.messages.length]).buffer,
+    ...snapshot.messages.flatMap(({ time, data }) => [
+      new Uint32Array([time]).buffer,
+      encodeConsoleMessage(data),
+    ]),
+  ])
+}
+
+export function decodeConsoleSnapshot(reader: BufferReader): ConsoleSnapshot {
+  const messages: Array<{ time: number; data: ConsoleMessage }> = []
+  const messagesLength = reader.readUint32()
+
+  for (let i = 0; i < messagesLength; i++) {
+    messages.push({
+      time: reader.readUint32(),
+      data: decodeConsoleMessage(reader),
+    })
+  }
+
+  return { messages }
+}
+
 export function encodeSnapshot(snapshot: Snapshot): ArrayBuffer {
   const domHeader = new Uint8Array([snapshot.dom ? 1 : 0]).buffer
   const domBuffer = snapshot.dom
@@ -299,6 +325,11 @@ export function encodeSnapshot(snapshot: Snapshot): ArrayBuffer {
     ? encodeNetworkSnapshot(snapshot.network)
     : new ArrayBuffer(0)
 
+  const consoleHeader = new Uint8Array([snapshot.console ? 1 : 0]).buffer
+  const consoleBuffer = snapshot.console
+    ? encodeConsoleSnapshot(snapshot.console)
+    : new ArrayBuffer(0)
+
   return concat([
     domHeader,
     domBuffer,
@@ -306,6 +337,8 @@ export function encodeSnapshot(snapshot: Snapshot): ArrayBuffer {
     interactionBuffer,
     networkHeader,
     networkBuffer,
+    consoleHeader,
+    consoleBuffer,
   ])
 }
 
@@ -330,6 +363,12 @@ export function decodeSnapshot(reader: BufferReader): Snapshot {
 
   if (networkHeader === 1) {
     snapshot.network = decodeNetworkSnapshot(reader)
+  }
+
+  const consoleHeader = reader.readUint8()
+
+  if (consoleHeader === 1) {
+    snapshot.console = decodeConsoleSnapshot(reader)
   }
 
   return snapshot

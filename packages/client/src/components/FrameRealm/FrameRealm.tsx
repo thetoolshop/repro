@@ -1,3 +1,4 @@
+import { logger } from '@/libs/logger'
 import { Block } from 'jsxstyle'
 import React, { MutableRefObject, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
@@ -16,7 +17,7 @@ try {
         })
       : null
 } catch (err) {
-  console.error(err)
+  logger.error(err)
   passthroughHTMLPolicy = null
 }
 

@@ -1,6 +1,7 @@
 import { BufferReader, BufferWriter } from 'arraybuffer-utils'
 import {
   CloseRecordingEvent,
+  ConsoleEvent,
   DOMPatchEvent,
   InteractionEvent,
   NetworkEvent,
@@ -13,6 +14,7 @@ import { decodeInteraction, encodeInteraction } from './interaction'
 import { decodeSnapshot, encodeSnapshot } from './snapshot'
 import { decodePatch, encodePatch } from './vdom'
 import { decodeNetworkMessage, encodeNetworkMessage } from './network'
+import { decodeConsoleMessage, encodeConsoleMessage } from './console'
 
 export function readEventType(buffer: ArrayBuffer): SourceEventType {
   const view = new DataView(buffer)
@@ -57,6 +59,9 @@ export function encodeEvent(event: SourceEvent): ArrayBuffer {
     case SourceEventType.Network:
       return encodeNetworkEvent(event)
 
+    case SourceEventType.Console:
+      return encodeConsoleEvent(event)
+
     case SourceEventType.CloseRecording:
       return encodeCloseRecordingEvent(event)
   }
@@ -77,6 +82,9 @@ export function decodeEvent(reader: BufferReader): SourceEvent {
 
     case SourceEventType.Network:
       return decodeNetworkEvent(reader)
+
+    case SourceEventType.Console:
+      return decodeConsoleEvent(reader)
 
     case SourceEventType.CloseRecording:
       return decodeCloseRecordingEvent(reader)
@@ -152,6 +160,24 @@ export function decodeNetworkEvent(reader: BufferReader): NetworkEvent {
   const type = SourceEventType.Network
   const time = reader.readUint32()
   const data = decodeNetworkMessage(reader)
+  return { type, time, data }
+}
+
+export function encodeConsoleEvent(event: ConsoleEvent): ArrayBuffer {
+  const byteLength = ENUM_BYTE_LENGTH + UINT_32
+  const buffer = new ArrayBuffer(byteLength)
+  const writer = new BufferWriter(buffer, 0, LITTLE_ENDIAN)
+
+  writer.writeUint8(event.type)
+  writer.writeUint32(event.time)
+
+  return concat([buffer, encodeConsoleMessage(event.data)])
+}
+
+export function decodeConsoleEvent(reader: BufferReader): ConsoleEvent {
+  const type = SourceEventType.Console
+  const time = reader.readUint32()
+  const data = decodeConsoleMessage(reader)
   return { type, time, data }
 }
 

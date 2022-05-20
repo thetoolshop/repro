@@ -3,12 +3,14 @@ import { Interaction, InteractionSnapshot } from './interaction'
 import { NetworkMessage, NetworkSnapshot } from './network'
 import { Patch, VTree } from './vdom'
 import { ArrayBufferBackedList } from '@/utils/lang'
+import { ConsoleMessage, ConsoleSnapshot } from './console'
 
 export enum SourceEventType {
   Snapshot = 0,
   DOMPatch = 10,
   Interaction = 20,
   Network = 30,
+  Console = 40,
   CloseRecording = 99,
 }
 
@@ -20,6 +22,7 @@ export interface Snapshot {
   dom: VTree | null
   interaction?: InteractionSnapshot
   network?: NetworkSnapshot
+  console?: ConsoleSnapshot
 }
 
 export interface SnapshotEvent extends BaseEvent {
@@ -42,6 +45,11 @@ export interface NetworkEvent extends BaseEvent {
   data: NetworkMessage
 }
 
+export interface ConsoleEvent extends BaseEvent {
+  type: SourceEventType.Console
+  data: ConsoleMessage
+}
+
 export interface CloseRecordingEvent extends BaseEvent {
   type: SourceEventType.CloseRecording
 }
@@ -51,6 +59,7 @@ export type SourceEvent =
   | DOMPatchEvent
   | InteractionEvent
   | NetworkEvent
+  | ConsoleEvent
   | CloseRecordingEvent
 
 export interface Sample<T> {

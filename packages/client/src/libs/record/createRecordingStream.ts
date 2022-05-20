@@ -7,6 +7,7 @@ import {
   PointerState,
 } from '@/types/interaction'
 import {
+  ConsoleEvent,
   DOMPatchEvent,
   InteractionEvent,
   NetworkEvent,
@@ -30,6 +31,7 @@ import {
 } from '../codecs/event'
 import { Stats } from '../diagnostics'
 import { createBuffer, Unsubscribe } from './buffer-utils'
+import { createConsoleObserver } from './console'
 import {
   createDOMObserver,
   createDOMTreeWalker,
@@ -43,6 +45,8 @@ import { RecordingOptions } from './types'
 import { concat, NEVER, Observable, of } from 'rxjs'
 import { createViewportVisitor } from './interaction/visitor'
 import { NetworkMessage, NetworkSnapshot } from '@/types/network'
+import { logger } from '../logger'
+import { ConsoleMessage } from '@/types/console'
 
 const defaultOptions: RecordingOptions = {
   types: new Set(['dom', 'interaction']),
@@ -166,6 +170,10 @@ export function createRecordingStream(
 
   if (options.types.has('network')) {
     registerNetworkObserver()
+  }
+
+  if (options.types.has('console')) {
+    registerConsoleObserver()
   }
 
   if (options.types.has('performance')) {
@@ -498,6 +506,23 @@ export function createRecordingStream(
     )
   }
 
+  function createConsoleEvent(message: ConsoleMessage): ConsoleEvent {
+    return {
+      type: SourceEventType.Console,
+      time: performance.now(),
+      data: message,
+    }
+  }
+
+  function registerConsoleObserver() {
+    observers.push(
+      createConsoleObserver(message => {
+        // TODO: apply event to trailing snapshot
+        addEvent(createConsoleEvent(message))
+      })
+    )
+  }
+
   function registerPerformanceObserver() {}
 
   function subscribeToBuffer() {
@@ -516,6 +541,8 @@ export function createRecordingStream(
           const event = decodeEvent(reader)
           applyEventToSnapshot(leadingSnapshot, event, event.time)
         }
+
+        // TODO: drop evicted console and network messages from snapshots
       }
     })
   }

@@ -13,6 +13,7 @@ import {
   VTree,
 } from '@/types/vdom'
 import { copyObjectDeep } from '@/utils/lang'
+import { logger } from '@/libs/logger'
 
 export function createSyntheticId() {
   return nanoid(5)
@@ -155,7 +156,7 @@ export function insertSubTreesAtNode(
     if (parent.children.indexOf(childId) === -1) {
       childIds.push(childId)
     } else {
-      console.debug(
+      logger.debug(
         `vdom: Overwriting subtree under node(${childId}) of parent(${parent.id})`,
         subtree,
         parent

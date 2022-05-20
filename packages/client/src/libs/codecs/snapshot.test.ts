@@ -5,6 +5,7 @@ import { approxByteLength } from '../record/buffer-utils'
 import { LITTLE_ENDIAN } from './common'
 import { elementNode, vtree } from './fixtures/vdom'
 import { decodeSnapshot, encodeSnapshot } from './snapshot'
+import { LogLevel, MessagePartType } from '@/types/console'
 import {
   BinaryType,
   NetworkMessageType,
@@ -16,6 +17,7 @@ describe('Snapshot codecs', () => {
   it('should encode and decode a full snapshot', () => {
     const input: Snapshot = {
       dom: vtree,
+
       interaction: {
         pointer: [100, 100],
         pointerState: PointerState.Down,
@@ -24,6 +26,7 @@ describe('Snapshot codecs', () => {
         },
         viewport: [1200, 800],
       },
+
       network: {
         fetchRequests: {
           data: {
@@ -76,6 +79,37 @@ describe('Snapshot codecs', () => {
           },
           index: ['1234'],
         },
+      },
+
+      console: {
+        messages: [
+          {
+            time: 100,
+            data: {
+              level: LogLevel.Info,
+              parts: [
+                {
+                  type: MessagePartType.String,
+                  value: 'foo',
+                },
+              ],
+              stack: [
+                {
+                  functionName: 'foo',
+                  fileName: '/path/to/bar.js',
+                  lineNumber: 1,
+                  columnNumber: 234567,
+                },
+                {
+                  functionName: null,
+                  fileName: '/path/to/somewhere/else.js',
+                  lineNumber: 999999,
+                  columnNumber: 1,
+                },
+              ],
+            },
+          },
+        ],
       },
     }
 

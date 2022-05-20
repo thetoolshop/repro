@@ -1,3 +1,5 @@
+import { logger } from '../logger'
+
 let enabled = false
 
 type FactoryOrValue<T> = T | (() => T)
@@ -33,7 +35,7 @@ function awaitSample() {
 }
 
 function emit<T>(label: string, value: T) {
-  console.debug(label, value)
+  logger.debug(label, value)
 }
 
 export const Stats = {

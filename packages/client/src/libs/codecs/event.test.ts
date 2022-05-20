@@ -1,7 +1,9 @@
+import { LogLevel, MessagePartType } from '@/types/console'
 import { InteractionType, PointerState } from '@/types/interaction'
 import { NetworkMessageType, RequestType } from '@/types/network'
 import {
   CloseRecordingEvent,
+  ConsoleEvent,
   DOMPatchEvent,
   InteractionEvent,
   NetworkEvent,
@@ -90,6 +92,43 @@ describe('Event codecs', () => {
           'Content-Type': 'application/json',
         },
         body: new TextEncoder().encode(JSON.stringify({ foo: 'bar' })).buffer,
+      },
+    }
+
+    const buffer = encodeEvent(input)
+    const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
+    const output = decodeEvent(reader)
+
+    expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
+    expect(output).toEqual(input)
+  })
+
+  it('should encode and decode a console event', () => {
+    const input: ConsoleEvent = {
+      type: SourceEventType.Console,
+      time: 123456,
+      data: {
+        level: LogLevel.Error,
+        parts: [
+          {
+            type: MessagePartType.String,
+            value: 'Error: could not find property "foo" of undefined',
+          },
+        ],
+        stack: [
+          {
+            functionName: 'foo',
+            fileName: '/path/to/bar.js',
+            lineNumber: 1,
+            columnNumber: 234567,
+          },
+          {
+            functionName: null,
+            fileName: '/path/to/somewhere/else.js',
+            lineNumber: 999999,
+            columnNumber: 1,
+          },
+        ],
       },
     }
 

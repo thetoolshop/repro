@@ -1,5 +1,6 @@
 import React from 'react'
 import { Trace } from '@/libs/diagnostics'
+import { logger } from '@/libs/logger'
 
 export class PlaybackErrorBoundary extends React.Component {
   state = {
@@ -16,7 +17,7 @@ export class PlaybackErrorBoundary extends React.Component {
 
   componentDidCatch() {
     // TODO: render last good snapshot and highlight failing patch
-    console.log(Trace.getLastFrame())
+    logger.log(Trace.getLastFrame())
   }
 
   render() {
