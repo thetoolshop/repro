@@ -101,12 +101,12 @@ function createXHRObserver(subscriber: Subscriber): ObserverLike<Document> {
           break
 
         case 'json':
-          body = textEncoder.encode(JSON.stringify(this.response))
+          body = textEncoder.encode(JSON.stringify(this.response)).buffer
           break
 
         case 'text':
         case '':
-          body = textEncoder.encode(this.responseText)
+          body = textEncoder.encode(this.responseText).buffer
           break
       }
 
@@ -217,7 +217,7 @@ function createXHRObserver(subscriber: Subscriber): ObserverLike<Document> {
             } else if (rawBody instanceof Blob) {
               body = await rawBody.arrayBuffer()
             } else if (typeof rawBody === 'string') {
-              body = textEncoder.encode(rawBody)
+              body = textEncoder.encode(rawBody).buffer
             }
           }
 
@@ -274,19 +274,24 @@ function createFetchObserver(subscriber: Subscriber): ObserverLike<Document> {
       const correlationId = createCorrelationId()
       const req = new Request(...args)
 
-      req.arrayBuffer().then(body => {
-        subscriber({
-          type: NetworkMessageType.FetchRequest,
-          correlationId,
-          requestType: RequestType.Fetch,
-          url: req.url,
-          method: req.method,
-          headers: createHeadersRecord(req.headers),
-          body,
+      req
+        .clone()
+        .arrayBuffer()
+        .then(body => {
+          subscriber({
+            type: NetworkMessageType.FetchRequest,
+            correlationId,
+            requestType: RequestType.Fetch,
+            url: req.url,
+            method: req.method,
+            headers: createHeadersRecord(req.headers),
+            body,
+          })
         })
-      })
 
-      const resP: Promise<Response> = Reflect.apply(target, thisArg, args)
+      const resP: Promise<Response> = Reflect.apply(target, thisArg, [
+        req.clone(),
+      ])
 
       resP.then(res => {
         const copy = res.clone()
@@ -344,7 +349,7 @@ function createWebSocketObserver(
     let encodedData: ArrayBuffer
 
     if (typeof data === 'string') {
-      encodedData = textEncoder.encode(data)
+      encodedData = textEncoder.encode(data).buffer
     } else if (data instanceof Blob) {
       encodedData = await data.arrayBuffer()
     } else if (ArrayBuffer.isView(data)) {

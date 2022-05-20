@@ -259,7 +259,7 @@ export function encodeFetchResponse(event: FetchResponse): ArrayBuffer {
   return concat([
     buffer,
     new Uint32Array([event.body.byteLength]).buffer,
-    event.body,
+    ArrayBuffer.isView(event.body) ? event.body.buffer : event.body,
   ])
 }
 
