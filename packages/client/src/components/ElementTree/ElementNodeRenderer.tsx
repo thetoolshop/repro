@@ -2,7 +2,7 @@ import { SyntheticId } from '@/types/common'
 import { VElement } from '@/types/vdom'
 import { isEmptyElementVNode } from '@/utils/vdom'
 import { Block, Inline } from 'jsxstyle'
-import React, { useContext } from 'react'
+import React, { PropsWithChildren, useContext } from 'react'
 import colors from 'tailwindcss/colors'
 import { FONT_SIZE } from './constants'
 import { useNode, useNodeVisibility, VTreeContext } from './context'
@@ -74,18 +74,17 @@ export const ElementNodeRenderer: React.FC<Props> = ({ nodeId, depth }) => {
   )
 }
 
-const Syntax: React.FC = ({ children }) => (
+const Syntax: React.FC<PropsWithChildren> = ({ children }) => (
   <Inline color={colors.slate['500']}>{children}</Inline>
 )
 
-const TagName: React.FC = ({ children }) => (
+const TagName: React.FC<PropsWithChildren> = ({ children }) => (
   <Inline color={colors.pink['700']}>{children}</Inline>
 )
 
-const Attribute: React.FC<{ name: string; value: string | null }> = ({
-  name,
-  value,
-}) => (
+const Attribute: React.FC<
+  PropsWithChildren<{ name: string; value: string | null }>
+> = ({ name, value }) => (
   <Inline marginLeft={FONT_SIZE / 2}>
     <Inline color={colors.amber['700']}>{name}</Inline>
 

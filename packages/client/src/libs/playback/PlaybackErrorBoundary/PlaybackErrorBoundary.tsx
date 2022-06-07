@@ -1,8 +1,8 @@
-import React from 'react'
+import React, { PropsWithChildren } from 'react'
 import { Trace } from '@/libs/diagnostics'
 import { logger } from '@/libs/logger'
 
-export class PlaybackErrorBoundary extends React.Component {
+export class PlaybackErrorBoundary extends React.Component<PropsWithChildren> {
   state = {
     hasError: false,
     error: null,

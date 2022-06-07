@@ -10,6 +10,7 @@ import {
   DOMPatchEvent,
   InteractionEvent,
   NetworkEvent,
+  Snapshot,
   SnapshotEvent,
   SourceEvent,
   SourceEventType,
@@ -35,7 +36,16 @@ import { createInteractionObserver, createScrollVisitor } from './interaction'
 import { createNetworkObserver } from './network'
 import { observePeriodic } from './periodic'
 import { RecordingOptions } from './types'
-import { concat, NEVER, Observable, of } from 'rxjs'
+import {
+  concat,
+  defer,
+  NEVER,
+  Observable,
+  of,
+  Subject,
+  switchMap,
+  takeUntil,
+} from 'rxjs'
 import { createViewportVisitor } from './interaction/visitor'
 import { NetworkMessage } from '@/types/network'
 import { ConsoleMessage } from '@/types/console'
@@ -69,7 +79,8 @@ export interface RecordingStream {
   isStarted(): boolean
   peek(nodeId: SyntheticId): VNode | null
   slice(): Promise<LazyList<SourceEvent>>
-  tail(): Observable<SourceEvent>
+  snapshot(): Snapshot
+  tail(signal: Subject<void>): Observable<SourceEvent>
 }
 
 interface BufferSubscriptions {
@@ -83,7 +94,13 @@ export const EMPTY_RECORDING_STREAM: RecordingStream = {
   isStarted: () => false,
   peek: () => null,
   slice: () => Promise.resolve(LazyList.Empty<SourceEvent>()),
+  snapshot: () => createEmptySnapshot(),
   tail: () => NEVER,
+}
+
+export const InterruptSignal = new Subject<void>()
+export function interrupt() {
+  InterruptSignal.next()
 }
 
 export function createRecordingStream(
@@ -124,9 +141,7 @@ export function createRecordingStream(
   }
 
   if (options.types.has('interaction')) {
-    // TODO: investigate performance
-    // Reading scrollLeft/scrollTop triggers a reflow for each element.
-    // registerScrollVisitor()
+    registerScrollVisitor()
     registerViewportVisitor()
     registerInteractionObserver()
   }
@@ -272,17 +287,34 @@ export function createRecordingStream(
     return trailingVTree.nodes[nodeId] || null
   }
 
-  function tail(): Observable<SourceEvent> {
-    return concat(
-      of(createSnapshotEvent()),
-      new Observable<SourceEvent>(observer => {
-        const subscription = eventBuffer.onPush(data => {
-          observer.next(SourceEventView.decode(data))
-        })
+  function snapshot(): Snapshot {
+    return copyObjectDeep(trailingSnapshot)
+  }
 
-        return () => {
-          subscription()
-        }
+  function tail(signal: Subject<void>): Observable<SourceEvent> {
+    function observeSnapshot() {
+      return defer(() => of(SourceEventView.from(createSnapshotEvent())))
+    }
+
+    return observeSnapshot().pipe(
+      switchMap(snapshotEvent => {
+        const timeOffset = snapshotEvent.time
+        snapshotEvent.time -= timeOffset
+
+        return concat(
+          of(snapshotEvent),
+          new Observable<SourceEvent>(observer => {
+            const subscription = eventBuffer.onPush(data => {
+              const event = SourceEventView.over(copyDataView(data))
+              event.time -= timeOffset
+              observer.next(event)
+            })
+
+            return () => {
+              subscription()
+            }
+          }).pipe(takeUntil(signal))
+        )
       })
     )
   }
@@ -406,6 +438,7 @@ export function createRecordingStream(
     )
   }
 
+  // @ts-ignore
   function registerScrollVisitor() {
     const scrollVisitor = createScrollVisitor()
 
@@ -508,6 +541,7 @@ export function createRecordingStream(
     isStarted,
     peek,
     slice,
+    snapshot,
     tail,
   }
 }

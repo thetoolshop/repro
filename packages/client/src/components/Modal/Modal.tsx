@@ -1,13 +1,13 @@
-import React from 'react'
+import React, { PropsWithChildren } from 'react'
 import { Block, Row } from 'jsxstyle'
 import { colors } from '@/config/theme'
 
-interface Props {
+type Props = PropsWithChildren<{
   width: string | number
   height: string | number
   minWidth?: string | number
   minHeight?: string | number
-}
+}>
 
 export const Modal: React.FC<Props> = ({
   children,
@@ -28,7 +28,7 @@ export const Modal: React.FC<Props> = ({
   </Backdrop>
 )
 
-const Backdrop: React.FC = ({ children }) => {
+const Backdrop: React.FC<PropsWithChildren> = ({ children }) => {
   return (
     <Row
       alignItems="center"
@@ -45,7 +45,9 @@ const Backdrop: React.FC = ({ children }) => {
   )
 }
 
-type ContainerProps = Pick<Props, 'width' | 'height' | 'minWidth' | 'minHeight'>
+type ContainerProps = PropsWithChildren<
+  Pick<Props, 'width' | 'height' | 'minWidth' | 'minHeight'>
+>
 
 const Container: React.FC<ContainerProps> = ({
   children,

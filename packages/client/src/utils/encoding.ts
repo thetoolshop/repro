@@ -773,7 +773,11 @@ function isLens(data: any): data is Lens {
 export function createView<T, D extends AnyDescriptor>(descriptor: D) {
   const LAZY = true
 
-  function encode(data: T): DataView {
+  function encode(data: T | (T & Lens)): DataView {
+    if (isLens(data)) {
+      return data.__repro_DATAVIEW
+    }
+
     return encodeProperty(descriptor, data)
   }
 

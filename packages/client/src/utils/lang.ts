@@ -12,15 +12,27 @@ function noopEncoder<T>() {
 }
 
 export class LazyList<T> {
+  private readonly source: Array<DataView>
+
   static Empty<T>(): LazyList<T> {
     return new LazyList([], noopDecoder<T>(), noopEncoder<T>())
   }
 
   constructor(
-    private readonly source: Array<DataView>,
+    source: Array<DataView> | Array<T>,
     private readonly decoder: (view: DataView) => T,
     private readonly encoder: (entry: T) => DataView
-  ) {}
+  ) {
+    const entry = source[0]
+
+    if (entry === undefined) {
+      this.source = source as Array<DataView>
+    } else if (ArrayBuffer.isView(entry)) {
+      this.source = source as Array<DataView>
+    } else {
+      this.source = (source as Array<T>).map(encoder)
+    }
+  }
 
   size(): number {
     return this.source.length
@@ -53,6 +65,10 @@ export class LazyList<T> {
 
   append(...entries: Array<T>): number {
     return this.source.push(...entries.map(this.encoder))
+  }
+
+  toSource(): Array<DataView> {
+    return this.source
   }
 
   *[Symbol.iterator]() {

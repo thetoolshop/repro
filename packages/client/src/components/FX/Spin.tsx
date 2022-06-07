@@ -1,8 +1,8 @@
 import { Block } from 'jsxstyle'
 import { JsxstyleProps } from 'jsxstyle/lib/types'
-import React from 'react'
+import React, { PropsWithChildren } from 'react'
 
-type Props = JsxstyleProps<'div'>
+type Props = PropsWithChildren<JsxstyleProps<'div'>>
 
 export const Spin: React.FC<Props> = ({ children, ...props }) => (
   <Block

@@ -277,34 +277,51 @@ function createFetchObserver(subscriber: Subscriber): ObserverLike<Document> {
       req
         .clone()
         .arrayBuffer()
-        .then(body => {
-          subscriber({
-            type: NetworkMessageType.FetchRequest,
-            correlationId,
-            requestType: RequestType.Fetch,
-            url: req.url,
-            method: req.method,
-            headers: createHeadersRecord(req.headers),
-            body,
-          })
-        })
+        .then(
+          body => {
+            subscriber({
+              type: NetworkMessageType.FetchRequest,
+              correlationId,
+              requestType: RequestType.Fetch,
+              url: req.url,
+              method: req.method,
+              headers: createHeadersRecord(req.headers),
+              body,
+            })
+          },
+
+          // TODO: capture request errors
+          _err => {}
+        )
 
       const resP: Promise<Response> = Reflect.apply(target, thisArg, [
         req.clone(),
       ])
 
-      resP.then(res => {
-        const copy = res.clone()
-        copy.arrayBuffer().then(body => {
-          subscriber({
-            type: NetworkMessageType.FetchResponse,
-            correlationId,
-            status: res.status,
-            headers: createHeadersRecord(res.headers),
-            body,
-          })
-        })
-      })
+      resP.then(
+        res => {
+          const copy = res.clone()
+
+          copy.arrayBuffer().then(
+            body => {
+              subscriber({
+                type: NetworkMessageType.FetchResponse,
+                correlationId,
+                status: copy.status,
+                headers: createHeadersRecord(copy.headers),
+                body,
+              })
+            },
+
+            // TODO: capture response errors
+            // If the request is aborted, reading the response body may fail
+            _err => {}
+          )
+        },
+
+        // TODO: capture response errors
+        _err => {}
+      )
 
       return resP
     },

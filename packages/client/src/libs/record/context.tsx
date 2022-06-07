@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { PropsWithChildren } from 'react'
 import {
   EMPTY_RECORDING_STREAM,
   RecordingStream,
@@ -8,10 +8,9 @@ export const RecordingStreamContext = React.createContext<RecordingStream>(
   EMPTY_RECORDING_STREAM
 )
 
-export const RecordingStreamProvider: React.FC<{ stream: RecordingStream }> = ({
-  children,
-  stream,
-}) => (
+export const RecordingStreamProvider: React.FC<
+  PropsWithChildren<{ stream: RecordingStream }>
+> = ({ children, stream }) => (
   <RecordingStreamContext.Provider value={stream}>
     {children}
   </RecordingStreamContext.Provider>

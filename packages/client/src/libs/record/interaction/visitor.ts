@@ -10,14 +10,18 @@ export function createScrollVisitor() {
   const subscribers: Array<Subscriber<ScrollMap>> = []
 
   const scrollVisitor: Visitor<ScrollMap> & Subscribable<ScrollMap> = {
-    elementNode(node) {
+    elementNode(_node) {
       // Note: this triggers a reflow for every element
       // TODO: investigate performance
-      scrollMap[getNodeId(node)] = [node.scrollLeft, node.scrollTop]
+      // scrollMap[getNodeId(node)] = [node.scrollLeft, node.scrollTop]
+    },
+
+    documentNode(node) {
+      const { scrollLeft, scrollTop } = node.documentElement
+      scrollMap[getNodeId(node.documentElement)] = [scrollLeft, scrollTop]
     },
 
     // Not implemented
-    documentNode() {},
     documentFragmentNode() {},
     documentTypeNode() {},
     textNode() {},

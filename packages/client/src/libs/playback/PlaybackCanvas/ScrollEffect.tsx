@@ -1,11 +1,16 @@
-import React, { MutableRefObject, useEffect, useRef } from 'react'
+import React, {
+  MutableRefObject,
+  PropsWithChildren,
+  useEffect,
+  useRef,
+} from 'react'
 import { Point } from '@/types/interaction'
 import { PlaybackState, usePlaybackState } from '@/libs/playback'
 
-interface Props {
+type Props = PropsWithChildren<{
   state: Point | null
   elementRef?: HTMLElement | null
-}
+}>
 
 export const ScrollEffect: React.FC<Props> = ({
   children,

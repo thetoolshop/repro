@@ -38,6 +38,8 @@ function emit<T>(label: string, value: T) {
   logger.debug(label, value)
 }
 
+type AnyFunction = (...args: any[]) => any
+
 export const Stats = {
   enable() {
     enabled = true
@@ -73,14 +75,14 @@ export const Stats = {
     }
   },
 
-  time(label: string, fn: () => void) {
+  time<T extends AnyFunction>(label: string, fn: T): ReturnType<T> {
     if (!enabled) {
-      fn()
-      return
+      return fn()
     }
 
     const start = performance.now()
-    fn()
+    const result = fn()
     emit(`(time) ${label}`, performance.now() - start)
+    return result
   },
 }

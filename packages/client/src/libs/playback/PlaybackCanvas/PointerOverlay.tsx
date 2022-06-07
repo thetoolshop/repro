@@ -17,6 +17,7 @@ export const PointerOverlay: React.FC = () => {
       bottom={0}
       right={0}
       overflow="hidden"
+      pointerEvents="none"
     >
       <Block
         position="absolute"

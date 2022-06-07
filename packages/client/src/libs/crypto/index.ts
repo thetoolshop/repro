@@ -10,7 +10,7 @@ function generateKey() {
   return crypto.subtle.generateKey(
     {
       name: 'AES-GCM',
-      length: 128,
+      length: KEY_BIT_LENGTH,
     },
     true, // extractable
     ['encrypt', 'decrypt']
@@ -34,7 +34,7 @@ function importKey(key: string) {
     },
     {
       name: 'AES-GCM',
-      length: 128,
+      length: KEY_BIT_LENGTH,
     },
     true, // extractable
     ['encrypt', 'decrypt']

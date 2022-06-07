@@ -1,5 +1,5 @@
-import { Block, InlineBlock, Row } from 'jsxstyle'
-import React, { useEffect } from 'react'
+import { InlineBlock, Row } from 'jsxstyle'
+import React, { PropsWithChildren, useEffect } from 'react'
 import { Loader as LoaderIcon } from 'react-feather'
 import { Alert } from '@/components/Alert'
 import { Spin } from '@/components/FX'
@@ -14,10 +14,9 @@ interface PlaybackProviderProps {
   playback: Playback | null
 }
 
-export const PlaybackProvider: React.FC<PlaybackProviderProps> = ({
-  children,
-  playback,
-}) => {
+export const PlaybackProvider: React.FC<
+  PropsWithChildren<PlaybackProviderProps>
+> = ({ children, playback }) => {
   useEffect(() => {
     if (playback) {
       playback.open()
@@ -42,7 +41,7 @@ interface PlaybackFromSourceProviderProps {
 }
 
 export const PlaybackFromSourceProvider: React.FC<
-  PlaybackFromSourceProviderProps
+  PropsWithChildren<PlaybackFromSourceProviderProps>
 > = ({ source }) => {
   const readyState = useAtomValue(source.$readyState)
   const events = useAtomValue(source.$events)

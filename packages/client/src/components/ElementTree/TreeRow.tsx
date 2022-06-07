@@ -1,16 +1,16 @@
 import { Block } from 'jsxstyle'
-import React from 'react'
+import React, { PropsWithChildren } from 'react'
 import { colors } from '@/config/theme'
 import { INDENT, FONT_SIZE } from './constants'
 import { SyntheticId } from '@/types/common'
 import { Tag, useNodeState } from './context'
 
-interface Props {
+type Props = PropsWithChildren<{
   nodeId: SyntheticId
   depth: number
   disableFocus?: boolean
   tag?: Tag
-}
+}>
 
 export const TreeRow: React.FC<Props> = ({
   children,

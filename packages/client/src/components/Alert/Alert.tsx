@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { PropsWithChildren } from 'react'
 import { Block, Row } from 'jsxstyle'
 import { colors } from '@/config/theme'
 
@@ -18,10 +18,10 @@ const colorMap: Record<AlertType, string> = {
   danger: colors.red['700'] as string,
 }
 
-interface Props {
+type Props = PropsWithChildren<{
   type: AlertType
   icon?: React.ReactNode
-}
+}>
 
 export const Alert: React.FC<Props> = ({ children, icon, type }) => (
   <Row

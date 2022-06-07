@@ -1,6 +1,7 @@
 import { Block } from 'jsxstyle'
 import React, {
   MutableRefObject,
+  PropsWithChildren,
   useCallback,
   useEffect,
   useRef,
@@ -10,7 +11,9 @@ import { colors } from '@/config/theme'
 import { useViewport } from '@/libs/playback'
 import { Point } from '@/types/interaction'
 
-export const ScaleToFitViewport: React.FC = ({ children }) => {
+export const ScaleToFitViewport: React.FC<PropsWithChildren> = ({
+  children,
+}) => {
   const viewport = useViewport()
 
   const ref = useRef() as MutableRefObject<HTMLDivElement>

@@ -1,3 +1,4 @@
+import { SyntheticId } from '@/types/common'
 import { createAtom } from '@/utils/state'
 
 export enum ReadyState {

@@ -1,4 +1,10 @@
-import React, { MutableRefObject, useCallback, useContext, useRef } from 'react'
+import React, {
+  MutableRefObject,
+  PropsWithChildren,
+  useCallback,
+  useContext,
+  useRef,
+} from 'react'
 import { FrameRealm } from '@/components/FrameRealm'
 import { CSSPropertyMap, createCSSPropertyMap } from './utils'
 
@@ -6,7 +12,9 @@ const ReferenceStyleContext = React.createContext<
   (tagName: string) => CSSPropertyMap | null
 >(() => null)
 
-export const ReferenceStyleProvider: React.FC = ({ children }) => {
+export const ReferenceStyleProvider: React.FC<PropsWithChildren> = ({
+  children,
+}) => {
   const cache = useRef(new Map<string, CSSPropertyMap>())
   const frameRef = useRef() as MutableRefObject<HTMLIFrameElement>
 

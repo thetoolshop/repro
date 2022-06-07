@@ -65,9 +65,17 @@ export interface Sample<T> {
   duration: number
 }
 
+export enum RecordingMode {
+  None = 0,
+  Snapshot = 1,
+  Live = 2,
+  Replay = 3,
+}
+
 export interface Recording {
   codecVersion: number
   id: SyntheticId
+  mode: RecordingMode
   duration: number
   events: Array<ArrayBuffer>
 }

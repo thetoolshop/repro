@@ -1,13 +1,13 @@
-import React from 'react'
+import React, { PropsWithChildren } from 'react'
 import { Row } from 'jsxstyle'
 import { colors } from '@/config/theme'
 
-interface Props {
+type Props = PropsWithChildren<{
   size?: 'small' | 'medium' | 'large'
-  variant?: 'primary' | 'secondary'
-  context?: 'info' | 'success' | 'warning' | 'danger'
+  variant?: 'contained' | 'outlined' | 'text'
+  context?: 'info' | 'success' | 'warning' | 'danger' | 'neutral'
   onClick?: () => void
-}
+}>
 
 const sizes = {
   small: 6,
@@ -20,6 +20,7 @@ const colorGroups = {
   success: colors.green,
   warning: colors.amber,
   danger: colors.red,
+  neutral: colors.slate,
 }
 
 const MINIMUM_FONT_SIZE = 12
@@ -27,7 +28,7 @@ const MINIMUM_FONT_SIZE = 12
 export const Button: React.FC<Props> = ({
   children,
   size = 'medium',
-  variant = 'primary',
+  variant = 'contained',
   context = 'info',
   onClick,
 }) => {
@@ -40,25 +41,34 @@ export const Button: React.FC<Props> = ({
 
   return (
     <Row
+      position="relative"
       component="button"
       props={{ onClick }}
-      // CSS Props
-      alignItems="center"
-      backgroundColor={
-        variant === 'primary' ? colorGroup['700'] : colorGroup['50']
-      }
-      boxSizing="border-box"
-      border={0}
-      borderRadius={base / 2}
-      color={variant === 'primary' ? colors.white : colorGroup['900']}
-      cursor="pointer"
-      fontSize={fontSize}
       gap={gap}
       height={height}
+      paddingH={paddingH}
+      alignItems="center"
       justifyContent="center"
+      backgroundColor={
+        variant === 'contained' ? colorGroup['700'] : 'transparent'
+      }
+      hoverBackgroundColor={
+        variant === 'contained' ? colorGroup['600'] : colorGroup['100']
+      }
+      boxSizing="border-box"
+      borderColor={variant === 'outlined' ? colorGroup['300'] : 'transparent'}
+      borderStyle="solid"
+      borderWidth={1}
+      borderRadius={base / 2}
+      color={variant === 'contained' ? colors.white : colorGroup['900']}
+      boxShadow={
+        variant === 'contained' ? '0 2px 4px rgba(0, 0, 0, 0.25)' : 'none'
+      }
+      cursor="pointer"
+      fontSize={fontSize}
       lineHeight="1em"
       outline="none"
-      paddingH={paddingH}
+      transition="all linear 100ms"
     >
       {children}
     </Row>

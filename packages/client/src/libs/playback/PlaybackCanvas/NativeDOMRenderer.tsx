@@ -77,19 +77,26 @@ export const NativeDOMRenderer: React.FC<Props> = ({
 
             if (ownerDocument) {
               if (snapshot.dom) {
-                const [rootNode, vtreeNodeMap] = createDOMFromVTree(
-                  snapshot.dom,
-                  nodeMap
+                const vtree = snapshot.dom
+
+                const [rootNode, vtreeNodeMap] = Stats.time(
+                  'NativeDOMRenderer (effect): create DOM from VTree',
+                  () => {
+                    return createDOMFromVTree(vtree, nodeMap)
+                  }
                 )
 
-                clearDocument(ownerDocument)
+                Stats.time('NativeDOMRenderer (effect): clear document', () => {
+                  clearDocument(ownerDocument)
+                })
 
                 const documentElement = ownerDocument.documentElement
 
-                patchDocumentElement(
-                  snapshot.dom,
-                  vtreeNodeMap,
-                  documentElement
+                Stats.time(
+                  'NativeDOMRenderer (effect): patch document element',
+                  () => {
+                    patchDocumentElement(vtree, vtreeNodeMap, documentElement)
+                  }
                 )
 
                 if (rootNode) {
@@ -101,10 +108,20 @@ export const NativeDOMRenderer: React.FC<Props> = ({
                   }
 
                   if (trackScroll) {
-                    updateAllScrollStates(nodeMap, scrollMap)
+                    Stats.time(
+                      'NativeDOMRenderer (effect): update all scroll states',
+                      () => {
+                        updateAllScrollStates(nodeMap, scrollMap)
+                      }
+                    )
                   }
 
-                  updateHoverTargets(ownerDocument, pointer)
+                  Stats.time(
+                    'NativeDOMRenderer (effect): update hover targets',
+                    () => {
+                      updateHoverTargets(ownerDocument, pointer)
+                    }
+                  )
                 }
               }
             }

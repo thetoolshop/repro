@@ -63,7 +63,7 @@ export const SimpleTimeline: React.FC<Props> = ({ min, max }) => {
         const minValue = getMinValue()
         const maxValue = getMaxValue()
         const offset = (value - minValue) / (maxValue - minValue)
-        return Math.max(0, Math.min(1, offset))
+        return isNaN(offset) ? 0 : Math.max(0, Math.min(1, offset))
       }
 
       // Direct events
@@ -159,8 +159,13 @@ export const SimpleTimeline: React.FC<Props> = ({ min, max }) => {
         playback.$playbackState
           .pipe(
             switchMap(playbackState => {
-              const initialOffset = mapValueToOffset(playback.getElapsed())
-              const duration = (1 - initialOffset) * getMaxValue()
+              const initialOffset = mapValueToOffset(
+                Math.max(getMinValue(), playback.getElapsed())
+              )
+
+              const duration = Math.round(
+                (1 - initialOffset) * (getMaxValue() - getMinValue())
+              )
 
               return playbackState === PlaybackState.Playing
                 ? createAnimationObservable(progress, initialOffset, duration)

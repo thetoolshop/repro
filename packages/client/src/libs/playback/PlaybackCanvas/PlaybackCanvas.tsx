@@ -8,6 +8,7 @@ import React, {
   useRef,
   useState,
 } from 'react'
+import { InteractionMask } from './InteractionMask'
 import { NativeDOMRenderer } from './NativeDOMRenderer'
 import { PointerOverlay } from './PointerOverlay'
 import { FullWidthViewport } from './FullWidthViewport'
@@ -16,6 +17,8 @@ import { MutableNodeMap } from './types'
 
 interface Props {
   interactive: boolean
+  trackPointer: boolean
+  trackScroll: boolean
   scaling: 'full-width' | 'scale-to-fit'
   onDocumentReady?: (doc: Document) => void
   onLoad?: (nodeMap: MutableNodeMap) => void
@@ -23,6 +26,8 @@ interface Props {
 
 export const PlaybackCanvas: React.FC<Props> = ({
   interactive,
+  trackPointer,
+  trackScroll,
   scaling,
   onDocumentReady,
   onLoad,
@@ -60,13 +65,14 @@ export const PlaybackCanvas: React.FC<Props> = ({
     <React.Fragment>
       <FrameRealm ref={frameRef}>
         <NativeDOMRenderer
-          trackScroll={!interactive}
+          trackScroll={trackScroll}
           ownerDocument={ownerDocument}
           onLoad={handleLoad}
         />
       </FrameRealm>
 
-      {!interactive && <PointerOverlay />}
+      {trackPointer && <PointerOverlay />}
+      {!interactive && <InteractionMask />}
     </React.Fragment>
   )
 

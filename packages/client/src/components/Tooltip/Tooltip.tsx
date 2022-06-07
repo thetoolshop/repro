@@ -1,11 +1,17 @@
 import { Block } from 'jsxstyle'
-import React, { MutableRefObject, useEffect, useRef, useState } from 'react'
+import React, {
+  MutableRefObject,
+  PropsWithChildren,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import { colors } from '@/config/theme'
 import { fromEvent, Subscription } from 'rxjs'
 
-interface Props {
+type Props = PropsWithChildren<{
   position?: 'top' | 'bottom'
-}
+}>
 
 const MAX_INT32 = 2 ** 32 - 1
 
