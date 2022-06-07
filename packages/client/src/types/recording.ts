@@ -2,7 +2,6 @@ import { SyntheticId } from './common'
 import { Interaction, InteractionSnapshot } from './interaction'
 import { NetworkMessage } from './network'
 import { Patch, VTree } from './vdom'
-import { ArrayBufferBackedList } from '@/utils/lang'
 import { ConsoleMessage } from './console'
 
 export enum SourceEventType {
@@ -70,5 +69,5 @@ export interface Recording {
   codecVersion: number
   id: SyntheticId
   duration: number
-  events: ArrayBufferBackedList<SourceEvent>
+  events: Array<ArrayBuffer>
 }

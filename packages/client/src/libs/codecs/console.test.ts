@@ -1,12 +1,10 @@
 import { ConsoleMessage, LogLevel, MessagePartType } from '@/types/console'
 import { createSyntheticId } from '@/utils/vdom'
-import { BufferReader } from 'arraybuffer-utils'
 import { approxByteLength } from '../record/buffer-utils'
-import { LITTLE_ENDIAN } from './common'
-import { decodeConsoleMessage, encodeConsoleMessage } from './console'
+import { ConsoleMessageView } from './console'
 
 describe('Console codecs', () => {
-  it('should encode and decode a console message', () => {
+  it('should create a binary view for a console message', () => {
     const input: ConsoleMessage = {
       level: LogLevel.Info,
       parts: [
@@ -29,11 +27,10 @@ describe('Console codecs', () => {
       ],
     }
 
-    const buffer = encodeConsoleMessage(input)
-    const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
-    const output = decodeConsoleMessage(reader)
+    const buffer = ConsoleMessageView.encode(input)
+    const view = ConsoleMessageView.from(input)
 
     expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
-    expect(output).toEqual(input)
+    expect(view).toEqual(input)
   })
 })

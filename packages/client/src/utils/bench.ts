@@ -1,5 +1,5 @@
 export function stress(fn: () => void) {
-  const iterations = 100_000
+  const iterations = 10_000
   const start = performance.now()
 
   for (let i = 0; i < iterations; i++) {

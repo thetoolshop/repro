@@ -1,13 +1,11 @@
-import { BufferReader } from 'arraybuffer-utils'
 import { PointerState } from '@/types/interaction'
 import { Snapshot } from '@/types/recording'
 import { approxByteLength } from '../record/buffer-utils'
-import { LITTLE_ENDIAN } from './common'
 import { elementNode, vtree } from './fixtures/vdom'
-import { decodeSnapshot, encodeSnapshot } from './snapshot'
+import { SnapshotView } from './snapshot'
 
 describe('Snapshot codecs', () => {
-  it('should encode and decode a full snapshot', () => {
+  it('should create a binary view for a full snapshot', () => {
     const input: Snapshot = {
       dom: vtree,
 
@@ -21,11 +19,10 @@ describe('Snapshot codecs', () => {
       },
     }
 
-    const buffer = encodeSnapshot(input)
-    const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
-    const output = decodeSnapshot(reader)
+    const buffer = SnapshotView.encode(input)
+    const view = SnapshotView.from(input)
 
     expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
-    expect(output).toEqual(input)
+    expect(view).toEqual(input)
   })
 })

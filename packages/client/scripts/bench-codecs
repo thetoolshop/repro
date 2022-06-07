@@ -7,5 +7,5 @@ project_dir=$(realpath "$(dirname $0)/..")
 cd $project_dir/src/libs/codecs
 
 for f in *.bench.ts; do
-  npx ts-node -r tsconfig-paths/register $f;
+  npx ts-node --swc -r tsconfig-paths/register $f;
 done

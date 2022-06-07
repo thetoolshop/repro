@@ -13,12 +13,14 @@ import {
 import {
   CONNECTION_ID_BYTE_LENGTH,
   CORRELATION_ID_BYTE_LENGTH,
-  decodeNetworkMessage,
-  encodeNetworkMessage,
+  FetchRequestView,
+  FetchResponseView,
+  WebSocketCloseView,
+  WebSocketInboundView,
+  WebSocketOpenView,
+  WebSocketOutboundView,
 } from './network'
-import { LITTLE_ENDIAN } from './common'
 import { approxByteLength } from '../record/buffer-utils'
-import { BufferReader } from 'arraybuffer-utils'
 import { SyntheticId } from '@/types/common'
 
 function createCorrelationId(): SyntheticId {
@@ -34,7 +36,7 @@ function encodeBody(body: string): ArrayBuffer {
 }
 
 describe('Network codecs', () => {
-  it('should encode and decode a fetch request', () => {
+  it('should create a binary view for a fetch request', () => {
     const input: FetchRequest = {
       type: NetworkMessageType.FetchRequest,
       correlationId: createCorrelationId(),
@@ -47,15 +49,14 @@ describe('Network codecs', () => {
       body: encodeBody('{ "foo": "bar" }'),
     }
 
-    const buffer = encodeNetworkMessage(input)
-    const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
-    const output = decodeNetworkMessage(reader)
+    const buffer = FetchRequestView.encode(input)
+    const view = FetchRequestView.from(input)
 
     expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
-    expect(output).toEqual(input)
+    expect(view).toEqual(input)
   })
 
-  it('should encode and decode and fetch response', () => {
+  it('should create a binary view for a fetch response', () => {
     const input: FetchResponse = {
       type: NetworkMessageType.FetchResponse,
       correlationId: createCorrelationId(),
@@ -66,44 +67,41 @@ describe('Network codecs', () => {
       body: encodeBody('{ "bar": "baz" }'),
     }
 
-    const buffer = encodeNetworkMessage(input)
-    const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
-    const output = decodeNetworkMessage(reader)
+    const buffer = FetchResponseView.encode(input)
+    const view = FetchResponseView.from(input)
 
     expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
-    expect(output).toEqual(input)
+    expect(view).toEqual(input)
   })
 
-  it('should encode and decode a WebSocket open', () => {
+  it('should create a binary view for a WebSocket Open', () => {
     const input: WebSocketOpen = {
       type: NetworkMessageType.WebSocketOpen,
       connectionId: createConnectionId(),
       url: 'ws://example.com/path/to/resource',
     }
 
-    const buffer = encodeNetworkMessage(input)
-    const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
-    const output = decodeNetworkMessage(reader)
+    const buffer = WebSocketOpenView.encode(input)
+    const view = WebSocketOpenView.from(input)
 
     expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
-    expect(output).toEqual(input)
+    expect(view).toEqual(input)
   })
 
-  it('should encode and decode a WebSocket close', () => {
+  it('should create a binary view for a WebSocket Close', () => {
     const input: WebSocketClose = {
       type: NetworkMessageType.WebSocketClose,
       connectionId: createConnectionId(),
     }
 
-    const buffer = encodeNetworkMessage(input)
-    const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
-    const output = decodeNetworkMessage(reader)
+    const buffer = WebSocketCloseView.encode(input)
+    const view = WebSocketCloseView.from(input)
 
     expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
-    expect(output).toEqual(input)
+    expect(view).toEqual(input)
   })
 
-  it('should encode and decode a WebSocket inbound message', () => {
+  it('should create a binary view for a WebSocket inbound message', () => {
     const input: WebSocketInbound = {
       type: NetworkMessageType.WebSocketInbound,
       connectionId: createConnectionId(),
@@ -111,15 +109,14 @@ describe('Network codecs', () => {
       data: encodeBody('{ "foo": "bar" }'),
     }
 
-    const buffer = encodeNetworkMessage(input)
-    const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
-    const output = decodeNetworkMessage(reader)
+    const buffer = WebSocketInboundView.encode(input)
+    const view = WebSocketInboundView.from(input)
 
     expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
-    expect(output).toEqual(input)
+    expect(view).toEqual(input)
   })
 
-  it('should encode and decode a WebSocket outbound message', () => {
+  it('should create a binary view for a WebSocket outbound message', () => {
     const input: WebSocketOutbound = {
       type: NetworkMessageType.WebSocketOutbound,
       connectionId: createConnectionId(),
@@ -127,11 +124,10 @@ describe('Network codecs', () => {
       data: encodeBody('{ "foo": "bar" }'),
     }
 
-    const buffer = encodeNetworkMessage(input)
-    const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
-    const output = decodeNetworkMessage(reader)
+    const buffer = WebSocketOutboundView.encode(input)
+    const view = WebSocketOutboundView.from(input)
 
     expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
-    expect(output).toEqual(input)
+    expect(view).toEqual(input)
   })
 })

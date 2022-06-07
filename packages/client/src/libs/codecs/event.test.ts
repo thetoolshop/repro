@@ -10,15 +10,20 @@ import {
   SnapshotEvent,
   SourceEventType,
 } from '@/types/recording'
-import { BufferReader } from 'arraybuffer-utils'
 import { nanoid } from 'nanoid'
 import { approxByteLength } from '../record/buffer-utils'
-import { LITTLE_ENDIAN } from './common'
-import { decodeEvent, encodeEvent } from './event'
+import {
+  CloseRecordingEventView,
+  ConsoleEventView,
+  DOMPatchEventView,
+  InteractionEventView,
+  NetworkEventView,
+  SnapshotEventView,
+} from './event'
 import { addNodesPatch, elementNode, vtree } from './fixtures/vdom'
 
 describe('Event codecs', () => {
-  it('should encode and decode a snapshot event', () => {
+  it('should create a binary view for a snapshot event', () => {
     const input: SnapshotEvent = {
       type: SourceEventType.Snapshot,
       time: 123456,
@@ -35,30 +40,28 @@ describe('Event codecs', () => {
       },
     }
 
-    const buffer = encodeEvent(input)
-    const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
-    const output = decodeEvent(reader)
+    const buffer = SnapshotEventView.encode(input)
+    const view = SnapshotEventView.from(input)
 
     expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
-    expect(output).toEqual(input)
+    expect(view).toEqual(input)
   })
 
-  it('should encode and decode a dom-patch event', () => {
+  it('should create a binary view for a dom-patch event', () => {
     const input: DOMPatchEvent = {
       type: SourceEventType.DOMPatch,
       time: 123456,
       data: addNodesPatch,
     }
 
-    const buffer = encodeEvent(input)
-    const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
-    const output = decodeEvent(reader)
+    const buffer = DOMPatchEventView.encode(input)
+    const view = DOMPatchEventView.from(input)
 
     expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
-    expect(output).toEqual(input)
+    expect(view).toEqual(input)
   })
 
-  it('should encode and decode an interaction event', () => {
+  it('should create a binary view for an interaction view', () => {
     const input: InteractionEvent = {
       type: SourceEventType.Interaction,
       time: 123456,
@@ -70,15 +73,14 @@ describe('Event codecs', () => {
       },
     }
 
-    const buffer = encodeEvent(input)
-    const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
-    const output = decodeEvent(reader)
+    const buffer = InteractionEventView.encode(input)
+    const view = InteractionEventView.from(input)
 
     expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
-    expect(output).toEqual(input)
+    expect(view).toEqual(input)
   })
 
-  it('should encode and decode a network event', () => {
+  it('should create a binary view for a network event', () => {
     const input: NetworkEvent = {
       type: SourceEventType.Network,
       time: 123456,
@@ -95,15 +97,14 @@ describe('Event codecs', () => {
       },
     }
 
-    const buffer = encodeEvent(input)
-    const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
-    const output = decodeEvent(reader)
+    const buffer = NetworkEventView.encode(input)
+    const view = NetworkEventView.from(input)
 
     expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
-    expect(output).toEqual(input)
+    expect(view).toEqual(input)
   })
 
-  it('should encode and decode a console event', () => {
+  it('should create a binary view for a console event', () => {
     const input: ConsoleEvent = {
       type: SourceEventType.Console,
       time: 123456,
@@ -132,25 +133,23 @@ describe('Event codecs', () => {
       },
     }
 
-    const buffer = encodeEvent(input)
-    const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
-    const output = decodeEvent(reader)
+    const buffer = ConsoleEventView.encode(input)
+    const view = ConsoleEventView.from(input)
 
     expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
-    expect(output).toEqual(input)
+    expect(view).toEqual(input)
   })
 
-  it('should encode and decode a close-recording event', () => {
+  it('should create a binary view for a close-recording event', () => {
     const input: CloseRecordingEvent = {
       type: SourceEventType.CloseRecording,
       time: 123456,
     }
 
-    const buffer = encodeEvent(input)
-    const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
-    const output = decodeEvent(reader)
+    const buffer = CloseRecordingEventView.encode(input)
+    const view = CloseRecordingEventView.from(input)
 
     expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
-    expect(output).toEqual(input)
+    expect(view).toEqual(input)
   })
 })

@@ -1,203 +1,77 @@
-import { BufferReader, BufferWriter } from 'arraybuffer-utils'
 import {
   CloseRecordingEvent,
   ConsoleEvent,
   DOMPatchEvent,
   InteractionEvent,
   NetworkEvent,
-  SnapshotEvent,
   SourceEvent,
   SourceEventType,
 } from '@/types/recording'
-import { concat, ENUM_BYTE_LENGTH, UINT_32, LITTLE_ENDIAN } from './common'
-import { decodeInteraction, encodeInteraction } from './interaction'
-import { decodeSnapshot, encodeSnapshot } from './snapshot'
-import { decodePatch, encodePatch } from './vdom'
-import { decodeNetworkMessage, encodeNetworkMessage } from './network'
-import { decodeConsoleMessage, encodeConsoleMessage } from './console'
+import { InteractionView } from './interaction'
+import { SnapshotView } from './snapshot'
+import { DOMPatchView } from './vdom'
+import { NetworkMessageView } from './network'
+import { ConsoleMessageView } from './console'
+import {
+  AnyDescriptor,
+  createView,
+  StructDescriptor,
+  UINT32,
+  UINT8,
+  UnionDescriptor,
+} from '@/utils/encoding'
 
-export function readEventType(buffer: ArrayBuffer): SourceEventType {
-  const view = new DataView(buffer)
-  return view.getUint8(0)
+function createSourceEventView<T extends SourceEvent>(
+  descriptor: AnyDescriptor
+) {
+  return createView<T, StructDescriptor>({
+    type: 'struct',
+    fields: [
+      ['type', UINT8],
+      ['time', UINT32],
+      ['data', descriptor],
+    ],
+  })
 }
 
-export function readEventTime(buffer: ArrayBuffer): number {
-  const view = new DataView(buffer)
-  return view.getUint32(1, LITTLE_ENDIAN)
-}
+export const SnapshotEventView = createSourceEventView(SnapshotView.descriptor)
 
-export function createEventEncoder() {
-  return function (event: SourceEvent) {
-    return encodeEvent(event)
-  }
-}
+export const DOMPatchEventView = createSourceEventView<DOMPatchEvent>(
+  DOMPatchView.descriptor
+)
 
-export function createEventDecoder() {
-  return function (buffer: ArrayBuffer) {
-    const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
-    return decodeEvent(reader)
-  }
-}
+export const InteractionEventView = createSourceEventView<InteractionEvent>(
+  InteractionView.descriptor
+)
 
-export function writeEventTimeOffset(buffer: ArrayBuffer, timeOffset: number) {
-  const time = readEventTime(buffer)
-  const writer = new BufferWriter(buffer, 1, LITTLE_ENDIAN)
-  writer.writeUint32(time - timeOffset)
-}
+export const NetworkEventView = createSourceEventView<NetworkEvent>(
+  NetworkMessageView.descriptor
+)
 
-export function encodeEvent(event: SourceEvent): ArrayBuffer {
-  switch (event.type) {
-    case SourceEventType.Snapshot:
-      return encodeSnapshotEvent(event)
+export const ConsoleEventView = createSourceEventView<ConsoleEvent>(
+  ConsoleMessageView.descriptor
+)
 
-    case SourceEventType.DOMPatch:
-      return encodeDOMPatchEvent(event)
+export const CloseRecordingEventView = createView<
+  CloseRecordingEvent,
+  StructDescriptor
+>({
+  type: 'struct',
+  fields: [
+    ['type', UINT8],
+    ['time', UINT32],
+  ],
+})
 
-    case SourceEventType.Interaction:
-      return encodeInteractionEvent(event)
-
-    case SourceEventType.Network:
-      return encodeNetworkEvent(event)
-
-    case SourceEventType.Console:
-      return encodeConsoleEvent(event)
-
-    case SourceEventType.CloseRecording:
-      return encodeCloseRecordingEvent(event)
-  }
-}
-
-export function decodeEvent(reader: BufferReader): SourceEvent {
-  const type: SourceEventType = reader.readUint8()
-
-  switch (type) {
-    case SourceEventType.Snapshot:
-      return decodeSnapshotEvent(reader)
-
-    case SourceEventType.DOMPatch:
-      return decodeDOMPatchEvent(reader)
-
-    case SourceEventType.Interaction:
-      return decodeInteractionEvent(reader)
-
-    case SourceEventType.Network:
-      return decodeNetworkEvent(reader)
-
-    case SourceEventType.Console:
-      return decodeConsoleEvent(reader)
-
-    case SourceEventType.CloseRecording:
-      return decodeCloseRecordingEvent(reader)
-  }
-}
-
-export function encodeSnapshotEvent(event: SnapshotEvent): ArrayBuffer {
-  const byteLength = ENUM_BYTE_LENGTH + UINT_32
-  const buffer = new ArrayBuffer(byteLength)
-  const writer = new BufferWriter(buffer, 0, LITTLE_ENDIAN)
-
-  writer.writeUint8(event.type)
-  writer.writeUint32(event.time)
-
-  return concat([buffer, encodeSnapshot(event.data)])
-}
-
-export function decodeSnapshotEvent(reader: BufferReader): SnapshotEvent {
-  const type = SourceEventType.Snapshot
-  const time = reader.readUint32()
-  const data = decodeSnapshot(reader)
-  return { type, time, data }
-}
-
-export function encodeDOMPatchEvent(event: DOMPatchEvent): ArrayBuffer {
-  const byteLength = ENUM_BYTE_LENGTH + UINT_32
-  const buffer = new ArrayBuffer(byteLength)
-  const writer = new BufferWriter(buffer, 0, LITTLE_ENDIAN)
-
-  writer.writeUint8(event.type)
-  writer.writeUint32(event.time)
-
-  return concat([buffer, encodePatch(event.data)])
-}
-
-export function decodeDOMPatchEvent(reader: BufferReader): DOMPatchEvent {
-  const type = SourceEventType.DOMPatch
-  const time = reader.readUint32()
-  const data = decodePatch(reader)
-  return { type, time, data }
-}
-
-export function encodeInteractionEvent(event: InteractionEvent): ArrayBuffer {
-  const byteLength = ENUM_BYTE_LENGTH + UINT_32
-  const buffer = new ArrayBuffer(byteLength)
-  const writer = new BufferWriter(buffer, 0, LITTLE_ENDIAN)
-
-  writer.writeUint8(event.type)
-  writer.writeUint32(event.time)
-
-  return concat([buffer, encodeInteraction(event.data)])
-}
-
-export function decodeInteractionEvent(reader: BufferReader): InteractionEvent {
-  const type = SourceEventType.Interaction
-  const time = reader.readUint32()
-  const data = decodeInteraction(reader)
-  return { type, time, data }
-}
-
-export function encodeNetworkEvent(event: NetworkEvent): ArrayBuffer {
-  const byteLength = ENUM_BYTE_LENGTH + UINT_32
-  const buffer = new ArrayBuffer(byteLength)
-  const writer = new BufferWriter(buffer, 0, LITTLE_ENDIAN)
-
-  writer.writeUint8(event.type)
-  writer.writeUint32(event.time)
-
-  return concat([buffer, encodeNetworkMessage(event.data)])
-}
-
-export function decodeNetworkEvent(reader: BufferReader): NetworkEvent {
-  const type = SourceEventType.Network
-  const time = reader.readUint32()
-  const data = decodeNetworkMessage(reader)
-  return { type, time, data }
-}
-
-export function encodeConsoleEvent(event: ConsoleEvent): ArrayBuffer {
-  const byteLength = ENUM_BYTE_LENGTH + UINT_32
-  const buffer = new ArrayBuffer(byteLength)
-  const writer = new BufferWriter(buffer, 0, LITTLE_ENDIAN)
-
-  writer.writeUint8(event.type)
-  writer.writeUint32(event.time)
-
-  return concat([buffer, encodeConsoleMessage(event.data)])
-}
-
-export function decodeConsoleEvent(reader: BufferReader): ConsoleEvent {
-  const type = SourceEventType.Console
-  const time = reader.readUint32()
-  const data = decodeConsoleMessage(reader)
-  return { type, time, data }
-}
-
-export function encodeCloseRecordingEvent(
-  event: CloseRecordingEvent
-): ArrayBuffer {
-  const byteLength = ENUM_BYTE_LENGTH + UINT_32
-  const buffer = new ArrayBuffer(byteLength)
-  const writer = new BufferWriter(buffer, 0, LITTLE_ENDIAN)
-
-  writer.writeUint8(event.type)
-  writer.writeUint32(event.time)
-
-  return buffer
-}
-
-export function decodeCloseRecordingEvent(
-  reader: BufferReader
-): CloseRecordingEvent {
-  const type = SourceEventType.CloseRecording
-  const time = reader.readUint32()
-  return { type, time }
-}
+export const SourceEventView = createView<SourceEvent, UnionDescriptor>({
+  type: 'union',
+  tagField: 'type',
+  descriptors: {
+    [SourceEventType.Snapshot]: SnapshotEventView.descriptor,
+    [SourceEventType.DOMPatch]: DOMPatchEventView.descriptor,
+    [SourceEventType.Interaction]: InteractionEventView.descriptor,
+    [SourceEventType.Network]: NetworkEventView.descriptor,
+    [SourceEventType.Console]: ConsoleEventView.descriptor,
+    [SourceEventType.CloseRecording]: CloseRecordingEventView.descriptor,
+  },
+})

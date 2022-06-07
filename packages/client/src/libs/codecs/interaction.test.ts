@@ -4,17 +4,25 @@ import {
   KeyUp,
   PointerDown,
   PointerMove,
+  PointerUp,
   Scroll,
   ViewportResize,
 } from '@/types/interaction'
 import { createSyntheticId } from '@/utils/vdom'
-import { BufferReader } from 'arraybuffer-utils'
 import { approxByteLength } from '../record/buffer-utils'
-import { LITTLE_ENDIAN } from './common'
-import { decodeInteraction, encodeInteraction } from './interaction'
+import {
+  InteractionView,
+  KeyDownView,
+  KeyUpView,
+  PointerDownView,
+  PointerMoveView,
+  PointerUpView,
+  ScrollView,
+  ViewportResizeView,
+} from './interaction'
 
 describe('Interaction codecs', () => {
-  it('should encode and decode viewport resize', () => {
+  it('should create a binary view from a viewport resize', () => {
     const input: ViewportResize = {
       type: InteractionType.ViewportResize,
       from: [0, 0],
@@ -22,15 +30,16 @@ describe('Interaction codecs', () => {
       duration: 250,
     }
 
-    const buffer = encodeInteraction(input)
-    const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
-    const output = decodeInteraction(reader)
+    const buffer = ViewportResizeView.encode(input)
+    const view = ViewportResizeView.from(input)
+    const envelope = InteractionView.from(input)
 
     expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
-    expect(output).toEqual(input)
+    expect(view).toEqual(input)
+    expect(envelope).toEqual(input)
   })
 
-  it('should encode and decode scroll', () => {
+  it('should create a binary view from a scroll', () => {
     const input: Scroll = {
       type: InteractionType.Scroll,
       target: createSyntheticId(),
@@ -39,15 +48,16 @@ describe('Interaction codecs', () => {
       duration: 250,
     }
 
-    const buffer = encodeInteraction(input)
-    const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
-    const output = decodeInteraction(reader)
+    const buffer = ScrollView.encode(input)
+    const view = ScrollView.from(input)
+    const envelope = InteractionView.from(input)
 
     expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
-    expect(output).toEqual(input)
+    expect(view).toEqual(input)
+    expect(envelope).toEqual(input)
   })
 
-  it('should encode and decode pointer move', () => {
+  it('should create a binary view from a pointer move', () => {
     const input: PointerMove = {
       type: InteractionType.PointerMove,
       from: [0, 0],
@@ -55,69 +65,74 @@ describe('Interaction codecs', () => {
       duration: 250,
     }
 
-    const buffer = encodeInteraction(input)
-    const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
-    const output = decodeInteraction(reader)
+    const buffer = PointerMoveView.encode(input)
+    const view = PointerMoveView.from(input)
+    const envelope = InteractionView.from(input)
 
     expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
-    expect(output).toEqual(input)
+    expect(view).toEqual(input)
+    expect(envelope).toEqual(input)
   })
 
-  it('should encode and decode pointer down', () => {
+  it('should create a binary view from a pointer down', () => {
     const input: PointerDown = {
       type: InteractionType.PointerDown,
       targets: [createSyntheticId(), createSyntheticId()],
       at: [500, 500],
     }
 
-    const buffer = encodeInteraction(input)
-    const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
-    const output = decodeInteraction(reader)
+    const buffer = PointerDownView.encode(input)
+    const view = PointerDownView.from(input)
+    const envelope = InteractionView.from(input)
 
     expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
-    expect(output).toEqual(input)
+    expect(view).toEqual(input)
+    expect(envelope).toEqual(input)
   })
 
-  it('should encode and decode pointer down', () => {
-    const input: PointerDown = {
-      type: InteractionType.PointerDown,
+  it('should create a binary view from a pointer up', () => {
+    const input: PointerUp = {
+      type: InteractionType.PointerUp,
       targets: [createSyntheticId(), createSyntheticId()],
       at: [500, 500],
     }
 
-    const buffer = encodeInteraction(input)
-    const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
-    const output = decodeInteraction(reader)
+    const buffer = PointerUpView.encode(input)
+    const view = PointerUpView.from(input)
+    const envelope = InteractionView.from(input)
 
     expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
-    expect(output).toEqual(input)
+    expect(view).toEqual(input)
+    expect(envelope).toEqual(input)
   })
 
-  it('should encode and decode key down', () => {
+  it('should create a binary view from a key down', () => {
     const input: KeyDown = {
       type: InteractionType.KeyDown,
       key: 'Enter',
     }
 
-    const buffer = encodeInteraction(input)
-    const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
-    const output = decodeInteraction(reader)
+    const buffer = KeyDownView.encode(input)
+    const view = KeyDownView.from(input)
+    const envelope = InteractionView.from(input)
 
     expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
-    expect(output).toEqual(input)
+    expect(view).toEqual(input)
+    expect(envelope).toEqual(input)
   })
 
-  it('should encode and decode key up', () => {
+  it('should create a binary view from a key up', () => {
     const input: KeyUp = {
       type: InteractionType.KeyUp,
       key: 'Enter',
     }
 
-    const buffer = encodeInteraction(input)
-    const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
-    const output = decodeInteraction(reader)
+    const buffer = KeyUpView.encode(input)
+    const view = KeyUpView.from(input)
+    const envelope = InteractionView.from(input)
 
     expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
-    expect(output).toEqual(input)
+    expect(view).toEqual(input)
+    expect(envelope).toEqual(input)
   })
 })

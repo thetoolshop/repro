@@ -1,6 +1,3 @@
-import { BufferReader, BufferWriter } from 'arraybuffer-utils'
-import { SyntheticId } from '@/types/common'
-
 import {
   AddNodesPatch,
   AttributePatch,
@@ -21,755 +18,308 @@ import {
 } from '@/types/vdom'
 
 import {
-  UINT_8,
-  UINT_16,
-  UINT_32,
-  LITTLE_ENDIAN,
-  getByteLength,
-  readString8,
-  writeString8,
-  readString32,
-  writeString32,
-  writeString16,
-  readString16,
-  concat,
-  zeroFill,
-  INT_32,
-} from './common'
+  CharDescriptor,
+  createView,
+  StructDescriptor,
+  UINT8,
+  UnionDescriptor,
+} from '@/utils/encoding'
 
 export const NODE_TYPE_BYTE_LENGTH = 1
 export const NODE_ID_BYTE_LENGTH = 5
 export const PATCH_TYPE_BYTE_LENGTH = 1
 
-const textEncoder = new TextEncoder()
-const textDecoder = new TextDecoder()
-
-// Should nodeId encoder/decoder by lifted to common?
-export function writeNodeId(writer: BufferWriter, nodeId: SyntheticId) {
-  const bytes = textEncoder.encode(nodeId)
-
-  if (bytes.byteLength !== NODE_ID_BYTE_LENGTH) {
-    throw new Error(
-      `VDOM codec: invalid node ID (${nodeId}: ${bytes.byteLength} bytes)`
-    )
-  }
-
-  for (const byte of bytes) {
-    writer.writeUint8(byte)
-  }
+// type NodeId: char[5]
+export const NodeId: CharDescriptor = {
+  type: 'char',
+  bytes: NODE_ID_BYTE_LENGTH,
 }
 
-export function readNodeId(reader: BufferReader): SyntheticId {
-  const bytes: Array<number> = []
-
-  for (let i = 0; i < NODE_ID_BYTE_LENGTH; i++) {
-    bytes.push(reader.readUint8())
-  }
-
-  return textDecoder.decode(new Uint8Array(bytes))
+export const NullableNodeId: CharDescriptor = {
+  type: 'char',
+  bytes: NODE_ID_BYTE_LENGTH,
+  nullable: true,
 }
 
-export function writeNullableNodeId(
-  writer: BufferWriter,
-  nodeId: SyntheticId | null
-) {
-  if (nodeId !== null) {
-    writeNodeId(writer, nodeId)
-    return
-  }
-
-  // Zero-pad buffer where VNode ID is null
-  for (let i = 0; i < NODE_ID_BYTE_LENGTH; i++) {
-    writer.writeUint8(0)
-  }
-}
-
-export function readNullableNodeId(reader: BufferReader): SyntheticId | null {
-  const nextByte = reader.buffer.getUint8(reader.getOffset())
-  const nodeId = readNodeId(reader)
-
-  return nextByte !== 0 ? nodeId : null
-}
-
-export function encodeVNode(node: VNode): ArrayBuffer {
-  switch (node.type) {
-    case NodeType.DocType:
-      return encodeVDocType(node)
-
-    case NodeType.Document:
-      return encodeVDocument(node)
-
-    case NodeType.Element:
-      return encodeVElement(node)
-
-    case NodeType.Text:
-      return encodeVText(node)
-  }
-}
-
-export function decodeVNode(reader: BufferReader): VNode {
-  const type: NodeType = reader.readUint8()
-
-  switch (type) {
-    case NodeType.DocType:
-      return decodeVDocType(reader)
-
-    case NodeType.Document:
-      return decodeVDocument(reader)
-
-    case NodeType.Element:
-      return decodeVElement(reader)
-
-    case NodeType.Text:
-      return decodeVText(reader)
-  }
-}
-
-export function encodeVDocType(node: VDocType): ArrayBuffer {
-  const byteLength =
-    NODE_TYPE_BYTE_LENGTH +
-    NODE_ID_BYTE_LENGTH +
-    NODE_ID_BYTE_LENGTH +
-    UINT_8 +
-    getByteLength(node.name) +
-    UINT_8 +
-    getByteLength(node.publicId) +
-    UINT_8 +
-    getByteLength(node.systemId)
-
-  const buffer = new ArrayBuffer(byteLength)
-  const writer = new BufferWriter(buffer, 0, LITTLE_ENDIAN)
-
-  writer.writeUint8(node.type)
-  writeNodeId(writer, node.id)
-  writeNullableNodeId(writer, node.parentId)
-  writeString8(writer, node.name)
-  writeString8(writer, node.publicId)
-  writeString8(writer, node.systemId)
-
-  return buffer
-}
-
-export function decodeVDocType(reader: BufferReader): VDocType {
-  const type = NodeType.DocType
-  const id = readNodeId(reader)
-  const parentId = readNullableNodeId(reader)
-  const name = readString8(reader)
-  const publicId = readString8(reader)
-  const systemId = readString8(reader)
-
-  return {
-    type,
-    id,
-    parentId,
-    name,
-    publicId,
-    systemId,
-  }
-}
-
-export function encodeVDocument(node: VDocument): ArrayBuffer {
-  const byteLength =
-    NODE_TYPE_BYTE_LENGTH +
-    NODE_ID_BYTE_LENGTH +
-    NODE_ID_BYTE_LENGTH +
-    UINT_16 +
-    node.children.length * NODE_ID_BYTE_LENGTH
-
-  const buffer = new ArrayBuffer(byteLength)
-  const writer = new BufferWriter(buffer, 0, LITTLE_ENDIAN)
-
-  writer.writeUint8(node.type)
-  writeNodeId(writer, node.id)
-  writeNullableNodeId(writer, node.parentId)
-  writer.writeUint16(node.children.length)
-
-  for (const child of node.children) {
-    writeNodeId(writer, child)
-  }
-
-  return buffer
-}
-
-export function decodeVDocument(reader: BufferReader): VDocument {
-  const type = NodeType.Document
-  const id = readNodeId(reader)
-  const parentId = readNullableNodeId(reader)
-
-  const len = reader.readUint16()
-  const children: Array<SyntheticId> = []
-
-  for (let i = 0; i < len; i++) {
-    children.push(readNodeId(reader))
-  }
-
-  return {
-    type,
-    id,
-    parentId,
-    children,
-  }
-}
-
-enum PropertyType {
-  Text = 0,
-  Number = 1,
-  Boolean = 2,
-}
-
-export function encodeVElement(node: VElement): ArrayBuffer {
-  const tagNameByteLength = getByteLength(node.tagName)
-
-  const attrEntries = Object.entries(node.attributes)
-  const attrByteLength = attrEntries.flatMap(([key, value]) => [
-    UINT_8 + getByteLength(key),
-    UINT_32 + (value !== null ? getByteLength(value) : 0),
-  ])
-  const attrByteLengthTotal = attrByteLength.reduce(
-    (acc, byteLength) => acc + byteLength,
-    0
-  )
-
-  const propEntries = Object.entries(node.properties)
-  const propByteLength = propEntries.flatMap(([key, value]) => {
-    let valueByteLength: number
-
-    if (typeof value === 'string') {
-      valueByteLength = UINT_32 + getByteLength(value)
-    } else if (typeof value === 'number') {
-      valueByteLength = INT_32
-    } else {
-      valueByteLength = UINT_8
-    }
-
-    return [UINT_8, UINT_8 + getByteLength(key), valueByteLength]
-  })
-  const propByteLengthTotal = propByteLength.reduce(
-    (acc, byteLength) => acc + byteLength,
-    0
-  )
-
-  const byteLength =
-    NODE_TYPE_BYTE_LENGTH +
-    NODE_ID_BYTE_LENGTH +
-    NODE_ID_BYTE_LENGTH +
-    UINT_8 +
-    tagNameByteLength +
-    UINT_16 +
-    node.children.length * NODE_ID_BYTE_LENGTH +
-    UINT_16 +
-    attrByteLengthTotal +
-    UINT_16 +
-    propByteLengthTotal
-
-  const buffer = new ArrayBuffer(byteLength)
-  const writer = new BufferWriter(buffer, 0, LITTLE_ENDIAN)
-
-  writer.writeUint8(node.type)
-  writeNodeId(writer, node.id)
-  writeNullableNodeId(writer, node.parentId)
-  writeString8(writer, node.tagName)
-
-  writer.writeUint16(node.children.length)
-  for (const child of node.children) {
-    writeNodeId(writer, child)
-  }
-
-  writer.writeUint16(attrEntries.length)
-  for (const [key, value] of attrEntries) {
-    writeString8(writer, key)
-    writeString32(writer, value ?? '')
-  }
-
-  writer.writeUint16(propEntries.length)
-  for (const [key, value] of propEntries) {
-    let propType: PropertyType
-
-    if (typeof value === 'string') {
-      propType = PropertyType.Text
-    } else if (typeof value === 'number') {
-      propType = PropertyType.Number
-    } else {
-      propType = PropertyType.Boolean
-    }
-
-    writer.writeUint8(propType)
-    writeString8(writer, key)
-
-    if (typeof value === 'string') {
-      writeString32(writer, value)
-    } else if (typeof value === 'number') {
-      writer.writeInt32(value)
-    } else {
-      writer.writeUint8(Number(value))
-    }
-  }
-
-  return buffer
-}
-
-export function decodeVElement(reader: BufferReader): VElement {
-  const type = NodeType.Element
-  const id = readNodeId(reader)
-  const parentId = readNullableNodeId(reader)
-  const tagName = readString8(reader)
-
-  const childrenLength = reader.readUint16()
-  const children: Array<SyntheticId> = []
-
-  for (let i = 0; i < childrenLength; i++) {
-    children.push(readNodeId(reader))
-  }
-
-  const attrLength = reader.readUint16()
-  const attrEntries: Array<[string, string | null]> = []
-
-  for (let j = 0; j < attrLength; j++) {
-    attrEntries.push([readString8(reader), readString32(reader)])
-  }
-
-  const attributes: Record<string, string | null> = attrEntries.reduce(
-    (acc, entry) => ({ ...acc, [entry[0]]: entry[1] }),
-    {}
-  )
-
-  const propLength = reader.readUint16()
-  const propEntries: Array<[string, string | number | boolean]> = []
-
-  for (let k = 0; k < propLength; k++) {
-    const propType = reader.readUint8()
-    const name = readString8(reader)
-    let value: string | number | boolean
-
-    if (propType === PropertyType.Text) {
-      value = readString32(reader)
-    } else if (propType === PropertyType.Number) {
-      value = reader.readInt32()
-    } else {
-      value = !!reader.readUint8()
-    }
-
-    propEntries.push([name, value])
-  }
-
-  const properties: Record<string, string | number | boolean> =
-    propEntries.reduce((acc, entry) => ({ ...acc, [entry[0]]: entry[1] }), {})
-
-  return {
-    type,
-    id,
-    parentId,
-    tagName,
-    children,
-    attributes,
-    properties,
-  }
-}
-
-export function encodeVText(node: VText): ArrayBuffer {
-  const byteLength =
-    NODE_TYPE_BYTE_LENGTH +
-    NODE_ID_BYTE_LENGTH +
-    NODE_ID_BYTE_LENGTH +
-    UINT_32 +
-    getByteLength(node.value)
-
-  const buffer = new ArrayBuffer(byteLength)
-  const writer = new BufferWriter(buffer, 0, LITTLE_ENDIAN)
-
-  writer.writeUint8(node.type)
-  writeNodeId(writer, node.id)
-  writeNullableNodeId(writer, node.parentId)
-  writeString32(writer, node.value)
-
-  return buffer
-}
-
-export function decodeVText(reader: BufferReader): VText {
-  const type = NodeType.Text
-  const id = readNodeId(reader)
-  const parentId = readNullableNodeId(reader)
-  const value = readString32(reader)
-
-  return {
-    type,
-    id,
-    parentId,
-    value,
-  }
-}
-
-export function encodeVTree(vtree: VTree): ArrayBuffer {
-  const rootIdBuffer = new ArrayBuffer(NODE_ID_BYTE_LENGTH)
-  const writer = new BufferWriter(rootIdBuffer, 0, LITTLE_ENDIAN)
-  writeNodeId(writer, vtree.rootId)
-
-  const nodeBuffers = Object.values(vtree.nodes).map(encodeVNode)
-
-  const buffer = concat([
-    rootIdBuffer,
-    new Uint32Array([nodeBuffers.length]).buffer,
-    ...nodeBuffers,
-  ])
-
-  return buffer
-}
-
-export function decodeVTree(reader: BufferReader): VTree {
-  const rootId = readNodeId(reader)
-
-  const nodesLength = reader.readUint32()
-  const nodes: Record<SyntheticId, VNode> = {}
-
-  for (let i = 0; i < nodesLength; i++) {
-    const node = decodeVNode(reader)
-    nodes[node.id] = node
-  }
-
-  return {
-    rootId,
-    nodes,
-  }
-}
-
-export function encodePatch(patch: Patch): ArrayBuffer {
-  switch (patch.type) {
-    case PatchType.Attribute:
-      return encodeAttributePatch(patch)
-
-    case PatchType.Text:
-      return encodeTextPatch(patch)
-
-    case PatchType.AddNodes:
-      return encodeAddNodesPatch(patch)
-
-    case PatchType.RemoveNodes:
-      return encodeRemoveNodesPatch(patch)
-
-    case PatchType.TextProperty:
-      return encodeTextPropertyPatch(patch)
-
-    case PatchType.NumberProperty:
-      return encodeNumberPropertyPatch(patch)
-
-    case PatchType.BooleanProperty:
-      return encodeBooleanPropertyPatch(patch)
-  }
-}
-
-export function decodePatch(reader: BufferReader): Patch {
-  const type: PatchType = reader.readUint8()
-
-  switch (type) {
-    case PatchType.Attribute:
-      return decodeAttributePatch(reader)
-
-    case PatchType.Text:
-      return decodeTextPatch(reader)
-
-    case PatchType.AddNodes:
-      return decodeAddNodesPatch(reader)
-
-    case PatchType.RemoveNodes:
-      return decodeRemoveNodesPatch(reader)
-
-    case PatchType.TextProperty:
-      return decodeTextPropertyPatch(reader)
-
-    case PatchType.NumberProperty:
-      return decodeNumberPropertyPatch(reader)
-
-    case PatchType.BooleanProperty:
-      return decodeBooleanPropertyPatch(reader)
-  }
-}
-
-export function encodeAttributePatch(patch: AttributePatch): ArrayBuffer {
-  const byteLength =
-    PATCH_TYPE_BYTE_LENGTH +
-    NODE_ID_BYTE_LENGTH +
-    UINT_8 +
-    getByteLength(patch.name) +
-    UINT_16 +
-    getByteLength(patch.value ?? '') +
-    UINT_16 +
-    getByteLength(patch.oldValue ?? '')
-
-  const buffer = new ArrayBuffer(byteLength)
-  const writer = new BufferWriter(buffer, 0, LITTLE_ENDIAN)
-
-  writer.writeUint8(patch.type)
-  writeNodeId(writer, patch.targetId)
-  writeString8(writer, patch.name)
-  writeString16(writer, patch.value ?? '')
-  writeString16(writer, patch.oldValue ?? '')
-
-  return buffer
-}
-
-export function decodeAttributePatch(reader: BufferReader): AttributePatch {
-  const type = PatchType.Attribute
-  const targetId = readNodeId(reader)
-  const name = readString8(reader)
-  const value = readString16(reader)
-  const oldValue = readString16(reader)
-
-  return {
-    type,
-    targetId,
-    name,
-    value,
-    oldValue,
-  }
-}
-
-export function encodeTextPatch(patch: TextPatch): ArrayBuffer {
-  const byteLength =
-    PATCH_TYPE_BYTE_LENGTH +
-    NODE_ID_BYTE_LENGTH +
-    UINT_32 +
-    getByteLength(patch.value) +
-    UINT_32 +
-    getByteLength(patch.oldValue)
-
-  const buffer = new ArrayBuffer(byteLength)
-  const writer = new BufferWriter(buffer, 0, LITTLE_ENDIAN)
-
-  writer.writeUint8(patch.type)
-  writeNodeId(writer, patch.targetId)
-  writeString32(writer, patch.value)
-  writeString32(writer, patch.oldValue)
-
-  return buffer
-}
-
-export function decodeTextPatch(reader: BufferReader): TextPatch {
-  const type = PatchType.Text
-  const targetId = readNodeId(reader)
-  const value = readString32(reader)
-  const oldValue = readString32(reader)
-
-  return {
-    type,
-    targetId,
-    value,
-    oldValue,
-  }
-}
-
-function encodeAddRemoveNodesPatch(
-  patch: AddNodesPatch | RemoveNodesPatch
-): ArrayBuffer {
-  const byteLength =
-    PATCH_TYPE_BYTE_LENGTH +
-    NODE_ID_BYTE_LENGTH +
-    UINT_8 +
-    NODE_ID_BYTE_LENGTH +
-    UINT_8 +
-    NODE_ID_BYTE_LENGTH +
-    UINT_16
-
-  const buffer = new ArrayBuffer(byteLength)
-  const writer = new BufferWriter(buffer, 0, LITTLE_ENDIAN)
-
-  writer.writeUint8(patch.type)
-  writeNodeId(writer, patch.parentId)
-
-  if (patch.previousSiblingId) {
-    writer.writeUint8(1)
-    writeNodeId(writer, patch.previousSiblingId)
-  } else {
-    writer.writeUint8(0)
-    zeroFill(writer, NODE_ID_BYTE_LENGTH)
-  }
-
-  if (patch.nextSiblingId) {
-    writer.writeUint8(1)
-    writeNodeId(writer, patch.nextSiblingId)
-  } else {
-    writer.writeUint8(0)
-    zeroFill(writer, NODE_ID_BYTE_LENGTH)
-  }
-
-  const vtreeBuffers = patch.nodes.map(encodeVTree)
-  writer.writeUint16(vtreeBuffers.length)
-
-  return vtreeBuffers.reduce((acc, buf) => {
-    return concat([acc, buf])
-  }, buffer)
-}
-
-function decodeAddRemoveNodesPatch(
-  type: PatchType.AddNodes | PatchType.RemoveNodes,
-  reader: BufferReader
-): AddNodesPatch | RemoveNodesPatch {
-  const parentId = readNodeId(reader)
-
-  const hasPreviousSiblingId = !!reader.readUint8()
-  let previousSiblingId: string | null = readNodeId(reader)
-
-  if (!hasPreviousSiblingId) {
-    previousSiblingId = null
-  }
-
-  const hasNextSiblingId = !!reader.readUint8()
-  let nextSiblingId: string | null = readNodeId(reader)
-
-  if (!hasNextSiblingId) {
-    nextSiblingId = null
-  }
-
-  const vtreesLength = reader.readUint16()
-  const nodes: Array<VTree> = []
-
-  for (let i = 0; i < vtreesLength; i++) {
-    nodes.push(decodeVTree(reader))
-  }
-
-  return {
-    type,
-    parentId,
-    previousSiblingId,
-    nextSiblingId,
-    nodes,
-  }
-}
-
-export function encodeAddNodesPatch(patch: AddNodesPatch): ArrayBuffer {
-  return encodeAddRemoveNodesPatch(patch)
-}
-
-export function decodeAddNodesPatch(reader: BufferReader): AddNodesPatch {
-  return decodeAddRemoveNodesPatch(PatchType.AddNodes, reader) as AddNodesPatch
-}
-
-export function encodeRemoveNodesPatch(patch: RemoveNodesPatch): ArrayBuffer {
-  return encodeAddRemoveNodesPatch(patch)
-}
-
-export function decodeRemoveNodesPatch(reader: BufferReader): RemoveNodesPatch {
-  return decodeAddRemoveNodesPatch(
-    PatchType.RemoveNodes,
-    reader
-  ) as RemoveNodesPatch
-}
-
-export function encodeTextPropertyPatch(patch: TextPropertyPatch): ArrayBuffer {
-  const byteLength =
-    PATCH_TYPE_BYTE_LENGTH +
-    NODE_ID_BYTE_LENGTH +
-    UINT_8 +
-    getByteLength(patch.name) +
-    UINT_32 +
-    getByteLength(patch.value) +
-    UINT_32 +
-    getByteLength(patch.oldValue)
-
-  const buffer = new ArrayBuffer(byteLength)
-  const writer = new BufferWriter(buffer, 0, LITTLE_ENDIAN)
-
-  writer.writeUint8(patch.type)
-  writeNodeId(writer, patch.targetId)
-  writeString8(writer, patch.name)
-  writeString32(writer, patch.value)
-  writeString32(writer, patch.oldValue)
-
-  return buffer
-}
-
-export function decodeTextPropertyPatch(
-  reader: BufferReader
-): TextPropertyPatch {
-  const targetId = readNodeId(reader)
-  const name = readString8(reader)
-  const value = readString32(reader)
-  const oldValue = readString32(reader)
-
-  return {
-    type: PatchType.TextProperty,
-    targetId,
-    name,
-    value,
-    oldValue,
-  }
-}
-
-export function encodeNumberPropertyPatch(
-  patch: NumberPropertyPatch
-): ArrayBuffer {
-  const byteLength =
-    PATCH_TYPE_BYTE_LENGTH +
-    NODE_ID_BYTE_LENGTH +
-    UINT_8 +
-    getByteLength(patch.name) +
-    INT_32 +
-    INT_32
-
-  const buffer = new ArrayBuffer(byteLength)
-  const writer = new BufferWriter(buffer, 0, LITTLE_ENDIAN)
-
-  writer.writeUint8(patch.type)
-  writeNodeId(writer, patch.targetId)
-  writeString8(writer, patch.name)
-  writer.writeInt32(patch.value)
-  writer.writeInt32(patch.oldValue)
-
-  return buffer
-}
-
-export function decodeNumberPropertyPatch(
-  reader: BufferReader
-): NumberPropertyPatch {
-  const targetId = readNodeId(reader)
-  const name = readString8(reader)
-  const value = reader.readInt32()
-  const oldValue = reader.readInt32()
-
-  return {
-    type: PatchType.NumberProperty,
-    targetId,
-    name,
-    value,
-    oldValue,
-  }
-}
-
-export function encodeBooleanPropertyPatch(
-  patch: BooleanPropertyPatch
-): ArrayBuffer {
-  const byteLength =
-    PATCH_TYPE_BYTE_LENGTH +
-    NODE_ID_BYTE_LENGTH +
-    UINT_8 +
-    getByteLength(patch.name) +
-    UINT_8 +
-    UINT_8
-
-  const buffer = new ArrayBuffer(byteLength)
-  const writer = new BufferWriter(buffer, 0, LITTLE_ENDIAN)
-
-  writer.writeUint8(patch.type)
-  writeNodeId(writer, patch.targetId)
-  writeString8(writer, patch.name)
-  writer.writeUint8(Number(patch.value))
-  writer.writeUint8(Number(patch.oldValue))
-
-  return buffer
-}
-
-export function decodeBooleanPropertyPatch(
-  reader: BufferReader
-): BooleanPropertyPatch {
-  const targetId = readNodeId(reader)
-  const name = readString8(reader)
-  const value = !!reader.readUint8()
-  const oldValue = !!reader.readUint8()
-
-  return {
-    type: PatchType.BooleanProperty,
-    targetId,
-    name,
-    value,
-    oldValue,
-  }
-}
+// type VDocType: struct {
+//   type: NodeType.DocType
+//   id: NodeId
+//   parentId?: NodeId
+//   name: string
+//   publicId: string
+//   systemId: string
+// }
+
+export const VDocTypeView = createView<VDocType, StructDescriptor>({
+  type: 'struct',
+  fields: [
+    ['type', UINT8],
+    ['id', NodeId],
+    ['parentId', NullableNodeId],
+    ['name', { type: 'string' }],
+    ['publicId', { type: 'string' }],
+    ['systemId', { type: 'string' }],
+  ],
+})
+
+export const VDocumentView = createView<VDocument, StructDescriptor>({
+  type: 'struct',
+  fields: [
+    ['type', UINT8],
+    ['id', NodeId],
+    ['parentId', NullableNodeId],
+    ['children', { type: 'vector', items: NodeId }],
+  ],
+})
+
+// type VElement: struct {
+//   type: NodeType.Element
+//   id: NodeId
+//   parentId?: NodeId
+//   tagName: string
+//   children: vector<NodeId>
+//   attributes: map<string, string>
+//   properties: struct {
+//     value?: string
+//     checked?: boolean
+//     selectedIndex?: int16
+//   }
+// }
+
+export const VElementView = createView<VElement, StructDescriptor>({
+  type: 'struct',
+  fields: [
+    ['type', UINT8],
+    ['id', NodeId],
+    ['parentId', NullableNodeId],
+    ['tagName', { type: 'string' }],
+    ['children', { type: 'vector', items: { type: 'char', bytes: 5 } }],
+    [
+      'attributes',
+      {
+        type: 'dict',
+        key: { type: 'string' },
+        value: { type: 'string', nullable: true },
+      },
+    ],
+    [
+      'properties',
+      {
+        type: 'struct',
+        fields: [
+          ['value', { type: 'string', nullable: true }],
+          ['checked', { type: 'bool', nullable: true }],
+          [
+            'selectedIndex',
+            { type: 'integer', signed: true, bits: 16, nullable: true },
+          ],
+        ],
+      },
+    ],
+  ],
+})
+
+// type VText: struct {
+//   type: NodeType.Text
+//   id: NodeId
+//   parentId?: NodeId
+//   value: string
+// }
+
+export const VTextView = createView<VText, StructDescriptor>({
+  type: 'struct',
+  fields: [
+    ['type', UINT8],
+    ['id', NodeId],
+    ['parentId', NullableNodeId],
+    ['value', { type: 'string' }],
+  ],
+})
+
+// type VNode: union {
+//   VDocument
+//   VDocType
+//   VElement
+//   VText
+// }
+
+export const VNodeView = createView<VNode, UnionDescriptor>({
+  type: 'union',
+  tagField: 'type',
+  descriptors: {
+    [NodeType.Document]: VDocumentView.descriptor,
+    [NodeType.DocType]: VDocTypeView.descriptor,
+    [NodeType.Element]: VElementView.descriptor,
+    [NodeType.Text]: VTextView.descriptor,
+  },
+})
+
+// type VTree: struct {
+//   rootId: NodeId
+//   nodes: map<NodeId, VNode>
+// }
+
+export const VTreeView = createView<VTree, StructDescriptor>({
+  type: 'struct',
+  fields: [
+    ['rootId', NodeId],
+    ['nodes', { type: 'dict', key: NodeId, value: VNodeView.descriptor }],
+  ],
+})
+
+// type AttributePatch: struct {
+//   type: PatchType.Attribute
+//   targetId: NodeId
+//   name: string
+//   value?: string
+//   oldValue?: string
+// }
+
+export const AttributePatchView = createView<AttributePatch, StructDescriptor>({
+  type: 'struct',
+  fields: [
+    ['type', UINT8],
+    ['targetId', NodeId],
+    ['name', { type: 'string' }],
+    ['value', { type: 'string', nullable: true }],
+    ['oldValue', { type: 'string', nullable: true }],
+  ],
+})
+
+// type TextPatch: struct {
+//   type: PatchType.Text
+//   targetId: NodeId
+//   value: string
+//   oldValue: string
+// }
+
+export const TextPatchView = createView<TextPatch, StructDescriptor>({
+  type: 'struct',
+  fields: [
+    ['type', UINT8],
+    ['targetId', NodeId],
+    ['value', { type: 'string' }],
+    ['oldValue', { type: 'string' }],
+  ],
+})
+
+// type AddNodesPatch: struct {
+//   type: PatchType.AddNodes
+//   parentId: NodeId
+//   previousSiblingId?: NodeId
+//   nextSiblingId?: NodeId
+//   nodes: vector<VTree>
+// }
+
+export const AddNodesPatchView = createView<AddNodesPatch, StructDescriptor>({
+  type: 'struct',
+  fields: [
+    ['type', UINT8],
+    ['parentId', NodeId],
+    ['previousSiblingId', NullableNodeId],
+    ['nextSiblingId', NullableNodeId],
+    ['nodes', { type: 'vector', items: VTreeView.descriptor }],
+  ],
+})
+
+// type RemoveNodesPatch: struct {
+//   type: PatchType.RemoveNodes
+//   parentId: NodeId
+//   previousSiblingId?: NodeId
+//   nextSiblingId?: NodeId
+//   nodes: vector<VTree>
+// }
+
+export const RemoveNodesPatchView = createView<
+  RemoveNodesPatch,
+  StructDescriptor
+>({
+  type: 'struct',
+  fields: [
+    ['type', UINT8],
+    ['parentId', NodeId],
+    ['previousSiblingId', NullableNodeId],
+    ['nextSiblingId', NullableNodeId],
+    ['nodes', { type: 'vector', items: VTreeView.descriptor }],
+  ],
+})
+
+// type TextPropertyPatch: struct {
+//   type: PatchType.TextProperty
+//   targetId: NodeId
+//   name: string
+//   value: string
+//   oldValue: string
+// }
+
+export const TextPropertyPatchView = createView<
+  TextPropertyPatch,
+  StructDescriptor
+>({
+  type: 'struct',
+  fields: [
+    ['type', UINT8],
+    ['targetId', NodeId],
+    ['name', { type: 'string' }],
+    ['value', { type: 'string' }],
+    ['oldValue', { type: 'string' }],
+  ],
+})
+
+// type NumberPropertyPatch: struct {
+//   type: PatchType.NumberProperty
+//   targetId: NodeId
+//   name: string
+//   value: int32
+//   oldValue: int32
+// }
+
+export const NumberPropertyPatchView = createView<
+  NumberPropertyPatch,
+  StructDescriptor
+>({
+  type: 'struct',
+  fields: [
+    ['type', UINT8],
+    ['targetId', NodeId],
+    ['name', { type: 'string' }],
+    ['value', { type: 'integer', signed: true, bits: 32 }],
+    ['oldValue', { type: 'integer', signed: true, bits: 32 }],
+  ],
+})
+
+// type BooleanPropertyPatch: struct {
+//   type: PatchType.BooleanProperty
+//   targetId: NodeId
+//   name: string
+//   value: bool
+//   oldValue: bool
+// }
+
+export const BooleanPropertyPatchView = createView<
+  BooleanPropertyPatch,
+  StructDescriptor
+>({
+  type: 'struct',
+  fields: [
+    ['type', UINT8],
+    ['targetId', NodeId],
+    ['name', { type: 'string' }],
+    ['value', { type: 'bool' }],
+    ['oldValue', { type: 'bool' }],
+  ],
+})
+
+export const DOMPatchView = createView<Patch, UnionDescriptor>({
+  type: 'union',
+  tagField: 'type',
+  descriptors: {
+    [PatchType.Attribute]: AttributePatchView.descriptor,
+    [PatchType.Text]: TextPatchView.descriptor,
+    [PatchType.AddNodes]: AddNodesPatchView.descriptor,
+    [PatchType.RemoveNodes]: RemoveNodesPatchView.descriptor,
+    [PatchType.TextProperty]: TextPropertyPatchView.descriptor,
+    [PatchType.NumberProperty]: NumberPropertyPatchView.descriptor,
+    [PatchType.BooleanProperty]: BooleanPropertyPatchView.descriptor,
+  },
+})

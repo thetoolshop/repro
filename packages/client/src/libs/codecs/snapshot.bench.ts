@@ -8,7 +8,7 @@ import {
   elementNode,
   textNode,
 } from './fixtures/vdom'
-import { encodeSnapshot } from './snapshot'
+import { SnapshotView } from './snapshot'
 
 const snapshot: Snapshot = {
   dom: {
@@ -32,10 +32,13 @@ const snapshot: Snapshot = {
   },
 }
 
+const encoded = SnapshotView.encode(snapshot)
+
 console.table({
   Snapshot: {
     raw: approxByteLength(snapshot),
-    binary: approxByteLength(encodeSnapshot(snapshot)),
-    perf_encode: stress(() => encodeSnapshot(snapshot)),
+    binary: approxByteLength(SnapshotView.encode(snapshot)),
+    perf_encode: stress(() => SnapshotView.encode(snapshot)),
+    perf_decode: stress(() => SnapshotView.decode(encoded)),
   },
 })
