@@ -4,7 +4,7 @@ import {
   SourceEvent,
   SourceEventType,
 } from '@/types/recording'
-import { copyObject } from '@/utils/lang'
+import { copyObject, LazyList } from '@/utils/lang'
 import { applyEventToSnapshot } from '@/utils/source'
 import { createAtom } from '@/utils/state'
 import { first, Observable, skipUntil, Subscription } from 'rxjs'
@@ -38,7 +38,7 @@ export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
   }
 
   function getSourceEvents() {
-    return null
+    return LazyList.Empty<SourceEvent>()
   }
 
   function play() {}

@@ -14,18 +14,12 @@ import {
   SourceEvent,
   SourceEventType,
 } from '@/types/recording'
-import { ArrayBufferBackedList, copyObject } from '@/utils/lang'
+import { copyObject, LazyList } from '@/utils/lang'
 import { applyEventToSnapshot, isSample } from '@/utils/source'
 import { createAtom } from '@/utils/state'
 import { ControlFrame, Playback, PlaybackState } from './types'
-import {
-  decodeEvent,
-  encodeEvent,
-  readEventTime,
-  readEventType,
-} from '../codecs/event'
-import { BufferReader } from 'arraybuffer-utils'
-import { LITTLE_ENDIAN } from '../codecs/common'
+import { SnapshotView } from '../codecs/snapshot'
+import { SourceEventView } from '../codecs/event'
 
 const EMPTY_SNAPSHOT: Snapshot = {
   dom: null,
@@ -33,26 +27,11 @@ const EMPTY_SNAPSHOT: Snapshot = {
 
 const EMPTY_BUFFER: Array<SourceEvent> = []
 
-function eventReader(buffer: ArrayBuffer): SourceEvent {
-  const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
-  return decodeEvent(reader)
-}
-
-function eventWriter(event: SourceEvent): ArrayBuffer {
-  return encodeEvent(event)
-}
-
-const EMPTY_EVENT_LIST = new ArrayBufferBackedList<SourceEvent>(
-  [],
-  eventReader,
-  eventWriter
+export const EMPTY_PLAYBACK = createSourcePlayback(
+  LazyList.Empty<SourceEvent>()
 )
 
-export const EMPTY_PLAYBACK = createSourcePlayback(EMPTY_EVENT_LIST)
-
-export function createSourcePlayback(
-  events: ArrayBufferBackedList<SourceEvent>
-): Playback {
+export function createSourcePlayback(events: LazyList<SourceEvent>): Playback {
   const subscription = new Subscription()
 
   const [$activeIndex, getActiveIndex, setActveIndex] = createAtom(-1)
@@ -74,7 +53,9 @@ export function createSourcePlayback(
 
   Stats.time('RecordingPlayback: calculate duration', () => {
     if (firstEvent && lastEvent) {
-      duration = readEventTime(lastEvent) - readEventTime(firstEvent)
+      duration =
+        SourceEventView.over(lastEvent).time -
+        SourceEventView.over(firstEvent).time
     }
   })
 
@@ -82,9 +63,10 @@ export function createSourcePlayback(
 
   Stats.time('RecordingPlayback: index snapshot events', () => {
     for (let i = 0, len = events.size(); i < len; i++) {
-      const event = events.at(i)
+      const dataView = events.at(i)
+      const event = dataView && SourceEventView.over(dataView)
 
-      if (event && readEventType(event) === SourceEventType.Snapshot) {
+      if (event && event.type === SourceEventType.Snapshot) {
         snapshotIndex.push(i)
       }
     }
@@ -99,7 +81,7 @@ export function createSourcePlayback(
       return EMPTY_SNAPSHOT
     }
 
-    const firstEvent = events.read(0)
+    const firstEvent = events.decode(0)
 
     if (!firstEvent || firstEvent.type !== SourceEventType.Snapshot) {
       throw new Error(
@@ -111,8 +93,8 @@ export function createSourcePlayback(
   }
 
   function partitionEvents(
-    events: ArrayBufferBackedList<SourceEvent>,
-    shouldPartition: (buffer: ArrayBuffer, index: number) => boolean,
+    events: LazyList<SourceEvent>,
+    shouldPartition: (event: SourceEvent, index: number) => boolean,
     isUnresolvedSample: (sample: Sample<any>, time: number) => boolean
   ) {
     const eventsBefore: Array<SourceEvent> = []
@@ -121,20 +103,22 @@ export function createSourcePlayback(
     Stats.time('RecordingPlayback~partitionEvents: total', () => {
       const unresolvedSampleEvents: Array<SourceEvent> = []
 
-      let buffer: ArrayBuffer | null
+      let view: DataView | null
       let i = 0
 
-      while ((buffer = eventsAfter.at(0))) {
-        if (readEventType(buffer) === SourceEventType.Snapshot) {
+      while ((view = eventsAfter.at(0))) {
+        const lens = SourceEventView.over(view)
+
+        if (lens.type === SourceEventType.Snapshot) {
           eventsAfter.delete(0)
           continue
         }
 
-        if (shouldPartition(buffer, i)) {
+        if (shouldPartition(lens, i)) {
           break
         }
 
-        const event = eventsAfter.read(0)
+        const event = eventsAfter.decode(0)
 
         if (!event) {
           break
@@ -143,9 +127,9 @@ export function createSourcePlayback(
         eventsBefore.push(event)
 
         if (
-          'data' in event &&
-          isSample(event.data) &&
-          isUnresolvedSample(event.data, event.time)
+          'data' in lens &&
+          isSample(lens.data) &&
+          isUnresolvedSample(lens.data, lens.time)
         ) {
           unresolvedSampleEvents.push(event)
         }
@@ -170,7 +154,7 @@ export function createSourcePlayback(
     return [eventsBefore, eventsAfter] as const
   }
 
-  let queuedEvents: ArrayBufferBackedList<SourceEvent> = loadEvents()
+  let queuedEvents: LazyList<SourceEvent> = loadEvents()
 
   const eventLoop = connectable(
     $playbackState.pipe(
@@ -198,7 +182,7 @@ export function createSourcePlayback(
       // resuming background/idle tab)
       const [before, after] = partitionEvents(
         queuedEvents,
-        buffer => readEventTime(buffer) > elapsed,
+        event => event.time > elapsed,
         (sample, time) => time + sample.duration > elapsed
       )
 
@@ -230,12 +214,12 @@ export function createSourcePlayback(
 
   function getEventTimeAtIndex(index: number) {
     const event = events.at(index)
-    return event ? readEventTime(event) : null
+    return event ? SourceEventView.over(event).time : null
   }
 
   function getEventTypeAtIndex(index: number) {
     const event = events.at(index)
-    return event ? readEventType(event) : null
+    return event ? SourceEventView.over(event).type : null
   }
 
   function getSourceEvents() {
@@ -261,7 +245,7 @@ export function createSourcePlayback(
     const allEvents = loadEvents()
     queuedEvents = allEvents
 
-    const targetEvent = queuedEvents.read(nextIndex)
+    const targetEvent = queuedEvents.decode(nextIndex)
 
     if (!targetEvent) {
       throw new Error(`Playback: could not find event at index ${nextIndex}`)
@@ -274,7 +258,7 @@ export function createSourcePlayback(
 
       if (typeof index === 'number') {
         if (index <= nextIndex) {
-          snapshot = (allEvents.read(index) as SnapshotEvent).data
+          snapshot = (allEvents.decode(index) as SnapshotEvent).data
           queuedEvents = allEvents.slice(index + 1)
           break
         }
@@ -318,10 +302,10 @@ export function createSourcePlayback(
           const index = snapshotIndex[i]
 
           if (typeof index === 'number') {
-            const buffer = allEvents.at(index)
+            const event = allEvents.at(index)
 
-            if (buffer && readEventTime(buffer) <= elapsed) {
-              snapshot = (allEvents.read(index) as SnapshotEvent).data
+            if (event && SourceEventView.over(event).time <= elapsed) {
+              snapshot = (allEvents.decode(index) as SnapshotEvent).data
               queuedEvents = allEvents.slice(index + 1)
 
               Stats.value(
@@ -337,7 +321,7 @@ export function createSourcePlayback(
 
       const [before, after] = partitionEvents(
         queuedEvents,
-        buffer => readEventTime(buffer) > elapsed,
+        event => event.time > elapsed,
         (sample, time) => time + sample.duration > elapsed
       )
 
@@ -352,7 +336,7 @@ export function createSourcePlayback(
         'RecordingPlayback#seekToTime: apply events to snapshot',
         () => {
           if (snapshot && before.length) {
-            snapshot = copyObject(snapshot)
+            snapshot = copyObject(SnapshotView.decode(snapshot))
 
             for (const event of before) {
               applyEventToSnapshot(snapshot, event, elapsed)

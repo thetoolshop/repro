@@ -1,26 +1,19 @@
-import { decrypt } from '@/libs/crypto'
-import { Recording, SourceEvent } from '@/types/recording'
-import { ArrayBufferBackedList } from '@/utils/lang'
+import { SourceEvent } from '@/types/recording'
+import { LazyList } from '@/utils/lang'
 import { createAtom } from '@/utils/state'
-import { BufferReader } from 'arraybuffer-utils'
-import { LITTLE_ENDIAN } from '../codecs/common'
-import { decodeRecording } from '../codecs/recording'
+import { SourceEventView } from '../codecs/event'
+import { RecordingView } from '../codecs/recording'
 import { ReadyState, Source } from './types'
 
 type Transformer = (data: ArrayBuffer) => Promise<ArrayBuffer>
-
-function recordingDecoder(buffer: ArrayBuffer): Recording {
-  const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
-  return decodeRecording(reader)
-}
 
 export function createHttpSource(
   url: string,
   responseTransformer?: Transformer
 ): Source {
-  const [$events, _getEvents, setEvents] = createAtom<
-    ArrayBufferBackedList<SourceEvent>
-  >(ArrayBufferBackedList.NoOp<SourceEvent>())
+  const [$events, _getEvents, setEvents] = createAtom(
+    LazyList.Empty<SourceEvent>()
+  )
 
   const [$readyState, _getReadyState, setReadyState] =
     createAtom<ReadyState>('waiting')
@@ -35,9 +28,16 @@ export function createHttpSource(
         data = await responseTransformer(data)
       }
 
-      const recording = recordingDecoder(data)
+      const recording = RecordingView.decode(new DataView(data))
 
-      setEvents(recording.events)
+      setEvents(
+        new LazyList(
+          recording.events.map(buffer => new DataView(buffer)),
+          SourceEventView.decode,
+          SourceEventView.encode
+        )
+      )
+
       setReadyState('ready')
     } else {
       setReadyState('failed')

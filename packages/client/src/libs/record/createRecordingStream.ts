@@ -1,4 +1,3 @@
-import { BufferReader } from 'arraybuffer-utils'
 import { SyntheticId } from '@/types/common'
 import {
   Interaction,
@@ -16,19 +15,13 @@ import {
   SourceEventType,
 } from '@/types/recording'
 import { Patch, VNode } from '@/types/vdom'
+import { copy as copyDataView } from '@/utils/encoding'
 import { isZeroPoint } from '@/utils/interaction'
-import { ArrayBufferBackedList, copyObjectDeep } from '@/utils/lang'
+import { LazyList, copyObjectDeep } from '@/utils/lang'
 import { ObserverLike } from '@/utils/observer'
 import { applyEventToSnapshot, createEmptySnapshot } from '@/utils/source'
 import { applyVTreePatch, getNodeId } from '@/utils/vdom'
-import { copy as copyArrayBuffer, LITTLE_ENDIAN } from '../codecs/common'
-import {
-  decodeEvent,
-  encodeEvent,
-  readEventTime,
-  readEventType,
-  writeEventTimeOffset,
-} from '../codecs/event'
+import { SourceEventView } from '../codecs/event'
 import { Stats } from '../diagnostics'
 import { createBuffer, Unsubscribe } from './buffer-utils'
 import { createConsoleObserver } from './console'
@@ -59,22 +52,7 @@ const defaultOptions: RecordingOptions = {
   },
 }
 
-const MAX_BUFFER_SIZE_BYTES = 32_000_000
-
-function eventReader(buffer: ArrayBuffer): SourceEvent {
-  const reader = new BufferReader(buffer, 0, LITTLE_ENDIAN)
-  return decodeEvent(reader)
-}
-
-function eventWriter(event: SourceEvent): ArrayBuffer {
-  return encodeEvent(event)
-}
-
-const EMPTY_EVENT_LIST = new ArrayBufferBackedList<SourceEvent>(
-  [],
-  eventReader,
-  eventWriter
-)
+const MAX_EVENT_BUFFER_SIZE_BYTES = 32_000_000
 
 export function createEmptyInteractionSnapshot(): InteractionSnapshot {
   return {
@@ -90,7 +68,7 @@ export interface RecordingStream {
   stop(): void
   isStarted(): boolean
   peek(nodeId: SyntheticId): VNode | null
-  slice(): Promise<ArrayBufferBackedList<SourceEvent>>
+  slice(): Promise<LazyList<SourceEvent>>
   tail(): Observable<SourceEvent>
 }
 
@@ -104,7 +82,7 @@ export const EMPTY_RECORDING_STREAM: RecordingStream = {
   stop: () => undefined,
   isStarted: () => false,
   peek: () => null,
-  slice: () => Promise.resolve(EMPTY_EVENT_LIST),
+  slice: () => Promise.resolve(LazyList.Empty<SourceEvent>()),
   tail: () => NEVER,
 }
 
@@ -120,7 +98,7 @@ export function createRecordingStream(
   let started = false
 
   const observers: Array<ObserverLike> = []
-  const buffer = createBuffer<ArrayBuffer>(MAX_BUFFER_SIZE_BYTES)
+  const eventBuffer = createBuffer<DataView>(MAX_EVENT_BUFFER_SIZE_BYTES)
 
   const bufferSubscriptions: BufferSubscriptions = {
     onEvict: null,
@@ -211,7 +189,7 @@ export function createRecordingStream(
     }
 
     unsubscribeFromBuffer()
-    buffer.clear()
+    eventBuffer.clear()
 
     started = false
   }
@@ -220,44 +198,42 @@ export function createRecordingStream(
     return started
   }
 
-  async function slice(): Promise<ArrayBufferBackedList<SourceEvent>> {
-    let events: Array<ArrayBuffer> = []
+  async function slice(): Promise<LazyList<SourceEvent>> {
+    let events: Array<DataView> = []
 
     Stats.time('RecordingStream#slice: total', () => {
       Stats.time('RecordingStream#slice: deep copy event buffer', () => {
-        events = buffer.copy().map(copyArrayBuffer)
+        events = eventBuffer.copy().map(copyDataView)
       })
 
       Stats.time('RecordingStream#slice: sort events by time', () => {
         events.sort((a, b) => {
-          return readEventTime(a) - readEventTime(b)
+          return SourceEventView.over(a).time - SourceEventView.over(b).time
         })
       })
 
       Stats.time('RecordingStream#slice: append trailing snapshot', () => {
-        events.push(encodeEvent(createSnapshotEvent()))
+        events.push(SourceEventView.encode(createSnapshotEvent()))
       })
 
-      const firstEvent = events[0]
-      const timeOffset = firstEvent ? readEventTime(firstEvent) : 0
+      const firstEvent = events[0] && SourceEventView.over(events[0])
+      const timeOffset = firstEvent ? firstEvent.time : 0
 
       Stats.value('RecordingStream#slice: time offset', timeOffset)
 
       Stats.time('RecordingStream#slice: offset event times', () => {
         for (const event of events) {
-          writeEventTimeOffset(event, timeOffset)
+          const lens = SourceEventView.over(event)
+          lens.time = lens.time - timeOffset
         }
       })
 
       // If first event is not a snapshot event (i.e. leading snapshot has been
       // evicted), prepend rolling leading snapshot.
-      if (
-        !firstEvent ||
-        readEventType(firstEvent) !== SourceEventType.Snapshot
-      ) {
+      if (!firstEvent || firstEvent.type !== SourceEventType.Snapshot) {
         Stats.time('RecordingStream#slice: prepend leading snapshot', () => {
           events.unshift(
-            encodeEvent({
+            SourceEventView.encode({
               time: 0,
               type: SourceEventType.Snapshot,
               data: leadingSnapshot,
@@ -283,11 +259,7 @@ export function createRecordingStream(
       /**/
     })
 
-    return new ArrayBufferBackedList<SourceEvent>(
-      events,
-      eventReader,
-      eventWriter
-    )
+    return new LazyList(events, SourceEventView.decode, SourceEventView.encode)
   }
 
   function peek(nodeId: SyntheticId): VNode | null {
@@ -304,9 +276,8 @@ export function createRecordingStream(
     return concat(
       of(createSnapshotEvent()),
       new Observable<SourceEvent>(observer => {
-        const subscription = buffer.onPush(data => {
-          const reader = new BufferReader(data, 0, LITTLE_ENDIAN)
-          observer.next(decodeEvent(reader))
+        const subscription = eventBuffer.onPush(data => {
+          observer.next(SourceEventView.decode(data))
         })
 
         return () => {
@@ -317,7 +288,7 @@ export function createRecordingStream(
   }
 
   function addEvent(event: SourceEvent) {
-    buffer.push(encodeEvent(event))
+    eventBuffer.push(SourceEventView.encode(event))
   }
 
   function createSnapshotEvent(): SnapshotEvent {
@@ -481,7 +452,6 @@ export function createRecordingStream(
   function registerNetworkObserver() {
     observers.push(
       createNetworkObserver(message => {
-        // TODO: apply event to trailing snapshot
         addEvent(createNetworkEvent(message))
       })
     )
@@ -498,7 +468,6 @@ export function createRecordingStream(
   function registerConsoleObserver() {
     observers.push(
       createConsoleObserver(message => {
-        // TODO: apply event to trailing snapshot
         addEvent(createConsoleEvent(message))
       })
     )
@@ -507,19 +476,17 @@ export function createRecordingStream(
   function registerPerformanceObserver() {}
 
   function subscribeToBuffer() {
-    bufferSubscriptions.onEvict = buffer.onEvict(evicted => {
+    bufferSubscriptions.onEvict = eventBuffer.onEvict(evicted => {
       for (const evictee of evicted) {
-        const type = readEventType(evictee)
+        const event = SourceEventView.over(evictee)
 
         // We rebuild a snapshot from incremental events after
         // eviction, so snapshots on the buffer can be discarded
-        if (type === SourceEventType.Snapshot) {
+        if (event.type === SourceEventType.Snapshot) {
           continue
         }
 
         if (leadingSnapshot) {
-          const reader = new BufferReader(evictee, 0, LITTLE_ENDIAN)
-          const event = decodeEvent(reader)
           applyEventToSnapshot(leadingSnapshot, event, event.time)
         }
 

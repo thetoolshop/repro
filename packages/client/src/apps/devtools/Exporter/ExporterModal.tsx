@@ -26,17 +26,11 @@ import {
   SourceEvent,
   SourceEventType,
 } from '@/types/recording'
-import { ArrayBufferBackedList } from '@/utils/lang'
+import { copy as copyDataView } from '@/utils/encoding'
+import { LazyList } from '@/utils/lang'
 import { applyEventToSnapshot, createRecordingId } from '@/utils/source'
-import {
-  createEventDecoder,
-  createEventEncoder,
-  readEventTime,
-  readEventType,
-  writeEventTimeOffset,
-} from '@/libs/codecs/event'
-import { copy as copyArrayBuffer } from '@/libs/codecs/common'
-import { encodeRecording } from '@/libs/codecs/recording'
+import { SourceEventView } from '@/libs/codecs/event'
+import { RecordingView } from '@/libs/codecs/recording'
 import { MAX_INT32 } from '../constants'
 import { ExporterButton } from './ExporterButton'
 import { RangeSelector } from './RangeSelector'
@@ -53,42 +47,40 @@ interface Props {
 }
 
 function createRecordingAtRange(
-  sourceEvents: ArrayBufferBackedList<SourceEvent>,
+  sourceEvents: LazyList<SourceEvent>,
   range: PlaybackRange
 ): Recording {
-  const eventBuffers: Array<ArrayBuffer> = []
+  const eventBuffers: Array<DataView> = []
   let duration = 0
 
-  const eventDecoder = createEventDecoder()
-  const eventEncoder = createEventEncoder()
-
   Stats.time('ExporterModal: create recording from range', () => {
-    let leadingSnapshotBuffer: ArrayBuffer | null = null
-    const leadingEventBuffers: Array<ArrayBuffer> = []
+    let leadingSnapshotBuffer: DataView | null = null
+    const leadingEventBuffers: Array<DataView> = []
 
-    let trailingSnapshotBuffer: ArrayBuffer | null = null
-    const trailingEventBuffers: Array<ArrayBuffer> = []
+    let trailingSnapshotBuffer: DataView | null = null
+    const trailingEventBuffers: Array<DataView> = []
 
     for (let i = 0, len = sourceEvents.size(); i < len; i++) {
       const event = sourceEvents.at(i)
 
       if (event) {
-        const time = readEventTime(event)
-        const type = readEventType(event)
+        const lens = SourceEventView.over(event)
+        const time = lens.time
+        const type = lens.type
 
         if (time <= range[0]) {
           if (type === SourceEventType.Snapshot) {
-            leadingSnapshotBuffer = copyArrayBuffer(event)
+            leadingSnapshotBuffer = copyDataView(event)
             leadingEventBuffers.length = 0
           } else {
             leadingEventBuffers.push(event)
           }
         } else if (time > range[0] && time < range[1]) {
-          eventBuffers.push(copyArrayBuffer(event))
+          eventBuffers.push(copyDataView(event))
         } else if (time >= range[1]) {
           if (trailingSnapshotBuffer === null) {
             if (type === SourceEventType.Snapshot) {
-              trailingSnapshotBuffer = copyArrayBuffer(event)
+              trailingSnapshotBuffer = copyDataView(event)
             } else {
               trailingEventBuffers.unshift(event)
             }
@@ -102,26 +94,26 @@ function createRecordingAtRange(
     }
 
     if (leadingEventBuffers.length > 0) {
-      const leadingSnapshotEvent = eventDecoder(
+      const leadingSnapshotEvent = SourceEventView.decode(
         leadingSnapshotBuffer
       ) as SnapshotEvent
 
       for (const buffer of leadingEventBuffers) {
-        const event = eventDecoder(buffer)
+        const event = SourceEventView.decode(buffer)
         applyEventToSnapshot(leadingSnapshotEvent.data, event, event.time)
         leadingSnapshotEvent.time = event.time
       }
 
-      leadingSnapshotBuffer = eventEncoder(leadingSnapshotEvent)
+      leadingSnapshotBuffer = SourceEventView.encode(leadingSnapshotEvent)
     }
 
     if (trailingEventBuffers.length > 0) {
-      const trailingSnapshotEvent = eventDecoder(
+      const trailingSnapshotEvent = SourceEventView.decode(
         trailingSnapshotBuffer
       ) as SnapshotEvent
 
       for (const buffer of trailingEventBuffers) {
-        const event = eventDecoder(buffer)
+        const event = SourceEventView.decode(buffer)
         applyEventToSnapshot(
           trailingSnapshotEvent.data,
           event,
@@ -131,7 +123,7 @@ function createRecordingAtRange(
         trailingSnapshotEvent.time = event.time
       }
 
-      trailingSnapshotBuffer = eventEncoder(trailingSnapshotEvent)
+      trailingSnapshotBuffer = SourceEventView.encode(trailingSnapshotEvent)
     }
 
     eventBuffers.unshift(leadingSnapshotBuffer)
@@ -142,20 +134,21 @@ function createRecordingAtRange(
 
     duration =
       firstEvent && lastEvent
-        ? readEventTime(lastEvent) - readEventTime(firstEvent)
+        ? SourceEventView.over(lastEvent).time -
+          SourceEventView.over(firstEvent).time
         : 0
 
-    const timeOffset = firstEvent ? readEventTime(firstEvent) : 0
+    const timeOffset = firstEvent ? SourceEventView.over(firstEvent).time : 0
 
     for (const event of eventBuffers) {
-      writeEventTimeOffset(event, timeOffset)
+      SourceEventView.over(event).time = timeOffset
     }
   })
 
   return {
     codecVersion: CODEC_VERSION,
     id: createRecordingId(),
-    events: new ArrayBufferBackedList(eventBuffers, eventDecoder, eventEncoder),
+    events: eventBuffers.map(view => view.buffer),
     duration,
   }
 }
@@ -199,7 +192,7 @@ export const ExporterModal: React.FC<Props> = ({ onClose }) => {
 
     if (events) {
       const recording = createRecordingAtRange(events, [minTime, maxTime])
-      const data = encodeRecording(recording)
+      const data = RecordingView.encode(recording)
 
       setUploading('uploading')
 
@@ -211,7 +204,7 @@ export const ExporterModal: React.FC<Props> = ({ onClose }) => {
         type: 'upload',
         payload: {
           id: recording.id,
-          recording: Array.from(new Uint8Array(data)),
+          recording: Array.from(new Uint8Array(data.buffer)),
           assets: [],
         },
       })

@@ -1,10 +1,5 @@
-import {
-  Recording,
-  Snapshot,
-  SourceEvent,
-  SourceEventType,
-} from '@/types/recording'
-import { ArrayBufferBackedList } from '@/utils/lang'
+import { Snapshot, SourceEvent, SourceEventType } from '@/types/recording'
+import { LazyList } from '@/utils/lang'
 import { Atom } from '@/utils/state'
 
 export enum PlaybackState {
@@ -37,7 +32,7 @@ export interface Playback {
   getLatestControlFrame(): ControlFrame
   getPlaybackState(): PlaybackState
   getSnapshot(): Snapshot
-  getSourceEvents(): ArrayBufferBackedList<SourceEvent> | null
+  getSourceEvents(): LazyList<SourceEvent>
 
   // Controls
   play(): void
@@ -56,6 +51,6 @@ export interface Playback {
 export type ReadyState = 'waiting' | 'ready' | 'failed'
 
 export interface Source {
-  $events: Atom<ArrayBufferBackedList<SourceEvent>>
+  $events: Atom<LazyList<SourceEvent>>
   $readyState: Atom<ReadyState>
 }

@@ -76,10 +76,20 @@ export function createConsoleObserver(
         ;(async function () {
           subscriber({
             level,
-            parts: args.map(value => ({
-              type: MessagePartType.String,
-              value: value.toString(),
-            })),
+            parts: args.map(value => {
+              let serializedValue: string
+
+              try {
+                serializedValue = JSON.stringify(value)
+              } catch {
+                serializedValue = value.toString()
+              }
+
+              return {
+                type: MessagePartType.String,
+                value: serializedValue,
+              }
+            }),
             stack: await getStackEntries(),
           })
         })()

@@ -3,30 +3,30 @@ export const copyObject = <T extends object>(obj: T): T => ({ ...obj })
 export const copyObjectDeep = <T extends object>(obj: T): T =>
   JSON.parse(JSON.stringify(obj))
 
-function noopReader<T>() {
-  return (_buf: ArrayBuffer) => undefined as unknown as T
+function noopDecoder<T>() {
+  return (_view: DataView) => undefined as unknown as T
 }
 
-function noopWriter<T>() {
-  return (_entry: T) => undefined as unknown as ArrayBuffer
+function noopEncoder<T>() {
+  return (_entry: T) => undefined as unknown as DataView
 }
 
-export class ArrayBufferBackedList<T> {
-  static NoOp<T>(): ArrayBufferBackedList<T> {
-    return new ArrayBufferBackedList([], noopReader<T>(), noopWriter<T>())
+export class LazyList<T> {
+  static Empty<T>(): LazyList<T> {
+    return new LazyList([], noopDecoder<T>(), noopEncoder<T>())
   }
 
   constructor(
-    private readonly source: Array<ArrayBuffer>,
-    private readonly reader: (buf: ArrayBuffer) => T,
-    private readonly writer: (entry: T) => ArrayBuffer
+    private readonly source: Array<DataView>,
+    private readonly decoder: (view: DataView) => T,
+    private readonly encoder: (entry: T) => DataView
   ) {}
 
   size(): number {
     return this.source.length
   }
 
-  at(index: number): ArrayBuffer | null {
+  at(index: number): DataView | null {
     return this.source[index] || null
   }
 
@@ -34,30 +34,30 @@ export class ArrayBufferBackedList<T> {
     this.source.splice(index, 1)
   }
 
-  read(index: number): T | null {
+  decode(index: number): T | null {
     const entry = this.at(index)
-    return entry ? this.reader(entry) : null
+    return entry ? this.decoder(entry) : null
   }
 
-  slice(start?: number, end?: number): ArrayBufferBackedList<T> {
-    return new ArrayBufferBackedList(
+  slice(start?: number, end?: number): LazyList<T> {
+    return new LazyList(
       this.source.slice(start, end),
-      this.reader,
-      this.writer
+      this.decoder,
+      this.encoder
     )
   }
 
   prepend(...entries: Array<T>): number {
-    return this.source.unshift(...entries.map(this.writer))
+    return this.source.unshift(...entries.map(this.encoder))
   }
 
   append(...entries: Array<T>): number {
-    return this.source.push(...entries.map(this.writer))
+    return this.source.push(...entries.map(this.encoder))
   }
 
   *[Symbol.iterator]() {
     for (const entry of this.source) {
-      yield this.reader(entry)
+      yield this.decoder(entry)
     }
   }
 }
