@@ -1,0 +1,34 @@
+{
+  "name": "@repro/typed-binary-encoder",
+  "version": "1.0.0",
+  "description": "TypeScript compatible binary encodings",
+  "main": "./dist/index",
+  "types": "./dist/index",
+  "scripts": {
+    "build": "concurrently npm:build:source npm:build:declarations",
+    "build:declarations": "tsc --emitDeclarationOnly",
+    "build:source": "esbuild src/index.ts --outdir=dist --platform=node --format=cjs",
+    "prepare": "npm run build",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/reprohq/repro.git"
+  },
+  "author": "Gary Chambers <gary@repro.dev>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/reprohq/repro/issues"
+  },
+  "homepage": "https://github.com/reprohq/repro#readme",
+  "devDependencies": {
+    "@types/jest": "^28.1.7",
+    "@types/node": "^18.6.2",
+    "concurrently": "^7.3.0",
+    "esbuild": "^0.15.5",
+    "jest": "^28.1.3",
+    "ts-jest": "^28.0.8",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.7.4"
+  }
+}
