@@ -11,8 +11,8 @@ import {
   SourceEventType,
 } from '@repro/domain'
 
-import { copyArray } from '@/utils/lang'
-import { applyVTreePatch } from '@/utils/vdom'
+import { copyArray } from '~/utils/lang'
+import { applyVTreePatch } from '~/utils/vdom'
 
 export function createRecordingId() {
   return nanoid(21)

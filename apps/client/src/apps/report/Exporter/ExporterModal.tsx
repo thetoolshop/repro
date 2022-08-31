@@ -16,27 +16,27 @@ import {
   X as CloseIcon,
 } from 'react-feather'
 import { Shortcuts } from 'shortcuts'
-import { Spin } from '@/components/FX'
-import { Logo } from '@/components/Logo'
-import { Modal } from '@/components/Modal'
-import { colors } from '@/config/theme'
-import { Stats } from '@/libs/diagnostics'
-import { useMessaging } from '@/libs/messaging'
+import { Spin } from '~/components/FX'
+import { Logo } from '~/components/Logo'
+import { Modal } from '~/components/Modal'
+import { colors } from '~/config/theme'
+import { Stats } from '~/libs/diagnostics'
+import { useMessaging } from '~/libs/messaging'
 import {
   EMPTY_PLAYBACK,
   PlaybackCanvas,
   PlaybackProvider,
   PlaybackTimeline,
   usePlayback,
-} from '@/libs/playback'
-import { copy as copyDataView } from '@/utils/encoding'
-import { LazyList } from '@/utils/lang'
-import { applyEventToSnapshot, createRecordingId } from '@/utils/source'
+} from '~/libs/playback'
+import { copy as copyDataView } from '~/utils/encoding'
+import { LazyList } from '~/utils/lang'
+import { applyEventToSnapshot, createRecordingId } from '~/utils/source'
 import { MAX_INT32 } from '../constants'
 import { ExporterButton } from './ExporterButton'
 import { RangeSelector } from './RangeSelector'
 import { CODEC_VERSION } from '@repro/domain'
-import { Analytics } from '@/libs/analytics'
+import { Analytics } from '~/libs/analytics'
 
 const baseUrl = (process.env.SHARE_BASE_URL || '').replace(/\/$/, '')
 

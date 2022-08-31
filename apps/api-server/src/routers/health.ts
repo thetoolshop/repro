@@ -1,6 +1,6 @@
 import express from 'express'
 import { resolve } from 'fluture'
-import { respondWith } from '@/utils/response'
+import { respondWith } from '~/utils/response'
 
 export function createHealthcheckRouter() {
   const HealthcheckRouter = express.Router()

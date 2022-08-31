@@ -1,4 +1,4 @@
-import { Agent } from '@/libs/messaging'
+import { Agent } from '~/libs/messaging'
 import { TrackedEvent } from './types'
 
 const apiUrl = (process.env.MIXPANEL_API_URL || '').replace(/\/$/, '')

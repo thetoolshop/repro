@@ -1,4 +1,4 @@
-import { Immutable } from '@/types/extensions'
+import { Immutable } from '~/types/extensions'
 import {
   NodeType,
   Patch,
@@ -7,9 +7,9 @@ import {
   VText,
   VTree,
 } from '@repro/domain'
-import { isInputElement, isSelectElement, isTextAreaElement } from '@/utils/dom'
-import { createEventObserver, ObserverLike } from '@/utils/observer'
-import { createSyntheticId, getNodeId, isElementVNode } from '@/utils/vdom'
+import { isInputElement, isSelectElement, isTextAreaElement } from '~/utils/dom'
+import { createEventObserver, ObserverLike } from '~/utils/observer'
+import { createSyntheticId, getNodeId, isElementVNode } from '~/utils/vdom'
 import { RecordingOptions } from '../types'
 import { DOMTreeWalker, isIgnoredByNode, isIgnoredBySelector } from './utils'
 

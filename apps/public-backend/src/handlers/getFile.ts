@@ -1,4 +1,4 @@
-import { getFile } from '@/lib/b2'
+import { getFile } from '~/lib/b2'
 import { corsHeaders } from './cors-headers'
 
 export async function handleGetFile(request: Request): Promise<Response> {

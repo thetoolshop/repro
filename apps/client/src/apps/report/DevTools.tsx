@@ -1,7 +1,7 @@
 import { Block, Grid } from 'jsxstyle'
 import React, { PropsWithChildren, useCallback, useEffect } from 'react'
-import { colors } from '@/config/theme'
-import { PlaybackCanvas } from '@/libs/playback'
+import { colors } from '~/config/theme'
+import { PlaybackCanvas } from '~/libs/playback'
 import { Toolbar } from './Toolbar'
 import { PickerOverlay } from './PickerOverlay'
 import { View } from './types'
@@ -22,8 +22,8 @@ import {
   useView,
 } from './hooks'
 import { ExporterModal } from './Exporter'
-import { ReferenceStyleProvider } from '@/libs/styles'
-import { Analytics } from '@/libs/analytics'
+import { ReferenceStyleProvider } from '~/libs/styles'
+import { Analytics } from '~/libs/analytics'
 
 interface Props {
   disableExport?: boolean

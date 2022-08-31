@@ -1,12 +1,12 @@
 import { Block, Row } from 'jsxstyle'
 import React from 'react'
 import { Check as FinishIcon, Loader as LoaderIcon } from 'react-feather'
-import { Button } from '@/components/Button'
-import { colors } from '@/config/theme'
-import { interrupt } from '@/libs/record'
+import { Button } from '~/components/Button'
+import { colors } from '~/config/theme'
+import { interrupt } from '~/libs/record'
 import { useReadyState } from '../hooks'
 import { ReadyState } from '../types'
-import { Spin } from '@/components/FX'
+import { Spin } from '~/components/FX'
 
 export const LiveRecordingControls: React.FC = () => {
   const [, setReadyState] = useReadyState()

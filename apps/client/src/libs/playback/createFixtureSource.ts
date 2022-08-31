@@ -1,6 +1,6 @@
 import { SourceEvent, SourceEventView } from '@repro/domain'
-import { createAtom } from '@/utils/state'
-import { LazyList } from '@/utils/lang'
+import { createAtom } from '~/utils/state'
+import { LazyList } from '~/utils/lang'
 import { ReadyState, Source } from './types'
 
 export function createFixtureSource(name: string): Source {

@@ -5,10 +5,10 @@ import {
   Globe as NetworkIcon,
   AlertTriangle as ConsoleIcon,
 } from 'react-feather'
-import { colors } from '@/config/theme'
+import { colors } from '~/config/theme'
 import { View } from '../types'
 import { useView } from '../hooks'
-import { Tooltip } from '@/components/Tooltip'
+import { Tooltip } from '~/components/Tooltip'
 
 export const Tabs: React.FC = () => {
   return (

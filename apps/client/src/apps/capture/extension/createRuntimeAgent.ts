@@ -1,4 +1,4 @@
-import { Agent, Intent, Resolver, Unsubscribe } from '@/libs/messaging'
+import { Agent, Intent, Resolver, Unsubscribe } from '~/libs/messaging'
 
 interface RuntimeOptions {
   target?: number

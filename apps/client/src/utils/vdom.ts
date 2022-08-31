@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid'
-import { Immutable } from '@/types/extensions'
+import { Immutable } from '~/types/extensions'
 import {
   NodeType,
   Patch,
@@ -12,8 +12,8 @@ import {
   VText,
   VTree,
 } from '@repro/domain'
-import { copyObjectDeep } from '@/utils/lang'
-import { logger } from '@/libs/logger'
+import { copyObjectDeep } from '~/utils/lang'
+import { logger } from '~/libs/logger'
 
 // @deprecated: use createNodeId instead
 export function createSyntheticId() {

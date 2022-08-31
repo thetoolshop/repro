@@ -1,15 +1,15 @@
 import { Block, InlineBlock } from 'jsxstyle'
 import React, { useEffect, useState } from 'react'
-import { colors } from '@/config/theme'
-import { useElapsed, useLatestControlFrame } from '@/libs/playback'
+import { colors } from '~/config/theme'
+import { useElapsed, useLatestControlFrame } from '~/libs/playback'
 import {
   CSSPropertyMap,
   GroupedCSSPropertyMap,
   createCSSPropertyMap,
   createGroupedCSSPropertyMap,
   useReferenceStyle,
-} from '@/libs/styles'
-import { isElementNode } from '@/utils/dom'
+} from '~/libs/styles'
+import { isElementNode } from '~/utils/dom'
 import { useSelectedElement } from '../hooks'
 
 export const SelectedNodeComputedStyle: React.FC = () => {

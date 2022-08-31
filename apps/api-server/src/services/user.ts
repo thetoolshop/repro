@@ -1,9 +1,15 @@
-import { chain, FutureInstance, map } from 'fluture'
-import { UserProvider } from '@/providers/user'
-import { User } from '@/types/user'
-import { EmailUtils } from '@/utils/email'
+import { chain, FutureInstance } from 'fluture'
+import { UserProvider } from '~/providers/user'
+import { User } from '~/types/user'
+import { EmailUtils } from '~/utils/email'
 
 export interface UserService {
+  createUser(
+    teamId: string,
+    name: string,
+    email: string,
+    password: string
+  ): FutureInstance<Error, User>
   getUserById(userId: string): FutureInstance<Error, User>
   getUserByEmailAndPassword(
     email: string,
@@ -20,6 +26,15 @@ export function createUserService(
   userProvider: UserProvider,
   emailUtils: EmailUtils
 ): UserService {
+  function createUser(
+    teamId: string,
+    name: string,
+    email: string,
+    password: string
+  ): FutureInstance<Error, User> {
+    return userProvider.createUser(teamId, name, email, password)
+  }
+
   function getUserById(userId: string): FutureInstance<Error, User> {
     return userProvider.getUserById(userId)
   }
@@ -51,6 +66,7 @@ export function createUserService(
   }
 
   return {
+    createUser,
     getUserById,
     getUserByEmailAndPassword,
     resetPassword,

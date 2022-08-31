@@ -1,4 +1,4 @@
-import { Immutable } from '@/types/extensions'
+import { Immutable } from '~/types/extensions'
 import { VTree } from '@repro/domain'
 
 export interface ObserverLike<T extends any = any> {

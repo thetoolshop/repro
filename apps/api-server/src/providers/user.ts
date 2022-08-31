@@ -1,10 +1,31 @@
-import Future, { alt, bimap, chain, FutureInstance, go, map } from 'fluture'
-import { User, userSchema } from '@/types/user'
-import { CryptoUtils } from '@/utils/crypto'
-import { notFound } from '@/utils/errors'
+import { alt, bimap, chain, FutureInstance, go } from 'fluture'
+import { QueryResultRow } from 'pg'
+import { User, userSchema } from '~/types/user'
+import { CryptoUtils } from '~/utils/crypto'
+import { notFound } from '~/utils/errors'
 import { DatabaseClient } from './database'
 
+interface ResetTokenRow extends QueryResultRow {
+  reset_token: string
+}
+
+interface UserRow extends QueryResultRow {
+  id: string
+  name: string
+  email: string
+}
+
+interface UserWithPasswordRow extends UserRow {
+  password: string
+}
+
 export interface UserProvider {
+  createUser(
+    teamId: string,
+    name: string,
+    email: string,
+    password: string
+  ): FutureInstance<Error, User>
   getOrCreateResetToken(email: string): FutureInstance<Error, string>
   getUserByEmailAndPassword(
     email: string,
@@ -15,42 +36,65 @@ export interface UserProvider {
   setPassword(userId: string, password: string): FutureInstance<Error, void>
 }
 
-function toUser<T extends User>(values: T): User {
+function toUser(values: UserRow): User {
   return userSchema.parse(values)
+}
+
+function toResetToken(values: ResetTokenRow): string {
+  return values.reset_token
 }
 
 export function createUserProvider(
   dbClient: DatabaseClient,
   cryptoUtils: CryptoUtils
 ): UserProvider {
-  function getOrCreateResetToken(email: string): FutureInstance<Error, string> {
-    const existingToken = dbClient
-      .getOne<{ resetToken: string }>(
-        `
-        SELECT resetToken
-        FROM users
-        WHERE email = $1 
-        AND resetToken IS NOT NULL
-        AND resetTokenExpiry > NOW()
-        LIMIT 1
-        `,
-        [email]
+  function createUser(
+    teamId: string,
+    name: string,
+    email: string,
+    password: string
+  ): FutureInstance<Error, User> {
+    return cryptoUtils.createHash(password).pipe(
+      chain(hash =>
+        dbClient.getOne(
+          `
+          INSERT INTO users (team_id, name, email, password)
+          VALUES ($1, $2, $3, $4)
+          RETURNING id, name, email
+          `,
+          [teamId, name, email, hash],
+          toUser
+        )
       )
-      .pipe(map(row => row.resetToken))
+    )
+  }
+
+  function getOrCreateResetToken(email: string): FutureInstance<Error, string> {
+    const existingToken = dbClient.getOne(
+      `
+      SELECT reset_token
+      FROM users
+      WHERE email = $1 
+      AND reset_token IS NOT NULL
+      AND reset_token_expires_at > NOW()
+      LIMIT 1
+      `,
+      [email],
+      toResetToken
+    )
 
     const newToken = cryptoUtils.createRandomString().pipe(
       chain(resetToken =>
-        dbClient
-          .getOne<{ resetToken: string }>(
-            `
-            UPDATE users
-            SET resetToken = $1 AND resetTokenExpiry = (NOW() + interval '1 hour')
-            WHERE email = $2
-            RETURNING resetToken
-            `,
-            [resetToken, email]
-          )
-          .pipe(map(row => row.resetToken))
+        dbClient.getOne(
+          `
+          UPDATE users
+          SET reset_token = $1 AND reset_token_expiry = (NOW() + interval '1 hour')
+          WHERE email = $2
+          RETURNING reset_token
+          `,
+          [resetToken, email],
+          toResetToken
+        )
       )
     )
 
@@ -58,19 +102,19 @@ export function createUserProvider(
   }
 
   function getUserById(userId: string): FutureInstance<Error, User> {
-    return dbClient
-      .getOne<User>('SELECT id, email FROM users WHERE id = $1::UUID LIMIT 1', [
-        userId,
-      ])
-      .pipe(map(toUser))
+    return dbClient.getOne(
+      'SELECT id, name, email FROM users WHERE id = $1::UUID LIMIT 1',
+      [userId],
+      toUser
+    )
   }
 
   function getUserByEmailAndPassword(
     email: string,
     password: string
   ): FutureInstance<Error, User> {
-    const result = dbClient.getOne<User & { password: string }>(
-      'SELECT id, email, password FROM users WHERE email = $1 LIMIT 1',
+    const result = dbClient.getOne<UserWithPasswordRow>(
+      'SELECT id, name, email, password FROM users WHERE email = $1 LIMIT 1',
       [email]
     )
 
@@ -86,12 +130,11 @@ export function createUserProvider(
   function getUserByResetToken(
     resetToken: string
   ): FutureInstance<Error, User> {
-    return dbClient
-      .getOne<User>(
-        'SELECT id, email FROM users WHERE resetToken = $1 LIMIT 1',
-        [resetToken]
-      )
-      .pipe(map(toUser))
+    return dbClient.getOne(
+      'SELECT id, name, email FROM users WHERE reset_token = $1 LIMIT 1',
+      [resetToken],
+      toUser
+    )
   }
 
   function setPassword(
@@ -113,6 +156,7 @@ export function createUserProvider(
   }
 
   return {
+    createUser,
     getOrCreateResetToken,
     getUserByEmailAndPassword,
     getUserById,

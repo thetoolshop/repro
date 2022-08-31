@@ -2,7 +2,7 @@ import { Grid } from 'jsxstyle'
 import React, { useEffect } from 'react'
 import { Outlet } from 'react-router'
 import { Shortcuts } from 'shortcuts'
-import { usePlayback } from '@/libs/playback'
+import { usePlayback } from '~/libs/playback'
 import { usePicker } from './hooks'
 import { Header } from './Header'
 

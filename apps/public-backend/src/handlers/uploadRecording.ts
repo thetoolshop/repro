@@ -1,4 +1,4 @@
-import { uploadFile } from '@/lib/b2'
+import { uploadFile } from '~/lib/b2'
 import { corsHeaders } from './cors-headers'
 
 function badRequest() {

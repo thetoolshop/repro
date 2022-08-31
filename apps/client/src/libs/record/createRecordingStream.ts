@@ -16,12 +16,12 @@ import {
   SyntheticId,
   VNode,
 } from '@repro/domain'
-import { copy as copyDataView } from '@/utils/encoding'
-import { isZeroPoint } from '@/utils/interaction'
-import { LazyList, copyObjectDeep } from '@/utils/lang'
-import { ObserverLike } from '@/utils/observer'
-import { applyEventToSnapshot, createEmptySnapshot } from '@/utils/source'
-import { applyVTreePatch, getNodeId } from '@/utils/vdom'
+import { copy as copyDataView } from '~/utils/encoding'
+import { isZeroPoint } from '~/utils/interaction'
+import { LazyList, copyObjectDeep } from '~/utils/lang'
+import { ObserverLike } from '~/utils/observer'
+import { applyEventToSnapshot, createEmptySnapshot } from '~/utils/source'
+import { applyVTreePatch, getNodeId } from '~/utils/vdom'
 import { Stats } from '../diagnostics'
 import { createBuffer, Unsubscribe } from './buffer-utils'
 import { createConsoleObserver } from './console'

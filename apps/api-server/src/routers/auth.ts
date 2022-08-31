@@ -1,9 +1,11 @@
 import express from 'express'
-import { AuthService } from '@/services/auth'
-import { UserService } from '@/services/user'
-import { respondWith } from '@/utils/response'
+import z from 'zod'
+import { AuthService } from '~/services/auth'
+import { UserService } from '~/services/user'
+import { respondWith } from '~/utils/response'
 import { attempt, chain, mapRej } from 'fluture'
-import { badRequest, notAuthenticated } from '@/utils/errors'
+import { badRequest, notAuthenticated } from '~/utils/errors'
+import { parseSchema } from '~/utils/validation'
 
 export function createAuthRouter(
   authService: AuthService,
@@ -11,45 +13,54 @@ export function createAuthRouter(
 ) {
   const AuthRouter = express.Router()
 
-  AuthRouter.post('/login', async (req, res) => {
-    const { email, password } = req.body
-
-    const token = userService
-      .getUserByEmailAndPassword(email, password)
-      .pipe(mapRej(() => notAuthenticated()))
-      .pipe(chain(user => authService.createSessionToken({ userId: user.id })))
-
-    respondWith<string>(res, token)
+  const loginBodySchema = z.object({
+    email: z.string().email(),
+    password: z.string(),
   })
 
-  AuthRouter.post('/forgot', async (req, res) => {
-    const { email } = req.body
-    const result = userService.sendPasswordResetEmail(email)
-    respondWith<void>(res, result)
-  })
-
-  AuthRouter.post('/reset', async (req, res) => {
-    const { password, resetToken } = req.body
-    const result = userService.resetPassword(resetToken, password)
-    respondWith<void>(res, result)
-  })
-
-  AuthRouter.get('/verify', async (req, res) => {
-    const authHeader = req.header('authorization')
-
-    const token = attempt<Error, string>(() => {
-      if (!authHeader) {
-        throw badRequest('Missing "Authorization" header')
-      }
-
-      return authHeader.replace(/^Bearer\s/, '')
-    })
-
-    const result = token.pipe(
-      chain(token => authService.verifySessionToken(token))
+  AuthRouter.post('/login', (req, res) => {
+    respondWith<string>(
+      res,
+      parseSchema(loginBodySchema, req.body, badRequest).pipe(
+        chain(({ email, password }) =>
+          userService
+            .getUserByEmailAndPassword(email, password)
+            .pipe(mapRej(() => notAuthenticated()))
+            .pipe(
+              chain(user => authService.createSessionToken({ userId: user.id }))
+            )
+        )
+      )
     )
+  })
 
-    respondWith(res, result)
+  const forgotBodySchema = z.object({
+    email: z.string().email(),
+  })
+
+  AuthRouter.post('/forgot', (req, res) => {
+    respondWith<void>(
+      res,
+      parseSchema(forgotBodySchema, req.body, badRequest).pipe(
+        chain(({ email }) => userService.sendPasswordResetEmail(email))
+      )
+    )
+  })
+
+  const resetBodySchema = z.object({
+    password: z.string(),
+    resetToken: z.string(),
+  })
+
+  AuthRouter.post('/reset', (req, res) => {
+    respondWith<void>(
+      res,
+      parseSchema(resetBodySchema, req.body, badRequest).pipe(
+        chain(({ password, resetToken }) =>
+          userService.resetPassword(resetToken, password)
+        )
+      )
+    )
   })
 
   return AuthRouter

@@ -1,5 +1,13 @@
-import { createError } from '@/utils/errors'
-import { chain, FutureInstance, map, node, reject, resolve } from 'fluture'
+import { createError } from '~/utils/errors'
+import {
+  attempt,
+  chain,
+  FutureInstance,
+  map,
+  node,
+  reject,
+  resolve,
+} from 'fluture'
 import { Pool, PoolConfig, QueryResult, QueryResultRow } from 'pg'
 
 export interface DatabaseClient {
@@ -8,15 +16,27 @@ export interface DatabaseClient {
     values: Array<any>
   ): FutureInstance<Error, QueryResult<R>>
 
-  getOne<R extends QueryResultRow>(
+  getOne<T extends QueryResultRow>(
     queryText: string,
     values: Array<any>
-  ): FutureInstance<Error, R>
+  ): FutureInstance<Error, T>
 
-  getMany<R extends QueryResultRow>(
+  getOne<T extends QueryResultRow, U>(
+    queryText: string,
+    values: Array<any>,
+    resultSelector: (row: T) => U
+  ): FutureInstance<Error, U>
+
+  getMany<T extends QueryResultRow>(
     queryText: string,
     values: Array<any>
-  ): FutureInstance<Error, Array<R>>
+  ): FutureInstance<Error, Array<T>>
+
+  getMany<T extends QueryResultRow, U>(
+    queryText: string,
+    values: Array<any>,
+    resultSelector: (row: T) => U
+  ): FutureInstance<Error, Array<U>>
 }
 
 function noResults() {
@@ -39,14 +59,21 @@ export function createDatabaseClient(config: PoolConfig): DatabaseClient {
     )
   }
 
-  function getOne<R extends QueryResultRow>(
+  function getOne(
     queryText: string,
-    values: Array<any>
-  ): FutureInstance<Error, R> {
-    return query<R>(queryText, values).pipe(
+    values: Array<any>,
+    resultSelector?: (row: QueryResultRow) => any
+  ): FutureInstance<Error, any> {
+    return query(queryText, values).pipe(
       chain(result => {
         if (result.rowCount === 1) {
-          return resolve(result.rows[0] as R)
+          const row = result.rows[0]!
+
+          if (resultSelector) {
+            return attempt<Error, any>(() => resultSelector(row))
+          }
+
+          return resolve(row)
         }
 
         if (result.rowCount === 0) {
@@ -58,11 +85,20 @@ export function createDatabaseClient(config: PoolConfig): DatabaseClient {
     )
   }
 
-  function getMany<R extends QueryResultRow>(
+  function getMany(
     queryText: string,
-    values: Array<any>
-  ): FutureInstance<Error, Array<R>> {
-    return query<R>(queryText, values).pipe(map(result => result.rows))
+    values: Array<any>,
+    resultSelector?: (row: QueryResultRow) => any
+  ): FutureInstance<Error, Array<any>> {
+    return query(queryText, values).pipe(
+      chain(result =>
+        resultSelector
+          ? attempt<Error, Array<any>>(() =>
+              result.rows.map(row => resultSelector(row))
+            )
+          : resolve(result.rows)
+      )
+    )
   }
 
   return {

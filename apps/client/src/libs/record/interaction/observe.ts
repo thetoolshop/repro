@@ -1,7 +1,7 @@
 import { Interaction, InteractionType, Point } from '@repro/domain'
-import { isElementNode } from '@/utils/dom'
-import { ObserverLike, createEventObserver } from '@/utils/observer'
-import { getNodeId } from '@/utils/vdom'
+import { isElementNode } from '~/utils/dom'
+import { ObserverLike, createEventObserver } from '~/utils/observer'
+import { getNodeId } from '~/utils/vdom'
 import { RecordingOptions } from '../types'
 import { sampleEventsByKey } from './sample'
 

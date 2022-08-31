@@ -1,48 +1,46 @@
-import { createSecretKey } from 'crypto'
-import { attemptP, FutureInstance } from 'fluture'
-import { SignJWT, jwtVerify, JWTPayload } from 'jose'
-import { Session } from '@/types/session'
+import { chain, map, FutureInstance } from 'fluture'
+import { always } from 'ramda'
+import { SessionProvider } from '~/providers/session'
+import { Session } from '~/types/session'
+import { CryptoUtils } from '~/utils/crypto'
 
 export interface AuthService {
   createSessionToken(session: Session): FutureInstance<Error, string>
-  verifySessionToken(token: string): FutureInstance<Error, Session>
+  loadSession(token: string): FutureInstance<Error, Session>
+  deleteSession(token: string): FutureInstance<Error, void>
+  cleanExpiredSessions(): FutureInstance<Error, void>
 }
 
-interface AuthConfig {
-  sessionSecret: string
-}
-
-export function createAuthService(config: AuthConfig): AuthService {
-  const secretKey = createSecretKey(config.sessionSecret, 'utf-8')
-
+export function createAuthService(
+  sessionProvider: SessionProvider,
+  cryptoUtils: CryptoUtils
+): AuthService {
   function createSessionToken(session: Session): FutureInstance<Error, string> {
-    return attemptP(() =>
-      new SignJWT(session)
-        .setProtectedHeader({ alg: 'ES256' })
-        .setIssuedAt()
-        .setAudience('https://repro.dev')
-        .setIssuer('https://repro.dev')
-        .setExpirationTime('7d')
-        .sign(secretKey)
-    )
-  }
-
-  function createSessionFromJWTPayload(payload: JWTPayload): Session {
-    return {
-      userId: payload.userId as string,
-    }
-  }
-
-  function verifySessionToken(token: string): FutureInstance<Error, Session> {
-    return attemptP(() =>
-      jwtVerify(token, secretKey).then(result =>
-        createSessionFromJWTPayload(result.payload)
+    return cryptoUtils
+      .createRandomString(32)
+      .pipe(
+        chain(token =>
+          sessionProvider.saveSession(token, session).pipe(map(always(token)))
+        )
       )
-    )
+  }
+
+  function loadSession(token: string): FutureInstance<Error, Session> {
+    return sessionProvider.getSession(token)
+  }
+
+  function deleteSession(token: string): FutureInstance<Error, void> {
+    return sessionProvider.deleteSession(token)
+  }
+
+  function cleanExpiredSessions(): FutureInstance<Error, void> {
+    return sessionProvider.cleanExpiredSessions()
   }
 
   return {
     createSessionToken,
-    verifySessionToken,
+    loadSession,
+    deleteSession,
+    cleanExpiredSessions,
   }
 }

@@ -1,5 +1,5 @@
-import { FrameRealm } from '@/components/FrameRealm'
-import { colors } from '@/config/theme'
+import { FrameRealm } from '~/components/FrameRealm'
+import { colors } from '~/config/theme'
 import { Block } from 'jsxstyle'
 import React, {
   MutableRefObject,

@@ -1,6 +1,6 @@
 import { Block } from 'jsxstyle'
 import React, { PropsWithChildren } from 'react'
-import { colors } from '@/config/theme'
+import { colors } from '~/config/theme'
 import { INDENT, FONT_SIZE } from './constants'
 import { SyntheticId } from '@repro/domain'
 import { Tag, useNodeState } from './context'

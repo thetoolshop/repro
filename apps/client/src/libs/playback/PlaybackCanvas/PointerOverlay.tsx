@@ -1,8 +1,8 @@
 import { Block } from 'jsxstyle'
 import React from 'react'
-import { Cursor } from '@/components/Cursor'
-import { colors } from '@/config/theme'
-import { usePointer, usePointerState } from '@/libs/playback'
+import { Cursor } from '~/components/Cursor'
+import { colors } from '~/config/theme'
+import { usePointer, usePointerState } from '~/libs/playback'
 import { PointerState } from '@repro/domain'
 
 export const PointerOverlay: React.FC = () => {

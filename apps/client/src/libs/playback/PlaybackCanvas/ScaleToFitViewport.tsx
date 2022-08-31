@@ -7,8 +7,8 @@ import React, {
   useRef,
   useState,
 } from 'react'
-import { colors } from '@/config/theme'
-import { useViewport } from '@/libs/playback'
+import { colors } from '~/config/theme'
+import { useViewport } from '~/libs/playback'
 import { Point } from '@repro/domain'
 
 export const ScaleToFitViewport: React.FC<PropsWithChildren> = ({

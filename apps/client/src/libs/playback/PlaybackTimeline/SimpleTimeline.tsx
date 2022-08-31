@@ -11,11 +11,11 @@ import {
   take,
   takeUntil,
 } from 'rxjs/operators'
-import { colors } from '@/config/theme'
+import { colors } from '~/config/theme'
 import { usePlayback } from '../hooks'
 import { PlaybackState } from '../types'
 import { PlayAction } from './PlayAction'
-import { Analytics } from '@/libs/analytics'
+import { Analytics } from '~/libs/analytics'
 
 interface Props {
   min?: number

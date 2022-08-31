@@ -1,5 +1,5 @@
-import { colors } from '@/config/theme'
-import { isIFrameElement } from '@/utils/dom'
+import { colors } from '~/config/theme'
+import { isIFrameElement } from '~/utils/dom'
 import { Block } from 'jsxstyle'
 import React, { MutableRefObject, useEffect, useRef, useState } from 'react'
 import { fromEvent, Subscription } from 'rxjs'

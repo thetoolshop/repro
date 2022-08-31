@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { Grid } from 'jsxstyle'
-import { PlaybackCanvas, usePlayback } from '@/libs/playback'
+import { PlaybackCanvas, usePlayback } from '~/libs/playback'
 import { PlaybackControls } from './PlaybackControls'
 
 export const Preview: React.FC = () => {

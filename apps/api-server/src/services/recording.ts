@@ -1,44 +1,40 @@
 import { Recording } from '@repro/domain'
-import { RecordingProvider } from '@/providers/recording'
-import { RecordingMetadata } from '@/types/recording'
+import { RecordingProvider } from '~/providers/recording'
+import { RecordingMetadata } from '~/types/recording'
 import { FutureInstance } from 'fluture'
 
 export interface RecordingService {
   saveRecording(
-    recordingId: string,
+    teamId: string,
     projectId: string,
-    userId: string,
+    authorId: string,
     title: string,
     description: string,
     recording: Recording
   ): FutureInstance<Error, void>
 
   getRecordingMetadata(
-    recordingId: string,
-    userId: string
+    recordingId: string
   ): FutureInstance<Error, RecordingMetadata>
 
-  getRecording(
-    recordingId: string,
-    userId: string
-  ): FutureInstance<Error, Recording>
+  getRecording(recordingId: string): FutureInstance<Error, Recording>
 }
 
 export function createRecordingService(
   recordingProvider: RecordingProvider
 ): RecordingService {
   function saveRecording(
-    recordingId: string,
+    teamId: string,
     projectId: string,
-    userId: string,
+    authorId: string,
     title: string,
     description: string,
     recording: Recording
   ): FutureInstance<Error, void> {
     return recordingProvider.saveRecording(
-      recordingId,
+      teamId,
       projectId,
-      userId,
+      authorId,
       title,
       description,
       recording
@@ -46,17 +42,13 @@ export function createRecordingService(
   }
 
   function getRecordingMetadata(
-    recordingId: string,
-    userId: string
+    recordingId: string
   ): FutureInstance<Error, RecordingMetadata> {
-    return recordingProvider.getRecordingMetadata(recordingId, userId)
+    return recordingProvider.getRecordingMetadata(recordingId)
   }
 
-  function getRecording(
-    recordingId: string,
-    userId: string
-  ): FutureInstance<Error, Recording> {
-    return recordingProvider.getRecording(recordingId, userId)
+  function getRecording(recordingId: string): FutureInstance<Error, Recording> {
+    return recordingProvider.getRecording(recordingId)
   }
 
   return {

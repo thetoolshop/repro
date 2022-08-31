@@ -1,5 +1,5 @@
 import { SourceEvent, VTree } from '@repro/domain'
-import { copyObjectDeep } from '@/utils/lang'
+import { copyObjectDeep } from '~/utils/lang'
 
 let enabled = false
 

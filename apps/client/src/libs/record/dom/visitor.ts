@@ -4,14 +4,14 @@ import {
   isExternalStyleSheet,
   isIFrameElement,
   isLocalStylesheet,
-} from '@/utils/dom'
+} from '~/utils/dom'
 import {
   addVNode,
   createVTreeWithRoot,
   getNodeId,
   insertSubTreesAtNode,
   isElementVNode,
-} from '@/utils/vdom'
+} from '~/utils/vdom'
 import { Visitor, Subscribable, Subscriber } from '../types'
 import {
   createStyleSheetVTree,

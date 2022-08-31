@@ -1,5 +1,5 @@
 import { SyntheticId } from '@repro/domain'
-import { createPTPAgent } from '@/libs/messaging'
+import { createPTPAgent } from '~/libs/messaging'
 import { createRuntimeAgent } from './createRuntimeAgent'
 
 let scriptElement: HTMLScriptElement | null = null

@@ -3,7 +3,7 @@ import {
   isInputElement,
   isSelectElement,
   isTextAreaElement,
-} from '@/utils/dom'
+} from '~/utils/dom'
 import {
   NodeType,
   SyntheticId,
@@ -13,7 +13,7 @@ import {
   VText,
   VTree,
 } from '@repro/domain'
-import { createSyntheticId, getNodeId } from '@/utils/vdom'
+import { createSyntheticId, getNodeId } from '~/utils/vdom'
 
 export function createVDocument(doc: Document): VDocument {
   return {

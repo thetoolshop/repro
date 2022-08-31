@@ -1,12 +1,12 @@
 import { AsyncGunzipOptions, unzlib } from 'fflate'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Outlet, useNavigate, useParams } from 'react-router'
-import { decrypt } from '@/libs/crypto'
+import { decrypt } from '~/libs/crypto'
 import {
   createHttpSource,
   createNullSource,
   PlaybackFromSourceProvider,
-} from '@/libs/playback'
+} from '~/libs/playback'
 import { NavigationContext } from './context'
 
 function unzlibP(data: Uint8Array, opts: AsyncGunzipOptions) {

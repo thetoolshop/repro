@@ -6,7 +6,7 @@ import {
   RequestType,
   SyntheticId,
 } from '@repro/domain'
-import { ObserverLike } from '@/utils/observer'
+import { ObserverLike } from '~/utils/observer'
 
 type Subscriber = (message: NetworkMessage) => void
 

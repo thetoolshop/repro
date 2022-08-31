@@ -1,7 +1,7 @@
 import { Block, Row } from 'jsxstyle'
 import React, { PropsWithChildren } from 'react'
-import { colors } from '@/config/theme'
-import { PlaybackTimeline } from '@/libs/playback'
+import { colors } from '~/config/theme'
+import { PlaybackTimeline } from '~/libs/playback'
 import { MAX_INT32 } from '../constants'
 
 export const PlaybackControls: React.FC = () => {

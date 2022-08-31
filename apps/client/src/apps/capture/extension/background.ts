@@ -1,8 +1,8 @@
 import { zlibSync } from 'fflate'
 import { nanoid } from 'nanoid/non-secure'
-import { Analytics } from '@/libs/analytics'
-import { register as httpApiConsumer } from '@/libs/analytics/http-api'
-import { encrypt } from '@/libs/crypto'
+import { Analytics } from '~/libs/analytics'
+import { register as httpApiConsumer } from '~/libs/analytics/http-api'
+import { encrypt } from '~/libs/crypto'
 import { createRuntimeAgent } from './createRuntimeAgent'
 
 const StorageKeys = {

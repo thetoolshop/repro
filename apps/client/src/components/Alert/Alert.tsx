@@ -1,6 +1,6 @@
 import React, { PropsWithChildren } from 'react'
 import { Block, Row } from 'jsxstyle'
-import { colors } from '@/config/theme'
+import { colors } from '~/config/theme'
 
 type AlertType = 'info' | 'success' | 'warning' | 'danger'
 

@@ -1,6 +1,6 @@
 import React, { PropsWithChildren } from 'react'
-import { Trace } from '@/libs/diagnostics'
-import { logger } from '@/libs/logger'
+import { Trace } from '~/libs/diagnostics'
+import { logger } from '~/libs/logger'
 
 export class PlaybackErrorBoundary extends React.Component<PropsWithChildren> {
   state = {

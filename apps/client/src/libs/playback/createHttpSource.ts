@@ -1,6 +1,6 @@
 import { RecordingView, SourceEvent, SourceEventView } from '@repro/domain'
-import { LazyList } from '@/utils/lang'
-import { createAtom } from '@/utils/state'
+import { LazyList } from '~/utils/lang'
+import { createAtom } from '~/utils/state'
 import { ReadyState, Source } from './types'
 
 type Transformer = (data: ArrayBuffer) => Promise<ArrayBuffer>

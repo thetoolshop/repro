@@ -5,9 +5,9 @@ import {
   Clock as ReplayIcon,
   Video as VideoIcon,
 } from 'react-feather'
-import { colors } from '@/config/theme'
-import { Button } from '@/components/Button'
-import { Tooltip } from '@/components/Tooltip'
+import { colors } from '~/config/theme'
+import { Button } from '~/components/Button'
+import { Tooltip } from '~/components/Tooltip'
 import { RecordingMode } from '@repro/domain'
 import { useReadyState, useRecordingMode } from '../hooks'
 import { ReadyState } from '../types'

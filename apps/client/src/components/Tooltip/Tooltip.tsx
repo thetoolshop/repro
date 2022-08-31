@@ -6,7 +6,7 @@ import React, {
   useRef,
   useState,
 } from 'react'
-import { colors } from '@/config/theme'
+import { colors } from '~/config/theme'
 import { fromEvent, Subscription } from 'rxjs'
 
 type Props = PropsWithChildren<{

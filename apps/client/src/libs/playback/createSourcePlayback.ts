@@ -15,10 +15,10 @@ import {
   Subscription,
 } from 'rxjs'
 import { map, observeOn, pairwise, switchMap } from 'rxjs/operators'
-import { Stats } from '@/libs/diagnostics'
-import { copyObject, LazyList } from '@/utils/lang'
-import { applyEventToSnapshot, isSample } from '@/utils/source'
-import { createAtom } from '@/utils/state'
+import { Stats } from '~/libs/diagnostics'
+import { copyObject, LazyList } from '~/utils/lang'
+import { applyEventToSnapshot, isSample } from '~/utils/source'
+import { createAtom } from '~/utils/state'
 import { ControlFrame, Playback, PlaybackState } from './types'
 
 const EMPTY_SNAPSHOT: Snapshot = {

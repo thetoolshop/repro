@@ -1,6 +1,6 @@
 import { Block, Col } from 'jsxstyle'
 import React from 'react'
-import { colors } from '@/config/theme'
+import { colors } from '~/config/theme'
 
 interface Props {
   title: string

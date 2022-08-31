@@ -1,6 +1,6 @@
 import React, { PropsWithChildren } from 'react'
 import { Row } from 'jsxstyle'
-import { colors } from '@/config/theme'
+import { colors } from '~/config/theme'
 
 type Props = PropsWithChildren<{
   size?: 'small' | 'medium' | 'large'

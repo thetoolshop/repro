@@ -27,13 +27,6 @@
     "src/**/*.ts"
   ],
 
-  "exclude": [
-    "src/vdom.bench.ts",
-    "src/fixtures",
-    "src/**/*.bench.ts",
-    "src/**/*.test.ts"
-  ],
-
   "ts-node": {
     "files": true
   }

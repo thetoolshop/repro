@@ -1,4 +1,4 @@
-import { useAtomState } from '@/utils/state'
+import { useAtomState } from '~/utils/state'
 import { useContext } from 'react'
 import { StateContext } from './context'
 

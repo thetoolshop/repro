@@ -1,5 +1,5 @@
 import { approxByteLength } from '@repro/typed-binary-encoder'
-import { copyArray } from '@/utils/lang'
+import { copyArray } from '~/utils/lang'
 import { Subscriber } from './types'
 
 export type Unsubscribe = () => void

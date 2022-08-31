@@ -1,6 +1,6 @@
 import { Inline } from 'jsxstyle'
 import React from 'react'
-import { colors } from '@/config/theme'
+import { colors } from '~/config/theme'
 import { INDENT } from './constants'
 
 const OpenIcon: React.FC = () => (

@@ -9,10 +9,6 @@ const envSchema = z.object({
   EMAIL_SENDGRID_API_KEY: z.string(),
   EMAIL_TEMPLATE_DIRECTORY: z.string(),
 
-  AUTH_SESSION_SECRET: z
-    .string()
-    .min(32, '"AUTH_SESSION_SECRET" must be at least 32 chars'),
-
   RECORDING_DATA_DIRECTORY: z.string(),
 })
 

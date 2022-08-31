@@ -1,9 +1,11 @@
 import { RequestHandler } from 'express'
-import { attempt, chain, fork, mapRej } from 'fluture'
-import { AuthService } from '@/services/auth'
-import { UserService } from '@/services/user'
-import { User } from '@/types/user'
-import { badRequest, notAuthenticated } from '@/utils/errors'
+import { ap, attempt, cache, chain, fork, mapRej, resolve } from 'fluture'
+import { AuthService } from '~/services/auth'
+import { TeamService } from '~/services/team'
+import { UserService } from '~/services/user'
+import { Team } from '~/types/team'
+import { User } from '~/types/user'
+import { badRequest, notAuthenticated } from '~/utils/errors'
 
 export interface AuthMiddleware {
   requireAuth: RequestHandler
@@ -11,6 +13,7 @@ export interface AuthMiddleware {
 
 export function createAuthMiddleware(
   authService: AuthService,
+  teamService: TeamService,
   userService: UserService
 ): AuthMiddleware {
   const requireAuth: RequestHandler = async function (req, res, next) {
@@ -24,18 +27,27 @@ export function createAuthMiddleware(
       return authHeader.replace(/^Bearer\s/, '')
     })
 
-    const user = token
-      .pipe(chain(token => authService.verifySessionToken(token)))
-      .pipe(chain(session => userService.getUserById(session.userId)))
-      .pipe(mapRej(() => notAuthenticated()))
+    const user = cache(
+      token
+        .pipe(chain(token => authService.loadSession(token)))
+        .pipe(chain(session => userService.getUserById(session.userId)))
+        .pipe(mapRej(() => notAuthenticated('Not authenticated')))
+    )
+
+    const team = user.pipe(chain(user => teamService.getTeamForUser(user.id)))
 
     fork<Error>(err => {
       res.status(401)
       res.json({ success: false, error: err.message })
-    })<User>(user => {
+    })<[User, Team]>(([user, team]) => {
       req.user = user
+      req.team = team
       next()
-    })(user)
+    })(
+      ap<Error, Team>(team)(
+        ap<Error, User>(user)(resolve(user => team => [user, team]))
+      )
+    )
   }
 
   return {

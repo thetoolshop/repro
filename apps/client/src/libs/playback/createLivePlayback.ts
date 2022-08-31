@@ -4,9 +4,9 @@ import {
   SourceEvent,
   SourceEventType,
 } from '@repro/domain'
-import { copyObject, LazyList } from '@/utils/lang'
-import { applyEventToSnapshot } from '@/utils/source'
-import { createAtom } from '@/utils/state'
+import { copyObject, LazyList } from '~/utils/lang'
+import { applyEventToSnapshot } from '~/utils/source'
+import { createAtom } from '~/utils/state'
 import { first, Observable, skipUntil, Subscription } from 'rxjs'
 import { ControlFrame, Playback, PlaybackState } from './types'
 

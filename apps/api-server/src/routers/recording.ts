@@ -1,96 +1,87 @@
 import { RecordingView } from '@repro/domain'
 import express from 'express'
+import { chain, reject } from 'fluture'
 import multer from 'multer'
 import z from 'zod'
-import { RecordingService } from '@/services/recording'
-import { respondWith } from '@/utils/response'
-import { reject } from 'fluture'
-import { badRequest, notAuthenticated } from '@/utils/errors'
+import { ProjectService } from '~/services/project'
+import { RecordingService } from '~/services/recording'
+import { bufferToDataView } from '~/utils/buffer'
+import { badRequest } from '~/utils/errors'
+import { respondWith } from '~/utils/response'
+import { parseSchema } from '~/utils/validation'
 
-const createRecordingRequestBodySchema = z.object({
-  projectId: z.string(),
-  title: z.string(),
-  description: z.string(),
-})
-
-function bufferToDataView(buf: Buffer): DataView {
-  return new DataView(buf.buffer, buf.byteOffset, buf.byteLength)
-}
-
-export function createRecordingRouter(recordingService: RecordingService) {
+export function createRecordingRouter(
+  projectService: ProjectService,
+  recordingService: RecordingService
+) {
   const RecordingRouter = express.Router()
   const upload = multer()
 
-  RecordingRouter.post('/', upload.single('recording'), async (req, res) => {
-    const userId = req.user && req.user.id
-    const body = createRecordingRequestBodySchema.safeParse(req.body)
+  const createRecordingRequestBodySchema = z.object({
+    projectId: z.string(),
+    title: z.string(),
+    description: z.string(),
+  })
+
+  RecordingRouter.post('/', upload.single('recording'), (req, res) => {
+    const teamId = req.team.id
+    const userId = req.user.id
     const uploadedFile = req.file
-
-    if (!userId) {
-      respondWith<never>(res, reject(notAuthenticated()))
-      return
-    }
-
-    if (!body.success) {
-      respondWith<never>(res, reject(badRequest(body.error.toString())))
-      return
-    }
 
     if (!uploadedFile) {
       respondWith<never>(res, reject(badRequest('Missing recording data')))
       return
     }
 
-    // TODO: add duck-type validation to TBE and wrap as Future<Error, Recording> here
-    const recording = RecordingView.over(bufferToDataView(uploadedFile.buffer))
-
-    if (!recording.id) {
-      respondWith<never>(res, reject(badRequest('Missing recording ID')))
-      return
-    }
-
-    const result = await recordingService.saveRecording(
-      recording.id,
-      body.data.projectId,
-      userId,
-      body.data.title,
-      body.data.description,
-      recording
-    )
-
-    result.cata(
-      err => {
-        res.status(500)
-        res.json({ success: false, error: err })
-      },
-
-      () => {
-        res.status(204)
-        res.json({ success: true, data: null })
-      }
+    respondWith(
+      res,
+      parseSchema(createRecordingRequestBodySchema, req.body, badRequest).pipe(
+        chain(body =>
+          projectService.checkUserIsMember(userId, body.projectId).pipe(
+            chain(() =>
+              recordingService.saveRecording(
+                teamId,
+                body.projectId,
+                userId,
+                body.title,
+                body.description,
+                // TODO: add duck-type validation to TBE and wrap as Future<Error, Recording>
+                RecordingView.over(bufferToDataView(uploadedFile.buffer))
+              )
+            )
+          )
+        )
+      )
     )
   })
 
-  RecordingRouter.get('/:recordingId/data', async (req, res) => {
+  RecordingRouter.get('/:recordingId/metadata', (req, res) => {
+    const userId = req.user.id
     const recordingId = req.params.recordingId
 
-    if (!recordingId) {
-      res.status(400)
-      res.json({ success: false, error: 'Missing recording ID' })
-      return
-    }
+    respondWith(
+      res,
+      projectService
+        .getProjectForRecording(recordingId)
+        .pipe(
+          chain(project => projectService.checkUserIsMember(userId, project.id))
+        )
+        .pipe(chain(() => recordingService.getRecordingMetadata(recordingId)))
+    )
+  })
 
-    const result = await recordingService.getRecording(recordingId)
+  RecordingRouter.get('/:recordingId/data', (req, res) => {
+    const userId = req.user.id
+    const recordingId = req.params.recordingId
 
-    result.cata(
-      err => {
-        res.status(404)
-        res.json({ success: false, error: err })
-      },
-
-      buffer => {
-        res.json({ success: true, data: buffer })
-      }
+    respondWith(
+      res,
+      projectService
+        .getProjectForRecording(recordingId)
+        .pipe(
+          chain(project => projectService.checkUserIsMember(userId, project.id))
+        )
+        .pipe(chain(() => recordingService.getRecording(recordingId)))
     )
   })
 

@@ -1,4 +1,4 @@
-import { colors } from '@/config/theme'
+import { colors } from '~/config/theme'
 import React from 'react'
 
 interface Props {

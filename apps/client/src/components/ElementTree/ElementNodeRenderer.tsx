@@ -1,5 +1,5 @@
 import { SyntheticId, VElement } from '@repro/domain'
-import { isEmptyElementVNode } from '@/utils/vdom'
+import { isEmptyElementVNode } from '~/utils/vdom'
 import { Block, Inline } from 'jsxstyle'
 import React, { PropsWithChildren, useContext } from 'react'
 import colors from 'tailwindcss/colors'

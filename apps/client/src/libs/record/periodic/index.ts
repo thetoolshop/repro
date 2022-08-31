@@ -1,4 +1,4 @@
-import { ObserverLike } from '@/utils/observer'
+import { ObserverLike } from '~/utils/observer'
 
 export function observePeriodic(
   period: number,

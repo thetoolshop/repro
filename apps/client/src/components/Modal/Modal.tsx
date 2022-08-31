@@ -1,6 +1,6 @@
 import React, { PropsWithChildren } from 'react'
 import { Block, Row } from 'jsxstyle'
-import { colors } from '@/config/theme'
+import { colors } from '~/config/theme'
 
 type Props = PropsWithChildren<{
   width: string | number

@@ -1,4 +1,4 @@
-import { memoize } from '@/utils/fn'
+import { memoize } from '~/utils/fn'
 
 function matches(actual: string, expected: string) {
   return new RegExp(`^${expected}$`, 'i').test(actual)

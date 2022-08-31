@@ -1,7 +1,7 @@
 import { InlineBlock } from 'jsxstyle'
 import React from 'react'
 import { Share as ShareIcon } from 'react-feather'
-import { Button } from '@/components/Button'
+import { Button } from '~/components/Button'
 
 interface Props {
   disabled?: boolean

@@ -11,13 +11,13 @@ import {
   Subscription,
   toArray,
 } from 'rxjs'
-import { useRecordingStream, InterruptSignal } from '@/libs/record'
+import { useRecordingStream, InterruptSignal } from '~/libs/record'
 import {
   createSourcePlayback,
   Playback,
   PlaybackProvider,
-} from '@/libs/playback'
-import { LazyList } from '@/utils/lang'
+} from '~/libs/playback'
+import { LazyList } from '~/utils/lang'
 import { MAX_INT32 } from './constants'
 import { Widget } from './Widget'
 import { useActive, useReadyState, useRecordingMode } from './hooks'

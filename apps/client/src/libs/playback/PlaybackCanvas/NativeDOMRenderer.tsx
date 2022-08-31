@@ -1,6 +1,6 @@
-import { Stats } from '@/libs/diagnostics'
-import { logger } from '@/libs/logger'
-import { usePlayback } from '@/libs/playback'
+import { Stats } from '~/libs/diagnostics'
+import { logger } from '~/libs/logger'
+import { usePlayback } from '~/libs/playback'
 import {
   DOMPatchEvent,
   InteractionEvent,
@@ -19,16 +19,16 @@ import {
   isHTMLElement,
   isTextNode,
   isValidAttributeName,
-} from '@/utils/dom'
-import { scheduleMicrotask } from '@/utils/schedule'
-import { interpolatePointFromSample } from '@/utils/source'
+} from '~/utils/dom'
+import { scheduleMicrotask } from '~/utils/schedule'
+import { interpolatePointFromSample } from '~/utils/source'
 import {
   isDocTypeVNode,
   isDocumentVNode,
   isElementVNode,
   isStyleElementVNode,
   isTextVNode,
-} from '@/utils/vdom'
+} from '~/utils/vdom'
 import React, { useEffect } from 'react'
 import { asapScheduler, from, Subscription } from 'rxjs'
 import {

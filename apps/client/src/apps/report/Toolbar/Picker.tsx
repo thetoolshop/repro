@@ -1,4 +1,4 @@
-import { Tooltip } from '@/components/Tooltip'
+import { Tooltip } from '~/components/Tooltip'
 import { Row } from 'jsxstyle'
 import React, { useCallback } from 'react'
 import { Crosshair } from 'react-feather'

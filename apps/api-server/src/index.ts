@@ -3,19 +3,25 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 import express from 'express'
-import { getEnv } from '@/config/env'
-import { createAuthMiddleware } from '@/middleware/auth'
-import { createDatabaseClient } from '@/providers/database'
-import { createUserProvider } from '@/providers/user'
-import { createAuthRouter } from '@/routers/auth'
-import { createHealthcheckRouter } from '@/routers/health'
-import { createRecordingRouter } from '@/routers/recording'
-import { createAuthService } from '@/services/auth'
-import { createRecordingService } from '@/services/recording'
-import { createUserService } from '@/services/user'
-import { createCryptoUtils } from '@/utils/crypto'
-import { createEmailUtils } from '@/utils/email'
-import { createRecordingProvider } from './providers/recording'
+import { getEnv } from '~/config/env'
+import { createAuthMiddleware } from '~/middleware/auth'
+import { createDatabaseClient } from '~/providers/database'
+import { createProjectProvider } from '~/providers/project'
+import { createRecordingProvider } from '~/providers/recording'
+import { createTeamProvider } from '~/providers/team'
+import { createUserProvider } from '~/providers/user'
+import { createAuthRouter } from '~/routers/auth'
+import { createHealthcheckRouter } from '~/routers/health'
+import { createRecordingRouter } from '~/routers/recording'
+import { createAuthService } from '~/services/auth'
+import { createProjectService } from '~/services/project'
+import { createRecordingService } from '~/services/recording'
+import { createTeamService } from '~/services/team'
+import { createUserService } from '~/services/user'
+import { createCryptoUtils } from '~/utils/crypto'
+import { createEmailUtils } from '~/utils/email'
+import { createSessionProvider } from './providers/session'
+import { createProjectRouter } from './routers/project'
 
 const app = express()
 const env = getEnv(process.env)
@@ -34,17 +40,25 @@ const emailUtils = createEmailUtils({
   templateDirectory: env.EMAIL_TEMPLATE_DIRECTORY,
 })
 
+const projectProvider = createProjectProvider(dbClient)
 const recordingProvider = createRecordingProvider(dbClient, {
   dataDirectory: env.RECORDING_DATA_DIRECTORY,
 })
+const sessionProvider = createSessionProvider(dbClient)
+const teamProvider = createTeamProvider(dbClient)
 const userProvider = createUserProvider(dbClient, cryptoUtils)
 
-const authService = createAuthService({
-  sessionSecret: env.AUTH_SESSION_SECRET,
-})
+const authService = createAuthService(sessionProvider, cryptoUtils)
+const projectService = createProjectService(projectProvider)
 const recordingService = createRecordingService(recordingProvider)
+const teamService = createTeamService(teamProvider)
 const userService = createUserService(userProvider, emailUtils)
-const authMiddleware = createAuthMiddleware(authService, userService)
+
+const authMiddleware = createAuthMiddleware(
+  authService,
+  teamService,
+  userService
+)
 
 const PublicRouter = express.Router()
 PublicRouter.use('/health', createHealthcheckRouter())
@@ -52,7 +66,11 @@ PublicRouter.use('/auth', createAuthRouter(authService, userService))
 
 const PrivateRouter = express.Router()
 PrivateRouter.use(authMiddleware.requireAuth)
-PrivateRouter.use('/recordings', createRecordingRouter(recordingService))
+PrivateRouter.use('/projects', createProjectRouter(projectService))
+PrivateRouter.use(
+  '/recordings',
+  createRecordingRouter(projectService, recordingService)
+)
 
 app.use(PublicRouter)
 app.use(PrivateRouter)

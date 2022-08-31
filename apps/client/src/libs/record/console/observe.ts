@@ -5,7 +5,7 @@ import {
   MessagePartType,
   StackEntry,
 } from '@repro/domain'
-import { ObserverLike } from '@/utils/observer'
+import { ObserverLike } from '~/utils/observer'
 
 export function createConsoleObserver(
   subscriber: (message: ConsoleMessage) => void

@@ -5,7 +5,7 @@ import React, {
   useContext,
   useRef,
 } from 'react'
-import { FrameRealm } from '@/components/FrameRealm'
+import { FrameRealm } from '~/components/FrameRealm'
 import { CSSPropertyMap, createCSSPropertyMap } from './utils'
 
 const ReferenceStyleContext = React.createContext<

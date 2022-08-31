@@ -2,11 +2,11 @@ import { Row } from 'jsxstyle'
 import React, { useCallback, useEffect } from 'react'
 import { Play as PlayIcon, Pause as PauseIcon } from 'react-feather'
 import { Shortcuts } from 'shortcuts'
-import { colors } from '@/config/theme'
+import { colors } from '~/config/theme'
 import { usePlayback } from '../hooks'
 import { PlaybackState } from '../types'
 import { usePlaybackState } from '..'
-import { Analytics } from '@/libs/analytics'
+import { Analytics } from '~/libs/analytics'
 
 export const PlayAction: React.FC = () => {
   const playback = usePlayback()

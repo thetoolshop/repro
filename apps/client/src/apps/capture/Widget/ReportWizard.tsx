@@ -7,24 +7,24 @@ import {
 import { Block, Col, Grid, Row } from 'jsxstyle'
 import React, { PropsWithChildren, useEffect, useState } from 'react'
 import { Shortcuts } from 'shortcuts'
-import { Button } from '@/components/Button'
-import { Logo } from '@/components/Logo'
-import { ToggleGroup } from '@/components/ToggleGroup'
-import { colors } from '@/config/theme'
-import { useMessaging } from '@/libs/messaging'
+import { Button } from '~/components/Button'
+import { Logo } from '~/components/Logo'
+import { ToggleGroup } from '~/components/ToggleGroup'
+import { colors } from '~/config/theme'
+import { useMessaging } from '~/libs/messaging'
 import {
   PlaybackCanvas,
   PlaybackProvider,
   PlaybackTimeline,
   usePlayback,
-} from '@/libs/playback'
-import { sliceEventsAtRange } from '@/libs/record'
+} from '~/libs/playback'
+import { sliceEventsAtRange } from '~/libs/record'
 import { MAX_INT32 } from '../constants'
 import { useRecordingMode } from '../hooks'
 import { DetailsForm } from './DetailsForm'
-import { formatDate } from '@/utils/date'
-import { createRecordingId } from '@/utils/source'
-import { Analytics } from '@/libs/analytics'
+import { formatDate } from '~/utils/date'
+import { createRecordingId } from '~/utils/source'
+import { Analytics } from '~/libs/analytics'
 
 const DEFAULT_SELECTED_DURATION = 60_000
 

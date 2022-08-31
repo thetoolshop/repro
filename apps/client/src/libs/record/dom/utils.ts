@@ -9,7 +9,7 @@ import {
   isScriptElement,
   isTextNode,
   isLocalStylesheet,
-} from '@/utils/dom'
+} from '~/utils/dom'
 
 import { DOMOptions, Visitor } from '../types'
 

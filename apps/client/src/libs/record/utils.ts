@@ -1,9 +1,9 @@
 import { SourceEventView } from '@repro/domain'
-import { Stats } from '@/libs/diagnostics'
+import { Stats } from '~/libs/diagnostics'
 import { SnapshotEvent, SourceEvent, SourceEventType } from '@repro/domain'
-import { copy as copyDataView } from '@/utils/encoding'
-import { LazyList } from '@/utils/lang'
-import { applyEventToSnapshot } from '@/utils/source'
+import { copy as copyDataView } from '~/utils/encoding'
+import { LazyList } from '~/utils/lang'
+import { applyEventToSnapshot } from '~/utils/source'
 
 export function sliceEventsAtRange(
   sourceEvents: LazyList<SourceEvent>,
