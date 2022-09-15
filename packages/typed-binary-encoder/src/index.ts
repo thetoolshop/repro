@@ -1,3 +1,5 @@
+import { ZodType, ZodTypeDef } from 'zod'
+
 export interface IntegerDescriptor {
   type: 'integer'
   signed: boolean
@@ -804,12 +806,27 @@ function isLens(data: any): data is Lens {
   return data.__repro_IS_VIEW_LENS === true
 }
 
-export function createView<T, D extends AnyDescriptor>(descriptor: D) {
+export function createView<T, D extends AnyDescriptor>(
+  descriptor: D,
+  schema: ZodType<Partial<T>, ZodTypeDef, T>
+) {
   const LAZY = true
 
-  function encode(data: T | (T & Lens)): DataView {
+  function validate(data: T) {
+    return schema.parse(data)
+  }
+
+  function encode(
+    data: T | (T & Lens),
+    options = { validate: false }
+  ): DataView {
     if (isLens(data)) {
+      // TODO: validate dataview bytecode/checksum/etc
       return data.__repro_DATAVIEW
+    }
+
+    if (options.validate) {
+      validate(data)
     }
 
     return encodeProperty(descriptor, data)
@@ -830,11 +847,16 @@ export function createView<T, D extends AnyDescriptor>(descriptor: D) {
     return getProperty(descriptor, dataView, !LAZY) as unknown as T
   }
 
-  function from(data: T): T {
+  function from(data: T, options = { validate: false }): T {
+    if (options.validate) {
+      validate(data)
+    }
+
     return over(encode(data))
   }
 
   function over(view: DataView): T & Lens {
+    // TODO: validate dataview bytecode/checksum/etc
     const data = getProperty(descriptor, view, LAZY) as unknown as T & Lens
 
     Object.defineProperty(data, '__repro_IS_VIEW_LENS', {
@@ -848,11 +870,17 @@ export function createView<T, D extends AnyDescriptor>(descriptor: D) {
     return data
   }
 
+  function nullable() {
+    return createView({ ...descriptor, nullable: true }, schema.nullable())
+  }
+
   return {
     descriptor,
     decode,
     encode,
     from,
+    nullable,
     over,
+    validate,
   }
 }

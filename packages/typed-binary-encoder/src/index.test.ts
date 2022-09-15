@@ -1,3 +1,4 @@
+import z from 'zod'
 import {
   AnyDescriptor,
   ArrayDescriptor,
@@ -402,28 +403,50 @@ describe('utils: buffer descriptors', () => {
         baz: { a: 1, b: 2, c: 3 },
       }
 
-      const View = createView<typeof input, StructDescriptor>({
-        type: 'struct',
-        fields: [
-          ['foo', { type: 'char', bytes: 3 }],
-          [
-            'bar',
-            {
-              type: 'array',
-              size: 2,
-              items: { type: 'integer', signed: false, bits: 8 },
-            },
-          ],
-          [
-            'baz',
-            {
-              type: 'dict',
-              key: { type: 'char', bytes: 1 },
-              value: { type: 'integer', signed: true, bits: 16 },
-            },
-          ],
-        ],
+      const schema = z.object({
+        foo: z.string().length(3),
+        bar: z
+          .array(
+            z
+              .number()
+              .min(0)
+              .max(2 ** 8 - 1)
+          )
+          .length(2),
+        baz: z.record(
+          z.string().length(1),
+          z
+            .number()
+            .min(0)
+            .max(2 ** 16 - 1)
+        ),
       })
+
+      const View = createView<z.infer<typeof schema>, StructDescriptor>(
+        {
+          type: 'struct',
+          fields: [
+            ['foo', { type: 'char', bytes: 3 }],
+            [
+              'bar',
+              {
+                type: 'array',
+                size: 2,
+                items: { type: 'integer', signed: false, bits: 8 },
+              },
+            ],
+            [
+              'baz',
+              {
+                type: 'dict',
+                key: { type: 'char', bytes: 1 },
+                value: { type: 'integer', signed: true, bits: 16 },
+              },
+            ],
+          ],
+        },
+        schema
+      )
 
       const dataView = View.encode(input)
       const lens = View.from(input)
