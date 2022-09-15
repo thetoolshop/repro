@@ -15,11 +15,14 @@ import { NodeIdSchema, NodeIdView } from './vdom'
 
 export const ScrollMapSchema = z.record(NodeIdSchema, PointSchema)
 export type ScrollMap = z.infer<typeof ScrollMapSchema>
-export const ScrollMapView = createView<ScrollMap, DictDescriptor>({
-  type: 'dict',
-  key: NodeIdView.descriptor,
-  value: PointView.descriptor,
-})
+export const ScrollMapView = createView<ScrollMap, DictDescriptor>(
+  {
+    type: 'dict',
+    key: NodeIdView.descriptor,
+    value: PointView.descriptor,
+  },
+  ScrollMapSchema
+)
 
 // type InteractionType: enum {
 //   ViewportResize

@@ -7,8 +7,7 @@ import {
   UnionDescriptor,
 } from '@repro/typed-binary-encoder'
 import z from 'zod'
-import { SyntheticId } from './common'
-import { NodeId, NodeIdSchema, NodeIdView } from './vdom'
+import { NodeIdSchema, NodeIdView } from './vdom'
 
 // type LogLevel: enum {
 //   Verbose: 0
