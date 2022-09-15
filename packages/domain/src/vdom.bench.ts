@@ -38,6 +38,9 @@ console.table({
     raw: approxByteLength(documentNode),
     binary: approxByteLength(VDocumentView.encode(documentNode)),
     perf_encode: stress(() => VDocumentView.encode(documentNode)),
+    perf_validate_encode: stress(() =>
+      VDocumentView.encode(documentNode, { validate: true })
+    ),
     perf_decode: stress(() => VDocumentView.decode(documentBuffer)),
   },
 
@@ -45,6 +48,9 @@ console.table({
     raw: approxByteLength(docTypeNode),
     binary: approxByteLength(VDocTypeView.encode(docTypeNode)),
     perf_encode: stress(() => VDocTypeView.encode(docTypeNode)),
+    perf_validate_encode: stress(() =>
+      VDocTypeView.encode(docTypeNode, { validate: true })
+    ),
     perf_decode: stress(() => VDocTypeView.decode(docTypeBuffer)),
   },
 
@@ -52,6 +58,9 @@ console.table({
     raw: approxByteLength(elementNode),
     binary: approxByteLength(VElementView.encode(elementNode)),
     perf_encode: stress(() => VElementView.encode(elementNode)),
+    perf_validate_encode: stress(() =>
+      VElementView.encode(elementNode, { validate: true })
+    ),
     perf_decode: stress(() => VElementView.decode(elementBuffer)),
   },
 
@@ -59,6 +68,9 @@ console.table({
     raw: approxByteLength(textNode),
     binary: approxByteLength(VTextView.encode(textNode)),
     perf_encode: stress(() => VTextView.encode(textNode)),
+    perf_validate_encode: stress(() =>
+      VTextView.encode(textNode, { validate: true })
+    ),
     perf_decode: stress(() => VTextView.decode(textBuffer)),
   },
 
@@ -66,6 +78,9 @@ console.table({
     raw: approxByteLength(vtree),
     binary: approxByteLength(VTreeView.encode(vtree)),
     perf_encode: stress(() => VTreeView.encode(vtree)),
+    perf_validate_encode: stress(() =>
+      VTreeView.encode(vtree, { validate: true })
+    ),
     perf_decode: stress(() => VTreeView.decode(vtreeBuffer)),
   },
 
@@ -73,6 +88,9 @@ console.table({
     raw: approxByteLength(attributePatch),
     binary: approxByteLength(AttributePatchView.encode(attributePatch)),
     perf_encode: stress(() => AttributePatchView.encode(attributePatch)),
+    perf_validate_encode: stress(() =>
+      AttributePatchView.encode(attributePatch, { validate: true })
+    ),
     perf_decode: stress(() => AttributePatchView.decode(attributePatchBuffer)),
   },
 
@@ -80,6 +98,9 @@ console.table({
     raw: approxByteLength(textPatch),
     binary: approxByteLength(TextPatchView.encode(textPatch)),
     perf_encode: stress(() => TextPatchView.encode(textPatch)),
+    perf_validate_encode: stress(() =>
+      TextPatchView.encode(textPatch, { validate: true })
+    ),
     perf_decode: stress(() => TextPatchView.decode(textPatchBuffer)),
   },
 
@@ -87,6 +108,9 @@ console.table({
     raw: approxByteLength(addNodesPatch),
     binary: approxByteLength(AddNodesPatchView.encode(addNodesPatch)),
     perf_encode: stress(() => AddNodesPatchView.encode(addNodesPatch)),
+    perf_validate_encode: stress(() =>
+      AddNodesPatchView.encode(addNodesPatch, { validate: true })
+    ),
     perf_decode: stress(() => AddNodesPatchView.decode(addNodesPatchBuffer)),
   },
 
@@ -94,6 +118,9 @@ console.table({
     raw: approxByteLength(removeNodesPatch),
     binary: approxByteLength(RemoveNodesPatchView.encode(removeNodesPatch)),
     perf_encode: stress(() => RemoveNodesPatchView.encode(removeNodesPatch)),
+    perf_validate_encode: stress(() =>
+      RemoveNodesPatchView.encode(removeNodesPatch, { validate: true })
+    ),
     perf_decode: stress(() =>
       RemoveNodesPatchView.decode(removeNodesPatchBuffer)
     ),

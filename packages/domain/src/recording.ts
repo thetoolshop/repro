@@ -4,8 +4,7 @@ import {
   UINT32,
   UINT8,
 } from '@repro/typed-binary-encoder'
-
-import { SyntheticId } from './common'
+import z from 'zod'
 
 export interface Sample<T> {
   from: T
@@ -20,13 +19,17 @@ export enum RecordingMode {
   Replay = 3,
 }
 
-export interface Recording {
-  codecVersion: number
-  id: SyntheticId
-  mode: RecordingMode
-  duration: number
-  events: Array<ArrayBuffer>
-}
+export const recordingModeSchema = z.nativeEnum(RecordingMode)
+
+export const recordingSchema = z.object({
+  codecVersion: z.number(),
+  id: z.string().uuid(),
+  mode: recordingModeSchema,
+  duration: z.number(),
+  events: z.array(z.instanceof(ArrayBuffer)),
+})
+
+export type Recording = z.infer<typeof recordingSchema>
 
 // type RecordingMode: enum<uint8> {
 //   0: None
@@ -37,19 +40,22 @@ export interface Recording {
 //
 // type Recording: struct {
 //   codecVersion: uint32
-//   id: char[21]
+//   id: uuid
 //   mode: RecordingMode
 //   duration: uint32
 //   events: list<SourceEvent>
 // }
 
-export const RecordingView = createView<Recording, StructDescriptor>({
-  type: 'struct',
-  fields: [
-    ['codecVersion', UINT32],
-    ['id', { type: 'char', bytes: 21 }],
-    ['mode', UINT8],
-    ['duration', UINT32],
-    ['events', { type: 'vector', items: { type: 'buffer' } }],
-  ],
-})
+export const RecordingView = createView<Recording, StructDescriptor>(
+  {
+    type: 'struct',
+    fields: [
+      ['codecVersion', UINT32],
+      ['id', { type: 'char', bytes: 36 }],
+      ['mode', UINT8],
+      ['duration', UINT32],
+      ['events', { type: 'vector', items: { type: 'buffer' } }],
+    ],
+  },
+  recordingSchema
+)

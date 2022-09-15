@@ -1,6 +1,6 @@
 import { approxByteLength } from '@repro/typed-binary-encoder'
 import { zlibSync } from 'fflate'
-import { nanoid } from 'nanoid'
+import { v4 as uuidv4 } from 'uuid'
 import {
   snapshotEvent,
   pointerMoveEvent,
@@ -15,7 +15,7 @@ import { SourceEventView } from './event'
 
 const recording: Recording = {
   codecVersion: 1,
-  id: nanoid(21),
+  id: uuidv4(),
   mode: RecordingMode.Replay,
   duration: 60000,
   events: [
@@ -39,6 +39,9 @@ console.table({
     raw: approxByteLength(recording),
     binary: approxByteLength(RecordingView.encode(recording)),
     perf_encode: stress(() => RecordingView.encode(recording)),
+    perf_validate_encode: stress(() =>
+      RecordingView.encode(recording, { validate: true })
+    ),
     perf_decode: stress(() => RecordingView.decode(encoded)),
     compressed: approxByteLength(
       zlibSync(new Uint8Array(RecordingView.encode(recording).buffer))

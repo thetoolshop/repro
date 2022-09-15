@@ -1,4 +1,4 @@
-import { nanoid } from 'nanoid'
+import { v4 as uuid } from 'uuid'
 import {
   snapshotEvent,
   pointerMoveEvent,
@@ -14,7 +14,7 @@ describe('Recording codec', () => {
   it('should create a binary view for a recording', () => {
     const input: Recording = {
       codecVersion: 1,
-      id: nanoid(21),
+      id: uuid(),
       mode: RecordingMode.Replay,
       duration: 60000,
       events: [

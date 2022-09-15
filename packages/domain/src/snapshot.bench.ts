@@ -38,6 +38,9 @@ console.table({
     raw: approxByteLength(snapshot),
     binary: approxByteLength(SnapshotView.encode(snapshot)),
     perf_encode: stress(() => SnapshotView.encode(snapshot)),
+    perf_validate_encode: stress(() =>
+      SnapshotView.encode(snapshot, { validate: true })
+    ),
     perf_decode: stress(() => SnapshotView.decode(encoded)),
   },
 })

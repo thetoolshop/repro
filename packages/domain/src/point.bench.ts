@@ -10,6 +10,9 @@ console.table({
     raw: approxByteLength(point),
     binary: approxByteLength(PointView.encode(point)),
     perf_encode: stress(() => PointView.encode(point)),
+    perf_validate_encode: stress(() =>
+      PointView.encode(point, { validate: true })
+    ),
     perf_decode: stress(() => PointView.decode(encoded)),
   },
 })
