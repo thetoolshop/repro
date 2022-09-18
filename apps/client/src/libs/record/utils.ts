@@ -1,7 +1,11 @@
-import { SourceEventView } from '@repro/domain'
+import {
+  SnapshotEvent,
+  SourceEvent,
+  SourceEventType,
+  SourceEventView,
+} from '@repro/domain'
+import { copy as copyDataView } from '@repro/typed-binary-encoder'
 import { Stats } from '~/libs/diagnostics'
-import { SnapshotEvent, SourceEvent, SourceEventType } from '@repro/domain'
-import { copy as copyDataView } from '~/utils/encoding'
 import { LazyList } from '~/utils/lang'
 import { applyEventToSnapshot } from '~/utils/source'
 

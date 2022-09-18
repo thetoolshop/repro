@@ -16,7 +16,7 @@ import {
   SyntheticId,
   VNode,
 } from '@repro/domain'
-import { copy as copyDataView } from '~/utils/encoding'
+import { copy as copyDataView } from '@repro/typed-binary-encoder'
 import { isZeroPoint } from '~/utils/interaction'
 import { LazyList, copyObjectDeep } from '~/utils/lang'
 import { ObserverLike } from '~/utils/observer'

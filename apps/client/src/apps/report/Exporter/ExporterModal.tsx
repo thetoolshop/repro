@@ -29,7 +29,7 @@ import {
   PlaybackTimeline,
   usePlayback,
 } from '~/libs/playback'
-import { copy as copyDataView } from '~/utils/encoding'
+import { copy as copyDataView } from '@repro/typed-binary-encoder'
 import { LazyList } from '~/utils/lang'
 import { applyEventToSnapshot, createRecordingId } from '~/utils/source'
 import { MAX_INT32 } from '../constants'
