@@ -1,6 +1,6 @@
+import { Session, SessionView } from '@repro/domain'
 import { FutureInstance, map } from 'fluture'
 import { QueryResultRow } from 'pg'
-import { Session, sessionSchema } from '~/types/session'
 import { DatabaseClient } from './database'
 
 export interface SessionProvider {
@@ -15,7 +15,7 @@ interface SessionRow extends QueryResultRow {
 }
 
 function toSession(row: SessionRow): Session {
-  return sessionSchema.parse(row.data)
+  return SessionView.validate(row.data)
 }
 
 export function createSessionProvider(

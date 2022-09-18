@@ -1,13 +1,32 @@
+import {
+  Project,
+  ProjectRole,
+  ProjectRoleView,
+  ProjectView,
+  User,
+  UserView,
+} from '@repro/domain'
 import { FutureInstance, map, mapRej } from 'fluture'
 import { QueryResultRow } from 'pg'
-import { Project, ProjectRole } from '~/types/project'
-import { User } from '~/types/user'
 import { permissionDenied } from '~/utils/errors'
 import { DatabaseClient } from './database'
+
+interface ProjectRow extends QueryResultRow {
+  id: string
+  name: string
+  active: boolean
+}
 
 interface ProjectRoleRow extends QueryResultRow {
   project_id: string
   role: ProjectRole
+}
+
+interface UserWithMembershipRow extends QueryResultRow {
+  id: string
+  name: string
+  email: string
+  role: 'admin' | 'member'
 }
 
 export interface ProjectProvider {
@@ -38,12 +57,12 @@ export interface ProjectProvider {
   addUserToProject(
     projectId: string,
     userId: string,
-    role: 'admin' | 'member'
+    role: ProjectRole
   ): FutureInstance<Error, void>
   changeUserRole(
     projectId: string,
     userId: string,
-    role: 'admin' | 'member'
+    role: ProjectRole
   ): FutureInstance<Error, void>
   removeUserFromProject(
     projectId: string,
@@ -58,39 +77,42 @@ export function createProjectProvider(
     teamId: string,
     name: string
   ): FutureInstance<Error, Project> {
-    return dbClient.getOne<Project>(
+    return dbClient.getOne<ProjectRow, Project>(
       `
       INSERT INTO projects (team_id, name)
       VALUES ($1, $2)
       RETURNING id, name, active
       `,
-      [teamId, name]
+      [teamId, name],
+      row => ProjectView.validate(row)
     )
   }
 
   function activateProject(projectId: string): FutureInstance<Error, Project> {
-    return dbClient.getOne<Project>(
+    return dbClient.getOne<ProjectRow, Project>(
       `
       UPDATE projects
       SET active = true
       WHERE id = $1
       RETURNING id, name, active
       `,
-      [projectId]
+      [projectId],
+      row => ProjectView.validate(row)
     )
   }
 
   function deactivateProject(
     projectId: string
   ): FutureInstance<Error, Project> {
-    return dbClient.getOne<Project>(
+    return dbClient.getOne<ProjectRow, Project>(
       `
       UPDATE projects
       SET active = false
       WHERE id = $1
       RETURNING id, name, active
       `,
-      [projectId]
+      [projectId],
+      row => ProjectView.validate(row)
     )
   }
 
@@ -129,41 +151,44 @@ export function createProjectProvider(
   }
 
   function getProject(projectId: string): FutureInstance<Error, Project> {
-    return dbClient.getOne<Project>(
+    return dbClient.getOne<ProjectRow, Project>(
       `
       SELECT id, name, active
       FROM projects
       WHERE id = $1
       `,
-      [projectId]
+      [projectId],
+      row => ProjectView.validate(row)
     )
   }
 
   function getProjectForRecording(
     recordingId: string
   ): FutureInstance<Error, Project> {
-    return dbClient.getOne<Project>(
+    return dbClient.getOne<ProjectRow, Project>(
       `
       SELECT p.id, p.name, p.active
       FROM projects p
       INNER JOIN recordings r ON r.project_id = p.id
       WHERE r.id = $1
       `,
-      [recordingId]
+      [recordingId],
+      row => ProjectView.validate(row)
     )
   }
 
   function getAllProjectsForUser(
     userId: string
   ): FutureInstance<Error, Array<Project>> {
-    return dbClient.getMany<Project>(
+    return dbClient.getMany<ProjectRow, Project>(
       `
       SELECT p.id, p.name, p.active
       FROM projects p
       INNER JOIN projects_users m ON m.project_id = p.id
       WHERE m.user_id = $1
       `,
-      [userId]
+      [userId],
+      row => ProjectView.validate(row)
     )
   }
 
@@ -182,7 +207,7 @@ export function createProjectProvider(
     return result.pipe(
       map(rows =>
         rows.reduce((acc, row) => {
-          acc[row.project_id] = row.role
+          acc[row.project_id] = ProjectRoleView.validate(row.role)
           return acc
         }, {} as Record<string, ProjectRole>)
       )
@@ -191,22 +216,28 @@ export function createProjectProvider(
 
   function getProjectMembers(
     projectId: string
-  ): FutureInstance<Error, Array<User>> {
-    return dbClient.getMany<User>(
+  ): FutureInstance<Error, Array<[User, ProjectRole]>> {
+    return dbClient.getMany<UserWithMembershipRow, [User, ProjectRole]>(
       `
       SELECT u.id, u.email, u.name, m.role
       FROM users u
       INNER JOIN projects_users m ON m.project_id = u.id
       WHERE m.project_id = $1
       `,
-      [projectId]
+      [projectId],
+      row => [
+        UserView.validate(row),
+        ProjectRoleView.validate(
+          row.role === 'admin' ? ProjectRole.Admin : ProjectRole.Member
+        ),
+      ]
     )
   }
 
   function addUserToProject(
     projectId: string,
     userId: string,
-    role: 'admin' | 'member'
+    role: ProjectRole
   ): FutureInstance<Error, void> {
     return dbClient
       .query(
@@ -214,7 +245,7 @@ export function createProjectProvider(
         INSERT INTO projects_users (project_id, user_id, role)
         VALUES ($1, $2, $3)
         `,
-        [projectId, userId, role]
+        [projectId, userId, role === ProjectRole.Admin ? 'admin' : 'member']
       )
       .pipe(map(() => undefined))
   }
@@ -222,7 +253,7 @@ export function createProjectProvider(
   function changeUserRole(
     projectId: string,
     userId: string,
-    role: 'admin' | 'member'
+    role: ProjectRole
   ): FutureInstance<Error, void> {
     return dbClient
       .query(
@@ -231,7 +262,7 @@ export function createProjectProvider(
         SET role = $3
         WHERE project_id = $1 AND user_id = $2
         `,
-        [projectId, userId, role]
+        [projectId, userId, role === ProjectRole.Admin ? 'admin' : 'member']
       )
       .pipe(map(() => undefined))
   }

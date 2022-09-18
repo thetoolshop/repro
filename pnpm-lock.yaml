@@ -4,7 +4,8 @@ importers:
 
   apps/api-server:
     specifiers:
-      '@repro/domain': workspace:1.0.0
+      '@repro/domain': workspace:*
+      '@repro/typed-binary-encoder': workspace:*
       '@sendgrid/mail': ^7.7.0
       '@types/bcrypt': ^5.0.0
       '@types/cors': ^2.8.12
@@ -33,6 +34,7 @@ importers:
       zod: ^3.17.10
     dependencies:
       '@repro/domain': link:../../packages/domain
+      '@repro/typed-binary-encoder': link:../../packages/typed-binary-encoder
       '@sendgrid/mail': 7.7.0
       bcrypt: 5.0.1
       dotenv: 16.0.1
@@ -171,10 +173,21 @@ importers:
       miniflare: 2.7.1
       typescript: 4.8.2
 
+  packages/api-client:
+    specifiers:
+      '@repro/domain': workspace:*
+      cross-fetch: ^3.1.5
+      localforage: ^1.10.0
+    dependencies:
+      '@repro/domain': link:../domain
+      cross-fetch: 3.1.5
+      localforage: 1.10.0
+
   packages/domain:
     specifiers:
       '@repro/typed-binary-encoder': workspace:*
       '@types/jest': ^28.1.8
+      '@types/uuid': ^8.3.4
       concurrently: ^7.3.0
       esbuild: ^0.15.5
       fflate: ^0.7.3
@@ -184,11 +197,16 @@ importers:
       ts-eager: ^2.0.2
       ts-jest: ^28.0.8
       typescript: ^4.8.2
+      uuid: ^9.0.0
+      zod: ^3.17.10
     dependencies:
       '@repro/typed-binary-encoder': link:../typed-binary-encoder
       nanoid: 3.3.4
+      uuid: 9.0.0
+      zod: 3.18.0
     devDependencies:
       '@types/jest': 28.1.8
+      '@types/uuid': 8.3.4
       concurrently: 7.3.0
       esbuild: 0.15.5
       fflate: 0.7.3
@@ -205,15 +223,22 @@ importers:
       concurrently: ^7.3.0
       esbuild: ^0.15.5
       jest: ^28.1.3
+      ohm-js: ^16.4.0
+      ts-eager: ^2.0.2
       ts-jest: ^28.0.8
       ts-node: ^10.9.1
       typescript: ^4.7.4
+      zod: ^3.17.10
+    dependencies:
+      ohm-js: 16.4.0
+      zod: 3.18.0
     devDependencies:
       '@types/jest': 28.1.8
       '@types/node': 18.7.13
       concurrently: 7.3.0
       esbuild: 0.15.5
       jest: 28.1.3_vqz5d3y22yhywvm6xfyh7j5jna
+      ts-eager: 2.0.2
       ts-jest: 28.0.8_sjejfvfeonwowk2gxhf27e7xsa
       ts-node: 10.9.1_hwinnrf7y5nyyzygpj45jmvjia
       typescript: 4.8.2
@@ -1715,6 +1740,10 @@ packages:
     resolution: {integrity: sha512-F5DIZ36YVLE+PN+Zwws4kJogq47hNgX3Nx6WyDJ3kcplxyke3XIzB8uK5n/Lpm1HBsbGzd6nmGehL8cPekP+Tg==}
     dev: true
 
+  /@types/uuid/8.3.4:
+    resolution: {integrity: sha512-c/I8ZRb51j+pYGAu5CrFMRxqZ2ke4y2grEBO5AUjgSkSk+qT2Ea+OdWElz/OiMf5MNpn2b17kuVBwZLQJXzihw==}
+    dev: true
+
   /@types/ws/8.5.3:
     resolution: {integrity: sha512-6YOoWjruKj1uLf3INHH7D3qTXwFfEsg1kf3c0uDdSBJwfa/llkwIjrAGV7j7mVgGNbzTQ3HiHKKDXl6bJPD97w==}
     dependencies:
@@ -2750,6 +2779,14 @@ packages:
   /cron-schedule/3.0.6:
     resolution: {integrity: sha512-izfGgKyzzIyLaeb1EtZ3KbglkS6AKp9cv7LxmiyoOu+fXfol1tQDC0Cof0enVZGNtudTHW+3lfuW9ZkLQss4Wg==}
     dev: true
+
+  /cross-fetch/3.1.5:
+    resolution: {integrity: sha512-lvb1SBsI0Z7GDwmuid+mU3kWVBwTVUbe7S0H52yaaAdQOXq2YktTCZdlAcNKFzE6QtRz0snpw9bNiPeOIkkQvw==}
+    dependencies:
+      node-fetch: 2.6.7
+    transitivePeerDependencies:
+      - encoding
+    dev: false
 
   /cross-spawn/6.0.5:
     resolution: {integrity: sha512-eTVLrBSt7fjbDygz805pMnstIs2VTBNkRm0qxZd+M7A5XDdxVRWO5MxGBXZhjY4cqLYLdtrGqRf8mBPmzwSpWQ==}
@@ -4267,6 +4304,10 @@ packages:
     resolution: {integrity: sha512-Ius2VYcGNk7T90CppJqcIkS5ooHUZyIQK+ClZfMfMNFEF9VSE73Fq+906u/CWu92x4gzZMWOwfFYckPObzdEbA==}
     dev: true
 
+  /immediate/3.0.6:
+    resolution: {integrity: sha512-XXOFtyqDjNDAQxVfYxuF7g9Il/IbWmmlQg2MYKOH8ExIT1qg6xc4zyS3HaEEATgs1btfzxq15ciUiY7gjSXRGQ==}
+    dev: false
+
   /import-local/3.1.0:
     resolution: {integrity: sha512-ASB07uLtnDs1o6EHjKpX34BKYDSqnFerfTOJL2HvMqF70LnxpjkzDB8J44oT9pu4AMPkQwf8jl6szgvNd2tRIg==}
     engines: {node: '>=8'}
@@ -5755,6 +5796,12 @@ packages:
       type-check: 0.3.2
     dev: true
 
+  /lie/3.1.1:
+    resolution: {integrity: sha512-RiNhHysUjhrDQntfYSfY4MU24coXXdEOgw9WGcKHNeEwffDYbF//u87M1EWaMGzuFoSbqW0C9C6lEEhDOAswfw==}
+    dependencies:
+      immediate: 3.0.6
+    dev: false
+
   /lilconfig/2.0.6:
     resolution: {integrity: sha512-9JROoBW7pobfsx+Sq2JsASvCo6Pfo6WWoUW79HuB1BCoBXD4PLWJPqDF6fNj67pqBYTbAHkE57M1kS/+L1neOg==}
     engines: {node: '>=10'}
@@ -5776,6 +5823,12 @@ packages:
       emojis-list: 3.0.0
       json5: 2.2.1
     dev: true
+
+  /localforage/1.10.0:
+    resolution: {integrity: sha512-14/H1aX7hzBBmmh7sGPd+AOMkkIrHM3Z1PAyGgZigA1H1p5O5ANnMyWzvpAETtG68/dC4pC0ncy3+PPGzXZHPg==}
+    dependencies:
+      lie: 3.1.1
+    dev: false
 
   /locate-path/5.0.0:
     resolution: {integrity: sha512-t7hw9pI+WvuwNJXwk5zVHpyhIqzg2qTlklJOf0mVxGSbe3Fp2VieZcduNYjaLDoy6p9uGpQEGWG87WpMKlNq8g==}
@@ -6247,6 +6300,11 @@ packages:
   /obuf/1.1.2:
     resolution: {integrity: sha512-PX1wu0AmAdPqOL1mWhqmlOd8kOIZQwGZw6rh7uby9fTc5lhaOWFLX3I6R1hrF9k3zUY40e6igsLGkDXK92LJNg==}
     dev: true
+
+  /ohm-js/16.4.0:
+    resolution: {integrity: sha512-u1QI5h2w29I4838+/m32rzqfNNH1Qej9L6O1MTZZMx7bVOu09orc/TO0HRVeYh5jStieZ3INszM7oqbCdx2x7A==}
+    engines: {node: '>=0.12.1'}
+    dev: false
 
   /on-finished/2.4.1:
     resolution: {integrity: sha512-oVlzkg3ENAhCk2zdv7IJwd/QUD4z2RxRwpkcGY8psCVcCYZNq4wYnVWALHM+brtuJjePWiYF/ClmuDr8Ch5+kg==}
@@ -7769,7 +7827,7 @@ packages:
       bs-logger: 0.2.6
       esbuild: 0.15.5
       fast-json-stable-stringify: 2.1.0
-      jest: 28.1.3
+      jest: 28.1.3_vqz5d3y22yhywvm6xfyh7j5jna
       jest-util: 28.1.3
       json5: 2.2.1
       lodash.memoize: 4.1.2
@@ -7975,6 +8033,11 @@ packages:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
     hasBin: true
     dev: true
+
+  /uuid/9.0.0:
+    resolution: {integrity: sha512-MXcSTerfPa4uqyzStbRoTgt5XIe3x5+42+q1sDuy3R5MDk66URdLMOZe5aPX/SQd+kuYAh0FdP/pO28IkQyTeg==}
+    hasBin: true
+    dev: false
 
   /v8-compile-cache-lib/3.0.1:
     resolution: {integrity: sha512-wa7YjyUGfNZngI/vtK0UHAN+lgDCxBPCylVXGp0zu59Fz5aiGtNXaq3DhIov063MorB+VfufLh3JlF2KdTK3xg==}

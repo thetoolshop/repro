@@ -1,6 +1,6 @@
+import { User, UserView } from '@repro/domain'
 import { alt, bimap, chain, FutureInstance, go } from 'fluture'
 import { QueryResultRow } from 'pg'
-import { User, userSchema } from '~/types/user'
 import { CryptoUtils } from '~/utils/crypto'
 import { notFound } from '~/utils/errors'
 import { DatabaseClient } from './database'
@@ -36,10 +36,6 @@ export interface UserProvider {
   setPassword(userId: string, password: string): FutureInstance<Error, void>
 }
 
-function toUser(values: UserRow): User {
-  return userSchema.parse(values)
-}
-
 function toResetToken(values: ResetTokenRow): string {
   return values.reset_token
 }
@@ -63,7 +59,7 @@ export function createUserProvider(
           RETURNING id, name, email
           `,
           [teamId, name, email, hash],
-          toUser
+          UserView.validate
         )
       )
     )
@@ -105,7 +101,7 @@ export function createUserProvider(
     return dbClient.getOne(
       'SELECT id, name, email FROM users WHERE id = $1::UUID LIMIT 1',
       [userId],
-      toUser
+      UserView.validate
     )
   }
 
@@ -122,7 +118,7 @@ export function createUserProvider(
       chain(result =>
         cryptoUtils
           .compareHash(password, result.password)
-          .pipe(bimap(() => notFound())(() => toUser(result)))
+          .pipe(bimap(() => notFound())(() => UserView.validate(result)))
       )
     )
   }
@@ -133,7 +129,7 @@ export function createUserProvider(
     return dbClient.getOne(
       'SELECT id, name, email FROM users WHERE reset_token = $1 LIMIT 1',
       [resetToken],
-      toUser
+      UserView.validate
     )
   }
 

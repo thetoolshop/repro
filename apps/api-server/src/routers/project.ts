@@ -1,3 +1,4 @@
+import { ProjectRole } from '@repro/domain'
 import express from 'express'
 import { chain } from 'fluture'
 import z from 'zod'
@@ -44,8 +45,8 @@ export function createProjectRouter(projectService: ProjectService) {
   })
 
   const addProjectMemberBodySchema = z.object({
-    userId: z.string(),
-    role: z.enum(['admin', 'member']),
+    userId: z.string().uuid(),
+    role: z.nativeEnum(ProjectRole),
   })
 
   ProjectRouter.post('/:projectId/members', (req, res) => {
@@ -73,7 +74,7 @@ export function createProjectRouter(projectService: ProjectService) {
   })
 
   const changeProjectMemberRoleBodySchema = z.object({
-    role: z.enum(['admin', 'member']),
+    role: z.nativeEnum(ProjectRole),
   })
 
   ProjectRouter.put('/:projectId/members/:memberId/role', (req, res) => {

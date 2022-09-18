@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Domain types and codecs for Repro recordings",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "bench": "./scripts/bench",
     "build": "npm run clean && concurrently npm:build:source npm:build:declarations",

@@ -1,7 +1,7 @@
+import { Session } from '@repro/domain'
 import { chain, map, FutureInstance } from 'fluture'
 import { always } from 'ramda'
 import { SessionProvider } from '~/providers/session'
-import { Session } from '~/types/session'
 import { CryptoUtils } from '~/utils/crypto'
 
 export interface AuthService {

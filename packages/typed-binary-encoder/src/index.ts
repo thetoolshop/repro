@@ -802,14 +802,30 @@ export interface Lens {
   __repro_DATAVIEW: DataView
 }
 
-function isLens(data: any): data is Lens {
+export function isLens(data: any): data is Lens {
   return data.__repro_IS_VIEW_LENS === true
+}
+
+export function unwrapLens(data: Lens) {
+  return data.__repro_DATAVIEW
+}
+
+export interface View<T, D extends AnyDescriptor> {
+  readonly descriptor: D
+  readonly schema: ZodType<Partial<T>, ZodTypeDef, T>
+
+  validate(data: T): T
+  encode(data: T | (T & Lens), options?: { validate: boolean }): DataView
+  decode(view: DataView | T | (T & Lens)): T
+  from(data: T, options?: { validate: boolean }): T
+  nullable(): View<T | null, D & { nullable: true }>
+  over(data: DataView): T & Lens
 }
 
 export function createView<T, D extends AnyDescriptor>(
   descriptor: D,
-  schema: ZodType<Partial<T>, ZodTypeDef, T>
-) {
+  schema: ZodType<T, ZodTypeDef>
+): View<T, D> {
   const LAZY = true
 
   function validate(data: T) {
@@ -822,7 +838,7 @@ export function createView<T, D extends AnyDescriptor>(
   ): DataView {
     if (isLens(data)) {
       // TODO: validate dataview bytecode/checksum/etc
-      return data.__repro_DATAVIEW
+      return unwrapLens(data)
     }
 
     if (options.validate) {
@@ -836,7 +852,7 @@ export function createView<T, D extends AnyDescriptor>(
     let dataView: DataView
 
     if (isLens(view)) {
-      dataView = view.__repro_DATAVIEW
+      dataView = unwrapLens(view)
     } else if (ArrayBuffer.isView(view)) {
       dataView = view
     } else {
@@ -870,12 +886,14 @@ export function createView<T, D extends AnyDescriptor>(
     return data
   }
 
-  function nullable() {
+  function nullable(): View<T | null, D & { nullable: true }> {
     return createView({ ...descriptor, nullable: true }, schema.nullable())
   }
 
   return {
     descriptor,
+    schema,
+
     decode,
     encode,
     from,

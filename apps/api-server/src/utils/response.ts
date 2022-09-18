@@ -1,3 +1,4 @@
+import { isLens, unwrapLens } from '@repro/typed-binary-encoder'
 import { Response } from 'express'
 import { fork, FutureInstance } from 'fluture'
 import {
@@ -32,9 +33,16 @@ export function respondWith<T>(
       res.status(500)
     }
 
-    res.json({ success: false, error: message })
+    res.json({ error: message })
   })<T>(value => {
     res.status(200)
-    res.json({ success: true, data: value })
+
+    if (isLens(value)) {
+      res.header('Content-Type', 'application/octet-stream')
+      const view = unwrapLens(value)
+      res.end(Buffer.from(view.buffer))
+    } else {
+      res.json(value)
+    }
   })(future)
 }

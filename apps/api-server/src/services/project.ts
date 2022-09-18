@@ -1,7 +1,6 @@
+import { Project, ProjectRole, User } from '@repro/domain'
 import { FutureInstance } from 'fluture'
 import { ProjectProvider } from '~/providers/project'
-import { Project, ProjectRole } from '~/types/project'
-import { User } from '~/types/user'
 
 export interface ProjectService {
   createProject(teamId: string, name: string): FutureInstance<Error, Project>
@@ -28,12 +27,12 @@ export interface ProjectService {
   addUserToProject(
     projectId: string,
     userId: string,
-    role: 'admin' | 'member'
+    role: ProjectRole
   ): FutureInstance<Error, void>
   changeUserRole(
     projectId: string,
     userId: string,
-    role: 'admin' | 'member'
+    role: ProjectRole
   ): FutureInstance<Error, void>
   removeUserFromProject(
     projectId: string,

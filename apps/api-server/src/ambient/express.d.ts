@@ -1,5 +1,4 @@
-import { Team } from '~/types/team'
-import { User } from '~/types/user'
+import { Team, User } from '@repro/domain'
 
 declare global {
   namespace Express {

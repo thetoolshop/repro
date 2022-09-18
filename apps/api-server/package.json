@@ -10,7 +10,8 @@
   },
   "license": "UNLICENSED",
   "dependencies": {
-    "@repro/domain": "workspace:1.0.0",
+    "@repro/domain": "workspace:*",
+    "@repro/typed-binary-encoder": "workspace:*",
     "@sendgrid/mail": "^7.7.0",
     "bcrypt": "^5.0.1",
     "dotenv": "^16.0.1",

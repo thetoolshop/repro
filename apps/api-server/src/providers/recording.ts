@@ -1,9 +1,13 @@
-import { Recording, RecordingView } from '@repro/domain'
+import {
+  Recording,
+  RecordingMetadata,
+  RecordingMetadataView,
+  RecordingView,
+} from '@repro/domain'
 import { both, FutureInstance, map, node } from 'fluture'
 import fs from 'fs'
 import path from 'path'
 import { QueryResultRow } from 'pg'
-import { RecordingMetadata, recordingMetadataSchema } from '~/types/recording'
 import { bufferToDataView } from '~/utils/buffer'
 import { DatabaseClient } from './database'
 
@@ -21,18 +25,21 @@ interface RecordingMetadataRow extends QueryResultRow {
 }
 
 function toRecordingMetadata(row: RecordingMetadataRow): RecordingMetadata {
-  return recordingMetadataSchema.parse({
-    id: row.id,
-    title: row.title,
-    description: row.description,
-    mode: row.mode,
-    duration: row.duration,
-    createdAt: row.created_at,
-    projectId: row.project_id,
-    projectName: row.project_name,
-    authorId: row.author_id,
-    authorName: row.author_name,
-  })
+  return RecordingMetadataView.from(
+    {
+      id: row.id,
+      title: row.title,
+      description: row.description,
+      mode: row.mode,
+      duration: row.duration,
+      createdAt: row.created_at,
+      projectId: row.project_id,
+      projectName: row.project_name,
+      authorId: row.author_id,
+      authorName: row.author_name,
+    },
+    { validate: true }
+  )
 }
 
 export interface RecordingProvider {

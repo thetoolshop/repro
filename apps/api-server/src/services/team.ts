@@ -1,6 +1,6 @@
+import { Team } from '@repro/domain'
 import { FutureInstance } from 'fluture'
 import { TeamProvider } from '~/providers/team'
-import { Team } from '~/types/team'
 
 export interface TeamService {
   createTeam(name: string): FutureInstance<Error, Team>

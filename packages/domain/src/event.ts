@@ -35,7 +35,7 @@ export const SourceEventTypeSchema = z.nativeEnum(SourceEventType)
 
 function createSourceEventView<T extends SourceEvent>(
   descriptor: AnyDescriptor,
-  schema: ZodType<Partial<T>, ZodTypeDef, T>
+  schema: ZodType<T, ZodTypeDef>
 ) {
   return createView<T, StructDescriptor>(
     {

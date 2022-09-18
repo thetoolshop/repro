@@ -1,6 +1,6 @@
+import { User } from '@repro/domain'
 import { chain, FutureInstance } from 'fluture'
 import { UserProvider } from '~/providers/user'
-import { User } from '~/types/user'
 import { EmailUtils } from '~/utils/email'
 
 export interface UserService {

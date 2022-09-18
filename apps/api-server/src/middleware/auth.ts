@@ -1,10 +1,9 @@
+import { Team, User } from '@repro/domain'
 import { RequestHandler } from 'express'
 import { ap, attempt, cache, chain, fork, mapRej, resolve } from 'fluture'
 import { AuthService } from '~/services/auth'
 import { TeamService } from '~/services/team'
 import { UserService } from '~/services/user'
-import { Team } from '~/types/team'
-import { User } from '~/types/user'
 import { badRequest, notAuthenticated } from '~/utils/errors'
 
 export interface AuthMiddleware {

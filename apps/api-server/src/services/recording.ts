@@ -1,6 +1,5 @@
-import { Recording } from '@repro/domain'
+import { Recording, RecordingMetadata } from '@repro/domain'
 import { RecordingProvider } from '~/providers/recording'
-import { RecordingMetadata } from '~/types/recording'
 import { FutureInstance } from 'fluture'
 
 export interface RecordingService {

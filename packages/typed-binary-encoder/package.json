@@ -2,8 +2,8 @@
   "name": "@repro/typed-binary-encoder",
   "version": "1.0.0",
   "description": "TypeScript compatible binary encodings",
-  "main": "./dist/index",
-  "types": "./dist/index",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "build": "concurrently npm:build:source npm:build:declarations",
     "build:declarations": "tsc --emitDeclarationOnly",
