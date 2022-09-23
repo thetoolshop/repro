@@ -1,3 +1,4 @@
+import dotenv from 'dotenv'
 import z from 'zod'
 
 const envSchema = z.object({
@@ -10,8 +11,9 @@ const envSchema = z.object({
   EMAIL_TEMPLATE_DIRECTORY: z.string(),
 
   RECORDING_DATA_DIRECTORY: z.string(),
+
+  DEBUG: z.string().default('').optional(),
 })
 
-export function getEnv(env: NodeJS.ProcessEnv) {
-  return envSchema.parse(env)
-}
+dotenv.config()
+export const env = envSchema.parse(process.env)

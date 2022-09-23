@@ -2,26 +2,7 @@ import { Recording, RecordingMetadata } from '@repro/domain'
 import { RecordingProvider } from '~/providers/recording'
 import { FutureInstance } from 'fluture'
 
-export interface RecordingService {
-  saveRecording(
-    teamId: string,
-    projectId: string,
-    authorId: string,
-    title: string,
-    description: string,
-    recording: Recording
-  ): FutureInstance<Error, void>
-
-  getRecordingMetadata(
-    recordingId: string
-  ): FutureInstance<Error, RecordingMetadata>
-
-  getRecording(recordingId: string): FutureInstance<Error, Recording>
-}
-
-export function createRecordingService(
-  recordingProvider: RecordingProvider
-): RecordingService {
+export function createRecordingService(recordingProvider: RecordingProvider) {
   function saveRecording(
     teamId: string,
     projectId: string,
@@ -56,3 +37,5 @@ export function createRecordingService(
     getRecording,
   }
 }
+
+export type RecordingService = ReturnType<typeof createRecordingService>

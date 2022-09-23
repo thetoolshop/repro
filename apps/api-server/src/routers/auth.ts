@@ -3,7 +3,7 @@ import z from 'zod'
 import { AuthService } from '~/services/auth'
 import { UserService } from '~/services/user'
 import { respondWith } from '~/utils/response'
-import { attempt, chain, mapRej } from 'fluture'
+import { chain, mapRej, resolve } from 'fluture'
 import { badRequest, notAuthenticated } from '~/utils/errors'
 import { parseSchema } from '~/utils/validation'
 
@@ -31,6 +31,16 @@ export function createAuthRouter(
             )
         )
       )
+    )
+  })
+
+  AuthRouter.post('/logout', (req, res) => {
+    const authHeader = req.header('authorization')
+    const token = resolve(authHeader?.replace(/^Bearer\s/, '') ?? '')
+
+    respondWith<void>(
+      res,
+      token.pipe(chain(token => authService.deleteSession(token)))
     )
   })
 

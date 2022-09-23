@@ -1,6 +1,7 @@
 import { isLens, unwrapLens } from '@repro/typed-binary-encoder'
 import { Response } from 'express'
 import { fork, FutureInstance } from 'fluture'
+import { env } from '~/config/env'
 import {
   isBadRequest,
   isNotAuthenticated,
@@ -33,16 +34,25 @@ export function respondWith<T>(
       res.status(500)
     }
 
+    if (env.DEBUG) {
+      console.error('Error:', message)
+    }
+
     res.json({ error: message })
   })<T>(value => {
-    res.status(200)
-
-    if (isLens(value)) {
-      res.header('Content-Type', 'application/octet-stream')
-      const view = unwrapLens(value)
-      res.end(Buffer.from(view.buffer))
+    if (value === null || value === undefined) {
+      res.status(204)
+      res.end()
     } else {
-      res.json(value)
+      res.status(200)
+
+      if (isLens(value)) {
+        res.header('Content-Type', 'application/octet-stream')
+        const view = unwrapLens(value)
+        res.end(Buffer.from(view.buffer))
+      } else {
+        res.json(value)
+      }
     }
   })(future)
 }

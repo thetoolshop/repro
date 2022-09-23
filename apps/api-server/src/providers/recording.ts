@@ -42,23 +42,6 @@ function toRecordingMetadata(row: RecordingMetadataRow): RecordingMetadata {
   )
 }
 
-export interface RecordingProvider {
-  saveRecording(
-    teamId: string,
-    projectId: string,
-    authorId: string,
-    title: string,
-    description: string,
-    recording: Recording
-  ): FutureInstance<Error, void>
-
-  getRecordingMetadata(
-    recordingId: string
-  ): FutureInstance<Error, RecordingMetadata>
-
-  getRecording(recordingId: string): FutureInstance<Error, Recording>
-}
-
 interface RecordingConfig {
   dataDirectory: string
 }
@@ -66,7 +49,7 @@ interface RecordingConfig {
 export function createRecordingProvider(
   dbClient: DatabaseClient,
   config: RecordingConfig
-): RecordingProvider {
+) {
   function saveRecording(
     teamId: string,
     projectId: string,
@@ -148,3 +131,5 @@ export function createRecordingProvider(
     getRecording,
   }
 }
+
+export type RecordingProvider = ReturnType<typeof createRecordingProvider>

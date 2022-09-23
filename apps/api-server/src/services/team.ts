@@ -2,13 +2,7 @@ import { Team } from '@repro/domain'
 import { FutureInstance } from 'fluture'
 import { TeamProvider } from '~/providers/team'
 
-export interface TeamService {
-  createTeam(name: string): FutureInstance<Error, Team>
-  getTeam(teamId: string): FutureInstance<Error, Team>
-  getTeamForUser(userId: string): FutureInstance<Error, Team>
-}
-
-export function createTeamService(teamProvider: TeamProvider): TeamService {
+export function createTeamService(teamProvider: TeamProvider) {
   function createTeam(name: string): FutureInstance<Error, Team> {
     return teamProvider.createTeam(name)
   }
@@ -27,3 +21,5 @@ export function createTeamService(teamProvider: TeamProvider): TeamService {
     getTeamForUser,
   }
 }
+
+export type TeamService = ReturnType<typeof createTeamService>

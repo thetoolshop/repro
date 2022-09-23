@@ -19,7 +19,7 @@ interface ProjectRow extends QueryResultRow {
 
 interface ProjectRoleRow extends QueryResultRow {
   project_id: string
-  role: ProjectRole
+  role: 'admin' | 'member'
 }
 
 interface UserWithMembershipRow extends QueryResultRow {
@@ -29,50 +29,7 @@ interface UserWithMembershipRow extends QueryResultRow {
   role: 'admin' | 'member'
 }
 
-export interface ProjectProvider {
-  createProject(teamId: string, name: string): FutureInstance<Error, Project>
-
-  activateProject(projectId: string): FutureInstance<Error, Project>
-  deactivateProject(projectId: string): FutureInstance<Error, Project>
-
-  checkUserIsMember(
-    userId: string,
-    projectId: string
-  ): FutureInstance<Error, void>
-  checkUserIsAdmin(
-    userId: string,
-    projectId: string
-  ): FutureInstance<Error, void>
-
-  getAllProjectsForUser(userId: string): FutureInstance<Error, Array<Project>>
-  getAllProjectRolesForUser(
-    userId: string
-  ): FutureInstance<Error, Record<string, ProjectRole>>
-  getProject(projectId: string): FutureInstance<Error, Project>
-  getProjectForRecording(recordingId: string): FutureInstance<Error, Project>
-
-  getProjectMembers(
-    projectId: string
-  ): FutureInstance<Error, Array<[User, ProjectRole]>>
-  addUserToProject(
-    projectId: string,
-    userId: string,
-    role: ProjectRole
-  ): FutureInstance<Error, void>
-  changeUserRole(
-    projectId: string,
-    userId: string,
-    role: ProjectRole
-  ): FutureInstance<Error, void>
-  removeUserFromProject(
-    projectId: string,
-    userId: string
-  ): FutureInstance<Error, void>
-}
-
-export function createProjectProvider(
-  dbClient: DatabaseClient
-): ProjectProvider {
+export function createProjectProvider(dbClient: DatabaseClient) {
   function createProject(
     teamId: string,
     name: string
@@ -195,19 +152,25 @@ export function createProjectProvider(
   function getAllProjectRolesForUser(
     userId: string
   ): FutureInstance<Error, Record<string, ProjectRole>> {
-    const result = dbClient.getMany<ProjectRoleRow>(
+    const result = dbClient.getMany<ProjectRoleRow, [string, ProjectRole]>(
       `
       SELECT project_id, role
       FROM projects_users
       WHERE user_id = $1
       `,
-      [userId]
+      [userId],
+      row => [
+        row.project_id,
+        ProjectRoleView.validate(
+          row.role === 'admin' ? ProjectRole.Admin : ProjectRole.Member
+        ),
+      ]
     )
 
     return result.pipe(
       map(rows =>
-        rows.reduce((acc, row) => {
-          acc[row.project_id] = ProjectRoleView.validate(row.role)
+        rows.reduce((acc, [projectId, role]) => {
+          acc[projectId] = role
           return acc
         }, {} as Record<string, ProjectRole>)
       )
@@ -221,7 +184,7 @@ export function createProjectProvider(
       `
       SELECT u.id, u.email, u.name, m.role
       FROM users u
-      INNER JOIN projects_users m ON m.project_id = u.id
+      INNER JOIN projects_users m ON m.user_id = u.id
       WHERE m.project_id = $1
       `,
       [projectId],
@@ -298,3 +261,5 @@ export function createProjectProvider(
     removeUserFromProject,
   }
 }
+
+export type ProjectProvider = ReturnType<typeof createProjectProvider>

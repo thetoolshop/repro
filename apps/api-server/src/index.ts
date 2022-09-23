@@ -1,30 +1,33 @@
-import dotenv from 'dotenv'
-
-dotenv.config()
-
 import express from 'express'
-import { getEnv } from '~/config/env'
+
+import { env } from '~/config/env'
+
 import { createAuthMiddleware } from '~/middleware/auth'
+
 import { createDatabaseClient } from '~/providers/database'
 import { createProjectProvider } from '~/providers/project'
 import { createRecordingProvider } from '~/providers/recording'
+import { createSessionProvider } from '~/providers/session'
 import { createTeamProvider } from '~/providers/team'
 import { createUserProvider } from '~/providers/user'
+
 import { createAuthRouter } from '~/routers/auth'
 import { createHealthcheckRouter } from '~/routers/health'
+import { createProjectRouter } from '~/routers/project'
 import { createRecordingRouter } from '~/routers/recording'
+import { createTeamRouter } from '~/routers/team'
+import { createUserRouter } from '~/routers/user'
+
 import { createAuthService } from '~/services/auth'
 import { createProjectService } from '~/services/project'
 import { createRecordingService } from '~/services/recording'
 import { createTeamService } from '~/services/team'
 import { createUserService } from '~/services/user'
+
 import { createCryptoUtils } from '~/utils/crypto'
 import { createEmailUtils } from '~/utils/email'
-import { createSessionProvider } from './providers/session'
-import { createProjectRouter } from './routers/project'
 
 const app = express()
-const env = getEnv(process.env)
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
@@ -71,6 +74,8 @@ PrivateRouter.use(
   '/recordings',
   createRecordingRouter(projectService, recordingService)
 )
+PrivateRouter.use('/teams', createTeamRouter(teamService))
+PrivateRouter.use('/users', createUserRouter(userService))
 
 app.use(PublicRouter)
 app.use(PrivateRouter)

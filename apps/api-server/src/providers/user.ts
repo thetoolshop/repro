@@ -19,23 +19,6 @@ interface UserWithPasswordRow extends UserRow {
   password: string
 }
 
-export interface UserProvider {
-  createUser(
-    teamId: string,
-    name: string,
-    email: string,
-    password: string
-  ): FutureInstance<Error, User>
-  getOrCreateResetToken(email: string): FutureInstance<Error, string>
-  getUserByEmailAndPassword(
-    email: string,
-    password: string
-  ): FutureInstance<Error, User>
-  getUserById(userId: string): FutureInstance<Error, User>
-  getUserByResetToken(resetToken: string): FutureInstance<Error, User>
-  setPassword(userId: string, password: string): FutureInstance<Error, void>
-}
-
 function toResetToken(values: ResetTokenRow): string {
   return values.reset_token
 }
@@ -43,7 +26,7 @@ function toResetToken(values: ResetTokenRow): string {
 export function createUserProvider(
   dbClient: DatabaseClient,
   cryptoUtils: CryptoUtils
-): UserProvider {
+) {
   function createUser(
     teamId: string,
     name: string,
@@ -160,3 +143,5 @@ export function createUserProvider(
     setPassword,
   }
 }
+
+export type UserProvider = ReturnType<typeof createUserProvider>

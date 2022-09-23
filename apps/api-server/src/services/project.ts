@@ -2,47 +2,7 @@ import { Project, ProjectRole, User } from '@repro/domain'
 import { FutureInstance } from 'fluture'
 import { ProjectProvider } from '~/providers/project'
 
-export interface ProjectService {
-  createProject(teamId: string, name: string): FutureInstance<Error, Project>
-
-  checkUserIsMember(
-    userId: string,
-    projectId: string
-  ): FutureInstance<Error, void>
-  checkUserIsAdmin(
-    userId: string,
-    projectId: string
-  ): FutureInstance<Error, void>
-
-  getAllProjectsForUser(userId: string): FutureInstance<Error, Array<Project>>
-  getAllProjectRolesForUser(
-    userId: string
-  ): FutureInstance<Error, Record<string, ProjectRole>>
-  getProject(projectId: string): FutureInstance<Error, Project>
-  getProjectForRecording(recordingId: string): FutureInstance<Error, Project>
-
-  getProjectMembers(
-    projectId: string
-  ): FutureInstance<Error, Array<[User, ProjectRole]>>
-  addUserToProject(
-    projectId: string,
-    userId: string,
-    role: ProjectRole
-  ): FutureInstance<Error, void>
-  changeUserRole(
-    projectId: string,
-    userId: string,
-    role: ProjectRole
-  ): FutureInstance<Error, void>
-  removeUserFromProject(
-    projectId: string,
-    userId: string
-  ): FutureInstance<Error, void>
-}
-
-export function createProjectService(
-  projectProvider: ProjectProvider
-): ProjectService {
+export function createProjectService(projectProvider: ProjectProvider) {
   function createProject(
     teamId: string,
     name: string
@@ -129,3 +89,5 @@ export function createProjectService(
     removeUserFromProject,
   }
 }
+
+export type ProjectService = ReturnType<typeof createProjectService>

@@ -1,13 +1,5 @@
 import { createError } from '~/utils/errors'
-import {
-  attempt,
-  chain,
-  FutureInstance,
-  map,
-  node,
-  reject,
-  resolve,
-} from 'fluture'
+import { attempt, chain, FutureInstance, node, reject, resolve } from 'fluture'
 import { Pool, PoolConfig, QueryResult, QueryResultRow } from 'pg'
 
 export interface DatabaseClient {

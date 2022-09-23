@@ -8,13 +8,7 @@ interface TeamRow extends QueryResultRow {
   name: string
 }
 
-export interface TeamProvider {
-  createTeam(name: string): FutureInstance<Error, Team>
-  getTeam(teamId: string): FutureInstance<Error, Team>
-  getTeamForUser(userId: string): FutureInstance<Error, Team>
-}
-
-export function createTeamProvider(dbClient: DatabaseClient): TeamProvider {
+export function createTeamProvider(dbClient: DatabaseClient) {
   function createTeam(name: string): FutureInstance<Error, Team> {
     return dbClient.getOne<TeamRow, Team>(
       `
@@ -58,3 +52,5 @@ export function createTeamProvider(dbClient: DatabaseClient): TeamProvider {
     getTeamForUser,
   }
 }
+
+export type TeamProvider = ReturnType<typeof createTeamProvider>

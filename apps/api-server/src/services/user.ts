@@ -3,29 +3,10 @@ import { chain, FutureInstance } from 'fluture'
 import { UserProvider } from '~/providers/user'
 import { EmailUtils } from '~/utils/email'
 
-export interface UserService {
-  createUser(
-    teamId: string,
-    name: string,
-    email: string,
-    password: string
-  ): FutureInstance<Error, User>
-  getUserById(userId: string): FutureInstance<Error, User>
-  getUserByEmailAndPassword(
-    email: string,
-    password: string
-  ): FutureInstance<Error, User>
-  resetPassword(
-    resetToken: string,
-    password: string
-  ): FutureInstance<Error, void>
-  sendPasswordResetEmail(email: string): FutureInstance<Error, void>
-}
-
 export function createUserService(
   userProvider: UserProvider,
   emailUtils: EmailUtils
-): UserService {
+) {
   function createUser(
     teamId: string,
     name: string,
@@ -73,3 +54,5 @@ export function createUserService(
     sendPasswordResetEmail,
   }
 }
+
+export type UserService = ReturnType<typeof createUserService>

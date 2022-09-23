@@ -3,13 +3,6 @@ import { FutureInstance, map } from 'fluture'
 import { QueryResultRow } from 'pg'
 import { DatabaseClient } from './database'
 
-export interface SessionProvider {
-  getSession(token: string): FutureInstance<Error, Session>
-  saveSession(token: string, session: Session): FutureInstance<Error, void>
-  deleteSession(token: string): FutureInstance<Error, void>
-  cleanExpiredSessions(): FutureInstance<Error, void>
-}
-
 interface SessionRow extends QueryResultRow {
   data: Session
 }
@@ -18,9 +11,7 @@ function toSession(row: SessionRow): Session {
   return SessionView.validate(row.data)
 }
 
-export function createSessionProvider(
-  dbClient: DatabaseClient
-): SessionProvider {
+export function createSessionProvider(dbClient: DatabaseClient) {
   function getSession(token: string): FutureInstance<Error, Session> {
     return dbClient.getOne<SessionRow, Session>(
       `
@@ -79,3 +70,5 @@ export function createSessionProvider(
     cleanExpiredSessions,
   }
 }
+
+export type SessionProvider = ReturnType<typeof createSessionProvider>
