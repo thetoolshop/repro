@@ -53,7 +53,7 @@ export const Button: React.FC<Props> = ({
         variant === 'contained' ? colorGroup['700'] : 'transparent'
       }
       hoverBackgroundColor={
-        variant === 'contained' ? colorGroup['600'] : colorGroup['100']
+        variant === 'contained' ? colorGroup['600'] : colorGroup['50']
       }
       boxSizing="border-box"
       borderColor={variant === 'outlined' ? colorGroup['300'] : 'transparent'}

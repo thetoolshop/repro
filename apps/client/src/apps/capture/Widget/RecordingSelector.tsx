@@ -1,13 +1,12 @@
-import { Row } from 'jsxstyle'
+import { Block, Col, Row } from 'jsxstyle'
 import React from 'react'
 import {
   Camera as ScreenshotIcon,
+  ChevronRight as ChevronIcon,
   Clock as ReplayIcon,
   Video as VideoIcon,
 } from 'react-feather'
 import { colors } from '~/config/theme'
-import { Button } from '~/components/Button'
-import { Tooltip } from '~/components/Tooltip'
 import { RecordingMode } from '@repro/domain'
 import { useReadyState, useRecordingMode } from '../hooks'
 import { ReadyState } from '../types'
@@ -32,32 +31,80 @@ export const RecordingSelector: React.FC = () => {
   }
 
   return (
-    <Row
+    <Col
       position="absolute"
-      right={0}
-      top="50%"
-      transform="translate(calc(100% + 10px), -50%)"
+      left={0}
+      top={0}
+      width={320}
+      transform="translate(0, calc(-100% - 10px))"
       padding={10}
-      alignItems="center"
       gap={10}
       backgroundColor={colors.white}
       borderRadius={2}
       boxShadow={`0 0 16px rgba(0, 0, 0, 0.15)`}
     >
-      <Button onClick={onUseSnapshot}>
-        <ScreenshotIcon size={16} />
-        <Tooltip>Take a screenshot</Tooltip>
-      </Button>
+      <Action
+        icon={<ScreenshotIcon size={20} />}
+        label="Screenshot"
+        helpText="Snap a region or the whole page"
+        onClick={onUseSnapshot}
+      />
 
-      <Button onClick={onUseLive}>
-        <VideoIcon size={16} />
-        <Tooltip>Record a video</Tooltip>
-      </Button>
+      <Action
+        icon={<VideoIcon size={20} />}
+        label="Video"
+        helpText="Create a live recording"
+        onClick={onUseLive}
+      />
 
-      <Button onClick={onUseReplay}>
-        <ReplayIcon size={16} />
-        <Tooltip>Auto-replay. Share your last minute.</Tooltip>
-      </Button>
-    </Row>
+      <Action
+        icon={<ReplayIcon size={20} />}
+        label="Rewind"
+        helpText="Share your last minute"
+        onClick={onUseReplay}
+      />
+    </Col>
   )
 }
+
+interface ActionProps {
+  icon: React.ReactNode
+  label: string
+  helpText: string
+  onClick(): void
+}
+
+const Action: React.FC<ActionProps> = ({ icon, label, helpText, onClick }) => (
+  <Row
+    alignItems="center"
+    cursor="pointer"
+    gap={15}
+    padding={15}
+    fontSize={13}
+    color={colors.slate['800']}
+    backgroundColor={colors.slate['100']}
+    borderColor="transparent"
+    borderWidth={1}
+    borderStyle="solid"
+    borderRadius={4}
+    hoverBackgroundColor={colors.white}
+    hoverBorderColor={colors.blue['500']}
+    hoverColor={colors.blue['700']}
+    hoverBoxShadow={`0 4px 8px ${colors.slate['200']}`}
+    transition="all linear 100ms"
+    props={{ onClick }}
+  >
+    <Block color={colors.blue['700']}>{icon}</Block>
+
+    <Col gap={10}>
+      <Block fontSize={15} fontWeight={700}>
+        {label}
+      </Block>
+      <Block color={colors.slate['500']}>{helpText}</Block>
+    </Col>
+
+    <Block marginLeft="auto">
+      <ChevronIcon size={20} />
+    </Block>
+  </Row>
+)
