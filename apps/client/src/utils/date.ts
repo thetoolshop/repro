@@ -7,7 +7,7 @@ export const formatDate = (value: number, precision: 'seconds' | 'millis') => {
 
   if (precision === 'millis') {
     const millis = value - minutes * 60000 - seconds * 1000
-    output += `.${millis.toString().padStart(3, '0')}`
+    output += `.${millis.toFixed(0).padStart(3, '0')}`
   }
 
   return output

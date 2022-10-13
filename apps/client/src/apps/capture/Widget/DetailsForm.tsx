@@ -33,16 +33,17 @@ export const DetailsForm: React.FC<Props> = ({
     <Col gap={10} height="100%">
       <Block
         component="input"
-        padding={8}
+        paddingH={16}
+        paddingV={8}
         width="100%"
         fontSize={16}
         fontWeight={700}
         lineHeight={1}
-        color={colors.slate['700']}
-        background={colors.white}
-        boxShadow="inset 0 4px 8px rgba(0, 0, 0, 0.05)"
-        border={`1px solid ${colors.slate['300']}`}
-        borderRadius={2}
+        color={colors.slate['800']}
+        backgroundColor={colors.slate['100']}
+        focusBackgroundColor={colors.slate['200']}
+        border="none"
+        borderRadius={4}
         focusOutline="none"
         props={{
           autoFocus: true,
@@ -58,12 +59,12 @@ export const DetailsForm: React.FC<Props> = ({
       <Block
         component="textarea"
         width="100%"
-        padding={8}
-        border={`1px solid ${colors.slate['300']}`}
-        borderRadius={2}
-        color={colors.slate['700']}
-        background={colors.white}
-        boxShadow="inset 0 4px 8px rgba(0, 0, 0, 0.05)"
+        padding={16}
+        color={colors.slate['800']}
+        backgroundColor={colors.slate['100']}
+        focusBackgroundColor={colors.slate['200']}
+        border="none"
+        borderRadius={4}
         fontFamily="sans-serif"
         fontSize={13}
         lineHeight={1.25}

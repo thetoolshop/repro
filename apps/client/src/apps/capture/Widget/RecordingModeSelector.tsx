@@ -1,8 +1,8 @@
 import { Block, Col, Row } from 'jsxstyle'
-import React from 'react'
+import React, { PropsWithChildren } from 'react'
 import {
   Camera as ScreenshotIcon,
-  ChevronRight as ChevronIcon,
+  ChevronRight as ForwardIcon,
   Clock as ReplayIcon,
   Video as VideoIcon,
 } from 'react-feather'
@@ -10,8 +10,9 @@ import { colors } from '~/config/theme'
 import { RecordingMode } from '@repro/domain'
 import { useReadyState, useRecordingMode } from '../hooks'
 import { ReadyState } from '../types'
+import { WidgetContainer } from './WidgetContainer'
 
-export const RecordingSelector: React.FC = () => {
+export const RecordingModeSelector: React.FC = () => {
   const [, setRecordingMode] = useRecordingMode()
   const [, setReadyState] = useReadyState()
 
@@ -20,52 +21,59 @@ export const RecordingSelector: React.FC = () => {
     setRecordingMode(RecordingMode.Snapshot)
   }
 
-  function onUseLive() {
-    setReadyState(ReadyState.Pending)
-    setRecordingMode(RecordingMode.Live)
-  }
-
   function onUseReplay() {
     setReadyState(ReadyState.Ready)
     setRecordingMode(RecordingMode.Replay)
   }
 
+  function onUseLive() {
+    setReadyState(ReadyState.Pending)
+    setRecordingMode(RecordingMode.Live)
+  }
+
   return (
-    <Col
-      position="absolute"
-      left={0}
-      top={0}
-      width={320}
-      transform="translate(0, calc(-100% - 10px))"
-      padding={10}
-      gap={10}
-      backgroundColor={colors.white}
-      borderRadius={2}
-      boxShadow={`0 0 16px rgba(0, 0, 0, 0.15)`}
-    >
-      <Action
-        icon={<ScreenshotIcon size={20} />}
-        label="Screenshot"
-        helpText="Snap a region or the whole page"
-        onClick={onUseSnapshot}
-      />
+    <WidgetContainer size="normal">
+      <Container>
+        <Action
+          icon={<ScreenshotIcon size={20} />}
+          label="Screenshot"
+          helpText="Create a snap of your whole page"
+          onClick={onUseSnapshot}
+        />
 
-      <Action
-        icon={<VideoIcon size={20} />}
-        label="Video"
-        helpText="Create a live recording"
-        onClick={onUseLive}
-      />
+        <Action
+          icon={<VideoIcon size={20} />}
+          label="Video"
+          helpText="Create a live recording"
+          onClick={onUseLive}
+        />
 
-      <Action
-        icon={<ReplayIcon size={20} />}
-        label="Rewind"
-        helpText="Share your last minute"
-        onClick={onUseReplay}
-      />
-    </Col>
+        <Action
+          icon={<ReplayIcon size={20} />}
+          label="Rewind"
+          helpText="Share your last minute"
+          onClick={onUseReplay}
+        />
+      </Container>
+    </WidgetContainer>
   )
 }
+
+const Container: React.FC<PropsWithChildren> = ({ children }) => (
+  <Col
+    width={320}
+    padding={10}
+    gap={10}
+    backgroundColor={colors.white}
+    borderRadius={4}
+    boxShadow={`
+      0 4px 16px rgba(0, 0, 0, 0.1),
+      0 1px 2px rgba(0, 0, 0, 0.1)
+    `}
+  >
+    {children}
+  </Col>
+)
 
 interface ActionProps {
   icon: React.ReactNode
@@ -97,14 +105,14 @@ const Action: React.FC<ActionProps> = ({ icon, label, helpText, onClick }) => (
     <Block color={colors.blue['700']}>{icon}</Block>
 
     <Col gap={10}>
-      <Block fontSize={15} fontWeight={700}>
+      <Block fontSize={13} fontWeight={700}>
         {label}
       </Block>
       <Block color={colors.slate['500']}>{helpText}</Block>
     </Col>
 
     <Block marginLeft="auto">
-      <ChevronIcon size={20} />
+      <ForwardIcon size={20} />
     </Block>
   </Row>
 )

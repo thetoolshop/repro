@@ -20,8 +20,7 @@ import {
 import { LazyList } from '~/utils/lang'
 import { MAX_INT32 } from './constants'
 import { Widget } from './Widget'
-import { useActive, useReadyState, useRecordingMode } from './hooks'
-import { ReadyState } from './types'
+import { useActive, useRecordingMode } from './hooks'
 
 export const Controller: React.FC = () => {
   const stream = useRecordingStream()
@@ -29,7 +28,6 @@ export const Controller: React.FC = () => {
   const [playback, setPlayback] = useState<Playback | null>(null)
   const [active] = useActive()
   const [recordingMode] = useRecordingMode()
-  const [readyState] = useReadyState()
 
   useEffect(() => {
     stream.start()
@@ -95,26 +93,24 @@ export const Controller: React.FC = () => {
           break
 
         case RecordingMode.Live:
-          if (readyState === ReadyState.Pending) {
-            subscription.add(
-              stream
-                .tail(InterruptSignal)
-                .pipe(
-                  toArray(),
-                  map(
-                    events =>
-                      new LazyList(
-                        events,
-                        SourceEventView.decode,
-                        SourceEventView.encode
-                      )
-                  )
+          subscription.add(
+            stream
+              .tail(InterruptSignal)
+              .pipe(
+                toArray(),
+                map(
+                  events =>
+                    new LazyList(
+                      events,
+                      SourceEventView.decode,
+                      SourceEventView.encode
+                    )
                 )
-                .subscribe(events => {
-                  setPlayback(createSourcePlayback(events))
-                })
-            )
-          }
+              )
+              .subscribe(events => {
+                setPlayback(createSourcePlayback(events))
+              })
+          )
           break
 
         case RecordingMode.None:
@@ -128,7 +124,7 @@ export const Controller: React.FC = () => {
     return () => {
       subscription.unsubscribe()
     }
-  }, [active, readyState, recordingMode, setPlayback])
+  }, [active, recordingMode, setPlayback])
 
   return (
     <PlaybackProvider playback={playback}>

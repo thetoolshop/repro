@@ -1,19 +1,16 @@
-import { Block, Grid, InlineCol, Row } from 'jsxstyle'
-import React from 'react'
-import { X as CloseIcon } from 'react-feather'
-import { Button } from '~/components/Button'
-import { Logo } from '~/components/Logo'
-import { colors } from '~/config/theme'
+import { Block, InlineBlock } from 'jsxstyle'
+import React, { Fragment } from 'react'
 import { RecordingMode } from '@repro/domain'
-import { MAX_INT32 } from '../constants'
+import { colors } from '~/config/theme'
 import { useActive, useReadyState, useRecordingMode } from '../hooks'
 import { ReadyState } from '../types'
-import { LiveRecordingControls } from './LiveRecordingControls'
+import { Launcher } from './Launcher'
+import { LiveControls } from './LiveControls'
+import { RecordingModeSelector } from './RecordingModeSelector'
 import { ReportWizard } from './ReportWizard'
-import { RecordingSelector } from './RecordingSelector'
 
 export const Widget: React.FC = () => {
-  const [active, setActive] = useActive()
+  const [, setActive] = useActive()
   const [recordingMode, setRecordingMode] = useRecordingMode()
   const [readyState, setReadyState] = useReadyState()
 
@@ -23,58 +20,33 @@ export const Widget: React.FC = () => {
     setRecordingMode(RecordingMode.None)
   }
 
-  const isAwaitingRecordingMode = active && recordingMode === RecordingMode.None
-
-  const isAwaitingLiveRecording =
-    active &&
-    readyState !== ReadyState.Ready &&
-    recordingMode === RecordingMode.Live
-
-  const isReady =
-    active &&
-    readyState === ReadyState.Ready &&
-    recordingMode !== RecordingMode.None
+  const isIdle = readyState === ReadyState.Idle
+  const isReady = readyState === ReadyState.Ready
+  const isPendingLiveRecording =
+    readyState === ReadyState.Pending && recordingMode === RecordingMode.Live
 
   return (
-    <InlineCol
-      position="relative"
-      alignItems="center"
-      justifyContent="center"
-      height={80}
-      width={130}
-      transform="translate(20px, -20px)"
-      isolation="isolate"
-      backgroundColor={colors.white}
-      borderRadius={2}
-      boxShadow={`0 0 16px rgba(0, 0, 0, 0.15)`}
-      zIndex={MAX_INT32}
-      pointerEvents="auto"
-    >
-      <Grid alignSelf="stretch" justifyItems="stretch" marginH={10}>
-        <Button
-          variant={!active ? 'contained' : 'outlined'}
-          onClick={toggleActive}
-        >
-          {!active ? 'Report A Bug' : <CloseIcon color={colors.blue['700']} />}
-        </Button>
-      </Grid>
+    <Fragment>
+      <Block
+        position="fixed"
+        left={0}
+        right={0}
+        top={0}
+        bottom={0}
+        pointerEvents="none"
+        borderColor={colors.blue['700']}
+        borderStyle="solid"
+        borderWidth={isPendingLiveRecording ? 5 : 0}
+        transition="all linear 250ms"
+      />
 
-      <Row
-        component="a"
-        alignItems="center"
-        marginTop={10}
-        gap={2}
-        color={colors.slate['700']}
-        textDecoration="none"
-        props={{ href: 'https://repro.dev', target: '_blank' }}
-      >
-        <Block>Powered by</Block>
-        <Logo size={12} />
-      </Row>
+      <InlineBlock position="relative" pointerEvents="auto">
+        <Launcher onClick={toggleActive} />
 
-      {isAwaitingRecordingMode && <RecordingSelector />}
-      {isAwaitingLiveRecording && <LiveRecordingControls />}
-      {isReady && <ReportWizard onClose={toggleActive} />}
-    </InlineCol>
+        {isIdle && <RecordingModeSelector />}
+        {isPendingLiveRecording && <LiveControls />}
+        {isReady && <ReportWizard onClose={toggleActive} />}
+      </InlineBlock>
+    </Fragment>
   )
 }

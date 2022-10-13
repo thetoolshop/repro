@@ -8,7 +8,6 @@ import { Block, Col, Grid, Row } from 'jsxstyle'
 import React, { PropsWithChildren, useEffect, useState } from 'react'
 import { Shortcuts } from 'shortcuts'
 import { Button } from '~/components/Button'
-import { Logo } from '~/components/Logo'
 import { ToggleGroup } from '~/components/ToggleGroup'
 import { colors } from '~/config/theme'
 import { useMessaging } from '~/libs/messaging'
@@ -25,6 +24,7 @@ import { DetailsForm } from './DetailsForm'
 import { formatDate } from '~/utils/date'
 import { createRecordingId } from '~/utils/source'
 import { Analytics } from '~/libs/analytics'
+import { WidgetContainer } from './WidgetContainer'
 
 const DEFAULT_SELECTED_DURATION = 60_000
 
@@ -126,147 +126,106 @@ export const ReportWizard: React.FC<Props> = ({ onClose }) => {
   }
 
   return (
-    <PlaybackProvider playback={playback}>
-      <Container>
-        <HeaderRegion>
-          <Logo size={20} />
-        </HeaderRegion>
+    <WidgetContainer title="Create a bug report" size="full-screen">
+      <PlaybackProvider playback={playback}>
+        <Container>
+          <PlaybackRegion>
+            <PlaybackCanvas
+              interactive={false}
+              trackPointer={recordingMode !== RecordingMode.Snapshot}
+              trackScroll={true}
+              scaling="scale-to-fit"
+            />
 
-        <PlaybackRegion>
-          <PlaybackCanvas
-            interactive={false}
-            trackPointer={recordingMode !== RecordingMode.Snapshot}
-            trackScroll={true}
-            scaling="scale-to-fit"
-          />
-        </PlaybackRegion>
+            {(recordingMode === RecordingMode.Live ||
+              recordingMode === RecordingMode.Replay) && (
+              <Block paddingV={10}>
+                <PlaybackTimeline.Simple min={minTime} max={maxTime} />
+              </Block>
+            )}
 
-        <TimelineRegion>
-          {(recordingMode === RecordingMode.Live ||
-            recordingMode === RecordingMode.Replay) && (
-            <Block padding={10} backgroundColor={colors.slate['100']}>
-              <PlaybackTimeline.Simple min={minTime} max={maxTime} />
-            </Block>
-          )}
-
-          {recordingMode === RecordingMode.Replay && (
-            <Block marginTop={10}>
+            {recordingMode === RecordingMode.Replay && (
               <ToggleGroup
                 options={durationOptions}
                 selected={selectedDuration}
                 onChange={setSelectedDuration}
               />
-            </Block>
-          )}
-        </TimelineRegion>
+            )}
+          </PlaybackRegion>
 
-        <DetailsRegion>
-          <Block
-            marginBottom={20}
-            fontSize={13}
-            fontWeight={700}
-            textTransform="uppercase"
-            color={colors.slate['900']}
-          >
-            Create a bug report
-          </Block>
+          <DetailsRegion>
+            <DetailsForm
+              title={title}
+              onTitleChange={setTitle}
+              description={description}
+              onDescriptionChange={setDescription}
+            />
+          </DetailsRegion>
 
-          <DetailsForm
-            title={title}
-            onTitleChange={setTitle}
-            description={description}
-            onDescriptionChange={setDescription}
-          />
-        </DetailsRegion>
-
-        <FooterRegion>
-          <Button onClick={handleSave}>Save</Button>
-          <Button variant="text" context="neutral" onClick={onClose}>
-            Cancel
-          </Button>
-          {reportURL}
-        </FooterRegion>
-      </Container>
-    </PlaybackProvider>
+          <FooterRegion>
+            <Button onClick={handleSave}>Save</Button>
+            <Button variant="outlined" context="neutral" onClick={onClose}>
+              Cancel
+            </Button>
+            {reportURL}
+          </FooterRegion>
+        </Container>
+      </PlaybackProvider>
+    </WidgetContainer>
   )
 }
 
 const Container: React.FC<PropsWithChildren> = ({ children }) => (
   <Grid
     gridTemplateColumns="320px 1fr"
-    gridTemplateRows="auto 1fr auto auto"
-    gridTemplateAreas={`"header header" "details playback" "details timeline" "footer footer"`}
-    position="absolute"
-    left={0}
-    bottom={90}
-    height="calc(100vh - 130px)"
-    width="calc(100vw - 140px)"
+    gridTemplateRows="1fr auto auto"
+    gridTemplateAreas={`"details playback" "details playback" "footer footer"`}
+    gap={10}
     isolation="isolate"
+    height="100%"
+    width="100%"
     zIndex={MAX_INT32}
     pointerEvents="auto"
-    backgroundColor={colors.white}
-    borderRadius={2}
-    boxShadow={`0 0 16px rgba(0, 0, 0, 0.15)`}
-  >
-    {children}
-  </Grid>
-)
-
-const HeaderRegion: React.FC<PropsWithChildren> = ({ children }) => (
-  <Grid
-    gridArea="header"
-    height={60}
-    paddingH={10}
-    gridTemplateColumns="100px 1fr 100px"
-    alignItems="center"
   >
     {children}
   </Grid>
 )
 
 const PlaybackRegion: React.FC<PropsWithChildren> = ({ children }) => (
-  <Block
+  <Grid
+    gridTemplateRows="1fr auto auto"
     gridArea="playback"
     height="100%"
     overflow="hidden"
-    padding={20}
-    paddingBottom={0}
-    borderTop={`1px solid ${colors.slate['200']}`}
+    padding={10}
+    backgroundColor={colors.white}
+    borderRadius={4}
+    boxShadow={`
+      0 4px 16px rgba(0, 0, 0, 0.1),
+      0 1px 2px rgba(0, 0, 0, 0.1)
+    `}
   >
     {children}
-  </Block>
-)
-
-const TimelineRegion: React.FC<PropsWithChildren> = ({ children }) => (
-  <Block
-    gridArea="timeline"
-    marginH={20}
-    marginBottom={20}
-    emptyVisibility="hidden"
-  >
-    {children}
-  </Block>
+  </Grid>
 )
 
 const DetailsRegion: React.FC<PropsWithChildren> = ({ children }) => (
   <Col
     gridArea="details"
     padding={20}
-    backgroundColor={colors.slate['50']}
-    borderTop={`1px solid ${colors.slate['200']}`}
+    backgroundColor={colors.white}
+    borderRadius={4}
+    boxShadow={`
+      0 4px 16px rgba(0, 0, 0, 0.1),
+      0 1px 2px rgba(0, 0, 0, 0.1)
+    `}
   >
     {children}
   </Col>
 )
 
 const FooterRegion: React.FC<PropsWithChildren> = ({ children }) => (
-  <Row
-    gridArea="footer"
-    flexDirection="row-reverse"
-    padding={10}
-    gap={10}
-    borderTop={`1px solid ${colors.slate['200']}`}
-  >
+  <Row gridArea="footer" flexDirection="row-reverse" padding={10} gap={10}>
     {children}
   </Row>
 )

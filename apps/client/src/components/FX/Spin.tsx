@@ -1,11 +1,11 @@
-import { Block } from 'jsxstyle'
+import { InlineBlock } from 'jsxstyle'
 import { JsxstyleProps } from 'jsxstyle/lib/types'
 import React, { PropsWithChildren } from 'react'
 
 type Props = PropsWithChildren<JsxstyleProps<'div'>>
 
 export const Spin: React.FC<Props> = ({ children, ...props }) => (
-  <Block
+  <InlineBlock
     {...props}
     animationIterationCount="infinite"
     animationDuration="1s"
@@ -15,5 +15,5 @@ export const Spin: React.FC<Props> = ({ children, ...props }) => (
     }}
   >
     {children}
-  </Block>
+  </InlineBlock>
 )

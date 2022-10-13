@@ -4,18 +4,17 @@ import { fromEvent, NEVER, Observable, Subscription } from 'rxjs'
 import {
   distinctUntilChanged,
   map,
-  mapTo,
   startWith,
   switchMap,
-  switchMapTo,
   take,
   takeUntil,
 } from 'rxjs/operators'
 import { colors } from '~/config/theme'
+import { Analytics } from '~/libs/analytics'
+import { formatDate } from '~/utils/date'
 import { usePlayback } from '../hooks'
 import { PlaybackState } from '../types'
 import { PlayAction } from './PlayAction'
-import { Analytics } from '~/libs/analytics'
 
 interface Props {
   min?: number
@@ -78,7 +77,7 @@ export const SimpleTimeline: React.FC<Props> = ({ min, max }) => {
       subscription.add(
         pointerDown$
           .pipe(
-            switchMapTo(pointerUp$.pipe(take(1))),
+            switchMap(() => pointerUp$.pipe(take(1))),
             map(mapPointerEventToOffset),
             map(mapOffsetToValue)
           )
@@ -91,7 +90,7 @@ export const SimpleTimeline: React.FC<Props> = ({ min, max }) => {
       subscription.add(
         pointerEnter$
           .pipe(
-            switchMapTo(pointerMove$.pipe(takeUntil(pointerLeave$))),
+            switchMap(() => pointerMove$.pipe(takeUntil(pointerLeave$))),
             map(evt => {
               const offset = mapPointerEventToOffset(evt)
               const value = mapOffsetToValue(offset)
@@ -100,11 +99,7 @@ export const SimpleTimeline: React.FC<Props> = ({ min, max }) => {
           )
           .subscribe(([offset, value]) => {
             updateBarOffset(ghost, offset)
-            updateTooltip(
-              tooltip,
-              offset,
-              `-${Math.round(getMaxValue() - value)}ms`
-            )
+            updateTooltip(tooltip, offset, `${formatDate(value, 'millis')}`)
             showTooltip(tooltip)
           })
       )
@@ -123,7 +118,7 @@ export const SimpleTimeline: React.FC<Props> = ({ min, max }) => {
               const playing =
                 playback.getPlaybackState() === PlaybackState.Playing
               return pointerUp$.pipe(
-                mapTo(playing),
+                map(() => playing),
                 startWith(false),
                 distinctUntilChanged()
               )
@@ -147,7 +142,7 @@ export const SimpleTimeline: React.FC<Props> = ({ min, max }) => {
       subscription.add(
         pointerDown$
           .pipe(
-            switchMapTo(pointerMove$.pipe(takeUntil(pointerUp$))),
+            switchMap(() => pointerMove$.pipe(takeUntil(pointerUp$))),
             map(mapPointerEventToOffset)
           )
           .subscribe(offset => {
@@ -199,6 +194,7 @@ export const SimpleTimeline: React.FC<Props> = ({ min, max }) => {
   return (
     <Row alignItems="center" height="100%" gap={8}>
       <PlayAction />
+
       <Block
         position="relative"
         width="100%"

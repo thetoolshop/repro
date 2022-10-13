@@ -1,6 +1,4 @@
-import { FrameRealm } from '~/components/FrameRealm'
-import { colors } from '~/config/theme'
-import { Block } from 'jsxstyle'
+import { Block, Row } from 'jsxstyle'
 import React, {
   MutableRefObject,
   useCallback,
@@ -8,6 +6,10 @@ import React, {
   useRef,
   useState,
 } from 'react'
+import { Loader as LoaderIcon } from 'react-feather'
+import { FrameRealm } from '~/components/FrameRealm'
+import * as FX from '~/components/FX'
+import { colors } from '~/config/theme'
 import { InteractionMask } from './InteractionMask'
 import { NativeDOMRenderer } from './NativeDOMRenderer'
 import { PointerOverlay } from './PointerOverlay'
@@ -80,12 +82,26 @@ export const PlaybackCanvas: React.FC<Props> = ({
     <Block
       overflow="hidden"
       height="100%"
-      background={colors.slate['200']}
-      visibility={loaded ? 'visible' : 'hidden'}
+      background={`repeating-linear-gradient(
+        45deg,
+        ${colors.slate['50']},
+        ${colors.slate['50']} 10px,
+        ${colors.slate['100']} 10px,
+        ${colors.slate['100']} 20px
+      )`}
     >
+      {!loaded && (
+        <Row alignItems="center" justifyContent="center" height="100%">
+          <FX.Spin height={24} color={colors.slate['500']}>
+            <LoaderIcon size={24} />
+          </FX.Spin>
+        </Row>
+      )}
+
       {scaling === 'full-width' && (
         <FullWidthViewport>{viewportContents}</FullWidthViewport>
       )}
+
       {scaling === 'scale-to-fit' && (
         <ScaleToFitViewport>{viewportContents}</ScaleToFitViewport>
       )}
