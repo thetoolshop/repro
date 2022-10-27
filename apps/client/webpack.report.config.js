@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 const DotenvPlugin = require('dotenv-webpack')
 const { ESBuildMinifyPlugin } = require('esbuild-loader')
 const path = require('path')
@@ -55,5 +57,7 @@ module.exports = {
   devServer: {
     historyApiFallback: true,
     static: path.resolve(__dirname, 'dist/report'),
-  }
+  },
+
+  devtool: process.env.BUILD_ENV === 'development' ? 'eval-source-map' : false,
 }

@@ -1,7 +1,7 @@
 import { RecordingMode } from '@repro/domain'
 import { Block, Grid, Inline, Row } from 'jsxstyle'
 import React, { useEffect, useState } from 'react'
-import { Check as CheckIcon, Video as VideoIcon } from 'react-feather'
+import { Check as CheckIcon, Video as VideoIcon } from 'lucide-react'
 import { interval } from 'rxjs'
 import { Button } from '~/components/Button'
 import { colors } from '~/config/theme'

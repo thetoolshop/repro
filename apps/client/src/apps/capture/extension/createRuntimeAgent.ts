@@ -1,21 +1,48 @@
+import Future, { fork, FutureInstance } from 'fluture'
 import { Agent, Intent, Resolver, Unsubscribe } from '~/libs/messaging'
 
 interface RuntimeOptions {
   target?: number
 }
 
+interface ResponseMessage {
+  type: 'response'
+  response: any
+}
+
+interface ErrorMessage {
+  type: 'error'
+  error: any
+}
+
+type Message = ResponseMessage | ErrorMessage
+
 export function createRuntimeAgent(): Agent {
   const resolvers = new Map<string, Resolver>()
 
   function onMessage(
-    intent: Intent<any, any>,
+    intent: Intent<any>,
     _sender: chrome.runtime.MessageSender,
-    sendResponse: (response: any) => void
+    sendResponse: (message: Message) => void
   ) {
     const resolver = resolvers.get(intent.type)
 
+    function dispatchError(error: any) {
+      sendResponse({
+        type: 'error',
+        error,
+      })
+    }
+
+    function dispatchResponse(response: any) {
+      sendResponse({
+        type: 'response',
+        response,
+      })
+    }
+
     if (resolver) {
-      resolver(intent.payload).then(sendResponse)
+      fork(dispatchError)(dispatchResponse)(resolver(intent.payload))
     }
 
     return true
@@ -23,16 +50,20 @@ export function createRuntimeAgent(): Agent {
 
   chrome.runtime.onMessage.addListener(onMessage)
 
-  function raiseIntent<T extends string, P, R>(
-    intent: Intent<T, P>,
+  function raiseIntent<R, P = any>(
+    intent: Intent<P>,
     options?: RuntimeOptions
-  ): Promise<R> {
-    return new Promise((resolve, reject) => {
-      function callback(response: R) {
+  ): FutureInstance<Error, R> {
+    return Future((reject, resolve) => {
+      function callback(message: Message) {
         if (chrome.runtime.lastError) {
-          reject()
+          reject(new Error(chrome.runtime.lastError?.message))
         } else {
-          resolve(response)
+          if (message.type === 'response') {
+            resolve(message.response)
+          } else {
+            reject(message.error)
+          }
         }
       }
 
@@ -41,13 +72,14 @@ export function createRuntimeAgent(): Agent {
       } else {
         chrome.runtime.sendMessage(intent, callback)
       }
+
+      return () => {
+        throw new Error('Intent is not cancellable')
+      }
     })
   }
 
-  function subscribeToIntent<T extends string, P, R>(
-    type: T,
-    resolver: Resolver<P, R>
-  ): Unsubscribe {
+  function subscribeToIntent(type: string, resolver: Resolver): Unsubscribe {
     resolvers.set(type, resolver)
 
     return () => {
@@ -55,8 +87,18 @@ export function createRuntimeAgent(): Agent {
     }
   }
 
+  function subscribeToIntentAndForward(
+    type: string,
+    forwardAgent: Agent
+  ): Unsubscribe {
+    return subscribeToIntent(type, payload => {
+      return forwardAgent.raiseIntent({ type, payload })
+    })
+  }
+
   return {
     raiseIntent,
     subscribeToIntent,
+    subscribeToIntentAndForward,
   }
 }

@@ -1,3 +1,4 @@
+import { resolve } from 'fluture'
 import { applyResetStyles } from '~/config/theme'
 import { Analytics } from '~/libs/analytics'
 import { Stats, Trace } from '~/libs/diagnostics'
@@ -118,7 +119,7 @@ declare global {
 }
 
 if (!window.__REPRO_STANDALONE) {
-  agent.subscribeToIntent('enable', async () => {
+  agent.subscribeToIntent('enable', () => {
     if (!window.customElements.get(NODE_NAME)) {
       window.customElements.define(NODE_NAME, ReproDevTools)
     }
@@ -127,13 +128,17 @@ if (!window.__REPRO_STANDALONE) {
       const devtools = new ReproDevTools()
       document.body.appendChild(devtools)
     }
+
+    return resolve<void>(undefined)
   })
 
-  agent.subscribeToIntent('disable', async () => {
+  agent.subscribeToIntent('disable', () => {
     const root = document.querySelector(NODE_NAME)
 
     if (root) {
       root.remove()
     }
+
+    return resolve<void>(undefined)
   })
 }

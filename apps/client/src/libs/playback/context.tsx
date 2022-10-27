@@ -1,6 +1,6 @@
 import { InlineBlock, Row } from 'jsxstyle'
 import React, { PropsWithChildren, useEffect } from 'react'
-import { Loader as LoaderIcon } from 'react-feather'
+import { Loader as LoaderIcon } from 'lucide-react'
 import { Alert } from '~/components/Alert'
 import { Spin } from '~/components/FX'
 import { useAtomValue } from '~/utils/state'

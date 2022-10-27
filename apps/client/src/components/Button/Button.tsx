@@ -6,6 +6,7 @@ type Props = PropsWithChildren<{
   size?: 'small' | 'medium' | 'large'
   variant?: 'contained' | 'outlined' | 'text'
   context?: 'info' | 'success' | 'warning' | 'danger' | 'neutral'
+  disabled?: boolean
   onClick?: () => void
 }>
 
@@ -30,6 +31,7 @@ export const Button: React.FC<Props> = ({
   size = 'medium',
   variant = 'contained',
   context = 'info',
+  disabled = false,
   onClick,
 }) => {
   const base = sizes[size]
@@ -53,7 +55,11 @@ export const Button: React.FC<Props> = ({
         variant === 'contained' ? colorGroup['700'] : 'transparent'
       }
       hoverBackgroundColor={
-        variant === 'contained' ? colorGroup['600'] : colorGroup['50']
+        disabled
+          ? null
+          : variant === 'contained'
+          ? colorGroup['600']
+          : colorGroup['50']
       }
       boxSizing="border-box"
       borderColor={variant === 'outlined' ? colorGroup['300'] : 'transparent'}
@@ -62,7 +68,11 @@ export const Button: React.FC<Props> = ({
       borderRadius={base / 2}
       color={variant === 'contained' ? colors.white : colorGroup['900']}
       boxShadow={
-        variant === 'contained' ? '0 2px 4px rgba(0, 0, 0, 0.25)' : 'none'
+        disabled
+          ? 'none'
+          : variant === 'contained'
+          ? '0 2px 4px rgba(0, 0, 0, 0.25)'
+          : 'none'
       }
       cursor="pointer"
       fontSize={fontSize}

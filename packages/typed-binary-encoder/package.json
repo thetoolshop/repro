@@ -16,7 +16,7 @@
     "url": "git+https://github.com/reprohq/repro.git"
   },
   "author": "Gary Chambers <gary@repro.dev>",
-  "license": "MIT",
+  "license": "ISC",
   "bugs": {
     "url": "https://github.com/reprohq/repro/issues"
   },

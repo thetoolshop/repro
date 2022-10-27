@@ -1,5 +1,6 @@
 import { Block, Col } from 'jsxstyle'
 import React from 'react'
+import { Input } from '~/components/Input'
 import { colors } from '~/config/theme'
 
 interface Props {
@@ -19,10 +20,6 @@ export const DetailsForm: React.FC<Props> = ({
     evt.stopPropagation()
   }
 
-  function handleTitleChange(evt: React.ChangeEvent<HTMLInputElement>) {
-    onTitleChange(evt.target.value)
-  }
-
   function handleDescriptionChange(
     evt: React.ChangeEvent<HTMLTextAreaElement>
   ) {
@@ -30,30 +27,13 @@ export const DetailsForm: React.FC<Props> = ({
   }
 
   return (
-    <Col gap={10} height="100%">
-      <Block
-        component="input"
-        paddingH={16}
-        paddingV={8}
-        width="100%"
-        fontSize={16}
-        fontWeight={700}
-        lineHeight={1}
-        color={colors.slate['800']}
-        backgroundColor={colors.slate['100']}
-        focusBackgroundColor={colors.slate['200']}
-        border="none"
-        borderRadius={4}
-        focusOutline="none"
-        props={{
-          autoFocus: true,
-          placeholder: 'Title',
-          value: title,
-          onChange: handleTitleChange,
-          onKeyDown: preventKeyCapture,
-          onKeyUp: preventKeyCapture,
-          onKeyPress: preventKeyCapture,
-        }}
+    <Col gap={10}>
+      <Input
+        value={title}
+        onChange={onTitleChange}
+        size="large"
+        autoFocus={true}
+        placeholder="Title"
       />
 
       <Block

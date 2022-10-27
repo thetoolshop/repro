@@ -1,19 +1,19 @@
-export interface Intent<T extends string, P extends any> {
-  type: T
+import { FutureInstance } from 'fluture'
+
+export interface Intent<P = any> {
+  type: string
   payload?: P
 }
 
 export type Unsubscribe = () => void
 
-export type Resolver<P = any, R = any> = (payload: P) => Promise<R>
+export type Resolver<R = any> = (payload: any) => FutureInstance<Error, R>
 
 export interface Agent {
-  raiseIntent<T extends string, P, R>(
-    intent: Intent<T, P>,
+  raiseIntent<R, P = any>(
+    intent: Intent<P>,
     options?: any
-  ): Promise<R>
-  subscribeToIntent<T extends string, P, R>(
-    type: T,
-    resolver: Resolver<P, R>
-  ): Unsubscribe
+  ): FutureInstance<Error, R>
+  subscribeToIntent(type: string, resolver: Resolver): Unsubscribe
+  subscribeToIntentAndForward(type: string, forwardAgent: Agent): Unsubscribe
 }

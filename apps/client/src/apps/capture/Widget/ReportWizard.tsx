@@ -1,16 +1,23 @@
 import {
   CODEC_VERSION,
+  Project,
   Recording,
   RecordingMode,
   RecordingView,
+  User,
 } from '@repro/domain'
-import { Block, Col, Grid, Row } from 'jsxstyle'
+import { fork } from 'fluture'
+import { Block, Grid, Row } from 'jsxstyle'
 import React, { PropsWithChildren, useEffect, useState } from 'react'
 import { Shortcuts } from 'shortcuts'
 import { Button } from '~/components/Button'
+import { Card } from '~/components/Card'
 import { ToggleGroup } from '~/components/ToggleGroup'
 import { colors } from '~/config/theme'
-import { useMessaging } from '~/libs/messaging'
+import { Analytics } from '~/libs/analytics'
+import { LoginForm } from '~/libs/auth'
+import { logger } from '~/libs/logger'
+import { useApiCaller, useMessaging } from '~/libs/messaging'
 import {
   PlaybackCanvas,
   PlaybackProvider,
@@ -18,16 +25,16 @@ import {
   usePlayback,
 } from '~/libs/playback'
 import { sliceEventsAtRange } from '~/libs/record'
-import { MAX_INT32 } from '../constants'
-import { useRecordingMode } from '../hooks'
-import { DetailsForm } from './DetailsForm'
 import { formatDate } from '~/utils/date'
 import { createRecordingId } from '~/utils/source'
-import { Analytics } from '~/libs/analytics'
+import { MAX_INT32 } from '../constants'
+import { useCurrentUser, useRecordingMode } from '../hooks'
+import { DetailsForm } from './DetailsForm'
 import { WidgetContainer } from './WidgetContainer'
 
 const DEFAULT_SELECTED_DURATION = 60_000
 
+type LoginState = 'logged-out' | 'logged-in'
 type UploadingState = 'ready' | 'uploading' | 'done' | 'failed'
 
 interface Props {
@@ -36,8 +43,13 @@ interface Props {
 
 export const ReportWizard: React.FC<Props> = ({ onClose }) => {
   const agent = useMessaging()
+  const callApi = useApiCaller()
   const playback = usePlayback()
+  const [currentUser, setCurrentUser] = useCurrentUser()
   const [recordingMode] = useRecordingMode()
+  const [loginState, setLoginState] = useState<LoginState>(
+    currentUser ? 'logged-in' : 'logged-out'
+  )
   const [uploading, setUploading] = useState<UploadingState>('ready')
   const [showPromptBeforeClose, setShowPromptBeforeClose] = useState(false)
   const [selectedDuration, setSelectedDuration] = useState(
@@ -45,7 +57,7 @@ export const ReportWizard: React.FC<Props> = ({ onClose }) => {
   )
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
-  const [reportURL, setReportURL] = useState('')
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null)
 
   const maxTime = playback.getDuration()
   const minTime = Math.max(0, maxTime - selectedDuration)
@@ -67,6 +79,21 @@ export const ReportWizard: React.FC<Props> = ({ onClose }) => {
   }, [maxTime, setSelectedDuration])
 
   useEffect(() => {
+    if (currentUser) {
+      callApi<Array<Project>>('project', 'getAllProjects').pipe(
+        fork(logger.error)(projects => {
+          // TODO: Support multiple projects
+          if (projects[0]) {
+            setSelectedProject(projects[0])
+          } else {
+            logger.error('Team has no projects')
+          }
+        })
+      )
+    }
+  }, [agent, currentUser, setSelectedProject])
+
+  useEffect(() => {
     const shortcuts = new Shortcuts()
 
     if (!uploading) {
@@ -81,7 +108,37 @@ export const ReportWizard: React.FC<Props> = ({ onClose }) => {
     }
   }, [uploading, setShowPromptBeforeClose])
 
-  async function handleSave() {
+  function handleAuthSuccess(user: User) {
+    setCurrentUser(user)
+  }
+
+  function handleAuthFailure() {
+    setCurrentUser(null)
+  }
+
+  useEffect(() => {
+    setLoginState(currentUser ? 'logged-in' : 'logged-out')
+  }, [currentUser, setLoginState])
+
+  function handleSave() {
+    // TODO: manage form state and validation better
+    const EMPTY = /^\s*$/
+
+    if (EMPTY.test(title)) {
+      logger.debug('Missing recording title')
+      return
+    }
+
+    if (EMPTY.test(description)) {
+      logger.debug('Missing recording description')
+      return
+    }
+
+    if (selectedProject === null) {
+      logger.debug('Missing recording project')
+      return
+    }
+
     let events = playback.getSourceEvents()
 
     if (recordingMode === RecordingMode.Replay) {
@@ -104,22 +161,28 @@ export const ReportWizard: React.FC<Props> = ({ onClose }) => {
       recordingSize: RecordingView.encode(recording).byteLength.toString(),
     })
 
-    const [ok, url]: [boolean, string] = await agent.raiseIntent({
-      type: 'upload',
-      payload: {
-        id: recording.id,
-        recording: Array.from(
-          new Uint8Array(RecordingView.encode(recording).buffer)
-        ),
-        assets: [],
-      },
-    })
+    fork(onError)(onSuccess)(
+      agent.raiseIntent({
+        type: 'upload',
+        payload: {
+          id: recording.id,
+          projectId: selectedProject.id,
+          title,
+          description,
+          recording: Array.from(
+            new Uint8Array(RecordingView.encode(recording).buffer)
+          ),
+        },
+      })
+    )
 
-    if (ok) {
+    function onSuccess() {
       Analytics.track('capture:save-success')
       setUploading('done')
-      setReportURL(url)
-    } else {
+    }
+
+    function onError(error: Error) {
+      logger.error(error)
       Analytics.track('capture:save-failure')
       setUploading('failed')
     }
@@ -130,6 +193,37 @@ export const ReportWizard: React.FC<Props> = ({ onClose }) => {
       <PlaybackProvider playback={playback}>
         <Container>
           <PlaybackRegion>
+            {recordingMode === RecordingMode.Replay &&
+            durationOptions.length > 1 ? (
+              <Row
+                gap={10}
+                alignItems="center"
+                justifyContent="flex-end"
+                padding={10}
+                zIndex={1}
+                boxShadow={`
+                  0 4px 16px rgba(0, 0, 0, 0.1),
+                  0 1px 2px rgba(0, 0, 0, 0.1)
+                `}
+              >
+                <Block
+                  fontSize={13}
+                  fontWeight={700}
+                  color={colors.slate['700']}
+                >
+                  Duration
+                </Block>
+
+                <ToggleGroup
+                  options={durationOptions}
+                  selected={selectedDuration}
+                  onChange={setSelectedDuration}
+                />
+              </Row>
+            ) : (
+              <Block />
+            )}
+
             <PlaybackCanvas
               interactive={false}
               trackPointer={recordingMode !== RecordingMode.Snapshot}
@@ -139,17 +233,16 @@ export const ReportWizard: React.FC<Props> = ({ onClose }) => {
 
             {(recordingMode === RecordingMode.Live ||
               recordingMode === RecordingMode.Replay) && (
-              <Block paddingV={10}>
+              <Block
+                zIndex={1}
+                padding={10}
+                boxShadow={`
+                  0 -4px 16px rgba(0, 0, 0, 0.1),
+                  0 -1px 2px rgba(0, 0, 0, 0.1)
+                `}
+              >
                 <PlaybackTimeline.Simple min={minTime} max={maxTime} />
               </Block>
-            )}
-
-            {recordingMode === RecordingMode.Replay && (
-              <ToggleGroup
-                options={durationOptions}
-                selected={selectedDuration}
-                onChange={setSelectedDuration}
-              />
             )}
           </PlaybackRegion>
 
@@ -160,27 +253,57 @@ export const ReportWizard: React.FC<Props> = ({ onClose }) => {
               description={description}
               onDescriptionChange={setDescription}
             />
+
+            {loginState === 'logged-in' && (
+              <Row flexDirection="row-reverse" gap={10} marginTop={10}>
+                <Button onClick={handleSave} context="success">
+                  Create Bug Report
+                </Button>
+              </Row>
+            )}
           </DetailsRegion>
 
-          <FooterRegion>
-            <Button onClick={handleSave}>Save</Button>
-            <Button variant="outlined" context="neutral" onClick={onClose}>
-              Cancel
-            </Button>
-            {reportURL}
-          </FooterRegion>
+          {loginState === 'logged-out' && (
+            <BlockingOverlay>
+              <Block width={320}>
+                <Card>
+                  <LoginForm
+                    onSuccess={handleAuthSuccess}
+                    onFailure={handleAuthFailure}
+                  />
+                </Card>
+              </Block>
+            </BlockingOverlay>
+          )}
         </Container>
       </PlaybackProvider>
     </WidgetContainer>
   )
 }
 
+const BlockingOverlay: React.FC<PropsWithChildren> = ({ children }) => (
+  <Row
+    alignItems="center"
+    justifyContent="center"
+    position="absolute"
+    top={0}
+    left={0}
+    bottom={0}
+    right={0}
+    backgroundColor="rgba(255, 255, 255, 0.15)"
+    backdropFilter="blur(5px)"
+    borderRadius={4}
+  >
+    {children}
+  </Row>
+)
+
 const Container: React.FC<PropsWithChildren> = ({ children }) => (
   <Grid
-    gridTemplateColumns="320px 1fr"
-    gridTemplateRows="1fr auto auto"
-    gridTemplateAreas={`"details playback" "details playback" "footer footer"`}
+    gridTemplateColumns="1fr 420px"
+    gridTemplateAreas="'playback details'"
     gap={10}
+    position="relative"
     isolation="isolate"
     height="100%"
     width="100%"
@@ -193,11 +316,11 @@ const Container: React.FC<PropsWithChildren> = ({ children }) => (
 
 const PlaybackRegion: React.FC<PropsWithChildren> = ({ children }) => (
   <Grid
-    gridTemplateRows="1fr auto auto"
     gridArea="playback"
+    gridTemplateRows="auto 1fr auto"
     height="100%"
     overflow="hidden"
-    padding={10}
+    isolation="isolate"
     backgroundColor={colors.white}
     borderRadius={4}
     boxShadow={`
@@ -210,22 +333,7 @@ const PlaybackRegion: React.FC<PropsWithChildren> = ({ children }) => (
 )
 
 const DetailsRegion: React.FC<PropsWithChildren> = ({ children }) => (
-  <Col
-    gridArea="details"
-    padding={20}
-    backgroundColor={colors.white}
-    borderRadius={4}
-    boxShadow={`
-      0 4px 16px rgba(0, 0, 0, 0.1),
-      0 1px 2px rgba(0, 0, 0, 0.1)
-    `}
-  >
-    {children}
-  </Col>
-)
-
-const FooterRegion: React.FC<PropsWithChildren> = ({ children }) => (
-  <Row gridArea="footer" flexDirection="row-reverse" padding={10} gap={10}>
-    {children}
-  </Row>
+  <Grid gridArea="details" alignItems="stretch">
+    <Card>{children}</Card>
+  </Grid>
 )

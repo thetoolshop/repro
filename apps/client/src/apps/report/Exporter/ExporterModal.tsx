@@ -14,7 +14,7 @@ import {
   Copy as CopyIcon,
   Loader as LoaderIcon,
   X as CloseIcon,
-} from 'react-feather'
+} from 'lucide-react'
 import { Shortcuts } from 'shortcuts'
 import { Spin } from '~/components/FX'
 import { Logo } from '~/components/Logo'

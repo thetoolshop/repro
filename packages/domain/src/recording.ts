@@ -43,7 +43,7 @@ export const RecordingModeView = createView<RecordingMode, IntegerDescriptor>(
 // }
 
 export const RecordingSchema = z.object({
-  codecVersion: z.number(),
+  codecVersion: z.string(),
   id: z.string().uuid(),
   mode: RecordingModeSchema,
   duration: z.number(),
@@ -56,7 +56,7 @@ export const RecordingView = createView<Recording, StructDescriptor>(
   {
     type: 'struct',
     fields: [
-      ['codecVersion', UINT32],
+      ['codecVersion', { type: 'string' }],
       ['id', { type: 'char', bytes: 36 }],
       ['mode', UINT8],
       ['duration', UINT32],
@@ -99,7 +99,8 @@ export const RecordingMetadataSchema = z.object({
     .number()
     .min(0)
     .max(2 ** 32 - 1),
-  createdAt: z.string().regex(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+\d{4}/),
+  createdAt:
+    z.string() /*.regex(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+\d{4}/)*/,
   projectId: z.string().uuid(),
   projectName: z.string(),
   authorId: z.string().uuid(),

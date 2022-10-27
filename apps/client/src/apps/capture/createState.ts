@@ -1,18 +1,21 @@
-import { RecordingMode } from '@repro/domain'
+import { RecordingMode, User } from '@repro/domain'
 import { Atom, createAtom, Setter } from '~/utils/state'
 import { ReadyState } from './types'
 
 export interface State {
   $active: Atom<boolean>
+  $currentUser: Atom<User | null>
   $recordingMode: Atom<RecordingMode>
   $readyState: Atom<ReadyState>
   setActive: Setter<boolean>
+  setCurrentUser: Setter<User | null>
   setRecordingMode: Setter<RecordingMode>
   setReadyState: Setter<ReadyState>
 }
 
 const defaultValues = {
   active: false,
+  currentUser: null,
   recordingMode: RecordingMode.None,
   readyState: ReadyState.Idle,
 }
@@ -21,22 +24,29 @@ export function createState(
   initialValues: Partial<typeof defaultValues> = defaultValues
 ): State {
   const [$active, _getActive, setActive] = createAtom(
-    initialValues.active ?? false
+    initialValues.active ?? defaultValues.active
   )
 
+  const [$currentUser, _getCurrentUser, setCurrentUser] =
+    createAtom<User | null>(
+      initialValues.currentUser ?? defaultValues.currentUser
+    )
+
   const [$recordingMode, _getRecordingMode, setRecordingMode] = createAtom(
-    initialValues.recordingMode ?? RecordingMode.None
+    initialValues.recordingMode ?? defaultValues.recordingMode
   )
 
   const [$readyState, _getReadyState, setReadyState] = createAtom(
-    initialValues.readyState ?? ReadyState.Idle
+    initialValues.readyState ?? defaultValues.readyState
   )
 
   return {
     $active,
+    $currentUser,
     $recordingMode,
     $readyState,
     setActive,
+    setCurrentUser,
     setRecordingMode,
     setReadyState,
   }

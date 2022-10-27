@@ -6,7 +6,7 @@ import React, {
   useRef,
   useState,
 } from 'react'
-import { Loader as LoaderIcon } from 'react-feather'
+import { Loader as LoaderIcon } from 'lucide-react'
 import { FrameRealm } from '~/components/FrameRealm'
 import * as FX from '~/components/FX'
 import { colors } from '~/config/theme'

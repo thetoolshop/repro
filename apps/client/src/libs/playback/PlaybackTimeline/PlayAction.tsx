@@ -1,6 +1,6 @@
 import { Row } from 'jsxstyle'
 import React, { useCallback, useEffect } from 'react'
-import { Play as PlayIcon, Pause as PauseIcon } from 'react-feather'
+import { Play as PlayIcon, Pause as PauseIcon } from 'lucide-react'
 import { Shortcuts } from 'shortcuts'
 import { colors } from '~/config/theme'
 import { usePlayback } from '../hooks'

@@ -1,4 +1,3 @@
-import { nanoid } from 'nanoid'
 import {
   InteractionType,
   Point,
@@ -10,17 +9,19 @@ import {
   SourceEvent,
   SourceEventType,
 } from '@repro/domain'
+import { v4 as uuidv4 } from 'uuid'
 
 import { copyArray } from '~/utils/lang'
 import { applyVTreePatch } from '~/utils/vdom'
 
 export function createRecordingId() {
-  return nanoid(21)
+  return uuidv4()
 }
 
 export function createEmptySnapshot(): Snapshot {
   return {
     dom: null,
+    interaction: null,
   }
 }
 

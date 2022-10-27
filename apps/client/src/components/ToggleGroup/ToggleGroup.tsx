@@ -1,6 +1,6 @@
 import { Block, Row } from 'jsxstyle'
 import React from 'react'
-import { CheckCircle, Circle } from 'react-feather'
+import { CheckCircle, Circle } from 'lucide-react'
 import { colors } from '~/config/theme'
 
 interface Props {
@@ -39,24 +39,31 @@ const Toggle: React.FC<ToggleProps> = ({ active, label, onClick }) => (
   <Row
     alignItems="center"
     cursor="pointer"
-    gap={15}
-    padding={15}
+    gap={10}
+    paddingH={10}
+    paddingV={5}
     fontSize={13}
-    color={active ? colors.blue['700'] : colors.slate['800']}
-    backgroundColor={active ? colors.white : colors.slate['100']}
-    borderColor={active ? colors.blue['500'] : 'transparent'}
+    backgroundColor={active ? colors.slate['500'] : colors.slate['100']}
+    backgroundImage={
+      active
+        ? `linear-gradient(to top right, ${colors.slate['700']}, ${colors.slate['500']})`
+        : undefined
+    }
+    borderColor={active ? colors.slate['800'] : 'transparent'}
     borderWidth={1}
     borderStyle="solid"
-    borderRadius={4}
-    boxShadow={active ? `0 4px 8px ${colors.slate['200']}` : null}
-    hoverBackgroundColor={active ? colors.white : colors.slate['200']}
+    borderRadius="99rem"
+    boxShadow={active ? '0 2px 4px rgba(0, 0, 0, 0.25)' : undefined}
+    hoverBackgroundColor={active ? colors.slate['500'] : colors.slate['200']}
     transition="all linear 100ms"
     props={{ onClick }}
   >
-    <Block color={colors.blue['700']}>
+    <Block color={active ? colors.white : colors.blue['700']}>
       {active ? <CheckCircle size={16} /> : <Circle size={16} />}
     </Block>
 
-    <Block fontSize={13}>{label}</Block>
+    <Block fontSize={13} color={active ? colors.white : colors.slate['800']}>
+      {label}
+    </Block>
   </Row>
 )

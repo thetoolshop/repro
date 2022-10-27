@@ -5,7 +5,7 @@ import {
   ChevronRight as ForwardIcon,
   Clock as ReplayIcon,
   Video as VideoIcon,
-} from 'react-feather'
+} from 'lucide-react'
 import { colors } from '~/config/theme'
 import { RecordingMode } from '@repro/domain'
 import { useReadyState, useRecordingMode } from '../hooks'

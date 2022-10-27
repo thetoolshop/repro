@@ -1,26 +1,24 @@
+import { FutureInstance, reject } from 'fluture'
 import { Agent, Intent, Resolver, Unsubscribe } from './types'
 
 export function createLoopbackAgent(): Agent {
   const resolvers = new Map<string, Resolver>()
 
-  function raiseIntent<T extends string, P, R>(
-    intent: Intent<T, P>
-  ): Promise<R> {
+  function raiseIntent<R, P = any>(
+    intent: Intent<P>
+  ): FutureInstance<Error, R> {
     const resolver = resolvers.get(intent.type)
 
     if (resolver) {
       return resolver(intent.payload)
     }
 
-    return Promise.reject(
-      `LoopbackAgent: cannot find resolver for type "${intent.type}"`
+    return reject(
+      new Error(`LoopbackAgent: cannot find resolver for type "${intent.type}"`)
     )
   }
 
-  function subscribeToIntent<T extends string, P, R>(
-    type: T,
-    resolver: Resolver<P, R>
-  ): Unsubscribe {
+  function subscribeToIntent(type: string, resolver: Resolver): Unsubscribe {
     if (resolvers.has(type)) {
       throw new Error(
         `LoopbackAgent: resolver already registered for type "${type}"`
@@ -34,8 +32,18 @@ export function createLoopbackAgent(): Agent {
     }
   }
 
+  function subscribeToIntentAndForward(
+    type: string,
+    forwardAgent: Agent
+  ): Unsubscribe {
+    return subscribeToIntent(type, payload => {
+      return forwardAgent.raiseIntent({ type, payload })
+    })
+  }
+
   return {
     raiseIntent,
     subscribeToIntent,
+    subscribeToIntentAndForward,
   }
 }

@@ -1,8 +1,15 @@
+import { done } from 'fluture'
 import { Block, InlineBlock } from 'jsxstyle'
-import React, { Fragment } from 'react'
-import { RecordingMode } from '@repro/domain'
+import React, { Fragment, useEffect, useState } from 'react'
+import { RecordingMode, User } from '@repro/domain'
 import { colors } from '~/config/theme'
-import { useActive, useReadyState, useRecordingMode } from '../hooks'
+import { useApiCaller, useMessaging } from '~/libs/messaging'
+import {
+  useActive,
+  useCurrentUser,
+  useReadyState,
+  useRecordingMode,
+} from '../hooks'
 import { ReadyState } from '../types'
 import { Launcher } from './Launcher'
 import { LiveControls } from './LiveControls'
@@ -10,9 +17,20 @@ import { RecordingModeSelector } from './RecordingModeSelector'
 import { ReportWizard } from './ReportWizard'
 
 export const Widget: React.FC = () => {
+  const agent = useMessaging()
+  const callApi = useApiCaller()
   const [, setActive] = useActive()
+  const [, setCurrentUser] = useCurrentUser()
   const [recordingMode, setRecordingMode] = useRecordingMode()
   const [readyState, setReadyState] = useReadyState()
+
+  useEffect(() => {
+    return callApi<User>('user', 'getMyUser').pipe(
+      done((_, user) => {
+        setCurrentUser(user ?? null)
+      })
+    )
+  }, [agent, setCurrentUser])
 
   const toggleActive = () => {
     setActive(active => !active)

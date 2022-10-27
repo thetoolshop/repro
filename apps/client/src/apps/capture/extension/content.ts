@@ -1,4 +1,4 @@
-import { SyntheticId } from '@repro/domain'
+import Future, { chain } from 'fluture'
 import { createPTPAgent } from '~/libs/messaging'
 import { createRuntimeAgent } from './createRuntimeAgent'
 
@@ -8,63 +8,32 @@ const inPageAgent = createPTPAgent()
 const runtimeAgent = createRuntimeAgent()
 
 function addPageScript() {
-  return new Promise(resolve => {
+  return Future<any, unknown>((reject, resolve) => {
     if (scriptElement && scriptElement.isConnected) {
       resolve(null)
-      return
+    } else {
+      scriptElement = document.createElement('script')
+      scriptElement.src = chrome.runtime.getURL('capture.js')
+      scriptElement.onerror = reject
+      scriptElement.onload = resolve
+
+      document.body.appendChild(scriptElement)
     }
 
-    scriptElement = document.createElement('script')
-    scriptElement.src = chrome.runtime.getURL('capture.js')
-    scriptElement.onload = resolve
-
-    document.body.appendChild(scriptElement)
+    return () => {}
   })
 }
 
-async function enableDevTools() {
-  await addPageScript()
-  inPageAgent.raiseIntent({ type: 'enable' })
-}
-
-async function disableDevTools() {
-  inPageAgent.raiseIntent({ type: 'disable' })
-}
-
-interface UploadPayload {
-  id: SyntheticId
-  recording: Array<number>
-  assets: Array<never>
-}
-
-inPageAgent.subscribeToIntent('upload', (payload: UploadPayload) => {
-  return runtimeAgent.raiseIntent({
-    type: 'upload',
-    payload,
-  })
+runtimeAgent.subscribeToIntent('enable', () => {
+  return addPageScript().pipe(
+    chain(() => inPageAgent.raiseIntent({ type: 'enable' }))
+  )
 })
 
-interface TrackPayload {
-  event: string
-  time: number
-  props: Record<string, string>
-}
+runtimeAgent.subscribeToIntentAndForward('disable', inPageAgent)
 
-inPageAgent.subscribeToIntent('analytics:track', (payload: TrackPayload) => {
-  return runtimeAgent.raiseIntent({
-    type: 'analytics:track',
-    payload,
-  })
-})
-
-runtimeAgent.subscribeToIntent('enable', async () => {
-  enableDevTools()
-  return true
-})
-
-runtimeAgent.subscribeToIntent('disable', async () => {
-  disableDevTools()
-  return true
-})
+inPageAgent.subscribeToIntentAndForward('upload', runtimeAgent)
+inPageAgent.subscribeToIntentAndForward('api:call', runtimeAgent)
+inPageAgent.subscribeToIntentAndForward('analytics:track', runtimeAgent)
 
 export {}

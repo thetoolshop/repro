@@ -4,7 +4,7 @@ import {
   Code as ElementsIcon,
   Globe as NetworkIcon,
   AlertTriangle as ConsoleIcon,
-} from 'react-feather'
+} from 'lucide-react'
 import { colors } from '~/config/theme'
 import { View } from '../types'
 import { useView } from '../hooks'

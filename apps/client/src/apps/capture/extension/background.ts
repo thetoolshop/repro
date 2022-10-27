@@ -1,9 +1,22 @@
-import { zlibSync } from 'fflate'
+import { ApiClient, createApiClient } from '@repro/api-client'
+import { RecordingView } from '@repro/domain'
+import {
+  attemptP,
+  chain,
+  fork,
+  FutureInstance,
+  node,
+  reject,
+  resolve,
+} from 'fluture'
 import { nanoid } from 'nanoid/non-secure'
 import { Analytics } from '~/libs/analytics'
 import { register as httpApiConsumer } from '~/libs/analytics/http-api'
-import { encrypt } from '~/libs/crypto'
 import { createRuntimeAgent } from './createRuntimeAgent'
+
+function run<L, R>(source: FutureInstance<L, R>, resolve = console.log) {
+  return source.pipe(fork<L>(console.error)<R>(resolve))
+}
 
 const StorageKeys = {
   INSTALLER_ID: 'installed_id',
@@ -12,8 +25,8 @@ const StorageKeys = {
 
 const agent = createRuntimeAgent()
 
-async function getInstallerId() {
-  return new Promise<string>(resolve => {
+function getInstallerId() {
+  return node<unknown, string>(done => {
     chrome.storage.local.get([StorageKeys.INSTALLER_ID], result => {
       if (result[StorageKeys.INSTALLER_ID]) {
         resolve(result[StorageKeys.INSTALLER_ID])
@@ -26,159 +39,180 @@ async function getInstallerId() {
         [StorageKeys.INSTALLER_ID]: installerId,
       })
 
-      resolve(installerId)
+      done(null, installerId)
     })
   })
 }
 
-async function setUpAnalytics() {
-  const installerId = await getInstallerId()
-  Analytics.setIdentity(installerId)
-  Analytics.setAgent(agent)
-  Analytics.registerConsumer(httpApiConsumer)
+function setUpAnalytics() {
+  return run(getInstallerId(), installerId => {
+    Analytics.setIdentity(installerId)
+    Analytics.setAgent(agent)
+    Analytics.registerConsumer(httpApiConsumer)
+  })
 }
 
 setUpAnalytics()
 
-const shareApiUrl = (process.env.SHARE_API_URL || '').replace(/\/$/, '')
+const apiClient = createApiClient({
+  baseUrl: process.env.API_URL || '',
+  authStorage: 'local-storage',
+})
 
-agent.subscribeToIntent('upload', async (payload: any) => {
-  const compressed = zlibSync(new Uint8Array(payload.recording))
-  const [data, encryptionKey] = await encrypt(compressed)
+agent.subscribeToIntent('api:call', ({ namespace, method, args = [] }) => {
+  if (namespace in apiClient) {
+    const mod = apiClient[namespace as keyof ApiClient]
 
-  const formData = new FormData()
+    if (method in mod) {
+      // TODO: work out how to broadly type this
+      // @ts-ignore
+      const fn = mod[method]
 
-  formData.set(
-    'recording',
-    new File([data], payload.id, {
-      type: 'application/octet-stream',
-    })
-  )
-
-  const res = await fetch(`${shareApiUrl}/${payload.id}`, {
-    method: 'PUT',
-    body: formData,
-  })
-
-  if (res.ok) {
-    return [true, `/${payload.id}#${encryptionKey}`]
+      if (fn) {
+        return fn(...args)
+      }
+    }
   }
 
-  return [false, null]
+  return reject({
+    name: 'BadRequestError',
+    message: `Could not find API method "${method}" for namespace "${namespace}"`,
+  })
+})
+
+agent.subscribeToIntent('upload', (payload: any) => {
+  const recordingData = new DataView(new Uint8Array(payload.recording).buffer)
+  const recording = RecordingView.over(recordingData)
+
+  return apiClient.recording.saveRecording(
+    payload.projectId,
+    payload.title,
+    payload.description,
+    recording
+  ) as FutureInstance<Error, void>
 })
 
 chrome.runtime.onInstalled.addListener(() => {
-  ;(async function () {
-    if (await isFirstRun()) {
-      setEnabledState(true)
-    }
-  })()
+  const source = isFirstRun().pipe(
+    chain(firstRun =>
+      firstRun ? setEnabledState(true) : resolve<void>(undefined)
+    )
+  )
+
+  return run(source, () => {
+    console.debug('LIFECYCLE: on-installed')
+  })
 })
 
 chrome.runtime.onStartup.addListener(() => {
-  ;(async function () {
-    if (await isEnabled()) {
-      showActionBadge()
-    }
-  })()
+  const source = isEnabled().pipe(
+    chain(enabled => (enabled ? showActionBadge() : resolve<void>(undefined)))
+  )
+
+  return run(source, () => {
+    console.debug('LIFECYCLE: on-startup')
+  })
 })
 
 chrome.action.onClicked.addListener(() => {
-  ;(async function () {
-    await toggleEnabledState()
+  const source = toggleEnabledState()
+    .pipe(chain(() => getActiveTabId()))
+    .pipe(
+      chain(activeTabId =>
+        activeTabId ? syncTab(activeTabId) : resolve<void>(undefined)
+      )
+    )
 
-    const activeTabId = await getActiveTabId()
-
-    if (activeTabId) {
-      syncTab(activeTabId)
-    }
-  })()
+  return run(source, () => {
+    console.debug('ACTION: toggle for active tab')
+  })
 })
 
 chrome.tabs.onActivated.addListener(({ tabId }) => {
-  syncTab(tabId)
+  return run(syncTab(tabId), result => {
+    console.debug('LIFECYCLE: on-activated', result)
+  })
 })
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
-  if (changeInfo.status === 'complete') {
-    syncTab(tabId)
-  }
+  const source = resolve<boolean>(changeInfo.status === 'complete').pipe(
+    chain(isComplete =>
+      isComplete ? syncTab(tabId) : resolve<void>(undefined)
+    )
+  )
+
+  return run(source, result => {
+    console.debug('LIFECYCLE: on-updated', result)
+  })
 })
 
-async function getActiveTabId() {
-  return new Promise<number | null>(resolve => {
+function getActiveTabId(): FutureInstance<unknown, number | null> {
+  return node(done => {
     chrome.tabs.query({ active: true }, result => {
       const activeTabId = result[0]?.id
-      resolve(activeTabId ?? null)
+      done(null, activeTabId ?? null)
     })
   })
 }
 
-async function syncTab(tabId: number) {
-  try {
-    if (await isEnabled()) {
-      await enableInTab(tabId)
-    } else {
-      await disableInTab(tabId)
-    }
-  } catch (err) {
-    console.log('syncTab error', err)
-  }
+function syncTab(tabId: number) {
+  return isEnabled().pipe(
+    chain(enabled => (enabled ? enableInTab(tabId) : disableInTab(tabId)))
+  )
 }
 
-async function enableInTab(tabId: number) {
-  agent.raiseIntent({ type: 'enable' }, { target: tabId })
+function enableInTab(tabId: number) {
+  return agent.raiseIntent({ type: 'enable' }, { target: tabId })
 }
 
-async function disableInTab(tabId: number) {
-  agent.raiseIntent({ type: 'disable' }, { target: tabId })
+function disableInTab(tabId: number) {
+  return agent.raiseIntent({ type: 'disable' }, { target: tabId })
 }
 
-function isEnabled(): Promise<boolean> {
-  return new Promise(resolve => {
+function isEnabled(): FutureInstance<unknown, boolean> {
+  return node(done => {
     chrome.storage.local.get([StorageKeys.ENABLED], result => {
-      resolve(result[StorageKeys.ENABLED] || false)
+      done(null, result[StorageKeys.ENABLED] || false)
     })
   })
 }
 
-async function toggleEnabledState() {
-  const enabled = await isEnabled()
-  await setEnabledState(!enabled)
+function toggleEnabledState() {
+  return isEnabled().pipe(chain(enabled => setEnabledState(!enabled)))
 }
 
-async function setEnabledState(enabled: boolean) {
-  await chrome.storage.local.set({
-    [StorageKeys.ENABLED]: enabled,
-  })
-
-  if (enabled) {
-    showActionBadge()
-  } else {
-    hideActionBadge()
-  }
+function setEnabledState(enabled: boolean) {
+  return attemptP(() =>
+    chrome.storage.local.set({
+      [StorageKeys.ENABLED]: enabled,
+    })
+  ).pipe(chain(() => (enabled ? showActionBadge() : hideActionBadge())))
 }
 
-async function isFirstRun(): Promise<boolean> {
-  return new Promise(resolve => {
+function isFirstRun(): FutureInstance<unknown, boolean> {
+  return node(done => {
     chrome.storage.local.get([StorageKeys.ENABLED], result => {
-      resolve(result[StorageKeys.ENABLED] === undefined)
+      done(null, result[StorageKeys.ENABLED] === undefined)
     })
   })
 }
 
-function showActionBadge() {
-  return Promise.all([
-    chrome.action.setBadgeText({ text: 'on' }),
-    chrome.action.setBadgeBackgroundColor({ color: [128, 128, 128, 1] }),
-  ])
+function showActionBadge(): FutureInstance<unknown, void> {
+  return attemptP(() =>
+    Promise.all([
+      chrome.action.setBadgeText({ text: 'on' }),
+      chrome.action.setBadgeBackgroundColor({ color: [0, 69, 133, 1] }),
+    ]).then(() => undefined)
+  )
 }
 
-function hideActionBadge() {
-  return Promise.all([
-    chrome.action.setBadgeText({ text: '' }),
-    chrome.action.setBadgeBackgroundColor({ color: [0, 0, 0, 0] }),
-  ])
+function hideActionBadge(): FutureInstance<unknown, void> {
+  return attemptP(() =>
+    Promise.all([
+      chrome.action.setBadgeText({ text: '' }),
+      chrome.action.setBadgeBackgroundColor({ color: [0, 0, 0, 0] }),
+    ]).then(() => undefined)
+  )
 }
 
 export {}

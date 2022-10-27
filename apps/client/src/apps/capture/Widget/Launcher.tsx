@@ -1,6 +1,6 @@
 import { Block, Grid, InlineCol, Row } from 'jsxstyle'
 import React from 'react'
-import { X as CloseIcon } from 'react-feather'
+import { X as CloseIcon } from 'lucide-react'
 import { Button } from '~/components/Button'
 import { Logo } from '~/components/Logo'
 import { colors } from '~/config/theme'

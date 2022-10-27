@@ -1,3 +1,4 @@
+import { fork } from 'fluture'
 import { nanoid } from 'nanoid'
 import { Agent, DEFAULT_AGENT } from '~/libs/messaging'
 import { TrackedEvent } from './types'
@@ -27,14 +28,16 @@ export const Analytics = {
   },
 
   track(event: string, props: Properties = {}) {
-    activeAgent.raiseIntent<'analytics:track', TrackedEvent, void>({
-      type: 'analytics:track',
-      payload: {
-        eventId: createEventId(),
-        name: event,
-        time: Date.now(),
-        props,
-      },
-    })
+    fork(console.error)(() => undefined)(
+      activeAgent.raiseIntent<void, TrackedEvent>({
+        type: 'analytics:track',
+        payload: {
+          eventId: createEventId(),
+          name: event,
+          time: Date.now(),
+          props,
+        },
+      })
+    )
   },
 }

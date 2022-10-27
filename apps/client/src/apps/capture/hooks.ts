@@ -11,6 +11,11 @@ export function useActive() {
   return useAtomState(state.$active)
 }
 
+export function useCurrentUser() {
+  const state = useAppState()
+  return useAtomState(state.$currentUser)
+}
+
 export function useRecordingMode() {
   const state = useAppState()
   return useAtomState(state.$recordingMode)
