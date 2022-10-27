@@ -37,7 +37,7 @@ export function createAuthMiddleware(
 
     fork<Error>(err => {
       res.status(401)
-      res.json({ error: err.message })
+      res.json({ name: err.name, message: err.message })
     })<[User, Team]>(([user, team]) => {
       req.user = user
       req.team = team

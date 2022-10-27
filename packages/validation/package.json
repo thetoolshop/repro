@@ -1,8 +1,9 @@
 {
-  "name": "@repro/api-client",
+  "name": "@repro/validation",
   "version": "1.0.0",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "description": "",
+  "main": "dist/index",
+  "types": "dist/index",
   "scripts": {
     "build": "npm run clean && concurrently npm:build:source npm:build:declarations",
     "build:declarations": "tsc --project tsconfig-build.json --emitDeclarationOnly",
@@ -11,23 +12,18 @@
     "prepare": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Gary Chambers <gary@repro.dev>",
+  "keywords": [],
+  "author": "",
   "license": "UNLICENSED",
   "dependencies": {
-    "@repro/domain": "workspace:*",
-    "deepmerge-ts": "^4.2.2",
-    "fflate": "^0.7.3",
     "fluture": "^14.0.0",
-    "isomorphic-unfetch": "^3.1.0",
-    "localforage": "^1.10.0",
     "zod": "^3.17.10"
   },
   "devDependencies": {
     "@types/node": "^18.6.2",
     "concurrently": "^7.3.0",
-    "esbuild": "^0.15.7",
+    "esbuild": "^0.15.11",
     "rimraf": "^3.0.2",
-    "ts-eager": "^2.0.2",
-    "typescript": "^4.8.3"
+    "typescript": "^4.8.4"
   }
 }

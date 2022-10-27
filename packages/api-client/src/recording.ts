@@ -1,5 +1,6 @@
 import { Recording, RecordingMetadata, RecordingView } from '@repro/domain'
-import { FutureInstance, map } from 'fluture'
+import { gunzipSync, gzipSync } from 'fflate'
+import { and, FutureInstance, map } from 'fluture'
 import { DataLoader } from './common'
 
 export function createRecordingApi(dataLoader: DataLoader) {
@@ -9,23 +10,53 @@ export function createRecordingApi(dataLoader: DataLoader) {
     description: string,
     recording: Recording
   ): FutureInstance<unknown, void> {
-    const formData = new FormData()
-    formData.append('file', new Blob([RecordingView.encode(recording)]))
-    formData.append('projectId', projectId)
-    formData.append('title', title)
-    formData.append('description', description)
+    const recordingData = RecordingView.encode(recording)
 
-    return dataLoader('/recordings', {
-      method: 'POST',
-      body: formData,
+    const compressedData = gzipSync(
+      new Uint8Array(
+        recordingData.buffer,
+        recordingData.byteOffset,
+        recordingData.byteLength
+      )
+    )
+
+    const data = dataLoader(
+      `/recordings/${recording.id}/data`,
+      {
+        method: 'PUT',
+        body: compressedData,
+        headers: {
+          'Content-Type': 'application/octet-stream',
+        },
+      },
+      'binary'
+    )
+
+    const metadata = dataLoader(`/recordings/${recording.id}/metadata`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        projectId,
+        title,
+        description,
+        mode: recording.mode,
+        duration: recording.duration,
+      }),
     })
+
+    return data.pipe(and(metadata))
   }
 
-  function getRecording(
+  function getRecordingData(
     recordingId: string
   ): FutureInstance<unknown, Recording> {
-    return dataLoader<DataView>(`/recordings/${recordingId}`).pipe(
-      map(view => RecordingView.over(view))
+    return dataLoader<DataView>(`/recordings/${recordingId}/data`).pipe(
+      map(data => {
+        const recordingData = gunzipSync(
+          new Uint8Array(data.buffer, data.byteOffset, data.byteLength)
+        )
+
+        return RecordingView.over(new DataView(recordingData.buffer))
+      })
     )
   }
 
@@ -37,7 +68,7 @@ export function createRecordingApi(dataLoader: DataLoader) {
 
   return {
     saveRecording,
-    getRecording,
+    getRecordingData,
     getRecordingMetadata,
   }
 }

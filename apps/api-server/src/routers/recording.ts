@@ -1,55 +1,70 @@
-import { RecordingView } from '@repro/domain'
+import { parseSchema } from '@repro/validation'
 import express from 'express'
-import { chain, reject } from 'fluture'
-import multer from 'multer'
+import { chain } from 'fluture'
+import fs from 'fs'
+import path from 'path'
 import z from 'zod'
 import { ProjectService } from '~/services/project'
 import { RecordingService } from '~/services/recording'
-import { bufferToDataView } from '~/utils/buffer'
 import { badRequest } from '~/utils/errors'
 import { respondWith } from '~/utils/response'
-import { parseSchema } from '~/utils/validation'
+
+interface Config {
+  recordingDataDirectory: string
+}
 
 export function createRecordingRouter(
   projectService: ProjectService,
-  recordingService: RecordingService
+  recordingService: RecordingService,
+  config: Config
 ) {
   const RecordingRouter = express.Router()
-  const upload = multer()
+
+  RecordingRouter.put('/:recordingId/data', (req, res) => {
+    req.pipe(
+      fs.createWriteStream(
+        path.join(config.recordingDataDirectory, req.params.recordingId)
+      )
+    )
+
+    req.on('end', () => {
+      res.status(204).end()
+    })
+  })
 
   const createRecordingRequestBodySchema = z.object({
     projectId: z.string(),
     title: z.string(),
     description: z.string(),
+    mode: z.number(),
+    duration: z.number(),
   })
 
-  RecordingRouter.post('/', upload.single('recording'), (req, res) => {
+  RecordingRouter.put('/:recordingId/metadata', (req, res) => {
+    const recordingId = req.params.recordingId
     const teamId = req.team.id
     const userId = req.user.id
-    const uploadedFile = req.file
-
-    if (!uploadedFile) {
-      respondWith<never>(res, reject(badRequest('Missing recording data')))
-      return
-    }
 
     respondWith(
       res,
       parseSchema(createRecordingRequestBodySchema, req.body, badRequest).pipe(
         chain(body =>
-          projectService.checkUserIsMember(userId, body.projectId).pipe(
-            chain(() =>
-              recordingService.saveRecording(
-                teamId,
-                body.projectId,
-                userId,
-                body.title,
-                body.description,
-                // TODO: add duck-type validation to TBE and wrap as Future<Error, Recording>
-                RecordingView.over(bufferToDataView(uploadedFile.buffer))
+          projectService
+            .checkUserIsMember(userId, body.projectId)
+            .pipe(
+              chain(() =>
+                recordingService.saveRecordingMetadata(
+                  teamId,
+                  body.projectId,
+                  recordingId,
+                  userId,
+                  body.title,
+                  body.description,
+                  body.mode,
+                  body.duration
+                )
               )
             )
-          )
         )
       )
     )
@@ -67,21 +82,6 @@ export function createRecordingRouter(
           chain(project => projectService.checkUserIsMember(userId, project.id))
         )
         .pipe(chain(() => recordingService.getRecordingMetadata(recordingId)))
-    )
-  })
-
-  RecordingRouter.get('/:recordingId/data', (req, res) => {
-    const userId = req.user.id
-    const recordingId = req.params.recordingId
-
-    respondWith(
-      res,
-      projectService
-        .getProjectForRecording(recordingId)
-        .pipe(
-          chain(project => projectService.checkUserIsMember(userId, project.id))
-        )
-        .pipe(chain(() => recordingService.getRecording(recordingId)))
     )
   })
 

@@ -1,11 +1,11 @@
 import { ProjectRole } from '@repro/domain'
+import { parseSchema } from '@repro/validation'
 import express from 'express'
 import { chain } from 'fluture'
 import z from 'zod'
 import { ProjectService } from '~/services/project'
 import { badRequest } from '~/utils/errors'
 import { respondWith } from '~/utils/response'
-import { parseSchema } from '~/utils/validation'
 
 export function createProjectRouter(projectService: ProjectService) {
   const ProjectRouter = express.Router()

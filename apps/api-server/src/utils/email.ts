@@ -1,5 +1,5 @@
 import sendGrid from '@sendgrid/mail'
-import Future, { attemptP, chain, FutureInstance, go, map } from 'fluture'
+import { attemptP, FutureInstance, go } from 'fluture'
 import { readFile } from 'fs/promises'
 import Handlebars from 'handlebars'
 import path from 'path'

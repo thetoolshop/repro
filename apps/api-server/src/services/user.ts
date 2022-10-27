@@ -20,6 +20,10 @@ export function createUserService(
     return userProvider.getUserById(userId)
   }
 
+  function getUserByEmail(email: string): FutureInstance<Error, User> {
+    return userProvider.getUserByEmail(email)
+  }
+
   function getUserByEmailAndPassword(
     email: string,
     password: string
@@ -37,21 +41,36 @@ export function createUserService(
   }
 
   function sendPasswordResetEmail(email: string): FutureInstance<Error, void> {
-    return userProvider.getOrCreateResetToken(email).pipe(
-      chain(token =>
-        emailUtils.sendEmail('password-reset', email, {
-          token,
-        })
+    return userProvider
+      .getOrCreateResetToken(email)
+      .pipe(
+        chain(token => emailUtils.sendEmail('password-reset', email, { token }))
       )
-    )
+  }
+
+  function sendVerificationEmail(email: string): FutureInstance<Error, void> {
+    return userProvider
+      .createVerificationToken(email)
+      .pipe(
+        chain(token =>
+          emailUtils.sendEmail('user-verification', email, { token })
+        )
+      )
+  }
+
+  function verifyUser(verificationToken: string): FutureInstance<Error, void> {
+    return userProvider.verifyUser(verificationToken)
   }
 
   return {
     createUser,
     getUserById,
+    getUserByEmail,
     getUserByEmailAndPassword,
     resetPassword,
     sendPasswordResetEmail,
+    sendVerificationEmail,
+    verifyUser,
   }
 }
 

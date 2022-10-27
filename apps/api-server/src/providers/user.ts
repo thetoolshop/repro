@@ -1,5 +1,5 @@
 import { User, UserView } from '@repro/domain'
-import { alt, bimap, chain, FutureInstance, go } from 'fluture'
+import { alt, bimap, chain, FutureInstance, go, map } from 'fluture'
 import { QueryResultRow } from 'pg'
 import { CryptoUtils } from '~/utils/crypto'
 import { notFound } from '~/utils/errors'
@@ -7,6 +7,10 @@ import { DatabaseClient } from './database'
 
 interface ResetTokenRow extends QueryResultRow {
   reset_token: string
+}
+
+interface VerificationTokenRow extends QueryResultRow {
+  verification_token: string
 }
 
 interface UserRow extends QueryResultRow {
@@ -21,6 +25,10 @@ interface UserWithPasswordRow extends UserRow {
 
 function toResetToken(values: ResetTokenRow): string {
   return values.reset_token
+}
+
+function toVerificationToken(values: VerificationTokenRow): string {
+  return values.verification_token
 }
 
 export function createUserProvider(
@@ -80,10 +88,37 @@ export function createUserProvider(
     return alt(newToken)(existingToken)
   }
 
+  function createVerificationToken(
+    email: string
+  ): FutureInstance<Error, string> {
+    return cryptoUtils.createRandomString().pipe(
+      chain(verificationToken =>
+        dbClient.getOne(
+          `
+          UPDATE users
+          SET verification_token = $1
+          WHERE email = $2
+          RETURNING verification_token
+          `,
+          [verificationToken, email],
+          toVerificationToken
+        )
+      )
+    )
+  }
+
   function getUserById(userId: string): FutureInstance<Error, User> {
     return dbClient.getOne(
       'SELECT id, name, email FROM users WHERE id = $1::UUID LIMIT 1',
       [userId],
+      UserView.validate
+    )
+  }
+
+  function getUserByEmail(email: string): FutureInstance<Error, User> {
+    return dbClient.getOne(
+      'SELECT id, name, email FROM users WHERE email = $1 LIMIT 1',
+      [email],
       UserView.validate
     )
   }
@@ -134,13 +169,24 @@ export function createUserProvider(
     })
   }
 
+  function verifyUser(verificationToken: string): FutureInstance<Error, void> {
+    return dbClient
+      .query(`UPDATE users SET verified = 1 WHERE verification_token = $1`, [
+        verificationToken,
+      ])
+      .pipe(map(() => undefined))
+  }
+
   return {
     createUser,
+    createVerificationToken,
     getOrCreateResetToken,
+    getUserByEmail,
     getUserByEmailAndPassword,
     getUserById,
     getUserByResetToken,
     setPassword,
+    verifyUser,
   }
 }
 

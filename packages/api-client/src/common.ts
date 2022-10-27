@@ -1,4 +1,5 @@
-import nativeFetch from 'cross-fetch'
+import { deepmerge } from 'deepmerge-ts'
+import nativeFetch from 'isomorphic-unfetch'
 import {
   attemptP,
   bichain,
@@ -57,7 +58,10 @@ export function createInMemoryAuthStore(): AuthStore {
   }
 }
 
-export function createDefaultRequestOptions(authStore: AuthStore) {
+export function createDefaultRequestOptions(
+  authStore: AuthStore,
+  requestType: 'json' | 'binary'
+) {
   return authStore
     .getSessionToken()
     .pipe(bichain(() => resolve(''))(resolve))
@@ -65,13 +69,15 @@ export function createDefaultRequestOptions(authStore: AuthStore) {
       map(
         token =>
           ({
+            mode: 'cors',
             cache: 'no-store',
             credentials: 'omit',
             headers: {
               ...(token ? { Authorization: `Bearer ${token}` } : {}),
-              'Content-Type': 'application/json',
+              ...(requestType === 'json'
+                ? { 'Content-Type': 'application/json' }
+                : {}),
             },
-            keepalive: true,
             method: 'GET',
           } as const)
       )
@@ -84,18 +90,19 @@ export function createDataLoader(
 ) {
   return function dataLoader<R = any>(
     url: string,
-    init: RequestInit = {}
+    init: RequestInit = {},
+    requestType: 'json' | 'binary' = 'json'
   ): FutureInstance<unknown, R> {
-    const reqOptions = createDefaultRequestOptions(authStore)
+    const reqOptions = createDefaultRequestOptions(authStore, requestType)
 
     const res = reqOptions.pipe(
       chain(reqOptions => {
-        return attemptP(() =>
-          nativeFetch(`${config.baseUrl}/${url.replace(/^\//, '')}`, {
-            ...reqOptions,
-            ...init,
-          })
-        )
+        return attemptP(() => {
+          return nativeFetch(
+            `${config.baseUrl}/${url.replace(/^\//, '')}`,
+            deepmerge(reqOptions, init)
+          )
+        })
       })
     )
 

@@ -1,4 +1,4 @@
-export function createError(name: string, message: string = '') {
+export function createError(name: string, message: string = ''): Error {
   return new (class extends Error {
     name = name
     message = message
@@ -35,4 +35,12 @@ export function badRequest(message: string = '') {
 
 export function isBadRequest(error: Error) {
   return error.name === 'BadRequestError'
+}
+
+export function serverError(message: string = '') {
+  return createError('ServerError', message)
+}
+
+export function isServerError(error: Error) {
+  return error.name === 'ServerError'
 }

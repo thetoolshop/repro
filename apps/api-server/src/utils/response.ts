@@ -38,7 +38,7 @@ export function respondWith<T>(
       console.error('Error:', message)
     }
 
-    res.json({ error: message })
+    res.json({ name: error.name, message })
   })<T>(value => {
     if (value === null || value === undefined) {
       res.status(204)

@@ -1,4 +1,6 @@
-import express from 'express'
+import cors from 'cors'
+import express, { ErrorRequestHandler } from 'express'
+import path from 'path'
 
 import { env } from '~/config/env'
 
@@ -26,11 +28,12 @@ import { createUserService } from '~/services/user'
 
 import { createCryptoUtils } from '~/utils/crypto'
 import { createEmailUtils } from '~/utils/email'
+import { serverError } from './utils/errors'
 
 const app = express()
 
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
+app.use(cors())
+app.use(express.json({ limit: '16mb' }))
 
 const dbClient = createDatabaseClient({
   connectionString: env.DATABASE_URL,
@@ -44,9 +47,7 @@ const emailUtils = createEmailUtils({
 })
 
 const projectProvider = createProjectProvider(dbClient)
-const recordingProvider = createRecordingProvider(dbClient, {
-  dataDirectory: env.RECORDING_DATA_DIRECTORY,
-})
+const recordingProvider = createRecordingProvider(dbClient)
 const sessionProvider = createSessionProvider(dbClient)
 const teamProvider = createTeamProvider(dbClient)
 const userProvider = createUserProvider(dbClient, cryptoUtils)
@@ -65,20 +66,35 @@ const authMiddleware = createAuthMiddleware(
 
 const PublicRouter = express.Router()
 PublicRouter.use('/health', createHealthcheckRouter())
-PublicRouter.use('/auth', createAuthRouter(authService, userService))
+PublicRouter.use(
+  '/auth',
+  createAuthRouter(authService, teamService, projectService, userService)
+)
 
 const PrivateRouter = express.Router()
 PrivateRouter.use(authMiddleware.requireAuth)
 PrivateRouter.use('/projects', createProjectRouter(projectService))
 PrivateRouter.use(
   '/recordings',
-  createRecordingRouter(projectService, recordingService)
+  createRecordingRouter(projectService, recordingService, {
+    recordingDataDirectory: path.resolve(
+      __dirname,
+      '..',
+      env.RECORDING_DATA_DIRECTORY
+    ),
+  })
 )
 PrivateRouter.use('/teams', createTeamRouter(teamService))
 PrivateRouter.use('/users', createUserRouter(userService))
 
 app.use(PublicRouter)
 app.use(PrivateRouter)
+
+const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
+  res.status(500).send(serverError(err.message))
+}
+
+app.use(errorHandler)
 
 app.listen(+env.PORT, () => {
   console.log(`API server listening on port ${env.PORT}`)
