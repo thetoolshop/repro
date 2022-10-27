@@ -2,6 +2,7 @@ import type { BaseCSSProperties } from 'jsxstyle-utils'
 
 declare module 'jsxstyle-utils' {
   interface CSSProperties {
+    focusBorderColor?: BaseCSSProperties['borderColor']
     focusOutline?: BaseCSSProperties['outline']
 
     hoverBorderColor?: BaseCSSProperties['borderColor']

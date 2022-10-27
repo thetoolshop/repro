@@ -1,7 +1,7 @@
-import { Block, Col } from 'jsxstyle'
+import { Col } from 'jsxstyle'
 import React from 'react'
 import { Input } from '~/components/Input'
-import { colors } from '~/config/theme'
+import { Label } from '~/components/Label'
 
 interface Props {
   title: string
@@ -15,51 +15,28 @@ export const DetailsForm: React.FC<Props> = ({
   description,
   onTitleChange,
   onDescriptionChange,
-}) => {
-  function preventKeyCapture(evt: React.KeyboardEvent<HTMLElement>) {
-    evt.stopPropagation()
-  }
-
-  function handleDescriptionChange(
-    evt: React.ChangeEvent<HTMLTextAreaElement>
-  ) {
-    onDescriptionChange(evt.target.value)
-  }
-
-  return (
+}) => (
+  <Col gap={20}>
     <Col gap={10}>
+      <Label>Title</Label>
       <Input
         value={title}
         onChange={onTitleChange}
         size="large"
         autoFocus={true}
-        placeholder="Title"
-      />
-
-      <Block
-        component="textarea"
-        width="100%"
-        padding={16}
-        color={colors.slate['800']}
-        backgroundColor={colors.slate['100']}
-        focusBackgroundColor={colors.slate['200']}
-        border="none"
-        borderRadius={4}
-        fontFamily="sans-serif"
-        fontSize={13}
-        lineHeight={1.25}
-        resize="none"
-        focusOutline="none"
-        props={{
-          placeholder: 'Write a description...',
-          rows: 12,
-          value: description,
-          onChange: handleDescriptionChange,
-          onKeyDown: preventKeyCapture,
-          onKeyUp: preventKeyCapture,
-          onKeyPress: preventKeyCapture,
-        }}
+        placeholder="What is the bug?"
       />
     </Col>
-  )
-}
+
+    <Col gap={10}>
+      <Label>Description</Label>
+      <Input
+        value={description}
+        onChange={onDescriptionChange}
+        size="medium"
+        placeholder="Is there anything else that would be useful to know?"
+        rows={12}
+      />
+    </Col>
+  </Col>
+)

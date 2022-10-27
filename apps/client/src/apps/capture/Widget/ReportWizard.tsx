@@ -255,8 +255,14 @@ export const ReportWizard: React.FC<Props> = ({ onClose }) => {
             />
 
             {loginState === 'logged-in' && (
-              <Row flexDirection="row-reverse" gap={10} marginTop={10}>
-                <Button onClick={handleSave} context="success">
+              <Row
+                flexDirection="row-reverse"
+                gap={10}
+                marginTop={10}
+                paddingTop={10}
+                borderTop={`1px solid ${colors.slate['200']}`}
+              >
+                <Button onClick={handleSave} context="success" size="medium">
                   Create Bug Report
                 </Button>
               </Row>
