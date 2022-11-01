@@ -3,6 +3,7 @@ import { Row } from 'jsxstyle'
 import { colors } from '~/config/theme'
 
 type Props = PropsWithChildren<{
+  type?: 'button' | 'reset' | 'submit'
   size?: 'small' | 'medium' | 'large'
   variant?: 'contained' | 'outlined' | 'text'
   context?: 'info' | 'success' | 'warning' | 'danger' | 'neutral'
@@ -13,7 +14,7 @@ type Props = PropsWithChildren<{
 const sizes = {
   small: 6,
   medium: 8,
-  large: 12,
+  large: 10,
 }
 
 const colorGroups = {
@@ -28,6 +29,7 @@ const MINIMUM_FONT_SIZE = 12
 
 export const Button: React.FC<Props> = ({
   children,
+  type = 'button',
   size = 'medium',
   variant = 'contained',
   context = 'info',
@@ -45,7 +47,7 @@ export const Button: React.FC<Props> = ({
     <Row
       position="relative"
       component="button"
-      props={{ onClick }}
+      props={{ disabled, type, onClick }}
       gap={gap}
       height={height}
       paddingH={paddingH}
@@ -74,6 +76,7 @@ export const Button: React.FC<Props> = ({
           ? '0 2px 4px rgba(0, 0, 0, 0.25)'
           : 'none'
       }
+      opacity={disabled ? 0.5 : 1}
       cursor="pointer"
       fontSize={fontSize}
       lineHeight="1em"

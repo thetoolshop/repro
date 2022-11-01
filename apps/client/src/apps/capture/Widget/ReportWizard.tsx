@@ -7,11 +7,18 @@ import {
   User,
 } from '@repro/domain'
 import { fork } from 'fluture'
-import { Block, Grid, Row } from 'jsxstyle'
+import { Block, Col, Grid, Row } from 'jsxstyle'
+import {
+  CheckCircle2 as SuccessIcon,
+  Copy as CopyIcon,
+  CornerUpLeft as BackIcon,
+  Loader as LoadingIcon,
+  XCircle as ErrorIcon,
+} from 'lucide-react'
 import React, { PropsWithChildren, useEffect, useState } from 'react'
-import { Shortcuts } from 'shortcuts'
 import { Button } from '~/components/Button'
 import { Card } from '~/components/Card'
+import * as FX from '~/components/FX'
 import { ToggleGroup } from '~/components/ToggleGroup'
 import { colors } from '~/config/theme'
 import { Analytics } from '~/libs/analytics'
@@ -51,13 +58,12 @@ export const ReportWizard: React.FC<Props> = ({ onClose }) => {
     currentUser ? 'logged-in' : 'logged-out'
   )
   const [uploading, setUploading] = useState<UploadingState>('ready')
-  const [showPromptBeforeClose, setShowPromptBeforeClose] = useState(false)
+  const [recordingId, setRecordingId] = useState<string | null>(null)
   const [selectedDuration, setSelectedDuration] = useState(
     DEFAULT_SELECTED_DURATION
   )
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
   const [selectedProject, setSelectedProject] = useState<Project | null>(null)
+  const [uploadError, setUploadError] = useState<string | null>(null)
 
   const maxTime = playback.getDuration()
   const minTime = Math.max(0, maxTime - selectedDuration)
@@ -93,21 +99,6 @@ export const ReportWizard: React.FC<Props> = ({ onClose }) => {
     }
   }, [agent, currentUser, setSelectedProject])
 
-  useEffect(() => {
-    const shortcuts = new Shortcuts()
-
-    if (!uploading) {
-      shortcuts.add({
-        shortcut: 'Escape',
-        handler: () => setShowPromptBeforeClose(true),
-      })
-    }
-
-    return () => {
-      shortcuts.reset()
-    }
-  }, [uploading, setShowPromptBeforeClose])
-
   function handleAuthSuccess(user: User) {
     setCurrentUser(user)
   }
@@ -120,25 +111,7 @@ export const ReportWizard: React.FC<Props> = ({ onClose }) => {
     setLoginState(currentUser ? 'logged-in' : 'logged-out')
   }, [currentUser, setLoginState])
 
-  function handleSave() {
-    // TODO: manage form state and validation better
-    const EMPTY = /^\s*$/
-
-    if (EMPTY.test(title)) {
-      logger.debug('Missing recording title')
-      return
-    }
-
-    if (EMPTY.test(description)) {
-      logger.debug('Missing recording description')
-      return
-    }
-
-    if (selectedProject === null) {
-      logger.debug('Missing recording project')
-      return
-    }
-
+  function handleSave(data: { title: string; description: string }) {
     let events = playback.getSourceEvents()
 
     if (recordingMode === RecordingMode.Replay) {
@@ -166,9 +139,9 @@ export const ReportWizard: React.FC<Props> = ({ onClose }) => {
         type: 'upload',
         payload: {
           id: recording.id,
-          projectId: selectedProject.id,
-          title,
-          description,
+          projectId: selectedProject && selectedProject.id,
+          title: data.title,
+          description: data.description,
           recording: Array.from(
             new Uint8Array(RecordingView.encode(recording).buffer)
           ),
@@ -179,12 +152,14 @@ export const ReportWizard: React.FC<Props> = ({ onClose }) => {
     function onSuccess() {
       Analytics.track('capture:save-success')
       setUploading('done')
+      setRecordingId(recording.id)
     }
 
     function onError(error: Error) {
       logger.error(error)
       Analytics.track('capture:save-failure')
       setUploading('failed')
+      setUploadError(error.message)
     }
   }
 
@@ -247,26 +222,7 @@ export const ReportWizard: React.FC<Props> = ({ onClose }) => {
           </PlaybackRegion>
 
           <DetailsRegion>
-            <DetailsForm
-              title={title}
-              onTitleChange={setTitle}
-              description={description}
-              onDescriptionChange={setDescription}
-            />
-
-            {loginState === 'logged-in' && (
-              <Row
-                flexDirection="row-reverse"
-                gap={10}
-                marginTop={10}
-                paddingTop={10}
-                borderTop={`1px solid ${colors.slate['200']}`}
-              >
-                <Button onClick={handleSave} context="success" size="medium">
-                  Create Bug Report
-                </Button>
-              </Row>
-            )}
+            <DetailsForm onSubmit={handleSave} />
           </DetailsRegion>
 
           {loginState === 'logged-out' && (
@@ -280,6 +236,16 @@ export const ReportWizard: React.FC<Props> = ({ onClose }) => {
                 </Card>
               </Block>
             </BlockingOverlay>
+          )}
+
+          {uploading === 'uploading' && <PendingOverlay />}
+
+          {uploading === 'done' && recordingId !== null && (
+            <SuccessOverlay recordingId={recordingId} onClose={onClose} />
+          )}
+
+          {uploading === 'failed' && uploadError && (
+            <ErrorOverlay onClose={onClose} errorMessage={uploadError} />
           )}
         </Container>
       </PlaybackProvider>
@@ -342,4 +308,116 @@ const DetailsRegion: React.FC<PropsWithChildren> = ({ children }) => (
   <Grid gridArea="details" alignItems="stretch">
     <Card>{children}</Card>
   </Grid>
+)
+
+const PendingOverlay: React.FC = () => (
+  <BlockingOverlay>
+    <Card>
+      <FX.Spin height={24} color={colors.slate['700']}>
+        <LoadingIcon size={24} />
+      </FX.Spin>
+    </Card>
+  </BlockingOverlay>
+)
+
+interface SuccessProps {
+  recordingId: string
+  onClose(): void
+}
+
+const SuccessOverlay: React.FC<SuccessProps> = ({ recordingId, onClose }) => {
+  const recordingUrl = `${process.env.REPRO_APP_URL}/recordings/${recordingId}`
+
+  function copyToClipboard() {
+    navigator.clipboard.writeText(recordingUrl)
+  }
+
+  return (
+    <BlockingOverlay>
+      <Col gap={10}>
+        <Card>
+          <Row alignItems="center" gap={10}>
+            <SuccessIcon size={32} color={colors.green['500']} />
+
+            <Block marginRight={10}>
+              <Block
+                fontSize={11}
+                fontWeight={700}
+                color={colors.slate['900']}
+                textTransform="uppercase"
+              >
+                Recording Created
+              </Block>
+
+              <Row
+                component="a"
+                gap={5}
+                alignItems="center"
+                fontSize={15}
+                color={colors.blue['700']}
+                marginTop={10}
+                props={{
+                  href: recordingUrl,
+                  target: '_blank',
+                }}
+              >
+                {recordingUrl}
+              </Row>
+            </Block>
+
+            <Button
+              variant="outlined"
+              context="neutral"
+              onClick={copyToClipboard}
+            >
+              <CopyIcon size={18} /> Copy
+            </Button>
+          </Row>
+        </Card>
+
+        <Block alignSelf="center">
+          <Button variant="text" onClick={onClose}>
+            <BackIcon size={16} /> Return To Page
+          </Button>
+        </Block>
+      </Col>
+    </BlockingOverlay>
+  )
+}
+
+interface ErrorProps {
+  errorMessage: string
+  onClose(): void
+}
+
+const ErrorOverlay: React.FC<ErrorProps> = ({ errorMessage, onClose }) => (
+  <BlockingOverlay>
+    <Col gap={10}>
+      <Card>
+        <Row alignItems="center" gap={10}>
+          <ErrorIcon size={32} color={colors.rose['500']} />
+
+          <Block>
+            <Block
+              fontSize={11}
+              fontWeight={700}
+              color={colors.slate['900']}
+              textTransform="uppercase"
+            >
+              Could not create recording
+            </Block>
+
+            <Row gap={5} alignItems="center" fontSize={15} marginTop={10}>
+              {errorMessage}
+            </Row>
+          </Block>
+        </Row>
+      </Card>
+      <Block alignSelf="center">
+        <Button variant="text" onClick={onClose}>
+          <BackIcon size={16} /> Return To Page
+        </Button>
+      </Block>
+    </Col>
+  </BlockingOverlay>
 )

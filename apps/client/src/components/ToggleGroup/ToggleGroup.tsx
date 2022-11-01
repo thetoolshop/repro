@@ -46,7 +46,7 @@ const Toggle: React.FC<ToggleProps> = ({ active, label, onClick }) => (
     backgroundColor={active ? colors.slate['500'] : colors.slate['100']}
     backgroundImage={
       active
-        ? `linear-gradient(to top right, ${colors.slate['700']}, ${colors.slate['500']})`
+        ? `linear-gradient(to top right, ${colors.slate['700']}, ${colors.slate['600']})`
         : undefined
     }
     borderColor={active ? colors.slate['800'] : 'transparent'}

@@ -55,7 +55,7 @@ function setUpAnalytics() {
 setUpAnalytics()
 
 const apiClient = createApiClient({
-  baseUrl: process.env.API_URL || '',
+  baseUrl: process.env.REPRO_API_URL || '',
   authStorage: 'local-storage',
 })
 
