@@ -1,6 +1,7 @@
 import { ApiClient, createApiClient } from '@repro/api-client'
 import { RecordingView } from '@repro/domain'
 import {
+  and,
   attemptP,
   chain,
   fork,
@@ -99,17 +100,13 @@ chrome.runtime.onInstalled.addListener(() => {
     )
   )
 
-  return run(source, () => {
+  return run(source.pipe(and(syncActionState())), () => {
     console.debug('LIFECYCLE: on-installed')
   })
 })
 
 chrome.runtime.onStartup.addListener(() => {
-  const source = isEnabled().pipe(
-    chain(enabled => (enabled ? showActionBadge() : resolve<void>(undefined)))
-  )
-
-  return run(source, () => {
+  return run(syncActionState(), () => {
     console.debug('LIFECYCLE: on-startup')
   })
 })
@@ -135,16 +132,24 @@ chrome.tabs.onActivated.addListener(({ tabId }) => {
 })
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
-  const source = resolve<boolean>(changeInfo.status === 'complete').pipe(
+  const actionState = syncActionState()
+
+  const tab = resolve<boolean>(changeInfo.status === 'complete').pipe(
     chain(isComplete =>
       isComplete ? syncTab(tabId) : resolve<void>(undefined)
     )
   )
 
-  return run(source, result => {
+  return run(actionState.pipe(and(tab)), result => {
     console.debug('LIFECYCLE: on-updated', result)
   })
 })
+
+function syncActionState(): FutureInstance<unknown, void> {
+  return isEnabled().pipe(
+    chain(enabled => (enabled ? showActionBadge() : hideActionBadge()))
+  )
+}
 
 function getActiveTabId(): FutureInstance<unknown, number | null> {
   return node(done => {
