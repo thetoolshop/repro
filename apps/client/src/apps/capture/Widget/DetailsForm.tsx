@@ -17,7 +17,6 @@ interface Props {
 
 export const DetailsForm: React.FC<Props> = ({ onSubmit }) => {
   const { handleSubmit, register, formState } = useForm<FormState>({
-    mode: 'onBlur',
     defaultValues: {
       title: '',
       description: '',

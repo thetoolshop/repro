@@ -33,6 +33,7 @@ import {
 } from '~/libs/playback'
 import { sliceEventsAtRange } from '~/libs/record'
 import { formatDate } from '~/utils/date'
+import { scheduleIdleCallback } from '~/utils/schedule'
 import { createRecordingId } from '~/utils/source'
 import { MAX_INT32 } from '../constants'
 import { useCurrentUser, useRecordingMode } from '../hooks'
@@ -112,55 +113,58 @@ export const ReportWizard: React.FC<Props> = ({ onClose }) => {
   }, [currentUser, setLoginState])
 
   function handleSave(data: { title: string; description: string }) {
-    let events = playback.getSourceEvents()
-
-    if (recordingMode === RecordingMode.Replay) {
-      events = sliceEventsAtRange(events, [minTime, maxTime])
-    }
-
-    const recording: Recording = RecordingView.from({
-      id: createRecordingId(),
-      codecVersion: CODEC_VERSION,
-      mode: recordingMode,
-      duration: maxTime - minTime,
-      events: events
-        .toSource()
-        .map(view => view.buffer.slice(view.byteOffset, view.byteLength)),
-    })
-
     setUploading('uploading')
 
-    Analytics.track('capture:save-start', {
-      recordingSize: RecordingView.encode(recording).byteLength.toString(),
-    })
+    // Schedule async callback to flush pending UI changes
+    scheduleIdleCallback(() => {
+      let events = playback.getSourceEvents()
 
-    fork(onError)(onSuccess)(
-      agent.raiseIntent({
-        type: 'upload',
-        payload: {
-          id: recording.id,
-          projectId: selectedProject && selectedProject.id,
-          title: data.title,
-          description: data.description,
-          recording: Array.from(
-            new Uint8Array(RecordingView.encode(recording).buffer)
-          ),
-        },
+      if (recordingMode === RecordingMode.Replay) {
+        events = sliceEventsAtRange(events, [minTime, maxTime])
+      }
+
+      const recording: Recording = RecordingView.from({
+        id: createRecordingId(),
+        codecVersion: CODEC_VERSION,
+        mode: recordingMode,
+        duration: maxTime - minTime,
+        events: events
+          .toSource()
+          .map(view => view.buffer.slice(view.byteOffset, view.byteLength)),
       })
-    )
 
-    function onSuccess() {
-      Analytics.track('capture:save-success')
-      setUploading('done')
-      setRecordingId(recording.id)
-    }
+      Analytics.track('capture:save-start', {
+        recordingSize: RecordingView.encode(recording).byteLength.toString(),
+      })
 
-    function onError(error: Error) {
-      logger.error(error)
-      Analytics.track('capture:save-failure')
-      setUploading('failed')
-      setUploadError(error.message)
-    }
+      fork(onError)(onSuccess)(
+        agent.raiseIntent({
+          type: 'upload',
+          payload: {
+            id: recording.id,
+            projectId: selectedProject && selectedProject.id,
+            title: data.title,
+            description: data.description,
+            recording: Array.from(
+              new Uint8Array(RecordingView.encode(recording).buffer)
+            ),
+          },
+        })
+      )
+
+      function onSuccess() {
+        Analytics.track('capture:save-success')
+        setUploading('done')
+        setRecordingId(recording.id)
+      }
+
+      function onError(error: Error) {
+        logger.error(error)
+        Analytics.track('capture:save-failure')
+        setUploading('failed')
+        setUploadError(error.message)
+      }
+    })
   }
 
   return (
