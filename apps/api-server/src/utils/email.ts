@@ -1,5 +1,5 @@
 import sendGrid from '@sendgrid/mail'
-import { attemptP, FutureInstance, go } from 'fluture'
+import { attempt, attemptP, FutureInstance, go } from 'fluture'
 import { readFile } from 'fs/promises'
 import Handlebars from 'handlebars'
 import path from 'path'
@@ -33,11 +33,13 @@ export function createEmailUtils(config: EmailConfig): EmailUtils {
 
       const template = yield attemptP(() =>
         readFile(
-          path.join(config.templateDirectory, `${templateName}/template.hbs`)
+          path.join(config.templateDirectory, `${templateName}/body.hbs`)
         )
       )
 
-      const body = Handlebars.compile(template)(templateContext)
+      const body = yield attempt(() =>
+        Handlebars.compile(template)(templateContext)
+      )
 
       yield attemptP(() =>
         sendGrid.send({

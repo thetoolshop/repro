@@ -1,5 +1,14 @@
 import { compare, hash } from 'bcrypt'
-import { attempt, attemptP, FutureInstance, map, node } from 'fluture'
+import {
+  attempt,
+  attemptP,
+  chain,
+  FutureInstance,
+  map,
+  node,
+  reject,
+  resolve,
+} from 'fluture'
 import fs from 'fs'
 import { createError } from '~/utils/errors'
 import {
@@ -30,12 +39,12 @@ export function createCryptoUtils(): CryptoUtils {
     data: string,
     hash: string
   ): FutureInstance<Error, void> {
-    return attemptP(() =>
-      compare(data, hash).then(result => {
+    return attemptP<Error, boolean>(() => compare(data, hash)).pipe(
+      chain(result =>
         result === true
-          ? Promise.resolve()
-          : Promise.reject(createError('HashMismatchError'))
-      })
+          ? resolve(undefined)
+          : reject(createError('HashMismatchError'))
+      )
     )
   }
 

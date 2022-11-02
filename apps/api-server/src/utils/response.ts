@@ -29,13 +29,12 @@ export function respondWith<T>(
       message = error.message || 'Bad request'
       res.status(400)
     } else {
-      console.error(error)
-      message = error.message || 'Server error'
+      message = env.DEBUG ? error.message : 'Server error'
       res.status(500)
     }
 
     if (env.DEBUG) {
-      console.error('Error:', message)
+      console.trace(error)
     }
 
     res.json({ name: error.name, message })

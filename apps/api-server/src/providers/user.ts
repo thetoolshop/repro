@@ -75,7 +75,7 @@ export function createUserProvider(
         dbClient.getOne(
           `
           UPDATE users
-          SET reset_token = $1 AND reset_token_expiry = (NOW() + interval '1 hour')
+          SET reset_token = $1, reset_token_expires_at = (NOW() + interval '1 hour')
           WHERE email = $2
           RETURNING reset_token
           `,

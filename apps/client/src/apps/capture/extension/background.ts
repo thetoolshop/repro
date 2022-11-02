@@ -57,7 +57,7 @@ setUpAnalytics()
 
 const apiClient = createApiClient({
   baseUrl: process.env.REPRO_API_URL || '',
-  authStorage: 'local-storage',
+  authStorage: (process.env.AUTH_STORAGE as any) || 'local-storage',
 })
 
 agent.subscribeToIntent('api:call', ({ namespace, method, args = [] }) => {
