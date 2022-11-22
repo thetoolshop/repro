@@ -3,8 +3,8 @@
 set -euo pipefail
 
 project_dir=$(realpath "$(dirname $0)/..")
-source_dir="$project_dir/src/apps/report"
-build_dir="$project_dir/dist/report"
+source_dir="$project_dir/src/apps/main"
+build_dir="$project_dir/dist/main"
 
 cmd="build"
 
@@ -18,4 +18,4 @@ mkdir -p "$build_dir"
 
 cp -r $source_dir/static/* $build_dir/
 
-eval "npx webpack $cmd --config webpack.report.config.js"
+eval "npx webpack $cmd --config webpack.main.config.js"

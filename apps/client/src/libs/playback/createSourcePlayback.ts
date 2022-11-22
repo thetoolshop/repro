@@ -23,6 +23,7 @@ import { ControlFrame, Playback, PlaybackState } from './types'
 
 const EMPTY_SNAPSHOT: Snapshot = {
   dom: null,
+  interaction: null,
 }
 
 const EMPTY_BUFFER: Array<SourceEvent> = []

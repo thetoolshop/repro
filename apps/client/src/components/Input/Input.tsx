@@ -44,36 +44,49 @@ export const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, Props>(
 
     return (
       <Block
-        component={rows > 1 ? 'textarea' : 'input'}
-        paddingH={12}
-        paddingV={12}
-        width="100%"
-        fontFamily="inherit"
-        fontSize={fontSize}
-        lineHeight={1.5}
-        color={colors.slate['800']}
-        backgroundColor={colors.slate['100']}
-        focusBackgroundColor={colors.white}
-        borderColor={context === 'error' ? colors.rose['700'] : 'transparent'}
-        focusBorderColor={colors.blue['500']}
+        backgroundColor={colors.white}
+        borderColor={colors.slate['300']}
+        borderRadius={4}
         borderStyle="solid"
         borderWidth={1}
-        borderRadius={4}
-        focusOutline="none"
-        focusBoxShadow="0 2px 4px rgba(0, 0, 0, 0.1)"
-        props={{
-          autoFocus,
-          disabled,
-          placeholder,
-          rows: rows > 1 ? rows : undefined,
-          type,
-          onKeyDown: preventKeyCapture,
-          onKeyUp: preventKeyCapture,
-          onKeyPress: preventKeyCapture,
-          ref: ref as any,
-          ...restProps,
-        }}
-      />
+        boxShadow={`0 0.5px 1.5px ${colors.slate['300']}DA`}
+      >
+        <Block
+          component={rows > 1 ? 'textarea' : 'input'}
+          paddingH={12}
+          paddingV={12}
+          width="100%"
+          fontFamily="inherit"
+          fontSize={fontSize}
+          lineHeight={1.5}
+          color={colors.slate['800']}
+          placeholderColor={colors.slate['500']}
+          backgroundColor="transparent"
+          borderColor={context === 'error' ? colors.rose['500'] : 'transparent'}
+          focusBorderColor={
+            context === 'error' ? colors.rose['500'] : colors.blue['500']
+          }
+          borderStyle="solid"
+          borderWidth={1}
+          borderRadius={4}
+          focusOutline={`4px solid ${
+            context === 'error' ? colors.rose['100'] : colors.blue['100']
+          }`}
+          resize="none"
+          props={{
+            autoFocus,
+            disabled,
+            placeholder,
+            rows: rows > 1 ? rows : undefined,
+            type,
+            onKeyDown: preventKeyCapture,
+            onKeyUp: preventKeyCapture,
+            onKeyPress: preventKeyCapture,
+            ref: ref as any,
+            ...restProps,
+          }}
+        />
+      </Block>
     )
   }
 )

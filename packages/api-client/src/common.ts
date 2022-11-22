@@ -17,20 +17,22 @@ export interface ApiConfiguration {
 }
 
 export interface AuthStore {
-  getSessionToken(): FutureInstance<unknown, string>
-  setSessionToken(token: string): FutureInstance<unknown, string>
+  getSessionToken(): FutureInstance<Error, string>
+  setSessionToken(token: string): FutureInstance<Error, string>
 }
 
 export function createLocalStorageAuthStore(): AuthStore {
   const KEY = 'repro-session'
 
-  function getSessionToken(): FutureInstance<unknown, string> {
-    return attemptP(() => localForage.getItem<string>(KEY)).pipe(
-      chain(token => (token === null ? reject(undefined) : resolve(token)))
+  function getSessionToken(): FutureInstance<Error, string> {
+    return attemptP<Error, string | null>(() =>
+      localForage.getItem<string>(KEY)
+    ).pipe(
+      chain(token => (token === null ? reject(new Error()) : resolve(token)))
     )
   }
 
-  function setSessionToken(token: string): FutureInstance<unknown, string> {
+  function setSessionToken(token: string): FutureInstance<Error, string> {
     return attemptP(() => localForage.setItem<string>(KEY, token))
   }
 
@@ -43,11 +45,11 @@ export function createLocalStorageAuthStore(): AuthStore {
 export function createInMemoryAuthStore(): AuthStore {
   let storedToken: string | null = null
 
-  function getSessionToken(): FutureInstance<unknown, string> {
-    return storedToken === null ? reject(undefined) : resolve(storedToken)
+  function getSessionToken(): FutureInstance<Error, string> {
+    return storedToken === null ? reject(new Error()) : resolve(storedToken)
   }
 
-  function setSessionToken(token: string): FutureInstance<unknown, string> {
+  function setSessionToken(token: string): FutureInstance<Error, string> {
     storedToken = token
     return resolve(storedToken)
   }
@@ -92,12 +94,12 @@ export function createDataLoader(
     url: string,
     init: RequestInit = {},
     requestType: 'json' | 'binary' = 'json'
-  ): FutureInstance<unknown, R> {
+  ): FutureInstance<Error, R> {
     const reqOptions = createDefaultRequestOptions(authStore, requestType)
 
     const res = reqOptions.pipe(
       chain(reqOptions => {
-        return attemptP(() => {
+        return attemptP<Error, Response>(() => {
           return nativeFetch(
             `${config.baseUrl}/${url.replace(/^\//, '')}`,
             deepmerge(reqOptions, init)
@@ -107,7 +109,7 @@ export function createDataLoader(
     )
 
     return res.pipe(
-      chain<unknown, Response, R>(res =>
+      chain<Error, Response, R>(res =>
         attemptP(async () => {
           const contentType = res.headers.get('content-type')
 

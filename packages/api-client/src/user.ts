@@ -3,7 +3,7 @@ import { FutureInstance } from 'fluture'
 import { DataLoader } from './common'
 
 export function createUserApi(dataLoader: DataLoader) {
-  function getMyUser(): FutureInstance<unknown, User> {
+  function getMyUser(): FutureInstance<Error, User> {
     return dataLoader('/users/me')
   }
 

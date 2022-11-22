@@ -36,6 +36,33 @@ function toRecordingMetadata(row: RecordingMetadataRow): RecordingMetadata {
 }
 
 export function createRecordingProvider(dbClient: DatabaseClient) {
+  function getAllRecordingsForUser(
+    userId: string
+  ): FutureInstance<Error, Array<RecordingMetadata>> {
+    return dbClient.getMany(
+      `
+      SELECT
+        r.id,
+        r.title,
+        r.description,
+        r.mode,
+        r.duration,
+        r.created_at,
+        r.project_id,
+        p.name as project_name,
+        r.author_id,
+        a.name as author_name
+      FROM recordings r
+      INNER JOIN projects p ON p.id = r.project_id
+      INNER JOIN users a ON a.id = r.author_id
+      INNER JOIN projects_users m ON m.project_id = r.project_id
+      WHERE m.user_id = $1
+      `,
+      [userId],
+      toRecordingMetadata
+    )
+  }
+
   function saveRecordingMetadata(
     teamId: string,
     projectId: string,
@@ -93,6 +120,7 @@ export function createRecordingProvider(dbClient: DatabaseClient) {
   }
 
   return {
+    getAllRecordingsForUser,
     saveRecordingMetadata,
     getRecordingMetadata,
   }

@@ -22,18 +22,20 @@ interface Props {
 }
 
 export const SimpleTimeline: React.FC<Props> = ({ min, max }) => {
-  const ref = useRef() as MutableRefObject<HTMLDivElement>
+  const progressRef = useRef() as MutableRefObject<HTMLDivElement>
+  const elapsedTimeRef = useRef() as MutableRefObject<HTMLDivElement>
   const playback = usePlayback()
 
   useEffect(() => {
     const subscription = new Subscription()
-    const root = ref.current
+    const root = progressRef.current
 
     if (root) {
       const background = createBackgroundElement()
       const ghost = createGhostElement()
       const progress = createProgressElement()
       const tooltip = createTooltipElement()
+      const elapsedTime = elapsedTimeRef.current
 
       root.append(background, ghost, progress, tooltip)
 
@@ -136,6 +138,10 @@ export const SimpleTimeline: React.FC<Props> = ({ min, max }) => {
       subscription.add(
         pointerDown$.pipe(map(mapPointerEventToOffset)).subscribe(offset => {
           updateBarOffset(progress, offset)
+          updateElapsedTime(
+            elapsedTime,
+            formatDate(mapOffsetToValue(offset), 'seconds')
+          )
         })
       )
 
@@ -147,6 +153,10 @@ export const SimpleTimeline: React.FC<Props> = ({ min, max }) => {
           )
           .subscribe(offset => {
             updateBarOffset(progress, offset)
+            updateElapsedTime(
+              elapsedTime,
+              formatDate(mapOffsetToValue(offset), 'seconds')
+            )
           })
       )
 
@@ -178,6 +188,12 @@ export const SimpleTimeline: React.FC<Props> = ({ min, max }) => {
           )
           .subscribe(offset => updateBarOffset(progress, offset))
       )
+
+      subscription.add(
+        playback.$elapsed.subscribe(elapsed => {
+          updateElapsedTime(elapsedTime, formatDate(elapsed, 'seconds'))
+        })
+      )
     }
 
     return () => {
@@ -189,7 +205,7 @@ export const SimpleTimeline: React.FC<Props> = ({ min, max }) => {
         }
       }
     }
-  }, [playback, ref, min, max])
+  }, [playback, elapsedTimeRef, progressRef, min, max])
 
   return (
     <Row alignItems="center" height="100%" gap={8}>
@@ -201,8 +217,18 @@ export const SimpleTimeline: React.FC<Props> = ({ min, max }) => {
         height={8}
         hoverHeight={12}
         transition="height 100ms linear"
-        props={{ ref }}
+        props={{ ref: progressRef }}
       />
+
+      <Row gap={3} alignItems="center" fontFamily="monospace" fontSize={13}>
+        <Block color={colors.blue['700']} props={{ ref: elapsedTimeRef }}>
+          00:00
+        </Block>
+        <Block color={colors.slate['500']}>/</Block>
+        <Block color={colors.blue['700']}>
+          {formatDate(max || playback.getDuration(), 'seconds')}
+        </Block>
+      </Row>
     </Row>
   )
 }
@@ -330,6 +356,10 @@ function updateBarOffset(target: HTMLElement, offset: number) {
 
 function updateTooltip(target: HTMLElement, offset: number, value: string) {
   target.style.left = `${offset * 100}%`
+  target.textContent = value
+}
+
+function updateElapsedTime(target: HTMLElement, value: string) {
   target.textContent = value
 }
 

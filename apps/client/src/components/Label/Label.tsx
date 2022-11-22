@@ -1,5 +1,4 @@
 import { Block, Row } from 'jsxstyle'
-import { FormInput as DefaultLabelIcon } from 'lucide-react'
 import React, { PropsWithChildren } from 'react'
 import { colors } from '~/config/theme'
 
@@ -8,7 +7,7 @@ interface Props {
   optional?: boolean
 }
 
-const defaultIcon = <DefaultLabelIcon size={18} color={colors.blue['700']} />
+const defaultIcon = null
 
 export const Label: React.FC<PropsWithChildren<Props>> = ({
   children,

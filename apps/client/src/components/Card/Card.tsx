@@ -1,11 +1,21 @@
 import { Block } from 'jsxstyle'
-import React, { PropsWithChildren } from 'react'
+import React, { CSSProperties, PropsWithChildren } from 'react'
 import { colors } from '~/config/theme'
 
-export const Card: React.FC<PropsWithChildren> = ({ children }) => (
+interface Props {
+  fullBleed?: boolean
+  height?: CSSProperties['height']
+}
+
+export const Card: React.FC<PropsWithChildren<Props>> = ({
+  children,
+  fullBleed,
+  height = 'auto',
+}) => (
   <Block
-    padding={20}
-    backgroundColor={colors.white}
+    height={height}
+    padding={fullBleed ? 0 : 20}
+    backgroundColor={fullBleed ? 'transparent' : colors.white}
     borderRadius={4}
     boxShadow={`
       0 4px 16px rgba(0, 0, 0, 0.1),

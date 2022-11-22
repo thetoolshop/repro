@@ -5,8 +5,3 @@ import { createApiCaller } from './createApiCaller'
 export function useMessaging() {
   return useContext(MessagingContext)
 }
-
-export function useApiCaller() {
-  const agent = useMessaging()
-  return useMemo(() => createApiCaller(agent), [agent])
-}

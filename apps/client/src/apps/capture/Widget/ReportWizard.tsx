@@ -22,9 +22,10 @@ import * as FX from '~/components/FX'
 import { ToggleGroup } from '~/components/ToggleGroup'
 import { colors } from '~/config/theme'
 import { Analytics } from '~/libs/analytics'
+import { useApiClient } from '~/libs/api'
 import { LoginForm } from '~/libs/auth'
 import { logger } from '~/libs/logger'
-import { useApiCaller, useMessaging } from '~/libs/messaging'
+import { useMessaging } from '~/libs/messaging'
 import {
   PlaybackCanvas,
   PlaybackProvider,
@@ -51,7 +52,7 @@ interface Props {
 
 export const ReportWizard: React.FC<Props> = ({ onClose }) => {
   const agent = useMessaging()
-  const callApi = useApiCaller()
+  const apiClient = useApiClient()
   const playback = usePlayback()
   const [currentUser, setCurrentUser] = useCurrentUser()
   const [recordingMode] = useRecordingMode()
@@ -87,7 +88,7 @@ export const ReportWizard: React.FC<Props> = ({ onClose }) => {
 
   useEffect(() => {
     if (currentUser) {
-      callApi<Array<Project>>('project', 'getAllProjects').pipe(
+      apiClient.project.getAllProjects().pipe(
         fork(logger.error)(projects => {
           // TODO: Support multiple projects
           if (projects[0]) {
@@ -98,7 +99,7 @@ export const ReportWizard: React.FC<Props> = ({ onClose }) => {
         })
       )
     }
-  }, [agent, currentUser, setSelectedProject])
+  }, [apiClient, currentUser, setSelectedProject])
 
   function handleAuthSuccess(user: User) {
     setCurrentUser(user)
@@ -145,9 +146,7 @@ export const ReportWizard: React.FC<Props> = ({ onClose }) => {
             projectId: selectedProject && selectedProject.id,
             title: data.title,
             description: data.description,
-            recording: Array.from(
-              new Uint8Array(RecordingView.encode(recording).buffer)
-            ),
+            recording: RecordingView.serialize(recording),
           },
         })
       )

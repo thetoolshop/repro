@@ -9,7 +9,7 @@ import z from 'zod'
 import { Button } from '~/components/Button'
 import { Input } from '~/components/Input'
 import { colors } from '~/config/theme'
-import { useApiCaller } from '~/libs/messaging'
+import { useApiClient } from '~/libs/api'
 
 interface Props {
   onSuccess(user: User): void
@@ -33,6 +33,7 @@ export const LoginForm: React.FC<Props> = ({ onSuccess, onFailure }) => {
   const [errorMessage, setErrorMessage] = useState('')
   const [showResetFlow, setShowResetFlow] = useState(false)
   const [showPostResetMessage, setShowPostResetMessage] = useState(false)
+  const apiClient = useApiClient()
 
   const { register, formState, handleSubmit } = useForm<FormState>({
     resolver: zodResolver(showResetFlow ? resetFormSchema : loginFormSchema),
@@ -42,8 +43,6 @@ export const LoginForm: React.FC<Props> = ({ onSuccess, onFailure }) => {
     },
   })
 
-  const callApi = useApiCaller()
-
   function onResetRequest(data: ResetFormState) {
     return fork<Error>(() => {
       setErrorMessage(
@@ -52,14 +51,14 @@ export const LoginForm: React.FC<Props> = ({ onSuccess, onFailure }) => {
     })(() => {
       setShowPostResetMessage(true)
       setShowResetFlow(false)
-    })(callApi<void>('auth', 'forgotPassword', [data.email]))
+    })(apiClient.auth.forgotPassword(data.email))
   }
 
   function onLogin(data: LoginFormState) {
     setShowPostResetMessage(false)
 
-    const session = callApi<void>('auth', 'login', [data.email, data.password])
-    const user = callApi<User>('user', 'getMyUser')
+    const session = apiClient.auth.login(data.email, data.password)
+    const user = apiClient.user.getMyUser()
 
     return fork<Error>(err => {
       if (isValidationError(err) || err.name === 'NotAuthenticatedError') {
@@ -90,12 +89,12 @@ export const LoginForm: React.FC<Props> = ({ onSuccess, onFailure }) => {
         paddingBottom={10}
         fontSize={13}
         lineHeight="1.5em"
-        borderBottom={`1px solid ${colors.slate['100']}`}
+        borderBottom={`1px solid ${colors.slate['200']}`}
         color={colors.slate['500']}
       >
         {showResetFlow
           ? 'Enter your email for password reset instructions'
-          : 'Log in to save and share your recording'}
+          : 'Log in to your Repro account'}
       </Block>
 
       {showPostResetMessage && (
@@ -163,7 +162,6 @@ export const LoginForm: React.FC<Props> = ({ onSuccess, onFailure }) => {
       )}
 
       <Button
-        context="success"
         disabled={formState.isSubmitting}
         onClick={handleSubmit(onSubmit)}
       >

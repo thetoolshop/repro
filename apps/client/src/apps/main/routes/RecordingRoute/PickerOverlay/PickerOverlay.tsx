@@ -12,12 +12,22 @@ import {
   usePicker,
 } from '../hooks'
 
-function getTargetElementAtPoint(doc: Document | null, x: number, y: number) {
+function getTargetElementAtPoint(
+  boundingBox: DOMRect,
+  doc: Document | null,
+  x: number,
+  y: number
+) {
   if (!doc) {
     return null
   }
 
-  let targetElement = doc.elementsFromPoint(x, y)[0]
+  const scalingFactor = doc.documentElement.clientWidth / boundingBox.width
+
+  let targetElement = doc.elementsFromPoint(
+    scalingFactor * (x - boundingBox.left),
+    scalingFactor * (y - boundingBox.top)
+  )[0]
 
   while (targetElement && isIFrameElement(targetElement)) {
     const doc = targetElement.contentDocument
@@ -25,7 +35,10 @@ function getTargetElementAtPoint(doc: Document | null, x: number, y: number) {
     const offsetY = targetElement.offsetTop
 
     if (doc) {
-      targetElement = doc.elementsFromPoint(x - offsetX, y - offsetY)[0]
+      targetElement = doc.elementsFromPoint(
+        scalingFactor * (x - offsetX - boundingBox.left),
+        scalingFactor * (y - offsetY - boundingBox.top)
+      )[0]
     }
   }
 
@@ -61,9 +74,14 @@ export const PickerOverlay: React.FC = React.memo(() => {
         capture: true,
         passive: true,
       }).pipe(
-        map(evt =>
-          getTargetElementAtPoint(currentDocument, evt.clientX, evt.clientY)
-        ),
+        map(evt => {
+          return getTargetElementAtPoint(
+            ref.current.getBoundingClientRect(),
+            currentDocument,
+            evt.clientX,
+            evt.clientY
+          )
+        }),
         distinctUntilChanged(),
         share()
       )
@@ -86,6 +104,7 @@ export const PickerOverlay: React.FC = React.memo(() => {
           .pipe(
             map(evt => {
               const target = getTargetElementAtPoint(
+                ref.current.getBoundingClientRect(),
                 currentDocument,
                 evt.clientX,
                 evt.clientY

@@ -10,5 +10,5 @@ exports.up = pgm => {
 };
 
 exports.down = pgm => {
-  pgm.dropColumns('user', ['verification_token', 'verified'])
+  pgm.dropColumns('users', ['verification_token', 'verified'])
 };

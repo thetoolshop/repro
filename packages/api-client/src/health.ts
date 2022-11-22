@@ -2,7 +2,7 @@ import { FutureInstance } from 'fluture'
 import { DataLoader } from './common'
 
 export function createHealthApi(dataLoader: DataLoader) {
-  function check(): FutureInstance<unknown, void> {
+  function check(): FutureInstance<Error, void> {
     return dataLoader('/health')
   }
 

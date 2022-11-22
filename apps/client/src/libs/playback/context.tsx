@@ -1,12 +1,7 @@
-import { InlineBlock, Row } from 'jsxstyle'
-import React, { PropsWithChildren, useEffect } from 'react'
-import { Loader as LoaderIcon } from 'lucide-react'
-import { Alert } from '~/components/Alert'
-import { Spin } from '~/components/FX'
+import React, { PropsWithChildren, useEffect, useState } from 'react'
 import { useAtomValue } from '~/utils/state'
-import { createSourcePlayback } from './createSourcePlayback'
+import { createSourcePlayback, EMPTY_PLAYBACK } from './createSourcePlayback'
 import { Playback, Source } from './types'
-import { Outlet } from 'react-router'
 
 export const PlaybackContext = React.createContext<Playback | null>(null)
 
@@ -20,6 +15,7 @@ export const PlaybackProvider: React.FC<
   useEffect(() => {
     if (playback) {
       playback.open()
+      playback.seekToTime(0)
     }
 
     return () => {
@@ -42,36 +38,13 @@ interface PlaybackFromSourceProviderProps {
 
 export const PlaybackFromSourceProvider: React.FC<
   PropsWithChildren<PlaybackFromSourceProviderProps>
-> = ({ source }) => {
-  const readyState = useAtomValue(source.$readyState)
+> = ({ children, source }) => {
   const events = useAtomValue(source.$events)
+  const [playback, setPlayback] = useState(EMPTY_PLAYBACK)
 
-  if (readyState === 'waiting') {
-    return (
-      <Row height="100vh" alignItems="center" justifyContent="center">
-        <InlineBlock>
-          <Alert
-            type="info"
-            icon={
-              <Spin height={24}>
-                <LoaderIcon size={24} />
-              </Spin>
-            }
-          >
-            Loading recording
-          </Alert>
-        </InlineBlock>
-      </Row>
-    )
-  }
+  useEffect(() => {
+    setPlayback(createSourcePlayback(events))
+  }, [events, setPlayback])
 
-  if (readyState === 'failed') {
-    return <Alert type="danger">Could not load recording</Alert>
-  }
-
-  return (
-    <PlaybackProvider playback={createSourcePlayback(events)}>
-      <Outlet />
-    </PlaybackProvider>
-  )
+  return <PlaybackProvider playback={playback}>{children}</PlaybackProvider>
 }

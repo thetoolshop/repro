@@ -820,6 +820,9 @@ export interface View<T, D extends AnyDescriptor> {
   from(data: T, options?: { validate: boolean }): T
   nullable(): View<T | null, D & { nullable: true }>
   over(data: DataView): T & Lens
+
+  serialize(data: T | (T & Lens)): string
+  deserialize(input: string): T
 }
 
 export function createView<T, D extends AnyDescriptor>(
@@ -890,6 +893,37 @@ export function createView<T, D extends AnyDescriptor>(
     return createView({ ...descriptor, nullable: true }, schema.nullable())
   }
 
+  function serialize(data: T | (T & Lens)): string {
+    const view = encode(data)
+    const byteArray = new Uint8Array(
+      view.buffer,
+      view.byteOffset,
+      view.byteLength
+    )
+
+    let output = ''
+
+    for (const byte of byteArray) {
+      output += String.fromCharCode(byte)
+    }
+
+    return btoa(output)
+  }
+
+  function deserialize(input: string): T {
+    const decodedInput = atob(input)
+    const buffer = new ArrayBuffer(decodedInput.length)
+    const view = new DataView(buffer)
+    let offset = 0
+
+    for (const char of decodedInput) {
+      view.setUint8(offset, char.charCodeAt(0))
+      offset += 1
+    }
+
+    return over(view)
+  }
+
   return {
     descriptor,
     schema,
@@ -900,5 +934,8 @@ export function createView<T, D extends AnyDescriptor>(
     nullable,
     over,
     validate,
+
+    serialize,
+    deserialize,
   }
 }

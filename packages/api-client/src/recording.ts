@@ -4,12 +4,16 @@ import { and, FutureInstance, map } from 'fluture'
 import { DataLoader } from './common'
 
 export function createRecordingApi(dataLoader: DataLoader) {
+  function getAllRecordings(): FutureInstance<Error, Array<RecordingMetadata>> {
+    return dataLoader('/recordings')
+  }
+
   function saveRecording(
     projectId: string,
     title: string,
     description: string,
     recording: Recording
-  ): FutureInstance<unknown, void> {
+  ): FutureInstance<Error, void> {
     const recordingData = RecordingView.encode(recording)
 
     const compressedData = gzipSync(
@@ -48,7 +52,7 @@ export function createRecordingApi(dataLoader: DataLoader) {
 
   function getRecordingData(
     recordingId: string
-  ): FutureInstance<unknown, Recording> {
+  ): FutureInstance<Error, Recording> {
     return dataLoader<DataView>(`/recordings/${recordingId}/data`).pipe(
       map(data => {
         const recordingData = gunzipSync(
@@ -62,11 +66,12 @@ export function createRecordingApi(dataLoader: DataLoader) {
 
   function getRecordingMetadata(
     recordingId: string
-  ): FutureInstance<unknown, RecordingMetadata> {
+  ): FutureInstance<Error, RecordingMetadata> {
     return dataLoader(`/recordings/${recordingId}/metadata`)
   }
 
   return {
+    getAllRecordings,
     saveRecording,
     getRecordingData,
     getRecordingMetadata,

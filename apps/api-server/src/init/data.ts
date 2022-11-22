@@ -1,3 +1,23 @@
+export const subscription_plan_configuration = {
+  0: {
+    name: 'Free',
+    isPaidPlan: false,
+    minSeats: 1,
+    maxSeats: 1,
+    uploadLimit: 50,
+    order: 0,
+  },
+
+  1: {
+    name: 'Team',
+    isPaidPlan: true,
+    minSeats: 5,
+    maxSeats: null,
+    uploadLimit: null,
+    order: 1,
+  },
+}
+
 export const teams = {
   0: { name: 'Team A' },
   1: { name: 'Team B' },

@@ -3,7 +3,7 @@ import { FutureInstance } from 'fluture'
 import { DataLoader } from './common'
 
 export function createProjectApi(dataLoader: DataLoader) {
-  function getAllProjects(): FutureInstance<unknown, Array<Project>> {
+  function getAllProjects(): FutureInstance<Error, Array<Project>> {
     return dataLoader('/projects')
   }
 
@@ -14,13 +14,13 @@ export function createProjectApi(dataLoader: DataLoader) {
     return dataLoader('/projects/roles')
   }
 
-  function getProject(projectId: string): FutureInstance<unknown, Project> {
+  function getProject(projectId: string): FutureInstance<Error, Project> {
     return dataLoader(`/projects/${projectId}`)
   }
 
   function getProjectMembers(
     projectId: string
-  ): FutureInstance<unknown, Array<[User, ProjectRole]>> {
+  ): FutureInstance<Error, Array<[User, ProjectRole]>> {
     return dataLoader(`/projects/${projectId}/members`)
   }
 
@@ -28,7 +28,7 @@ export function createProjectApi(dataLoader: DataLoader) {
     projectId: string,
     userId: string,
     role: ProjectRole
-  ): FutureInstance<unknown, void> {
+  ): FutureInstance<Error, void> {
     return dataLoader(`/projects/${projectId}/members`, {
       method: 'POST',
       body: JSON.stringify({
@@ -42,7 +42,7 @@ export function createProjectApi(dataLoader: DataLoader) {
     projectId: string,
     userId: string,
     role: ProjectRole
-  ): FutureInstance<unknown, void> {
+  ): FutureInstance<Error, void> {
     return dataLoader(`/projects/${projectId}/members/${userId}/role`, {
       method: 'PUT',
       body: JSON.stringify({
@@ -54,7 +54,7 @@ export function createProjectApi(dataLoader: DataLoader) {
   function removeUserFromProject(
     projectId: string,
     userId: string
-  ): FutureInstance<unknown, void> {
+  ): FutureInstance<Error, void> {
     return dataLoader(`/projects/${projectId}/members/${userId}`, {
       method: 'DELETE',
     })

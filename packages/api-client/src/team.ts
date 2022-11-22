@@ -3,7 +3,7 @@ import { FutureInstance } from 'fluture'
 import { DataLoader } from './common'
 
 export function createTeamApi(dataLoader: DataLoader) {
-  function getMyTeam(): FutureInstance<unknown, Team> {
+  function getMyTeam(): FutureInstance<Error, Team> {
     return dataLoader('/teams/mine')
   }
 

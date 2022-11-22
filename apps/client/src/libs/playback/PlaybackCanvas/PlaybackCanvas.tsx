@@ -1,6 +1,7 @@
 import { Block, Row } from 'jsxstyle'
 import React, {
   MutableRefObject,
+  PropsWithChildren,
   useCallback,
   useEffect,
   useRef,
@@ -26,7 +27,8 @@ interface Props {
   onLoad?: (nodeMap: MutableNodeMap) => void
 }
 
-export const PlaybackCanvas: React.FC<Props> = ({
+export const PlaybackCanvas: React.FC<PropsWithChildren<Props>> = ({
+  children,
   interactive,
   trackPointer,
   trackScroll,
@@ -75,6 +77,7 @@ export const PlaybackCanvas: React.FC<Props> = ({
 
       {trackPointer && <PointerOverlay />}
       {!interactive && <InteractionMask />}
+      {children}
     </React.Fragment>
   )
 

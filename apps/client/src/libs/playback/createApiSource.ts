@@ -1,13 +1,13 @@
-import { RecordingView, SourceEvent, SourceEventView } from '@repro/domain'
+import { ApiClient } from '@repro/api-client'
+import { SourceEvent, SourceEventView } from '@repro/domain'
+import { fork } from 'fluture'
 import { LazyList } from '~/utils/lang'
 import { createAtom } from '~/utils/state'
 import { ReadyState, Source } from './types'
 
-type Transformer = (data: ArrayBuffer) => Promise<ArrayBuffer>
-
-export function createHttpSource(
-  url: string,
-  responseTransformer?: Transformer
+export function createApiSource(
+  recordingId: string,
+  apiClient: ApiClient
 ): Source {
   const [$events, _getEvents, setEvents] = createAtom(
     LazyList.Empty<SourceEvent>()
@@ -16,18 +16,8 @@ export function createHttpSource(
   const [$readyState, _getReadyState, setReadyState] =
     createAtom<ReadyState>('waiting')
 
-  ;(async function () {
-    const response = await fetch(url)
-
-    if (response.ok) {
-      let data = await response.arrayBuffer()
-
-      if (responseTransformer) {
-        data = await responseTransformer(data)
-      }
-
-      const recording = RecordingView.decode(new DataView(data))
-
+  apiClient.recording.getRecordingData(recordingId).pipe(
+    fork(() => setReadyState('failed'))(recording => {
       setEvents(
         new LazyList(
           recording.events.map(buffer => new DataView(buffer)),
@@ -37,10 +27,8 @@ export function createHttpSource(
       )
 
       setReadyState('ready')
-    } else {
-      setReadyState('failed')
-    }
-  })()
+    })
+  )
 
   return {
     $events,

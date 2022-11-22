@@ -2,17 +2,14 @@ import { chain, FutureInstance, map } from 'fluture'
 import { AuthStore, DataLoader } from './common'
 
 export function createAuthApi(authStore: AuthStore, dataLoader: DataLoader) {
-  function forgotPassword(email: string): FutureInstance<unknown, void> {
+  function forgotPassword(email: string): FutureInstance<Error, void> {
     return dataLoader('/auth/forgot', {
       method: 'POST',
       body: JSON.stringify({ email }),
     })
   }
 
-  function login(
-    email: string,
-    password: string
-  ): FutureInstance<unknown, void> {
+  function login(email: string, password: string): FutureInstance<Error, void> {
     const token = dataLoader<string>('/auth/login', {
       method: 'POST',
       body: JSON.stringify({
@@ -26,7 +23,7 @@ export function createAuthApi(authStore: AuthStore, dataLoader: DataLoader) {
       .pipe(map(() => undefined))
   }
 
-  function logout(): FutureInstance<unknown, void> {
+  function logout(): FutureInstance<Error, void> {
     return dataLoader('/auth/logout')
   }
 

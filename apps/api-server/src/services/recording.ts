@@ -3,6 +3,12 @@ import { RecordingProvider } from '~/providers/recording'
 import { FutureInstance } from 'fluture'
 
 export function createRecordingService(recordingProvider: RecordingProvider) {
+  function getAllRecordingsForUser(
+    userId: string
+  ): FutureInstance<Error, Array<RecordingMetadata>> {
+    return recordingProvider.getAllRecordingsForUser(userId)
+  }
+
   function saveRecordingMetadata(
     teamId: string,
     projectId: string,
@@ -32,6 +38,7 @@ export function createRecordingService(recordingProvider: RecordingProvider) {
   }
 
   return {
+    getAllRecordingsForUser,
     saveRecordingMetadata,
     getRecordingMetadata,
   }

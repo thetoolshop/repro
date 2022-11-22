@@ -1,6 +1,7 @@
 import { resolve } from 'fluture'
 import { applyResetStyles } from '~/config/theme'
 import { Analytics } from '~/libs/analytics'
+import { ApiProvider, createApiClientBridge } from '~/libs/api'
 import { Stats, Trace } from '~/libs/diagnostics'
 import { createPTPAgent, MessagingProvider } from '~/libs/messaging'
 import { createRecordingStream, RecordingStreamProvider } from '~/libs/record'
@@ -99,9 +100,11 @@ class ReproDevTools extends HTMLElement {
     this.renderRoot.render(
       <RecordingStreamProvider stream={stream}>
         <StateProvider state={this.state}>
-          <MessagingProvider agent={agent}>
-            <Controller />
-          </MessagingProvider>
+          <ApiProvider client={createApiClientBridge(agent)}>
+            <MessagingProvider agent={agent}>
+              <Controller />
+            </MessagingProvider>
+          </ApiProvider>
         </StateProvider>
       </RecordingStreamProvider>
     )

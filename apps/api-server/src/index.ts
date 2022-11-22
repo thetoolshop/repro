@@ -28,6 +28,9 @@ import { createUserService } from '~/services/user'
 
 import { createCryptoUtils } from '~/utils/crypto'
 import { createEmailUtils } from '~/utils/email'
+import { createPaddleAdapter } from './adapters/paddle'
+import { createBillingInfoRouter } from './routers/billing-info'
+import { createBillingService } from './services/billing'
 import { serverError } from './utils/errors'
 
 const app = express()
@@ -46,6 +49,12 @@ const emailUtils = createEmailUtils({
   templateDirectory: env.EMAIL_TEMPLATE_DIRECTORY,
 })
 
+const paddleAdapter = createPaddleAdapter({
+  vendorId: env.PADDLE_VENDOR_ID,
+  apiKey: env.PADDLE_API_KEY,
+  useSandbox: !!env.PADDLE_SANDBOX,
+})
+
 const projectProvider = createProjectProvider(dbClient)
 const recordingProvider = createRecordingProvider(dbClient)
 const sessionProvider = createSessionProvider(dbClient)
@@ -53,6 +62,7 @@ const teamProvider = createTeamProvider(dbClient)
 const userProvider = createUserProvider(dbClient, cryptoUtils)
 
 const authService = createAuthService(sessionProvider, cryptoUtils)
+const billingService = createBillingService(paddleAdapter)
 const projectService = createProjectService(projectProvider)
 const recordingService = createRecordingService(recordingProvider)
 const teamService = createTeamService(teamProvider)
@@ -70,6 +80,7 @@ PublicRouter.use(
   '/auth',
   createAuthRouter(authService, teamService, projectService, userService)
 )
+PublicRouter.use('/billing-info', createBillingInfoRouter(billingService))
 
 const PrivateRouter = express.Router()
 PrivateRouter.use(authMiddleware.requireAuth)

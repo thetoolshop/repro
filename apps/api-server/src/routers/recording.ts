@@ -1,6 +1,6 @@
 import { parseSchema } from '@repro/validation'
 import express from 'express'
-import { chain } from 'fluture'
+import { chain, map } from 'fluture'
 import fs from 'fs'
 import path from 'path'
 import z from 'zod'
@@ -19,6 +19,11 @@ export function createRecordingRouter(
   config: Config
 ) {
   const RecordingRouter = express.Router()
+
+  RecordingRouter.get('/', (req, res) => {
+    const userId = req.user.id
+    respondWith(res, recordingService.getAllRecordingsForUser(userId))
+  })
 
   RecordingRouter.put('/:recordingId/data', (req, res) => {
     req.pipe(
@@ -67,6 +72,27 @@ export function createRecordingRouter(
             )
         )
       )
+    )
+  })
+
+  RecordingRouter.get('/:recordingId/data', (req, res) => {
+    const userId = req.user.id
+    const recordingId = req.params.recordingId
+
+    respondWith(
+      res,
+      projectService
+        .getProjectForRecording(recordingId)
+        .pipe(
+          chain(project => projectService.checkUserIsAdmin(userId, project.id))
+        )
+        .pipe(
+          map(() =>
+            fs.createReadStream(
+              path.join(config.recordingDataDirectory, recordingId)
+            )
+          )
+        )
     )
   })
 

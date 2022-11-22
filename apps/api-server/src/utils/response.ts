@@ -1,6 +1,7 @@
 import { isLens, unwrapLens } from '@repro/typed-binary-encoder'
 import { Response } from 'express'
 import { fork, FutureInstance } from 'fluture'
+import { isReadable } from 'stream'
 import { env } from '~/config/env'
 import {
   isBadRequest,
@@ -8,6 +9,10 @@ import {
   isNotFound,
   isPermissionDenied,
 } from './errors'
+
+function isReadableStream(value: any): value is NodeJS.ReadableStream {
+  return isReadable(value)
+}
 
 export function respondWith<T>(
   res: Response,
@@ -45,7 +50,10 @@ export function respondWith<T>(
     } else {
       res.status(200)
 
-      if (isLens(value)) {
+      if (isReadableStream(value)) {
+        res.header('Content-Type', 'application/octet-stream')
+        value.pipe(res)
+      } else if (isLens(value)) {
         res.header('Content-Type', 'application/octet-stream')
         const view = unwrapLens(value)
         res.end(Buffer.from(view.buffer))

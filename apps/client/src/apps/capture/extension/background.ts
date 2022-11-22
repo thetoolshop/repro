@@ -82,8 +82,7 @@ agent.subscribeToIntent('api:call', ({ namespace, method, args = [] }) => {
 })
 
 agent.subscribeToIntent('upload', (payload: any) => {
-  const recordingData = new DataView(new Uint8Array(payload.recording).buffer)
-  const recording = RecordingView.over(recordingData)
+  const recording = RecordingView.deserialize(payload.recording)
 
   return apiClient.recording.saveRecording(
     payload.projectId,

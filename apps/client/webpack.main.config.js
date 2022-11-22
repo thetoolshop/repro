@@ -10,11 +10,11 @@ module.exports = {
     : 'development',
 
   entry: {
-    index: path.resolve(__dirname, 'src/apps/report/index.tsx'),
+    index: path.resolve(__dirname, 'src/apps/main/index.tsx'),
   },
 
   output: {
-    path: path.resolve(__dirname, 'dist/report'),
+    path: path.resolve(__dirname, 'dist/main'),
   },
 
   resolve: {
@@ -56,7 +56,7 @@ module.exports = {
 
   devServer: {
     historyApiFallback: true,
-    static: path.resolve(__dirname, 'dist/report'),
+    static: path.resolve(__dirname, 'dist/main'),
   },
 
   devtool: process.env.BUILD_ENV === 'development' ? 'eval-source-map' : false,

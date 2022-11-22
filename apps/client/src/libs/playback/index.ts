@@ -3,7 +3,7 @@ export * from './PlaybackErrorBoundary'
 export * from './PlaybackTimeline'
 
 export * from './createFixtureSource'
-export * from './createHttpSource'
+export * from './createApiSource'
 export * from './createNullSource'
 
 export * from './createLivePlayback'

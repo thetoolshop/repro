@@ -4,6 +4,7 @@ import pkg from '../package.json'
 
 export const CODEC_VERSION = pkg.version
 
+export * from './billing'
 export * from './common'
 export * from './console'
 export * from './event'
