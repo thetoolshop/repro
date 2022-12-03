@@ -1,7 +1,10 @@
 import { Interaction, InteractionType, Point } from '@repro/domain'
+import { logger } from '~/libs/logger'
 import { isElementNode } from '~/utils/dom'
 import { ObserverLike, createEventObserver } from '~/utils/observer'
 import { getNodeId } from '~/utils/vdom'
+import { createVElement } from '../dom/factory'
+import { isIgnoredByNode, isIgnoredBySelector } from '../dom/utils'
 import { RecordingOptions } from '../types'
 import { sampleEventsByKey } from './sample'
 
@@ -29,6 +32,8 @@ export function createInteractionObserver(
   )
   const pointerDownObserver = createPointerDownObserver(callback)
   const pointerUpObserver = createPointerUpObserver(callback)
+  const clickObserver = createClickObserver(callback, options)
+  const doubleClickObserver = createDoubleClickObserver(callback, options)
   const keyDownObserver = createKeyDownObserver(callback)
   const keyUpObserver = createKeyUpObserver(callback)
 
@@ -39,6 +44,8 @@ export function createInteractionObserver(
       pointerMoveObserver.disconnect()
       pointerDownObserver.disconnect()
       pointerUpObserver.disconnect()
+      clickObserver.disconnect()
+      doubleClickObserver.disconnect()
       keyDownObserver.disconnect()
       keyUpObserver.disconnect()
     },
@@ -49,6 +56,8 @@ export function createInteractionObserver(
       pointerMoveObserver.observe(doc, vtree)
       pointerDownObserver.observe(doc, vtree)
       pointerUpObserver.observe(doc, vtree)
+      clickObserver.observe(doc, vtree)
+      doubleClickObserver.observe(doc, vtree)
       keyDownObserver.observe(doc, vtree)
       keyUpObserver.observe(doc, vtree)
     },
@@ -246,6 +255,91 @@ function createPointerUpObserver(callback: Callback): ObserverLike<Document> {
       type: InteractionType.PointerUp,
       targets,
       at: [x, y],
+    })
+  })
+}
+
+function createClickObserver(
+  callback: Callback,
+  options: RecordingOptions
+): ObserverLike<Document> {
+  return createEventObserver('click', evt => {
+    const target = evt.target as Node
+    const doc = target.ownerDocument
+
+    if (!doc) {
+      return
+    }
+
+    if (!isElementNode(target)) {
+      return
+    }
+
+    if (
+      isIgnoredByNode(target, options.ignoredNodes) ||
+      isIgnoredBySelector(target, options.ignoredSelectors)
+    ) {
+      return
+    }
+
+    const x = evt.clientX
+    const y = evt.clientY
+
+    const targets = doc.elementsFromPoint(x, y).map(elem => getNodeId(elem))
+    const tagName = target.nodeName.toLowerCase()
+    const humanReadableLabel =
+      tagName === 'a' || tagName === 'button' ? target.textContent : null
+
+    callback({
+      type: InteractionType.Click,
+      button: evt.button,
+      targets,
+      at: [x, y],
+      meta: {
+        node: createVElement(target),
+        humanReadableLabel,
+      },
+    })
+  })
+}
+
+function createDoubleClickObserver(
+  callback: Callback,
+  options: RecordingOptions
+): ObserverLike<Document> {
+  return createEventObserver('dblclick', evt => {
+    const target = evt.target as Node
+    const doc = target.ownerDocument
+
+    if (!doc) {
+      return
+    }
+
+    if (!isElementNode(target)) {
+      return
+    }
+
+    if (
+      isIgnoredByNode(target, options.ignoredNodes) ||
+      isIgnoredBySelector(target, options.ignoredSelectors)
+    ) {
+      return
+    }
+
+    const x = evt.clientX
+    const y = evt.clientY
+
+    const targets = doc.elementsFromPoint(x, y).map(elem => getNodeId(elem))
+
+    callback({
+      type: InteractionType.Click,
+      button: evt.button,
+      targets,
+      at: [x, y],
+      meta: {
+        node: createVElement(target),
+        humanReadableLabel: null,
+      },
     })
   })
 }

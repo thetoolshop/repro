@@ -12,6 +12,7 @@ import {
   PlaybackFromSourceProvider,
 } from '~/libs/playback'
 import { DevTools } from './DevTools'
+import { EventHighlights } from './EventHighlights'
 
 interface ResolvedFuture<R> {
   success: true
@@ -164,10 +165,11 @@ export const RecordingRoute: React.FC = () => {
             </Block>
 
             <Block
-              overflowY="auto"
               backgroundColor={colors.slate['50']}
               backgroundImage={`linear-gradient(to bottom, ${colors.slate['50']}, ${colors.white})`}
-            ></Block>
+            >
+              <EventHighlights />
+            </Block>
           </Grid>
         </Card>
 

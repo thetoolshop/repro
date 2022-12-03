@@ -5,7 +5,7 @@ import {
   UINT32,
   UINT8,
 } from '@repro/typed-binary-encoder'
-import z, { string } from 'zod'
+import z from 'zod'
 
 export interface Sample<T> {
   from: T

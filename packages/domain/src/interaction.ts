@@ -9,7 +9,7 @@ import {
 import z from 'zod'
 
 import { PointView, PointSchema } from './point'
-import { NodeIdSchema, NodeIdView } from './vdom'
+import { NodeIdSchema, NodeIdView, VElementSchema, VElementView } from './vdom'
 
 // type ScrollMap: map<NodeId, Point>
 
@@ -32,6 +32,8 @@ export const ScrollMapView = createView<ScrollMap, DictDescriptor>(
 //   PointerUp
 //   KeyDown
 //   KeyUp
+//   Click
+//   DoubleClick
 // }
 
 export enum InteractionType {
@@ -42,6 +44,8 @@ export enum InteractionType {
   PointerUp = 4,
   KeyDown = 5,
   KeyUp = 6,
+  Click = 7,
+  DoubleClick = 8,
 }
 
 export const InteractionTypeSchema = z.nativeEnum(InteractionType)
@@ -255,6 +259,113 @@ export const KeyUpView = createView<KeyUp, StructDescriptor>(
   KeyUpSchema
 )
 
+// type MouseButton: enum {
+//   Primary = 0
+//   Auxiliary = 1
+//   Secondary = 2
+//   Fourth = 3
+//   Fifth = 4
+// }
+
+export enum MouseButton {
+  Primary = 0,
+  Auxiliary = 1,
+  Secondary = 2,
+  Fourth = 3,
+  Fifth = 4,
+}
+
+export const MouseButtonSchema = z.nativeEnum(MouseButton)
+
+// type Click: struct {
+//   type: InteractionType.Click
+//   button: MouseButton
+//   targets: vec<NodeId>
+//   at: Point
+//   meta: struct {
+//     tagName: string
+//     label?: string
+//   }
+// }
+
+export const ClickSchema = z.object({
+  type: z.literal(InteractionType.Click),
+  button: MouseButtonSchema,
+  targets: z.array(NodeIdSchema),
+  at: PointSchema,
+  meta: z.object({
+    node: VElementSchema,
+    humanReadableLabel: z.string().nullable(),
+  }),
+})
+
+export type Click = z.infer<typeof ClickSchema>
+
+export const ClickView = createView<Click, StructDescriptor>(
+  {
+    type: 'struct',
+    fields: [
+      ['type', UINT8],
+      ['button', UINT8],
+      [
+        'targets',
+        {
+          type: 'vector',
+          items: NodeIdView.descriptor,
+        },
+      ],
+      ['at', PointView.descriptor],
+      [
+        'meta',
+        {
+          type: 'struct',
+          fields: [
+            ['node', VElementView.descriptor],
+            ['humanReadableLabel', { type: 'string', nullable: true }],
+          ],
+        },
+      ],
+    ],
+  },
+  ClickSchema
+)
+
+export const DoubleClickSchema = z.object({
+  type: z.literal(InteractionType.DoubleClick),
+  button: MouseButtonSchema,
+  targets: z.array(NodeIdSchema),
+  at: PointSchema,
+  meta: z.object({
+    node: VElementSchema,
+    humanReadableLabel: z.string().nullable(),
+  }),
+})
+
+export type DoubleClick = z.infer<typeof DoubleClickSchema>
+
+export const DoubleClickView = createView<DoubleClick, StructDescriptor>(
+  {
+    type: 'struct',
+    fields: [
+      ['type', UINT8],
+      ['button', UINT8],
+      ['targets', { type: 'vector', items: NodeIdView.descriptor }],
+      ['at', PointView.descriptor],
+      [
+        'meta',
+        {
+          type: 'struct',
+          fields: [
+            ['node', VElementView.descriptor],
+            ['humanReadableLabel', { type: 'string', nullable: true }],
+          ],
+        },
+      ],
+    ],
+  },
+  DoubleClickSchema
+)
+
 // type Interaction: union {
 //   ViewportResize
 //   Scroll
@@ -263,15 +374,20 @@ export const KeyUpView = createView<KeyUp, StructDescriptor>(
 //   PointerDown
 //   KeyUp
 //   KeyDown
+//   Click
+//   DoubleClick
 // }
 
 export const InteractionSchema = z.discriminatedUnion('type', [
   ViewportResizeSchema,
   ScrollSchema,
   PointerMoveSchema,
+  PointerDownSchema,
   PointerUpSchema,
   KeyDownSchema,
   KeyUpSchema,
+  ClickSchema,
+  DoubleClickSchema,
 ])
 
 export type Interaction = z.infer<typeof InteractionSchema>
@@ -288,6 +404,8 @@ export const InteractionView = createView<Interaction, UnionDescriptor>(
       [InteractionType.PointerDown]: PointerDownView.descriptor,
       [InteractionType.KeyUp]: KeyUpView.descriptor,
       [InteractionType.KeyDown]: KeyDownView.descriptor,
+      [InteractionType.Click]: ClickView.descriptor,
+      [InteractionType.DoubleClick]: DoubleClickView.descriptor,
     },
   },
   InteractionSchema

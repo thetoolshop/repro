@@ -1,11 +1,17 @@
 import { approxByteLength } from '@repro/typed-binary-encoder'
+import { elementNode } from './fixtures/vdom'
 import {
+  Click,
+  ClickView,
+  DoubleClick,
+  DoubleClickView,
   InteractionType,
   InteractionView,
   KeyDown,
   KeyDownView,
   KeyUp,
   KeyUpView,
+  MouseButton,
   PointerDown,
   PointerDownView,
   PointerMove,
@@ -127,6 +133,48 @@ describe('Interaction codecs', () => {
 
     const buffer = KeyUpView.encode(input)
     const view = KeyUpView.from(input)
+    const envelope = InteractionView.from(input)
+
+    expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
+    expect(view).toEqual(input)
+    expect(envelope).toEqual(input)
+  })
+
+  it('should create a binary view from a click', () => {
+    const input: Click = {
+      type: InteractionType.Click,
+      button: MouseButton.Primary,
+      targets: [createNodeId(), createNodeId()],
+      at: [100, 100],
+      meta: {
+        node: elementNode,
+        humanReadableLabel: 'Click here',
+      },
+    }
+
+    const buffer = ClickView.encode(input)
+    const view = ClickView.from(input)
+    const envelope = InteractionView.from(input)
+
+    expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
+    expect(view).toEqual(input)
+    expect(envelope).toEqual(input)
+  })
+
+  it('should create a binary view from a double-click', () => {
+    const input: DoubleClick = {
+      type: InteractionType.DoubleClick,
+      button: MouseButton.Secondary,
+      targets: [createNodeId(), createNodeId()],
+      at: [200, 200],
+      meta: {
+        node: elementNode,
+        humanReadableLabel: 'Click here',
+      },
+    }
+
+    const buffer = DoubleClickView.encode(input)
+    const view = DoubleClickView.from(input)
     const envelope = InteractionView.from(input)
 
     expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
