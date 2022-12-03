@@ -1,4 +1,3 @@
-import { RecordingMetadata } from '@repro/domain'
 import { fork, FutureInstance } from 'fluture'
 import { Block, Grid, InlineBlock, Row } from 'jsxstyle'
 import React, { useEffect, useRef, useState } from 'react'

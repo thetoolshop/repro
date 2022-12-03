@@ -45,7 +45,11 @@ export function createVElement(
       .filter(({ name }) => !isInlineEventAttribute(name))
       .reduce((attrs, { name, value }) => ({ ...attrs, [name]: value }), {})
 
-  const properties: VElement['properties'] = {}
+  const properties: VElement['properties'] = {
+    checked: null,
+    value: null,
+    selectedIndex: null,
+  }
 
   if (
     isInputElement(element) ||
@@ -129,7 +133,11 @@ export function createStyleSheetVTree(
     type: NodeType.Element,
     tagName: 'style',
     attributes,
-    properties: {},
+    properties: {
+      checked: null,
+      selectedIndex: null,
+      value: null,
+    },
     children,
   }
 
