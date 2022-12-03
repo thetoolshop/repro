@@ -338,8 +338,14 @@ const SuccessOverlay: React.FC<SuccessProps> = ({ recordingId, onClose }) => {
   return (
     <BlockingOverlay>
       <Col gap={10}>
-        <Card>
-          <Row alignItems="center" gap={10}>
+        <Card fullBleed>
+          <Row
+            alignItems="center"
+            gap={10}
+            padding={20}
+            backgroundColor={colors.blue['50']}
+            borderRadius="4px 4px 0 0"
+          >
             <SuccessIcon size={32} color={colors.green['500']} />
 
             <Block marginRight={10}>
@@ -368,21 +374,22 @@ const SuccessOverlay: React.FC<SuccessProps> = ({ recordingId, onClose }) => {
               </Row>
             </Block>
 
-            <Button
-              variant="outlined"
-              context="neutral"
-              onClick={copyToClipboard}
-            >
+            <Button variant="outlined" context="info" onClick={copyToClipboard}>
               <CopyIcon size={18} /> Copy
             </Button>
           </Row>
-        </Card>
 
-        <Block alignSelf="center">
-          <Button variant="text" onClick={onClose}>
-            <BackIcon size={16} /> Return To Page
-          </Button>
-        </Block>
+          <Row
+            paddingV={10}
+            justifyContent="center"
+            backgroundColor={colors.white}
+            borderRadius="0 0 4px 4px"
+          >
+            <Button variant="text" onClick={onClose}>
+              <BackIcon size={16} /> Return To Page
+            </Button>
+          </Row>
+        </Card>
       </Col>
     </BlockingOverlay>
   )
