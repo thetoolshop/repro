@@ -81,12 +81,15 @@ export const DragHandle: React.FC<Props> = ({
     edge === 'left' ? '2px' : '0',
   ].join(' ')
 
-  const hoverBorderWidth = [
+  const activeBorderWidth = [
     edge === 'top' ? '4px' : '0',
     edge === 'right' ? '4px' : '0',
     edge === 'bottom' ? '4px' : '0',
     edge === 'left' ? '4px' : '0',
   ].join(' ')
+
+  const borderColor = colors.slate['200']
+  const activeBorderColor = colors.blue['500']
 
   const sizeStyles = {
     height: edge === 'top' || edge === 'bottom' ? 4 : 'auto',
@@ -97,11 +100,11 @@ export const DragHandle: React.FC<Props> = ({
     <Block
       {...positionStyles}
       {...sizeStyles}
-      borderWidth={borderWidth}
-      hoverBorderWidth={hoverBorderWidth}
+      borderWidth={dragging ? activeBorderWidth : borderWidth}
+      hoverBorderWidth={activeBorderWidth}
       borderStyle="solid"
-      borderColor={colors.slate['200']}
-      hoverBorderColor={colors.slate['300']}
+      borderColor={dragging ? activeBorderColor : borderColor}
+      hoverBorderColor={activeBorderColor}
       boxSizing="border-box"
       cursor={cursor}
       transition="all linear 100ms"

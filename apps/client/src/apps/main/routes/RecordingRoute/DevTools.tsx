@@ -67,9 +67,9 @@ export const DevTools: React.FC<Props> = React.memo(() => {
         </PlaybackRegion>
 
         <InspectorRegion>
-          <DragHandle />
-
           <Toolbar />
+
+          <DragHandle />
 
           <ContentRegion>
             {view === View.Elements && <ElementsPanel />}
