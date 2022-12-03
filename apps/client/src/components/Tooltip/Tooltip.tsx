@@ -2,12 +2,14 @@ import { Block } from 'jsxstyle'
 import React, {
   MutableRefObject,
   PropsWithChildren,
+  useCallback,
   useEffect,
   useRef,
   useState,
 } from 'react'
 import { colors } from '~/config/theme'
 import { fromEvent, Subscription } from 'rxjs'
+import { Portal } from '../Portal'
 
 type Props = PropsWithChildren<{
   position?: 'top' | 'bottom'
@@ -18,6 +20,19 @@ const MAX_INT32 = 2 ** 32 - 1
 export const Tooltip: React.FC<Props> = ({ children, position = 'top' }) => {
   const ref = useRef() as MutableRefObject<HTMLDivElement>
   const [active, setActive] = useState(false)
+  const [x, setX] = useState(0)
+  const [y, setY] = useState(0)
+
+  const updatePosition = useCallback(() => {
+    const parent = ref.current ? ref.current.parentElement : null
+
+    if (parent) {
+      const { top, left, width, height } = parent.getBoundingClientRect()
+
+      setX(left + width / 2)
+      setY(top + (position === 'bottom' ? height : 0))
+    }
+  }, [ref, setX, setY])
 
   useEffect(() => {
     const subscription = new Subscription()
@@ -25,7 +40,10 @@ export const Tooltip: React.FC<Props> = ({ children, position = 'top' }) => {
 
     if (parent) {
       subscription.add(
-        fromEvent(parent, 'pointerenter').subscribe(() => setActive(true))
+        fromEvent(parent, 'pointerenter').subscribe(() => {
+          updatePosition()
+          setActive(true)
+        })
       )
 
       subscription.add(
@@ -36,28 +54,31 @@ export const Tooltip: React.FC<Props> = ({ children, position = 'top' }) => {
     return () => {
       subscription.unsubscribe()
     }
-  }, [ref, setActive])
+  }, [ref, setActive, updatePosition])
 
   return (
-    <Block
-      padding={8}
-      position="absolute"
-      bottom={position === 'bottom' ? 0 : 'auto'}
-      top={position === 'top' ? 0 : 'auto'}
-      left="50%"
-      transform={`translate(-50%, ${position === 'top' ? '-75%' : '75%'})`}
-      backgroundColor={colors.slate['700']}
-      color={colors.white}
-      fontSize={11}
-      whiteSpace="nowrap"
-      pointerEvents="none"
-      opacity={active ? 1 : 0}
-      transition="opacity linear 100ms"
-      userSelect="none"
-      zIndex={MAX_INT32}
-      props={{ ref }}
-    >
-      {children}
+    <Block props={{ ref }}>
+      {active && (
+        <Portal>
+          <Block
+            padding={8}
+            position="absolute"
+            top={y}
+            left={x}
+            transform={`translate(-50%, -25%)`}
+            backgroundColor={colors.slate['700']}
+            color={colors.white}
+            fontSize={11}
+            whiteSpace="nowrap"
+            pointerEvents="none"
+            transition="opacity linear 100ms"
+            userSelect="none"
+            zIndex={MAX_INT32}
+          >
+            {children}
+          </Block>
+        </Portal>
+      )}
     </Block>
   )
 }

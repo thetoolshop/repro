@@ -341,6 +341,7 @@ function createTooltipElement() {
     ['position', 'absolute'],
     ['top', '0'],
     ['transform', 'translate(-50%, -125%)'],
+    ['zIndex', `${2 ** 32 - 1}`],
   ] as const
 
   for (const [key, value] of styles) {

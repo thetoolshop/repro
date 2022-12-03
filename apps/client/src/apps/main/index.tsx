@@ -1,6 +1,7 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { createPortalRoot } from '~/components/Portal'
 import { applyResetStyles } from '~/config/theme'
 import { Analytics } from '~/libs/analytics'
 import { ApiProvider } from '~/libs/api'
@@ -44,6 +45,8 @@ const rootStyleSheet = document.querySelector<HTMLStyleElement>('#root-styles')
 if (rootStyleSheet) {
   applyResetStyles(rootSelector, rootStyleSheet)
 }
+
+createPortalRoot()
 
 if (rootElem) {
   const root = createRoot(rootElem)
