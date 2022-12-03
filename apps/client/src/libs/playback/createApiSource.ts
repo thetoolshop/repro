@@ -19,7 +19,7 @@ export function createApiSource(
   apiClient.recording.getRecordingData(recordingId).pipe(
     fork(() => setReadyState('failed'))(recording => {
       setEvents(
-        new LazyList(
+        new LazyList<SourceEvent>(
           recording.events.map(buffer => new DataView(buffer)),
           SourceEventView.decode,
           SourceEventView.encode

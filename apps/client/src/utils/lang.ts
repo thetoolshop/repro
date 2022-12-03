@@ -14,8 +14,11 @@ function noopEncoder<T>() {
 export class LazyList<T> {
   private readonly source: Array<DataView>
 
-  static Empty<T>(): LazyList<T> {
-    return new LazyList([], noopDecoder<T>(), noopEncoder<T>())
+  static Empty<T>(
+    decoder = noopDecoder<T>(),
+    encoder = noopEncoder<T>()
+  ): LazyList<T> {
+    return new LazyList([], decoder, encoder)
   }
 
   constructor(

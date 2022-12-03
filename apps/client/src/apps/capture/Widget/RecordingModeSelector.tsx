@@ -3,7 +3,7 @@ import React, { PropsWithChildren } from 'react'
 import {
   Camera as ScreenshotIcon,
   ChevronRight as ForwardIcon,
-  Clock as ReplayIcon,
+  History as ReplayIcon,
   Video as VideoIcon,
 } from 'lucide-react'
 import { colors } from '~/config/theme'

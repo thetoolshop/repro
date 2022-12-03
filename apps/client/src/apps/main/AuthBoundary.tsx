@@ -18,7 +18,7 @@ export const AuthBoundary: React.FC = () => {
       fork(() => {
         setCurrentUser(null)
         setLoading(false)
-        navigate('/auth/login')
+        navigate('/account/login')
       })<User>(user => {
         setCurrentUser(user)
         setLoading(false)

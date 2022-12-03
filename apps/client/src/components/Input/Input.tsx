@@ -14,8 +14,8 @@ interface Props extends Omit<UseFormRegisterReturn, 'ref'> {
 }
 
 const sizes = {
-  small: 6,
-  medium: 8,
+  small: 8,
+  medium: 10,
   large: 12,
   xlarge: 16,
 }

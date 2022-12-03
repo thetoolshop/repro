@@ -254,22 +254,6 @@ export function createRecordingStream(
           )
         })
       }
-
-      /**
-      Stats.time('RecordingStream#slice: index snapshot events', () => {
-        for (let i = 0, len = events.length; i < len; i++) {
-          const event = events[i]
-
-          if (event) {
-            const type = readEventType(event)
-
-            if (type === SourceEventType.Snapshot) {
-              recording.snapshotIndex.push(i)
-            }
-          }
-        }
-      })
-      /**/
     })
 
     return new LazyList(events, SourceEventView.decode, SourceEventView.encode)
