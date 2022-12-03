@@ -142,16 +142,6 @@ export function createSourcePlayback(events: LazyList<SourceEvent>): Playback {
       eventsAfter.prepend(...unresolvedSampleEvents)
     })
 
-    Stats.value(
-      'RecordingPlayback~partitionEvents: partition before',
-      eventsBefore.length
-    )
-
-    Stats.value(
-      'RecordingPlayback~partitionEvents: partition after',
-      eventsAfter.size()
-    )
-
     return [eventsBefore, eventsAfter] as const
   }
 
