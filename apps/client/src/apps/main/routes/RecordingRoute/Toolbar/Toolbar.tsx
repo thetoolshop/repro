@@ -1,13 +1,11 @@
 import { colors } from '~/config/theme'
-import { PlaybackTimeline, usePlayback } from '~/libs/playback'
+import { PlaybackTimeline } from '~/libs/playback'
 import { Block, Row } from 'jsxstyle'
 import React, { PropsWithChildren } from 'react'
 import { Picker } from './Picker'
 import { Tabs } from './Tabs'
 
 export const Toolbar: React.FC = () => {
-  const playback = usePlayback()
-
   return (
     <Container>
       <Picker />
@@ -16,10 +14,7 @@ export const Toolbar: React.FC = () => {
       <Separator />
 
       <TimelineRegion>
-        <PlaybackTimeline.Simple
-          min={Math.max(0, playback.getDuration() - 30_000)}
-          max={playback.getDuration()}
-        />
+        <PlaybackTimeline.Simple />
       </TimelineRegion>
     </Container>
   )

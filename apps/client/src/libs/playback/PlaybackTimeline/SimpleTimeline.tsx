@@ -53,11 +53,19 @@ export const SimpleTimeline: React.FC<Props> = ({ min, max }) => {
         return Math.max(0, Math.min(1, (evt.clientX - rootOffsetX) / rootWidth))
       }
 
-      function mapOffsetToValue(offset: number) {
+      function mapOffsetToRelativeValue(offset: number) {
         const minValue = getMinValue()
         const maxValue = getMaxValue()
         const value = minValue + (maxValue - minValue) * offset
-        return Math.max(minValue, Math.min(maxValue, value))
+        return Math.max(minValue, Math.min(maxValue, value)) - minValue
+      }
+
+      function mapRelativeToAbsoluteValue(value: number) {
+        return value + getMinValue()
+      }
+
+      function mapAbsoluteToRelativeValue(value: number) {
+        return value - getMinValue()
       }
 
       function mapValueToOffset(value: number) {
@@ -81,7 +89,8 @@ export const SimpleTimeline: React.FC<Props> = ({ min, max }) => {
           .pipe(
             switchMap(() => pointerUp$.pipe(take(1))),
             map(mapPointerEventToOffset),
-            map(mapOffsetToValue)
+            map(mapOffsetToRelativeValue),
+            map(mapRelativeToAbsoluteValue)
           )
           .subscribe(value => {
             playback.seekToTime(value)
@@ -95,7 +104,7 @@ export const SimpleTimeline: React.FC<Props> = ({ min, max }) => {
             switchMap(() => pointerMove$.pipe(takeUntil(pointerLeave$))),
             map(evt => {
               const offset = mapPointerEventToOffset(evt)
-              const value = mapOffsetToValue(offset)
+              const value = mapOffsetToRelativeValue(offset)
               return [offset, value] as const
             })
           )
@@ -140,7 +149,7 @@ export const SimpleTimeline: React.FC<Props> = ({ min, max }) => {
           updateBarOffset(progress, offset)
           updateElapsedTime(
             elapsedTime,
-            formatDate(mapOffsetToValue(offset), 'seconds')
+            formatDate(mapOffsetToRelativeValue(offset), 'seconds')
           )
         })
       )
@@ -155,7 +164,7 @@ export const SimpleTimeline: React.FC<Props> = ({ min, max }) => {
             updateBarOffset(progress, offset)
             updateElapsedTime(
               elapsedTime,
-              formatDate(mapOffsetToValue(offset), 'seconds')
+              formatDate(mapOffsetToRelativeValue(offset), 'seconds')
             )
           })
       )
@@ -190,9 +199,11 @@ export const SimpleTimeline: React.FC<Props> = ({ min, max }) => {
       )
 
       subscription.add(
-        playback.$elapsed.subscribe(elapsed => {
-          updateElapsedTime(elapsedTime, formatDate(elapsed, 'seconds'))
-        })
+        playback.$elapsed
+          .pipe(map(mapAbsoluteToRelativeValue))
+          .subscribe(elapsed => {
+            updateElapsedTime(elapsedTime, formatDate(elapsed, 'seconds'))
+          })
       )
     }
 
@@ -226,7 +237,7 @@ export const SimpleTimeline: React.FC<Props> = ({ min, max }) => {
         </Block>
         <Block color={colors.slate['500']}>/</Block>
         <Block color={colors.blue['700']}>
-          {formatDate(max || playback.getDuration(), 'seconds')}
+          {formatDate((max || playback.getDuration()) - (min || 0), 'seconds')}
         </Block>
       </Row>
     </Row>
