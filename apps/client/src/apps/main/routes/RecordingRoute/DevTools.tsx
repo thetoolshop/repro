@@ -12,7 +12,6 @@ import { DragHandle } from './DragHandle'
 import { MAX_INT32 } from './constants'
 import {
   useCurrentDocument,
-  useFocusedNode,
   useInspecting,
   useMask,
   useNodeMap,
@@ -34,7 +33,6 @@ export const DevTools: React.FC<Props> = React.memo(() => {
   const [, setNodeMap] = useNodeMap()
   const [inspecting] = useInspecting()
   const [picker] = usePicker()
-  const [, setFocusedNode] = useFocusedNode()
   const [mask] = useMask()
   const [view] = useView()
 

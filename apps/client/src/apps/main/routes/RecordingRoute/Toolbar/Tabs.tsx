@@ -18,15 +18,14 @@ export const Tabs: React.FC = () => {
         <Inline>Elements</Inline>
       </Item>
 
+      <Item view={View.Console}>
+        <ConsoleIcon size={16} />
+        <Inline>Console</Inline>
+      </Item>
+
       <Item view={View.Network} disabled>
         <NetworkIcon size={16} />
         <Inline>Network</Inline>
-        <Tooltip position="bottom">Coming soon</Tooltip>
-      </Item>
-
-      <Item view={View.Console} disabled>
-        <ConsoleIcon size={16} />
-        <Inline>Console</Inline>
         <Tooltip position="bottom">Coming soon</Tooltip>
       </Item>
     </Row>
