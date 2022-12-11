@@ -1,0 +1,7 @@
+http://app.repro.test {
+	reverse_proxy :8080
+}
+
+http://api.repro.test {
+	reverse_proxy :8181
+}

@@ -55,6 +55,10 @@ module.exports = {
   ],
 
   devServer: {
+    allowedHosts: [
+      'app.repro.test',
+      'localhost:8080',
+    ],
     historyApiFallback: true,
     static: path.resolve(__dirname, 'dist/main'),
   },
