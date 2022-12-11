@@ -1,24 +1,19 @@
-import dotenv from 'dotenv'
-
-dotenv.config()
-
 import { fork, go } from 'fluture'
-import { getEnv } from '~/config/env'
+import { ProjectRole } from '~/../../../packages/domain/dist'
+import { env } from '~/config/env'
 import { createDatabaseClient } from '~/providers/database'
 import { createProjectProvider } from '~/providers/project'
-import { createRecordingProvider } from '~/providers/recording'
+// import { createRecordingProvider } from '~/providers/recording'
 import { createTeamProvider } from '~/providers/team'
 import { createUserProvider } from '~/providers/user'
 import { createProjectService } from '~/services/project'
-import { createRecordingService } from '~/services/recording'
+// import { createRecordingService } from '~/services/recording'
 import { createTeamService } from '~/services/team'
 import { createUserService } from '~/services/user'
 import { createCryptoUtils } from '~/utils/crypto'
 import { createEmailUtils } from '~/utils/email'
 
 import * as data from './data'
-
-const env = getEnv(process.env)
 
 const dbClient = createDatabaseClient({
   connectionString: env.DATABASE_URL,
@@ -32,14 +27,12 @@ const emailUtils = createEmailUtils({
 })
 
 const projectProvider = createProjectProvider(dbClient)
-const recordingProvider = createRecordingProvider(dbClient, {
-  dataDirectory: env.RECORDING_DATA_DIRECTORY,
-})
+// const recordingProvider = createRecordingProvider(dbClient)
 const teamProvider = createTeamProvider(dbClient)
 const userProvider = createUserProvider(dbClient, cryptoUtils)
 
 const projectService = createProjectService(projectProvider)
-const recordingService = createRecordingService(recordingProvider)
+// const recordingService = createRecordingService(recordingProvider)
 const teamService = createTeamService(teamProvider)
 const userService = createUserService(userProvider, emailUtils)
 
@@ -51,6 +44,7 @@ function seed() {
       projects: {},
       members: {},
       recordings: {},
+      subscription_plan_configuration: {},
     }
 
     function getRef(type: keyof typeof data, key: number | string) {
@@ -92,7 +86,7 @@ function seed() {
       yield projectService.addUserToProject(
         getRef('projects', member.projectId),
         getRef('users', member.userId),
-        member.role
+        member.role === 'admin' ? ProjectRole.Admin : ProjectRole.Member
       )
     }
   })
