@@ -1,7 +1,7 @@
-import { InlineBlock } from 'jsxstyle'
+import { InlineFlex } from 'jsxstyle'
 import React from 'react'
 import { colors } from '~/config/theme'
 
 export const NullRenderer: React.FC = () => (
-  <InlineBlock color={colors.red['700']}>null</InlineBlock>
+  <InlineFlex color={colors.slate['700']}>null</InlineFlex>
 )

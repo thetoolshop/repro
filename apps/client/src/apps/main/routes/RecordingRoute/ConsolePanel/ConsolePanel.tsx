@@ -13,7 +13,7 @@ import { colors } from '~/config/theme'
 import { Stats } from '~/libs/diagnostics'
 import { usePlayback } from '~/libs/playback'
 import { formatDate } from '~/utils/date'
-import { PartRenderer } from './part-renderers/PartRenderer'
+import { PartRenderer } from './PartRenderer'
 
 const bgColors = {
   [LogLevel.Error]: colors.rose['100'],
