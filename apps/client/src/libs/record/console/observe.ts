@@ -77,6 +77,26 @@ export function createConsoleObserver(
           subscriber({
             level,
             parts: args.map(value => {
+              if (typeof value === 'undefined') {
+                return {
+                  type: MessagePartType.Undefined,
+                }
+              }
+
+              if (value instanceof Date) {
+                return {
+                  type: MessagePartType.Date,
+                  year: value.getUTCFullYear(),
+                  month: value.getUTCMonth(),
+                  day: value.getUTCDate(),
+                  hour: value.getUTCHours(),
+                  minute: value.getUTCMinutes(),
+                  second: value.getUTCSeconds(),
+                  millisecond: value.getUTCMilliseconds(),
+                  timezoneOffset: value.getTimezoneOffset(),
+                }
+              }
+
               let serializedValue: string
 
               try {

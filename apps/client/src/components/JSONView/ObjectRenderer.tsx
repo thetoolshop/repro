@@ -12,10 +12,9 @@ interface Props {
 export const ObjectRenderer: React.FC<Props> = ({ data, level }) => {
   const [open, setOpen] = useState(false)
   const entries = Object.entries(data)
-  const len = entries.length
 
   return (
-    <Block>
+    <Block paddingRight={level === 0 ? 15 : 0}>
       <Block position="absolute" top={8.125} left={level > 0 ? -15 : 0}>
         <Toggle isOpen={open} onClick={() => setOpen(open => !open)} />
       </Block>
@@ -34,7 +33,6 @@ export const ObjectRenderer: React.FC<Props> = ({ data, level }) => {
               <Block marginLeft={5}>
                 {getRendererForType(value, level + 1)}
               </Block>
-              {i < len - 1 && <Block>,</Block>}
             </Row>
           ))}
         </Block>

@@ -11,16 +11,15 @@ interface Props {
 
 export const ArrayRenderer: React.FC<Props> = ({ data, level }) => {
   const [open, setOpen] = useState(false)
-  const len = data.length
 
   return (
-    <Block>
+    <Block paddingRight={level === 0 ? 15 : 0}>
       <Block position="absolute" top={8.125} left={level > 0 ? -15 : 0}>
         <Toggle isOpen={open} onClick={() => setOpen(open => !open)} />
       </Block>
 
       <Block transform={level === 0 ? 'translateX(15px)' : null}>
-        {'[...]'}
+        Array({data.length})
       </Block>
 
       {open && (
@@ -31,7 +30,6 @@ export const ArrayRenderer: React.FC<Props> = ({ data, level }) => {
               <Block marginLeft={5}>
                 {getRendererForType(item, level + 1)}
               </Block>
-              {i < len - 1 && <Block>,</Block>}
             </Row>
           ))}
         </Block>

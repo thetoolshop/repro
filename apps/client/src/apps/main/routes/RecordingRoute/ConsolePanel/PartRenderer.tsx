@@ -16,10 +16,25 @@ interface Props {
 }
 
 export const PartRenderer: React.FC<Props> = ({ part }) => {
-  if (part.type === MessagePartType.Node) {
-    // return <VNodeRenderer value={part.nodeId} />
-    return null
-  }
+  switch (part.type) {
+    case MessagePartType.Node:
+      return null
 
-  return <JSONView data={safeParse(part.value)} />
+    case MessagePartType.Date:
+      const data = new Date()
+      data.setUTCFullYear(part.year)
+      data.setUTCMonth(part.month)
+      data.setUTCDate(part.day)
+      data.setUTCHours(part.hour)
+      data.setUTCMinutes(part.minute + part.timezoneOffset)
+      data.setUTCSeconds(part.second)
+      data.setUTCMilliseconds(part.millisecond)
+      return <JSONView data={data} />
+
+    case MessagePartType.Undefined:
+      return <JSONView data={undefined} />
+
+    case MessagePartType.String:
+      return <JSONView data={safeParse(part.value)} />
+  }
 }

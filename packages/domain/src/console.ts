@@ -1,12 +1,16 @@
 import {
   createView,
+  INT16,
+  INT32,
   IntegerDescriptor,
   StructDescriptor,
+  UINT16,
   UINT32,
   UINT8,
   UnionDescriptor,
 } from '@repro/typed-binary-encoder'
 import z from 'zod'
+import { int16, int32, uint16, uint8 } from './common'
 import { NodeIdSchema, NodeIdView } from './vdom'
 
 // type LogLevel: enum {
@@ -38,6 +42,8 @@ export const LogLevelView = createView<LogLevel, IntegerDescriptor>(
 export enum MessagePartType {
   String = 0,
   Node = 1,
+  Undefined = 2,
+  Date = 3,
 }
 
 export const MessagePartTypeSchema = z.nativeEnum(MessagePartType)
@@ -99,6 +105,74 @@ export const NodeMessagePartView = createView<
   NodeMessagePartSchema
 )
 
+// type UndefinedMessagePart: struct {
+//   type: MessagePartType.Undefined
+// }
+
+export const UndefinedMessagePartSchema = z.object({
+  type: z.literal(MessagePartType.Undefined),
+})
+
+export type UndefinedMessagePart = z.infer<typeof UndefinedMessagePartSchema>
+
+export const UndefinedMessagePartView = createView<
+  UndefinedMessagePart,
+  StructDescriptor
+>(
+  {
+    type: 'struct',
+    fields: [['type', MessagePartTypeView.descriptor]],
+  },
+  UndefinedMessagePartSchema
+)
+
+// type DateMessagePart: struct {
+//   type: MessagePartType.Date
+//   year: int32
+//   month: uint8
+//   day: uint8
+//   hour: uint8
+//   minute: uint8
+//   second: uint8
+//   millisecond: uint16
+//   timezoneOffset: int16
+// }
+
+export const DateMessagePartSchema = z.object({
+  type: z.literal(MessagePartType.Date),
+  year: int32,
+  month: uint8,
+  day: uint8,
+  hour: uint8,
+  minute: uint8,
+  second: uint8,
+  millisecond: uint16,
+  timezoneOffset: int16,
+})
+
+export type DateMessagePart = z.infer<typeof DateMessagePartSchema>
+
+export const DateMessagePartView = createView<
+  DateMessagePart,
+  StructDescriptor
+>(
+  {
+    type: 'struct',
+    fields: [
+      ['type', MessagePartTypeView.descriptor],
+      ['year', INT32],
+      ['month', UINT16],
+      ['day', UINT8],
+      ['hour', UINT8],
+      ['minute', UINT8],
+      ['second', UINT8],
+      ['millisecond', UINT16],
+      ['timezoneOffset', INT16],
+    ],
+  },
+  DateMessagePartSchema
+)
+
 // type MessagePart: union on "type" {
 //   StringMessagePart
 //   NodeMessagePart
@@ -107,6 +181,8 @@ export const NodeMessagePartView = createView<
 export const MessagePartSchema = z.discriminatedUnion('type', [
   StringMessagePartSchema,
   NodeMessagePartSchema,
+  UndefinedMessagePartSchema,
+  DateMessagePartSchema,
 ])
 
 export type MessagePart = z.infer<typeof MessagePartSchema>
@@ -118,6 +194,8 @@ export const MessagePartView = createView<MessagePart, UnionDescriptor>(
     descriptors: [
       StringMessagePartView.descriptor,
       NodeMessagePartView.descriptor,
+      UndefinedMessagePartView.descriptor,
+      DateMessagePartView.descriptor,
     ],
   },
   MessagePartSchema

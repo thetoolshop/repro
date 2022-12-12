@@ -6,7 +6,7 @@ import {
   SourceEventView,
   StackEntry,
 } from '@repro/domain'
-import { Block, Grid, InlineBlock } from 'jsxstyle'
+import { Block, Grid, InlineBlock, Row } from 'jsxstyle'
 import { AlertCircle, AlertTriangle } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { colors } from '~/config/theme'
@@ -88,11 +88,11 @@ export const ConsolePanel: React.FC = () => {
 
           <Block>{icons[level]}</Block>
 
-          <Block>
+          <Row flexWrap="wrap" gap={10}>
             {parts.map((part, j) => {
               return <PartRenderer part={part} key={j} />
             })}
-          </Block>
+          </Row>
 
           {stack[0] ? <StackReference entry={stack[0]} /> : <Block />}
         </Grid>

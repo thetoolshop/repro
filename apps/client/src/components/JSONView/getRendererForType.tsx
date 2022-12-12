@@ -13,6 +13,9 @@ export function getRendererForType(data: any, level: number) {
     return <UndefinedRenderer />
   } else if (data === null) {
     return <NullRenderer />
+  } else if (data instanceof Date) {
+    const value = `Date(${data.toLocaleString()})`
+    return <StringRenderer data={value} color={colors.sky['700']} />
   } else if (Array.isArray(data)) {
     return <ArrayRenderer data={data} level={level} />
   } else if (typeof data === 'object') {
