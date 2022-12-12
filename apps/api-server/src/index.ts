@@ -1,3 +1,4 @@
+import compression from 'compression'
 import cors from 'cors'
 import express, { ErrorRequestHandler } from 'express'
 import path from 'path'
@@ -37,6 +38,7 @@ const app = express()
 
 app.use(cors())
 app.use(express.json({ limit: '16mb' }))
+app.use(compression())
 
 const dbClient = createDatabaseClient({
   connectionString: env.DATABASE_URL,
