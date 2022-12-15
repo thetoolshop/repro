@@ -8,17 +8,13 @@ export function createFixtureSource(name: string): Source {
     `/fixtures/${name}.json`
   ).then(res => res.json())
 
-  const [$events, _getEvents, setEvents] = createAtom(
-    LazyList.Empty<SourceEvent>()
-  )
-
-  const [$readyState, _getReadyState, setReadyState] =
-    createAtom<ReadyState>('waiting')
+  const [$events, setEvents] = createAtom(LazyList.Empty<SourceEvent>())
+  const [$readyState, setReadyState] = createAtom<ReadyState>('waiting')
 
   request.then(events => {
     setEvents(
       new LazyList(
-        events.map(SourceEventView.encode),
+        events.map(event => SourceEventView.encode(event)),
         SourceEventView.decode,
         SourceEventView.encode
       )

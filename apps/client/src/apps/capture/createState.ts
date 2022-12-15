@@ -23,20 +23,19 @@ const defaultValues = {
 export function createState(
   initialValues: Partial<typeof defaultValues> = defaultValues
 ): State {
-  const [$active, _getActive, setActive] = createAtom(
+  const [$active, setActive] = createAtom(
     initialValues.active ?? defaultValues.active
   )
 
-  const [$currentUser, _getCurrentUser, setCurrentUser] =
-    createAtom<User | null>(
-      initialValues.currentUser ?? defaultValues.currentUser
-    )
+  const [$currentUser, setCurrentUser] = createAtom<User | null>(
+    initialValues.currentUser ?? defaultValues.currentUser
+  )
 
-  const [$recordingMode, _getRecordingMode, setRecordingMode] = createAtom(
+  const [$recordingMode, setRecordingMode] = createAtom(
     initialValues.recordingMode ?? defaultValues.recordingMode
   )
 
-  const [$readyState, _getReadyState, setReadyState] = createAtom(
+  const [$readyState, setReadyState] = createAtom(
     initialValues.readyState ?? defaultValues.readyState
   )
 

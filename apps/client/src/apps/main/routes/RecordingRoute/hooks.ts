@@ -8,21 +8,15 @@ export function useDevtoolsState() {
   return useContext(StateContext)
 }
 
+// @deprecated
 export function useActive() {
   const state = useDevtoolsState()
-  const inspecting = useAtomValue(state.$inspecting)
-  const reporting = useAtomValue(state.$reporting)
-  return inspecting || reporting
+  return useAtomValue(state.$inspecting)
 }
 
 export function useInspecting() {
   const state = useDevtoolsState()
   return useAtomState(state.$inspecting)
-}
-
-export function useReporting() {
-  const state = useDevtoolsState()
-  return useAtomState(state.$reporting)
 }
 
 export function usePicker() {
@@ -80,4 +74,14 @@ export function useSelectedElement() {
 
 export function useNavigate() {
   return useContext(NavigationContext)
+}
+
+export function useConsoleSearch() {
+  const state = useDevtoolsState()
+  return useAtomState(state.$consoleSearch)
+}
+
+export function useConsoleLevelFilter() {
+  const state = useDevtoolsState()
+  return useAtomState(state.$consoleLevelFilter)
 }

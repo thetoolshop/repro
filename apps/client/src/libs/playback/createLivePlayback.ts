@@ -15,14 +15,15 @@ const EMPTY_SNAPSHOT: Snapshot = {
 }
 
 export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
-  const [$activeIndex, getActiveIndex] = createAtom(-1)
-  const [$buffer, getBuffer, setBuffer] = createAtom<Array<SourceEvent>>([])
-  const [$elapsed, getElapsed, setElapsed] = createAtom(0)
-  const [$latestControlFrame, getLatestControlFrame] = createAtom(
-    ControlFrame.Idle
+  const [$activeIndex, _setActiveIndex, getActiveIndex] = createAtom(-1)
+  const [$buffer, setBuffer, getBuffer] = createAtom<Array<SourceEvent>>([])
+  const [$elapsed, setElapsed, getElapsed] = createAtom(0)
+  const [$latestControlFrame, _setLatestControlFrame, getLatestControlFrame] =
+    createAtom(ControlFrame.Idle)
+  const [$playbackState, _getPlaybackState, getPlaybackState] = createAtom(
+    PlaybackState.Playing
   )
-  const [$playbackState, getPlaybackState] = createAtom(PlaybackState.Playing)
-  const [$snapshot, getSnapshot, setSnapshot] =
+  const [$snapshot, setSnapshot, getSnapshot] =
     createAtom<Snapshot>(EMPTY_SNAPSHOT)
 
   function getDuration() {

@@ -7,8 +7,8 @@ export enum ReadyState {
 }
 
 // TODO: move these on to context
-export const [$focusedNode, getFocusedNode, setFocusedNode] =
+export const [$focusedNode, setFocusedNode, getFocusedNode] =
   createAtom<SyntheticId | null>(null)
-export const [$readyState, getReadyState, setReadyState] = createAtom(
+export const [$readyState, setReadyState, getReadyState] = createAtom(
   ReadyState.Loading
 )

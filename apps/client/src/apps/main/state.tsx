@@ -14,10 +14,9 @@ const defaultValues = {
 export function createState(
   initialValues: Partial<typeof defaultValues> = defaultValues
 ): State {
-  const [$currentUser, _getCurrentUser, setCurrentUser] =
-    createAtom<User | null>(
-      initialValues.currentUser ?? defaultValues.currentUser
-    )
+  const [$currentUser, setCurrentUser] = createAtom<User | null>(
+    initialValues.currentUser ?? defaultValues.currentUser
+  )
 
   return {
     $currentUser,

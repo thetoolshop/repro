@@ -5,7 +5,6 @@ import { MutableNodeMap, Snap, View } from './types'
 
 export interface State {
   $inspecting: Atom<boolean>
-  $reporting: Atom<boolean>
   $picker: Atom<boolean>
   $currentDocument: Atom<Document | null>
   $nodeMap: Atom<MutableNodeMap>
@@ -16,8 +15,10 @@ export interface State {
   $size: Atom<number>
   $snap: Atom<Snap>
 
+  $consoleSearch: Atom<string>
+  $consoleLevelFilter: Atom<number>
+
   setInspecting: Setter<boolean>
-  setReporting: Setter<boolean>
   setPicker: Setter<boolean>
   setCurrentDocument: Setter<Document | null>
   setNodeMap: Setter<MutableNodeMap>
@@ -27,11 +28,13 @@ export interface State {
   setMask: Setter<boolean>
   setSize: Setter<number>
   setSnap: Setter<Snap>
+
+  setConsoleSearch: Setter<string>
+  setConsoleLevelFilter: Setter<number>
 }
 
 const defaultValues = {
   inspecting: false,
-  reporting: false,
   picker: false,
   currentDocument: null,
   focusedNode: null,
@@ -40,41 +43,44 @@ const defaultValues = {
   mask: false,
   size: INITIAL_SIZE,
   snap: 'bottom' as Snap,
+  consoleSearch: '',
+  consoleLevelFilter: 14, // bit-mask for Info (2), Warning (4) and Error(8),
 }
 
 export function createState(
   initialValues: Partial<typeof defaultValues> = defaultValues
 ): State {
-  const [$inspecting, _getInspecting, setInspecting] = createAtom(
-    initialValues.inspecting ?? false
+  const [$inspecting, setInspecting] = createAtom(
+    initialValues.inspecting ?? defaultValues.inspecting
   )
-  const [$reporting, _getReporting, setReporting] = createAtom(
-    initialValues.reporting ?? false
+  const [$picker, setPicker] = createAtom(
+    initialValues.picker ?? defaultValues.picker
   )
-  const [$picker, _getPicker, setPicker] = createAtom(
-    initialValues.picker ?? false
+  const [$currentDocument, setCurrentDocument] = createAtom<Document | null>(
+    initialValues.currentDocument ?? defaultValues.currentDocument
   )
-  const [$currentDocument, _getCurrentDocument, setCurrentDocument] =
-    createAtom<Document | null>(initialValues.currentDocument ?? null)
-  const [$nodeMap, _getNodeMap, setNodeMap] = createAtom<MutableNodeMap>({})
-  const [$focusedNode, _getFocusedNode, setFocusedNode] =
-    createAtom<SyntheticId | null>(initialValues.focusedNode ?? null)
-  const [$selectedNode, _getSelectedNode, setSelectedNode] =
-    createAtom<SyntheticId | null>(null)
-  const [$view, _getView, setView] = createAtom(
-    initialValues.view ?? View.Elements
+  const [$nodeMap, setNodeMap] = createAtom<MutableNodeMap>({})
+  const [$focusedNode, setFocusedNode] = createAtom<SyntheticId | null>(
+    initialValues.focusedNode ?? defaultValues.focusedNode
   )
-  const [$mask, _getMask, setMask] = createAtom(initialValues.mask ?? false)
-  const [$size, _getSize, setSize] = createAtom(
-    initialValues.size ?? INITIAL_SIZE
+  const [$selectedNode, setSelectedNode] = createAtom<SyntheticId | null>(
+    initialValues.selectedNode ?? defaultValues.selectedNode
   )
-  const [$snap, _getSnap, setSnap] = createAtom<Snap>(
-    initialValues.snap ?? 'bottom'
+  const [$view, setView] = createAtom(initialValues.view ?? defaultValues.view)
+  const [$mask, setMask] = createAtom(initialValues.mask ?? defaultValues.mask)
+  const [$size, setSize] = createAtom(initialValues.size ?? defaultValues.size)
+  const [$snap, setSnap] = createAtom<Snap>(
+    initialValues.snap ?? defaultValues.snap
+  )
+  const [$consoleSearch, setConsoleSearch] = createAtom(
+    initialValues.consoleSearch ?? defaultValues.consoleSearch
+  )
+  const [$consoleLevelFilter, setConsoleLevelFilter] = createAtom(
+    initialValues.consoleLevelFilter ?? defaultValues.consoleLevelFilter
   )
 
   return {
     $inspecting,
-    $reporting,
     $picker,
     $currentDocument,
     $nodeMap,
@@ -84,9 +90,10 @@ export function createState(
     $mask,
     $size,
     $snap,
+    $consoleSearch,
+    $consoleLevelFilter,
 
     setInspecting,
-    setReporting,
     setPicker,
     setCurrentDocument,
     setNodeMap,
@@ -96,5 +103,7 @@ export function createState(
     setMask,
     setSize,
     setSnap,
+    setConsoleSearch,
+    setConsoleLevelFilter,
   }
 }

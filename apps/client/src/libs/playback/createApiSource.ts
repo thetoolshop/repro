@@ -9,12 +9,8 @@ export function createApiSource(
   recordingId: string,
   apiClient: ApiClient
 ): Source {
-  const [$events, _getEvents, setEvents] = createAtom(
-    LazyList.Empty<SourceEvent>()
-  )
-
-  const [$readyState, _getReadyState, setReadyState] =
-    createAtom<ReadyState>('waiting')
+  const [$events, setEvents] = createAtom(LazyList.Empty<SourceEvent>())
+  const [$readyState, setReadyState] = createAtom<ReadyState>('waiting')
 
   apiClient.recording.getRecordingData(recordingId).pipe(
     fork(() => setReadyState('failed'))(recording => {

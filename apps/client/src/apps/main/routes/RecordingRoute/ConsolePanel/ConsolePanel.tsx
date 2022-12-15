@@ -1,40 +1,20 @@
 import {
   ConsoleEvent,
-  LogLevel,
+  MessagePartType,
   SourceEvent,
   SourceEventType,
   SourceEventView,
-  StackEntry,
 } from '@repro/domain'
-import { Block, Grid, InlineBlock, Row } from 'jsxstyle'
-import { AlertCircle, AlertTriangle } from 'lucide-react'
+import { Block, Grid } from 'jsxstyle'
 import React, { useEffect, useState } from 'react'
 import { colors } from '~/config/theme'
 import { Stats } from '~/libs/diagnostics'
 import { usePlayback } from '~/libs/playback'
-import { formatDate } from '~/utils/date'
-import { PartRenderer } from './PartRenderer'
-
-const bgColors = {
-  [LogLevel.Error]: colors.rose['100'],
-  [LogLevel.Info]: colors.white,
-  [LogLevel.Warning]: colors.amber['50'],
-  [LogLevel.Verbose]: colors.white,
-}
-
-const textColors = {
-  [LogLevel.Error]: colors.rose['700'],
-  [LogLevel.Info]: colors.slate['700'],
-  [LogLevel.Warning]: colors.amber['700'],
-  [LogLevel.Verbose]: colors.slate['700'],
-}
-
-const icons = {
-  [LogLevel.Error]: <AlertTriangle size={16} color={colors.rose['700']} />,
-  [LogLevel.Info]: <AlertCircle size={16} color={colors.blue['700']} />,
-  [LogLevel.Warning]: <AlertTriangle size={16} color={colors.amber['700']} />,
-  [LogLevel.Verbose]: <AlertCircle size={16} color={colors.slate['500']} />,
-}
+import { useConsoleLevelFilter, useConsoleSearch } from '../hooks'
+import { ConsoleRow } from './ConsoleRow'
+import { LevelFilter } from './LevelFilter'
+import { SearchForm } from './SearchForm'
+import { enumToBitField } from './util'
 
 function isConsoleEvent(event: SourceEvent): event is ConsoleEvent {
   return event.type === SourceEventType.Console
@@ -42,7 +22,12 @@ function isConsoleEvent(event: SourceEvent): event is ConsoleEvent {
 
 export const ConsolePanel: React.FC = () => {
   const playback = usePlayback()
+  const [consoleSearch, setConsoleSearch] = useConsoleSearch()
+  const [consoleLevelFilter, setConsoleLevelFilter] = useConsoleLevelFilter()
   const [consoleEvents, setConsoleEvents] = useState<Array<ConsoleEvent>>([])
+  const [filteredConsoleEvents, setFilteredConsoleEvents] = useState<
+    Array<ConsoleEvent>
+  >([])
 
   useEffect(() => {
     const events: Array<ConsoleEvent> = []
@@ -65,48 +50,58 @@ export const ConsolePanel: React.FC = () => {
     setConsoleEvents(events)
   }, [playback, setConsoleEvents])
 
+  useEffect(() => {
+    const events = Stats.time('ConsolePanel -> filter console events', () => {
+      return consoleEvents.filter(event => {
+        const levelBitField = enumToBitField(event.data.level)
+
+        return (
+          levelBitField & consoleLevelFilter &&
+          event.data.parts.some(part => {
+            return (
+              part.type === MessagePartType.String &&
+              part.value.includes(consoleSearch)
+            )
+          })
+        )
+      })
+    })
+
+    setFilteredConsoleEvents(events)
+  }, [
+    consoleEvents,
+    consoleSearch,
+    consoleLevelFilter,
+    setFilteredConsoleEvents,
+  ])
+
   return (
-    <Block>
-      {consoleEvents.map(({ time, data: { level, parts, stack } }, i) => (
-        <Grid
-          key={i}
-          gridTemplateColumns="auto auto 1fr auto"
-          columnGap={10}
-          rowGap={10}
-          paddingV={5}
-          paddingH={15}
-          fontSize={13}
-          color={textColors[level]}
-          backgroundColor={bgColors[level]}
-          borderColor={i > 0 ? colors.slate['100'] : 'transparent'}
-          borderStyle="solid"
-          borderWidth="4px 0 0"
-        >
-          <Block color={colors.slate['500']} lineHeight={1.25}>
-            {formatDate(time, 'millis')}
-          </Block>
+    <Grid gridTemplateRows="auto 1fr" height="100%">
+      <Grid
+        alignItems="center"
+        gap={20}
+        padding={10}
+        gridTemplateColumns="2fr 2fr 1fr"
+        borderBottom={`1px solid ${colors.slate['200']}`}
+      >
+        <SearchForm value={consoleSearch} onChange={setConsoleSearch} />
 
-          <Block>{icons[level]}</Block>
+        <LevelFilter
+          value={consoleLevelFilter}
+          onChange={setConsoleLevelFilter}
+        />
 
-          <Row flexWrap="wrap" gap={10}>
-            {parts.map((part, j) => {
-              return <PartRenderer part={part} key={j} />
-            })}
-          </Row>
+        <Block justifySelf="end" fontSize={13} color={colors.slate['500']}>
+          {consoleEvents.length !== filteredConsoleEvents.length &&
+            `${consoleEvents.length - filteredConsoleEvents.length} hidden`}
+        </Block>
+      </Grid>
 
-          {stack[0] ? <StackReference entry={stack[0]} /> : <Block />}
-        </Grid>
-      ))}
-    </Block>
+      <Block overflow="auto">
+        {filteredConsoleEvents.map((event, i) => (
+          <ConsoleRow event={event} key={i} />
+        ))}
+      </Block>
+    </Grid>
   )
 }
-
-interface StackReferenceProps {
-  entry: StackEntry
-}
-
-const StackReference: React.FC<StackReferenceProps> = ({ entry }) => (
-  <InlineBlock lineHeight={1.25}>
-    {entry.fileName}:{entry.lineNumber}
-  </InlineBlock>
-)

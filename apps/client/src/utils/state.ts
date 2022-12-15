@@ -29,7 +29,7 @@ function createSetter<T>(atom: Atom<T>): Setter<T> {
 
 export function createAtom<T>(val: T) {
   const $atom = atom(val)
-  return [$atom, createGetter($atom), createSetter($atom)] as const
+  return [$atom, createSetter($atom), createGetter($atom)] as const
 }
 
 type AtomState<T> = [T, (val: T | Factory<T>) => void]

@@ -53,8 +53,7 @@ export const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, Props>(
       >
         <Block
           component={rows > 1 ? 'textarea' : 'input'}
-          paddingH={12}
-          paddingV={12}
+          padding={sizes[size]}
           width="100%"
           fontFamily="inherit"
           fontSize={fontSize}

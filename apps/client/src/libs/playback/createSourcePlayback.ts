@@ -35,16 +35,16 @@ export const EMPTY_PLAYBACK = createSourcePlayback(
 export function createSourcePlayback(events: LazyList<SourceEvent>): Playback {
   const subscription = new Subscription()
 
-  const [$activeIndex, getActiveIndex, setActveIndex] = createAtom(-1)
-  const [$buffer, getBuffer, setBuffer] = createAtom<Array<SourceEvent>>([])
-  const [$elapsed, getElapsed, setElapsed] = createAtom(-1)
-  const [$playbackState, getPlaybackState, setPlaybackState] = createAtom(
+  const [$activeIndex, setActiveIndex, getActiveIndex] = createAtom(-1)
+  const [$buffer, setBuffer, getBuffer] = createAtom<Array<SourceEvent>>([])
+  const [$elapsed, setElapsed, getElapsed] = createAtom(-1)
+  const [$playbackState, setPlaybackState, getPlaybackState] = createAtom(
     PlaybackState.Paused
   )
-  const [$snapshot, getSnapshot, setSnapshot] = createAtom<Snapshot>(
+  const [$snapshot, setSnapshot, getSnapshot] = createAtom<Snapshot>(
     getLeadingSnapshot()
   )
-  const [$latestControlFrame, getLatestControlFrame, setLatestControlFrame] =
+  const [$latestControlFrame, setLatestControlFrame, getLatestControlFrame] =
     createAtom<ControlFrame>(ControlFrame.Idle)
 
   const firstEvent = events.at(0)
@@ -179,7 +179,7 @@ export function createSourcePlayback(events: LazyList<SourceEvent>): Playback {
 
       queuedEvents = after
       setBuffer(before)
-      setActveIndex(activeIndex => activeIndex + before.length)
+      setActiveIndex(activeIndex => activeIndex + before.length)
 
       if (elapsed >= duration) {
         setPlaybackState(PlaybackState.Paused)
@@ -273,7 +273,7 @@ export function createSourcePlayback(events: LazyList<SourceEvent>): Playback {
     }
 
     setSnapshot(snapshot || EMPTY_SNAPSHOT)
-    setActveIndex(before.length - 1)
+    setActiveIndex(before.length - 1)
     setElapsed(targetEvent.time)
     setLatestControlFrame(ControlFrame.SeekToEvent)
 
@@ -337,7 +337,7 @@ export function createSourcePlayback(events: LazyList<SourceEvent>): Playback {
       )
 
       setSnapshot(snapshot || EMPTY_SNAPSHOT)
-      setActveIndex(before.length - 1)
+      setActiveIndex(before.length - 1)
       setElapsed(elapsed)
       setLatestControlFrame(ControlFrame.SeekToTime)
     })
