@@ -1,6 +1,6 @@
 import { Block, Row } from 'jsxstyle'
 import React, { MutableRefObject, useEffect, useRef } from 'react'
-import { fromEvent, NEVER, Observable, Subscription } from 'rxjs'
+import { combineLatest, fromEvent, NEVER, Observable, Subscription } from 'rxjs'
 import {
   distinctUntilChanged,
   map,
@@ -170,9 +170,9 @@ export const SimpleTimeline: React.FC<Props> = ({ min, max }) => {
       )
 
       subscription.add(
-        playback.$playbackState
+        combineLatest([playback.$playbackState, playback.$latestControlFrame])
           .pipe(
-            switchMap(playbackState => {
+            switchMap(([playbackState]) => {
               const initialOffset = mapValueToOffset(
                 Math.max(getMinValue(), playback.getElapsed())
               )
