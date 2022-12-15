@@ -99,7 +99,7 @@ function createInputObserver(
 
               subscriber({
                 type: PatchType.BooleanProperty,
-                targetId: getNodeId(eventTarget),
+                targetId: getNodeId(sibling),
                 name: 'checked',
                 value: false,
                 oldValue: prevChecked,
@@ -128,7 +128,7 @@ function createInputObserver(
     }
   }
 
-  const changeObserver = createEventObserver('change', handleChangeOrInput)
+  // const changeObserver = createEventObserver('change', handleChangeOrInput)
   const inputObserver = createEventObserver('input', handleChangeOrInput)
 
   const propertyOverrides = [
@@ -156,7 +156,7 @@ function createInputObserver(
         delete obj[`__original__${name}`]
       })
 
-      changeObserver.disconnect()
+      // changeObserver.disconnect()
       inputObserver.disconnect()
 
       prevChangeMap = new WeakMap()
@@ -166,7 +166,7 @@ function createInputObserver(
 
     observe(doc, vtree) {
       // TODO: make vtree available to enclosing scope
-      changeObserver.observe(doc, vtree)
+      // changeObserver.observe(doc, vtree)
       inputObserver.observe(doc, vtree)
 
       propertyOverrides.forEach(([obj, name], i) => {

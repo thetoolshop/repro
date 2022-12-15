@@ -1,5 +1,4 @@
 import { Interaction, InteractionType, Point } from '@repro/domain'
-import { logger } from '~/libs/logger'
 import { isElementNode } from '~/utils/dom'
 import { ObserverLike, createEventObserver } from '~/utils/observer'
 import { getNodeId } from '~/utils/vdom'
