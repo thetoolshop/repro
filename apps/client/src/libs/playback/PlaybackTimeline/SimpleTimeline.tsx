@@ -231,7 +231,13 @@ export const SimpleTimeline: React.FC<Props> = ({ min, max }) => {
         props={{ ref: progressRef }}
       />
 
-      <Row gap={3} alignItems="center" fontFamily="monospace" fontSize={13}>
+      <Row
+        gap={3}
+        alignItems="center"
+        fontFamily="monospace"
+        fontSize={13}
+        userSelect="none"
+      >
         <Block color={colors.blue['700']} props={{ ref: elapsedTimeRef }}>
           00:00
         </Block>
