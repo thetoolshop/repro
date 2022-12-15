@@ -10,7 +10,9 @@ import {
   useFocusedNode,
   useSelectedNode,
   usePicker,
+  useView,
 } from '../hooks'
+import { View } from '../types'
 
 function getTargetElementAtPoint(
   boundingBox: DOMRect,
@@ -50,6 +52,7 @@ export const PickerOverlay: React.FC = React.memo(() => {
   const [currentDocument] = useCurrentDocument()
   const [focusedNode, setFocusedNode] = useFocusedNode()
   const [, setSelectedNode] = useSelectedNode()
+  const [, setView] = useView()
   const [targetElement, setTargetElement] = useState<Element | null>(null)
   const [boundingBox, setBoundingBox] = useState<DOMRect | null>(null)
   const ref = useRef() as MutableRefObject<HTMLDivElement>
@@ -117,6 +120,7 @@ export const PickerOverlay: React.FC = React.memo(() => {
             setSelectedNode(nodeId)
             setFocusedNode(null)
             setPicker(false)
+            setView(View.Elements)
           })
       )
     }
@@ -124,7 +128,15 @@ export const PickerOverlay: React.FC = React.memo(() => {
     return () => {
       subscription.unsubscribe()
     }
-  }, [currentDocument, ref, setBoundingBox, setFocusedNode, picker, setPicker])
+  }, [
+    currentDocument,
+    ref,
+    setBoundingBox,
+    setFocusedNode,
+    picker,
+    setPicker,
+    setView,
+  ])
 
   return (
     <Block
