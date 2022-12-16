@@ -46,9 +46,6 @@ export const ConsoleRow: React.FC<Props> = ({
     fontSize={13}
     color={textColors[level]}
     backgroundColor={bgColors[level]}
-    borderColor={colors.slate['100']}
-    borderStyle="solid"
-    borderWidth="4px 0 0"
   >
     <Block color={colors.slate['500']} lineHeight={1.25}>
       {formatDate(time, 'millis')}

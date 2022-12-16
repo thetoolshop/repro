@@ -16,7 +16,7 @@ export enum ControlFrame {
 export interface Playback {
   // Atoms
   readonly $activeIndex: Atom<number>
-  readonly $buffer: Atom<Array<SourceEvent>>
+  readonly $buffer: Atom<LazyList<SourceEvent>>
   readonly $elapsed: Atom<number>
   readonly $latestControlFrame: Atom<ControlFrame>
   readonly $playbackState: Atom<PlaybackState>
@@ -24,7 +24,7 @@ export interface Playback {
 
   // Accessors
   getActiveIndex(): number
-  getBuffer(): Array<SourceEvent>
+  getBuffer(): LazyList<SourceEvent>
   getDuration(): number
   getElapsed(): number
   getEventTimeAtIndex(index: number): number | null

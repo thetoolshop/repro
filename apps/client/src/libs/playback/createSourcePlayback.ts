@@ -26,7 +26,10 @@ const EMPTY_SNAPSHOT: Snapshot = {
   interaction: null,
 }
 
-const EMPTY_BUFFER: Array<SourceEvent> = []
+const EMPTY_BUFFER = LazyList.Empty(
+  SourceEventView.decode,
+  SourceEventView.encode
+)
 
 export const EMPTY_PLAYBACK = createSourcePlayback(
   LazyList.Empty<SourceEvent>()
@@ -36,7 +39,9 @@ export function createSourcePlayback(events: LazyList<SourceEvent>): Playback {
   const subscription = new Subscription()
 
   const [$activeIndex, setActiveIndex, getActiveIndex] = createAtom(-1)
-  const [$buffer, setBuffer, getBuffer] = createAtom<Array<SourceEvent>>([])
+  const [$buffer, setBuffer, getBuffer] = createAtom(
+    LazyList.Empty(SourceEventView.decode, SourceEventView.encode)
+  )
   const [$elapsed, setElapsed, getElapsed] = createAtom(-1)
   const [$playbackState, setPlaybackState, getPlaybackState] = createAtom(
     PlaybackState.Paused
@@ -98,7 +103,11 @@ export function createSourcePlayback(events: LazyList<SourceEvent>): Playback {
     shouldPartition: (event: SourceEvent, index: number) => boolean,
     isUnresolvedSample: (sample: Sample<any>, time: number) => boolean
   ) {
-    const eventsBefore: Array<SourceEvent> = []
+    const eventsBefore = LazyList.Empty(
+      SourceEventView.decode,
+      SourceEventView.encode
+    )
+
     const eventsAfter = events.slice()
 
     Stats.time('RecordingPlayback~partitionEvents: total', () => {
@@ -110,29 +119,18 @@ export function createSourcePlayback(events: LazyList<SourceEvent>): Playback {
       while ((view = eventsAfter.at(0))) {
         const lens = SourceEventView.over(view)
 
-        if (lens.type === SourceEventType.Snapshot) {
-          eventsAfter.delete(0)
-          continue
-        }
-
         if (shouldPartition(lens, i)) {
           break
         }
 
-        const event = eventsAfter.decode(0)
-
-        if (!event) {
-          break
-        }
-
-        eventsBefore.push(event)
+        eventsBefore.append(lens)
 
         if (
           'data' in lens &&
           isSample(lens.data) &&
           isUnresolvedSample(lens.data, lens.time)
         ) {
-          unresolvedSampleEvents.push(event)
+          unresolvedSampleEvents.push(lens)
         }
 
         eventsAfter.delete(0)
@@ -178,8 +176,9 @@ export function createSourcePlayback(events: LazyList<SourceEvent>): Playback {
       )
 
       queuedEvents = after
+
       setBuffer(before)
-      setActiveIndex(activeIndex => activeIndex + before.length)
+      setActiveIndex(activeIndex => activeIndex + before.size())
 
       if (elapsed >= duration) {
         setPlaybackState(PlaybackState.Paused)
@@ -191,11 +190,11 @@ export function createSourcePlayback(events: LazyList<SourceEvent>): Playback {
     $buffer.subscribe(events => {
       const elapsed = getElapsed()
 
-      if (events.length) {
+      if (events.size()) {
         const snapshot = copyObject(getSnapshot())
 
-        for (const event of events) {
-          applyEventToSnapshot(snapshot, event, elapsed)
+        for (const event of events.toSource()) {
+          applyEventToSnapshot(snapshot, SourceEventView.over(event), elapsed)
         }
 
         setSnapshot(snapshot)
@@ -264,16 +263,20 @@ export function createSourcePlayback(events: LazyList<SourceEvent>): Playback {
 
     queuedEvents = after
 
-    if (snapshot && before.length) {
+    if (snapshot && before.size()) {
       snapshot = copyObject(snapshot)
 
-      for (const event of before) {
-        applyEventToSnapshot(snapshot, event, targetEvent.time)
+      for (const event of before.toSource()) {
+        applyEventToSnapshot(
+          snapshot,
+          SourceEventView.over(event),
+          targetEvent.time
+        )
       }
     }
 
     setSnapshot(snapshot || EMPTY_SNAPSHOT)
-    setActiveIndex(before.length - 1)
+    setActiveIndex(nextIndex)
     setElapsed(targetEvent.time)
     setLatestControlFrame(ControlFrame.SeekToEvent)
 
@@ -286,6 +289,7 @@ export function createSourcePlayback(events: LazyList<SourceEvent>): Playback {
       const allEvents = loadEvents()
       queuedEvents = allEvents
 
+      let activeIndexOffset = 0
       let snapshot: Snapshot | null = null
 
       Stats.time('RecordingPlayback#seekToTime: find nearest snapshot', () => {
@@ -298,6 +302,7 @@ export function createSourcePlayback(events: LazyList<SourceEvent>): Playback {
             if (event && SourceEventView.over(event).time <= elapsed) {
               snapshot = (allEvents.decode(index) as SnapshotEvent).data
               queuedEvents = allEvents.slice(index + 1)
+              activeIndexOffset = index + 1
 
               Stats.value(
                 'RecordingPlayback#seekToTime: snapshots read',
@@ -320,24 +325,28 @@ export function createSourcePlayback(events: LazyList<SourceEvent>): Playback {
 
       Stats.value(
         'RecordingPlayback#seekToTime: events to apply',
-        before.length
+        before.size()
       )
 
       Stats.time(
         'RecordingPlayback#seekToTime: apply events to snapshot',
         () => {
-          if (snapshot && before.length) {
+          if (snapshot && before.size()) {
             snapshot = copyObject(SnapshotView.decode(snapshot))
 
-            for (const event of before) {
-              applyEventToSnapshot(snapshot, event, elapsed)
+            for (const event of before.toSource()) {
+              applyEventToSnapshot(
+                snapshot,
+                SourceEventView.over(event),
+                elapsed
+              )
             }
           }
         }
       )
 
       setSnapshot(snapshot || EMPTY_SNAPSHOT)
-      setActiveIndex(before.length - 1)
+      setActiveIndex(activeIndexOffset + before.size())
       setElapsed(elapsed)
       setLatestControlFrame(ControlFrame.SeekToTime)
     })

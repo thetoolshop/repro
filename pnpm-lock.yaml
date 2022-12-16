@@ -114,7 +114,7 @@ importers:
       react-router-dom: ^6.4.3
       react-virtualized-auto-sizer: ^1.0.7
       react-window: ^1.8.8
-      rxjs: ^7.5.2
+      rxjs: ^7.8.0
       shortcuts: ^1.8.1
       stacktrace-js: ^2.0.2
       style-loader: ^3.3.1
@@ -153,7 +153,7 @@ importers:
       react-router-dom: 6.4.3_biqbaboplfbrettd7655fr4n2y
       react-virtualized-auto-sizer: 1.0.7_biqbaboplfbrettd7655fr4n2y
       react-window: 1.8.8_biqbaboplfbrettd7655fr4n2y
-      rxjs: 7.5.6
+      rxjs: 7.8.0
       shortcuts: 1.8.1
       stacktrace-js: 2.0.2
       tailwindcss: 3.1.8_ts-node@10.9.1
@@ -7550,6 +7550,13 @@ packages:
     resolution: {integrity: sha512-dnyv2/YsXhnm461G+R/Pe5bWP41Nm6LBXEYWI6eiFP4fiwx6WRI/CD0zbdVAudd9xwLEF2IDcKXLHit0FYjUzw==}
     dependencies:
       tslib: 2.4.0
+    dev: true
+
+  /rxjs/7.8.0:
+    resolution: {integrity: sha512-F2+gxDshqmIub1KdvZkaEfGDwLNpPvk9Fs6LD/MyQxNgMds/WH9OdDDXOmxUZpME+iSK3rQCctkL0DYyytUqMg==}
+    dependencies:
+      tslib: 2.4.0
+    dev: false
 
   /safe-buffer/5.1.2:
     resolution: {integrity: sha512-Gd2UZBJDkXlY7GbJxfsE8/nvKkUEU1G38c1siN6QP6a9PT9MmHB8GnpscSmMJSoF8LOIrt8ud/wPtojys4G6+g==}

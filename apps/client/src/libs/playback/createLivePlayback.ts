@@ -3,6 +3,7 @@ import {
   SnapshotEvent,
   SourceEvent,
   SourceEventType,
+  SourceEventView,
 } from '@repro/domain'
 import { copyObject, LazyList } from '~/utils/lang'
 import { applyEventToSnapshot } from '~/utils/source'
@@ -12,11 +13,14 @@ import { ControlFrame, Playback, PlaybackState } from './types'
 
 const EMPTY_SNAPSHOT: Snapshot = {
   dom: null,
+  interaction: null,
 }
 
 export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
   const [$activeIndex, _setActiveIndex, getActiveIndex] = createAtom(-1)
-  const [$buffer, setBuffer, getBuffer] = createAtom<Array<SourceEvent>>([])
+  const [$buffer, setBuffer, getBuffer] = createAtom(
+    LazyList.Empty(SourceEventView.decode, SourceEventView.encode)
+  )
   const [$elapsed, setElapsed, getElapsed] = createAtom(0)
   const [$latestControlFrame, _setLatestControlFrame, getLatestControlFrame] =
     createAtom(ControlFrame.Idle)
@@ -70,7 +74,9 @@ export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
 
         setSnapshot(trailingSnapshot)
         setElapsed(event.time)
-        setBuffer([event])
+        setBuffer(
+          new LazyList([event], SourceEventView.decode, SourceEventView.encode)
+        )
       })
     )
   }
