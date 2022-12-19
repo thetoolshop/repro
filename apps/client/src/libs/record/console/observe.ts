@@ -6,6 +6,7 @@ import {
   StackEntry,
 } from '@repro/domain'
 import { ObserverLike } from '~/utils/observer'
+import { createVNode } from '../dom/factory'
 
 export function createConsoleObserver(
   subscriber: (message: ConsoleMessage) => void
@@ -80,6 +81,13 @@ export function createConsoleObserver(
               if (typeof value === 'undefined') {
                 return {
                   type: MessagePartType.Undefined,
+                }
+              }
+
+              if (value instanceof Node) {
+                return {
+                  type: MessagePartType.Node,
+                  node: createVNode(value),
                 }
               }
 

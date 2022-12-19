@@ -1,8 +1,12 @@
 import {
+  isDocTypeNode,
+  isDocumentNode,
+  isElementNode,
   isInlineEventAttribute,
   isInputElement,
   isSelectElement,
   isTextAreaElement,
+  isTextNode,
 } from '~/utils/dom'
 import {
   NodeType,
@@ -12,8 +16,29 @@ import {
   VElement,
   VText,
   VTree,
+  VNode,
 } from '@repro/domain'
 import { createSyntheticId, getNodeId } from '~/utils/vdom'
+
+export function createVNode(node: Node): VNode | null {
+  if (isDocumentNode(node)) {
+    return createVDocument(node)
+  }
+
+  if (isDocTypeNode(node)) {
+    return createVDocType(node)
+  }
+
+  if (isElementNode(node)) {
+    return createVElement(node)
+  }
+
+  if (isTextNode(node)) {
+    return createVText(node)
+  }
+
+  return null
+}
 
 export function createVDocument(doc: Document): VDocument {
   return {
