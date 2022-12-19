@@ -6,6 +6,7 @@ import { VTreeContext, useNode, useNodeVisibility } from './context'
 import { Toggle } from './Toggle'
 import { TreeRow } from './TreeRow'
 import { NodeRenderer } from './NodeRenderer'
+import { DocumentR } from '../DOM'
 
 interface Props {
   nodeId: SyntheticId
@@ -46,7 +47,7 @@ export const DocumentNodeRenderer: React.FC<Props> = ({ nodeId, depth }) => {
         {hasChildren && (
           <Toggle isOpen={isVisible} onClick={onToggleNodeVisibility} />
         )}
-        #document
+        <DocumentR />
       </TreeRow>
       {children}
     </Block>

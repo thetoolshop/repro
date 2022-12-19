@@ -1,9 +1,8 @@
 import { SyntheticId, VElement } from '@repro/domain'
 import { isEmptyElementVNode } from '~/utils/vdom'
-import { Block, Inline } from 'jsxstyle'
-import React, { PropsWithChildren, useContext } from 'react'
-import colors from 'tailwindcss/colors'
-import { FONT_SIZE } from './constants'
+import { Block } from 'jsxstyle'
+import React, { useContext } from 'react'
+import { ElementR } from '~/components/DOM'
 import { useNode, useNodeVisibility, VTreeContext } from './context'
 import { NodeRenderer } from './NodeRenderer'
 import { Toggle } from './Toggle'
@@ -36,22 +35,9 @@ export const ElementNodeRenderer: React.FC<Props> = ({ nodeId, depth }) => {
           <Toggle isOpen={isVisible} onClick={onToggleNodeVisibility} />
         )}
 
-        <Inline>
-          <Syntax>{`<`}</Syntax>
-          <TagName>{node.tagName}</TagName>
-          {Object.entries(node.attributes).map(([name, value]) => (
-            <Attribute key={name} name={name} value={value} />
-          ))}
-          <Syntax>{`>`}</Syntax>
-        </Inline>
+        <ElementR.Open node={node} />
 
-        {!isEmptyElement && !isVisible && (
-          <Inline>
-            <Syntax>{`</`}</Syntax>
-            <TagName>{node.tagName}</TagName>
-            <Syntax>{`>`}</Syntax>
-          </Inline>
-        )}
+        {!isEmptyElement && !isVisible && <ElementR.Close node={node} />}
       </TreeRow>
 
       {!isEmptyElement && isVisible && (
@@ -64,35 +50,9 @@ export const ElementNodeRenderer: React.FC<Props> = ({ nodeId, depth }) => {
 
       {!isEmptyElement && isVisible && (
         <TreeRow nodeId={nodeId} depth={depth} tag="close">
-          <Syntax>{`</`}</Syntax>
-          <TagName>{node.tagName}</TagName>
-          <Syntax>{`>`}</Syntax>
+          <ElementR.Close node={node} />
         </TreeRow>
       )}
     </Block>
   )
 }
-
-const Syntax: React.FC<PropsWithChildren> = ({ children }) => (
-  <Inline color={colors.slate['500']}>{children}</Inline>
-)
-
-const TagName: React.FC<PropsWithChildren> = ({ children }) => (
-  <Inline color={colors.pink['700']}>{children}</Inline>
-)
-
-const Attribute: React.FC<
-  PropsWithChildren<{ name: string; value: string | null }>
-> = ({ name, value }) => (
-  <Inline marginLeft={FONT_SIZE / 2}>
-    <Inline color={colors.amber['700']}>{name}</Inline>
-
-    {value && (
-      <React.Fragment>
-        <Syntax>{'="'}</Syntax>
-        <Inline color={colors.indigo['700']}>{value}</Inline>
-        <Syntax>{'"'}</Syntax>
-      </React.Fragment>
-    )}
-  </Inline>
-)

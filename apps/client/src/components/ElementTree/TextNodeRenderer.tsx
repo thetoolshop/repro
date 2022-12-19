@@ -1,8 +1,6 @@
 import { SyntheticId, VText } from '@repro/domain'
-import { Inline, InlineBlock } from 'jsxstyle'
 import React from 'react'
-import colors from 'tailwindcss/colors'
-import { FONT_SIZE } from './constants'
+import { TextR } from '~/components/DOM'
 import { useNode } from './context'
 import { TreeRow } from './TreeRow'
 
@@ -24,17 +22,8 @@ export const TextNodeRenderer: React.FC<Props> = ({ depth, nodeId }) => {
   }
 
   return (
-    <InlineBlock key={nodeId}>
-      <TreeRow nodeId={nodeId} depth={depth}>
-        <Inline
-          fontFamily="monospace"
-          fontSize={FONT_SIZE}
-          lineHeight={1.5}
-          color={colors.slate['700']}
-        >
-          {node.value}
-        </Inline>
-      </TreeRow>
-    </InlineBlock>
+    <TreeRow nodeId={nodeId} depth={depth}>
+      <TextR node={node} />
+    </TreeRow>
   )
 }

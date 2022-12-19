@@ -1,7 +1,6 @@
 import { SyntheticId, VDocType } from '@repro/domain'
-import { Block } from 'jsxstyle'
 import React from 'react'
-import colors from 'tailwindcss/colors'
+import { DocTypeR } from '~/components/DOM'
 import { useNode } from './context'
 import { TreeRow } from './TreeRow'
 
@@ -19,9 +18,7 @@ export const DocTypeNodeRenderer: React.FC<Props> = ({ nodeId, depth }) => {
 
   return (
     <TreeRow nodeId={nodeId} key={nodeId} depth={depth}>
-      <Block color={colors.slate['500']}>{`<!DOCTYPE ${node.name}${
-        node.publicId && `PUBLIC ${node.publicId}`
-      }${node.systemId}>`}</Block>
+      <DocTypeR node={node} />
     </TreeRow>
   )
 }
