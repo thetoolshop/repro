@@ -139,8 +139,8 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
     )
   )
 
-  return run(actionState.pipe(and(tab)), result => {
-    console.debug('LIFECYCLE: on-updated', result)
+  return run(actionState.pipe(and(tab)), () => {
+    console.debug('LIFECYCLE: on-updated')
   })
 })
 

@@ -1,4 +1,5 @@
 import Future, { fork, FutureInstance } from 'fluture'
+import { logger } from '~/libs/logger'
 import { Agent, Intent, Resolver, Unsubscribe } from '~/libs/messaging'
 
 interface RuntimeOptions {
@@ -16,6 +17,10 @@ interface ErrorMessage {
 }
 
 type Message = ResponseMessage | ErrorMessage
+
+function isSupportedURL(url: string | undefined) {
+  return url !== undefined && !url.startsWith('chrome://')
+}
 
 export function createRuntimeAgent(): Agent {
   const resolvers = new Map<string, Resolver>()
@@ -57,6 +62,12 @@ export function createRuntimeAgent(): Agent {
     return Future((reject, resolve) => {
       function callback(message: Message) {
         if (chrome.runtime.lastError) {
+          logger.debug('Runtime error when raising intent', {
+            error: chrome.runtime.lastError,
+            intent,
+            options,
+          })
+
           reject(new Error(chrome.runtime.lastError?.message))
         } else {
           if (message.type === 'response') {
@@ -68,7 +79,13 @@ export function createRuntimeAgent(): Agent {
       }
 
       if (options?.target !== undefined) {
-        chrome.tabs.sendMessage(options.target, intent, callback)
+        const tabId = options.target
+
+        chrome.tabs.get(tabId, tab => {
+          if (isSupportedURL(tab.url)) {
+            chrome.tabs.sendMessage(tabId, intent, callback)
+          }
+        })
       } else {
         chrome.runtime.sendMessage(intent, callback)
       }
