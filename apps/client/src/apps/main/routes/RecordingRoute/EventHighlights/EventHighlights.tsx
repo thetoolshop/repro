@@ -5,13 +5,10 @@ import {
   SourceEventType,
   SourceEventView,
 } from '@repro/domain'
-import { Block, Row } from 'jsxstyle'
 import React, { useEffect, useState } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList, ListChildComponentProps } from 'react-window'
-import { colors } from '~/config/theme'
 import { usePlayback } from '~/libs/playback'
-import { formatDate } from '~/utils/date'
 import { ConsoleEntry } from './ConsoleEntry'
 import { InteractionEntry } from './InteractionEntry'
 
@@ -81,10 +78,11 @@ const UserEventRow: React.FC<
   }
 
   const [eventIndex, event] = indexedEvent
+  let entry: React.ReactNode = null
 
   switch (event.type) {
     case SourceEventType.Console:
-      return (
+      entry = (
         <ConsoleEntry
           rowIndex={index}
           style={style}
@@ -92,9 +90,10 @@ const UserEventRow: React.FC<
           event={event}
         />
       )
+      break
 
     case SourceEventType.Interaction:
-      return (
+      entry = (
         <InteractionEntry
           rowIndex={index}
           style={style}
@@ -102,22 +101,8 @@ const UserEventRow: React.FC<
           event={event}
         />
       )
+      break
   }
 
-  return (
-    <Row
-      style={style}
-      paddingH={15}
-      alignItems="center"
-      gap={5}
-      fontSize={13}
-      backgroundColor={index % 2 === 0 ? colors.slate['100'] : colors.white}
-      overflow="hidden"
-      cursor="pointer"
-    >
-      <Block color={colors.slate['500']}>
-        {formatDate(event.time, 'seconds')}
-      </Block>
-    </Row>
-  )
+  return entry
 }

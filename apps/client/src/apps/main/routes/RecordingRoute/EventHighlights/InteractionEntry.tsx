@@ -1,11 +1,12 @@
 import { Click, InteractionEvent, InteractionType } from '@repro/domain'
-import { Block, Inline, Row } from 'jsxstyle'
+import { Block, Row } from 'jsxstyle'
 import {
   MousePointerClick as ClickIcon,
   Link2 as LinkIcon,
   Scaling as ViewportResizeIcon,
 } from 'lucide-react'
 import React from 'react'
+import { ElementR } from '~/components/DOM'
 import { colors } from '~/config/theme'
 import { useSelectedNode } from '../hooks'
 import { BaseEntry } from './BaseEntry'
@@ -106,11 +107,7 @@ function createClickLabel(interaction: Click): React.ReactNode {
         backgroundColor={colors.blue['50']}
         borderRadius={4}
       >
-        <Inline color={colors.slate['500']}>{`<`}</Inline>
-        <Inline color={colors.pink['700']}>
-          {interaction.meta.node.tagName}
-        </Inline>
-        <Inline color={colors.slate['500']}>{`>`}</Inline>
+        <ElementR.Open node={interaction.meta.node} />
       </Row>
     )
   }

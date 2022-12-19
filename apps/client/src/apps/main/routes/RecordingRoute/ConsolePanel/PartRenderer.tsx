@@ -1,7 +1,7 @@
 import { MessagePart, MessagePartType } from '@repro/domain'
 import React from 'react'
 import { JSONView } from '~/components/JSONView'
-// import { VNodeRenderer } from './VNodeRenderer'
+import { VNodeRenderer } from './VNodeRenderer'
 
 function safeParse(value: string) {
   try {
@@ -18,7 +18,7 @@ interface Props {
 export const PartRenderer: React.FC<Props> = ({ part }) => {
   switch (part.type) {
     case MessagePartType.Node:
-      return null
+      return part.node ? <VNodeRenderer node={part.node} /> : null
 
     case MessagePartType.Date:
       const data = new Date()

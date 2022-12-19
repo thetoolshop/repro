@@ -9,6 +9,7 @@ import { Block, Grid } from 'jsxstyle'
 import React, { Fragment, useEffect, useState } from 'react'
 import { colors } from '~/config/theme'
 import { Stats } from '~/libs/diagnostics'
+import { logger } from '~/libs/logger'
 import { usePlayback } from '~/libs/playback'
 import { useConsoleLevelFilter, useConsoleSearch } from '../hooks'
 import { ConsoleRow } from './ConsoleRow'
@@ -81,9 +82,11 @@ export const ConsolePanel: React.FC = () => {
         return (
           levelBitField & consoleLevelFilter &&
           event.data.parts.some(part => {
+            // TODO: apply search filter to Node and Date message parts
             return (
-              part.type === MessagePartType.String &&
-              part.value.includes(consoleSearch)
+              part.type === MessagePartType.Node ||
+              (part.type === MessagePartType.String &&
+                part.value.includes(consoleSearch))
             )
           })
         )
