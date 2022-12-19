@@ -11,7 +11,7 @@ import {
 } from '@repro/typed-binary-encoder'
 import z from 'zod'
 import { int16, int32, uint16, uint8 } from './common'
-import { NodeIdSchema, NodeIdView } from './vdom'
+import { VNodeSchema, VNodeView } from './vdom'
 
 // type LogLevel: enum {
 //   Verbose: 0
@@ -81,12 +81,12 @@ export const StringMessagePartView = createView<
 
 // type NodeMessagePart: struct {
 //   type: MessagePartType.Node
-//   nodeId: NodeId
+//   node?: VNode
 // }
 
 export const NodeMessagePartSchema = z.object({
   type: z.literal(MessagePartType.Node),
-  nodeId: NodeIdSchema,
+  node: VNodeSchema.nullable(),
 })
 
 export type NodeMessagePart = z.infer<typeof NodeMessagePartSchema>
@@ -99,7 +99,7 @@ export const NodeMessagePartView = createView<
     type: 'struct',
     fields: [
       ['type', MessagePartTypeView.descriptor],
-      ['nodeId', NodeIdView.descriptor],
+      ['node', VNodeView.nullable().descriptor],
     ],
   },
   NodeMessagePartSchema
