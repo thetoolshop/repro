@@ -107,6 +107,18 @@ export const RecordingRoute: React.FC = () => {
     }
   }, [recordingId, apiClient, setSource])
 
+  useEffect(() => {
+    const originalTitle = document.title
+
+    if (metadata) {
+      document.title = `${metadata.title} - Repro`
+    }
+
+    return () => {
+      document.title = originalTitle
+    }
+  }, [metadata])
+
   if (loading) {
     return <div />
   }
