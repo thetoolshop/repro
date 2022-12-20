@@ -16,6 +16,7 @@ declare module 'jsxstyle-utils' {
     hoverHeight?: BaseCSSProperties['height']
     hoverWidth?: BaseCSSProperties['width']
 
+    hoverVisibility?: BaseCSSProperties['visibility']
     emptyVisibility?: BaseCSSProperties['visibility']
   }
 }

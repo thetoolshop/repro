@@ -9,7 +9,6 @@ import { Block, Grid } from 'jsxstyle'
 import React, { Fragment, useEffect, useState } from 'react'
 import { colors } from '~/config/theme'
 import { Stats } from '~/libs/diagnostics'
-import { logger } from '~/libs/logger'
 import { usePlayback } from '~/libs/playback'
 import { useConsoleLevelFilter, useConsoleSearch } from '../hooks'
 import { ConsoleRow } from './ConsoleRow'
@@ -132,7 +131,7 @@ export const ConsolePanel: React.FC = () => {
               prevIndex={prev ? prev[1] : -1}
               nextIndex={event ? event[1] : Number.MAX_SAFE_INTEGER}
             />
-            {event !== null && <ConsoleRow event={event[0]} />}
+            {event !== null && <ConsoleRow event={event[0]} index={event[1]} />}
           </Fragment>
         ))}
       </Block>

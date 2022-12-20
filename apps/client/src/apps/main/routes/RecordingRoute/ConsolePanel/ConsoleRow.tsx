@@ -1,8 +1,9 @@
 import { ConsoleEvent, LogLevel, StackEntry } from '@repro/domain'
 import { Block, Grid, InlineBlock, Row } from 'jsxstyle'
-import { AlertCircle, AlertTriangle } from 'lucide-react'
-import React from 'react'
+import { AlertCircle, AlertTriangle, SkipForward } from 'lucide-react'
+import React, { useCallback } from 'react'
 import { colors } from '~/config/theme'
+import { usePlayback } from '~/libs/playback'
 import { formatDate } from '~/utils/date'
 import { PartRenderer } from './PartRenderer'
 
@@ -29,6 +30,7 @@ const icons = {
 
 interface Props {
   event: ConsoleEvent
+  index: number
 }
 
 export const ConsoleRow: React.FC<Props> = ({
@@ -36,32 +38,68 @@ export const ConsoleRow: React.FC<Props> = ({
     time,
     data: { level, parts, stack },
   },
-}) => (
-  <Grid
-    gridTemplateColumns="auto auto 1fr auto"
-    columnGap={10}
-    rowGap={10}
-    paddingV={5}
-    paddingH={15}
-    fontSize={13}
-    color={textColors[level]}
-    backgroundColor={bgColors[level]}
-  >
-    <Block color={colors.slate['500']} lineHeight={1.25}>
-      {formatDate(time, 'millis')}
-    </Block>
+  index,
+}) => {
+  const playback = usePlayback()
 
-    <Block>{icons[level]}</Block>
+  const onSelect = useCallback(() => {
+    playback.seekToEvent(index)
+  }, [playback, index])
 
-    <Row flexWrap="wrap" gap={10}>
-      {parts.map((part, j) => {
-        return <PartRenderer part={part} key={j} />
-      })}
-    </Row>
+  return (
+    <Grid
+      gridTemplateColumns="auto auto 1fr auto"
+      columnGap={10}
+      rowGap={10}
+      paddingV={5}
+      paddingH={15}
+      fontSize={13}
+      color={textColors[level]}
+      backgroundColor={bgColors[level]}
+    >
+      <Block
+        position="relative"
+        color={colors.slate['500']}
+        lineHeight={1.25}
+        cursor="pointer"
+        props={{ onClick: onSelect }}
+      >
+        {formatDate(time, 'millis')}
 
-    {stack[0] ? <StackReference entry={stack[0]} /> : <Block />}
-  </Grid>
-)
+        <Row
+          alignItems="center"
+          gap={5}
+          position="absolute"
+          left={0}
+          top="50%"
+          transform="translate(-10px, -50%)"
+          padding={5}
+          whiteSpace="nowrap"
+          color={colors.white}
+          backgroundColor={colors.blue['500']}
+          borderRadius={4}
+          opacity={0}
+          hoverOpacity={1}
+          userSelect="none"
+          transition="opacity 100ms ease-in"
+        >
+          <SkipForward size={13} />
+          <Block fontSize={11}>Go To Time</Block>
+        </Row>
+      </Block>
+
+      <Block>{icons[level]}</Block>
+
+      <Row flexWrap="wrap" gap={10}>
+        {parts.map((part, j) => {
+          return <PartRenderer part={part} key={j} />
+        })}
+      </Row>
+
+      {stack[0] ? <StackReference entry={stack[0]} /> : <Block />}
+    </Grid>
+  )
+}
 
 interface StackReferenceProps {
   entry: StackEntry
