@@ -18,6 +18,9 @@ interface RecordingMetadataRow extends QueryResultRow {
   project_name: string
   author_id: string
   author_name: string
+  browser_name: string | null
+  browser_version: string | null
+  operating_system: string | null
 }
 
 function toRecordingMetadata(row: RecordingMetadataRow): RecordingMetadata {
@@ -32,6 +35,9 @@ function toRecordingMetadata(row: RecordingMetadataRow): RecordingMetadata {
     projectName: row.project_name,
     authorId: row.author_id,
     authorName: row.author_name,
+    browserName: row.browser_name,
+    browserVersion: row.browser_version,
+    operatingSystem: row.operating_system,
   })
 }
 
@@ -51,7 +57,10 @@ export function createRecordingProvider(dbClient: DatabaseClient) {
         r.project_id,
         p.name as project_name,
         r.author_id,
-        a.name as author_name
+        a.name as author_name,
+        r.browser_name,
+        r.browser_version,
+        r.operating_system
       FROM recordings r
       INNER JOIN projects p ON p.id = r.project_id
       INNER JOIN users a ON a.id = r.author_id
@@ -71,13 +80,18 @@ export function createRecordingProvider(dbClient: DatabaseClient) {
     title: string,
     description: string,
     mode: RecordingMode,
-    duration: number
+    duration: number,
+    browserName: string | null,
+    browserVersion: string | null,
+    operatingSystem: string | null
   ): FutureInstance<Error, void> {
     return dbClient
       .query(
         `
-        INSERT INTO recordings (id, team_id, author_id, project_id, title, description, mode, duration)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        INSERT INTO recordings
+          (id, team_id, author_id, project_id, title, description, mode, duration,
+            browser_name, browser_version, operating_system)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
         `,
         [
           recordingId,
@@ -88,6 +102,9 @@ export function createRecordingProvider(dbClient: DatabaseClient) {
           description,
           mode,
           duration,
+          browserName,
+          browserVersion,
+          operatingSystem,
         ]
       )
       .pipe(map(() => undefined))
@@ -108,7 +125,10 @@ export function createRecordingProvider(dbClient: DatabaseClient) {
         p.id AS project_id,
         p.name AS project_name,
         a.id AS author_id,
-        a.name AS author_name
+        a.name AS author_name,
+        r.browser_name,
+        r.browser_version,
+        r.operating_system
       FROM recordings r
       INNER JOIN projects p ON r.project_id = p.id
       INNER JOIN users a ON r.author_id = a.id

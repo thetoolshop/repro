@@ -43,6 +43,9 @@ export function createRecordingRouter(
     description: z.string(),
     mode: z.number(),
     duration: z.number(),
+    browserName: z.string().nullable(),
+    browserVersion: z.string().nullable(),
+    operatingSystem: z.string().nullable(),
   })
 
   RecordingRouter.put('/:recordingId/metadata', (req, res) => {
@@ -66,7 +69,10 @@ export function createRecordingRouter(
                   body.title,
                   body.description,
                   body.mode,
-                  body.duration
+                  body.duration,
+                  body.browserName,
+                  body.browserVersion,
+                  body.operatingSystem
                 )
               )
             )

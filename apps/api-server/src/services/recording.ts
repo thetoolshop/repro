@@ -17,7 +17,10 @@ export function createRecordingService(recordingProvider: RecordingProvider) {
     title: string,
     description: string,
     mode: RecordingMode,
-    duration: number
+    duration: number,
+    browserName: string | null,
+    browserVersion: string | null,
+    operatingSystem: string | null
   ): FutureInstance<Error, void> {
     return recordingProvider.saveRecordingMetadata(
       teamId,
@@ -27,7 +30,10 @@ export function createRecordingService(recordingProvider: RecordingProvider) {
       title,
       description,
       mode,
-      duration
+      duration,
+      browserName,
+      browserVersion,
+      operatingSystem
     )
   }
 

@@ -6,6 +6,7 @@ import {
   RecordingView,
   User,
 } from '@repro/domain'
+import { detect } from 'detect-browser'
 import { fork } from 'fluture'
 import { Block, Col, Grid, Row } from 'jsxstyle'
 import {
@@ -40,6 +41,8 @@ import { MAX_INT32 } from '../constants'
 import { useCurrentUser, useRecordingMode } from '../hooks'
 import { DetailsForm } from './DetailsForm'
 import { WidgetContainer } from './WidgetContainer'
+
+const browser = detect()
 
 const DEFAULT_SELECTED_DURATION = 60_000
 
@@ -147,6 +150,9 @@ export const ReportWizard: React.FC<Props> = ({ onClose }) => {
             title: data.title,
             description: data.description,
             recording: RecordingView.serialize(recording),
+            browserName: browser && browser.name,
+            browserVersion: browser && browser.version,
+            operatingSystem: browser && browser.os,
           },
         })
       )

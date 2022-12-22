@@ -88,6 +88,9 @@ export const RecordingView = createView<Recording, StructDescriptor>(
 //   projectName: string
 //   authorId: uuid
 //   authorName: string
+//   browserName?: string
+//   browserVersion?: string
+//   operatingSystem?: string
 // }
 
 export const RecordingMetadataSchema = z.object({
@@ -105,6 +108,9 @@ export const RecordingMetadataSchema = z.object({
   projectName: z.string(),
   authorId: z.string().uuid(),
   authorName: z.string(),
+  browserName: z.string().nullable(),
+  browserVersion: z.string().nullable(),
+  operatingSystem: z.string().nullable(),
 })
 
 export type RecordingMetadata = z.infer<typeof RecordingMetadataSchema>
@@ -126,6 +132,9 @@ export const RecordingMetadataView = createView<
       ['projectName', { type: 'string' }],
       ['authorId', { type: 'char', bytes: 36 }],
       ['authorName', { type: 'string' }],
+      ['browserName', { type: 'string', nullable: true }],
+      ['browserVersion', { type: 'string', nullable: true }],
+      ['operatingSystem', { type: 'string', nullable: true }],
     ],
   },
   RecordingMetadataSchema

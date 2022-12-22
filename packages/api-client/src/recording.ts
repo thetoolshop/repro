@@ -12,7 +12,10 @@ export function createRecordingApi(dataLoader: DataLoader) {
     projectId: string,
     title: string,
     description: string,
-    recording: Recording
+    recording: Recording,
+    browserName: string | null,
+    browserVersion: string | null,
+    operatingSystem: string | null
   ): FutureInstance<Error, void> {
     const recordingData = RecordingView.encode(recording)
 
@@ -44,6 +47,9 @@ export function createRecordingApi(dataLoader: DataLoader) {
         description,
         mode: recording.mode,
         duration: recording.duration,
+        browserName,
+        browserVersion,
+        operatingSystem,
       }),
     })
 

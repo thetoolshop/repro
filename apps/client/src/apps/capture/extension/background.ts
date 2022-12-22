@@ -88,7 +88,10 @@ agent.subscribeToIntent('upload', (payload: any) => {
     payload.projectId,
     payload.title,
     payload.description,
-    recording
+    recording,
+    payload.browserName,
+    payload.browserVersion,
+    payload.operatingSystem
   ) as FutureInstance<Error, void>
 })
 

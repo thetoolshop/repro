@@ -3,6 +3,7 @@ import { Block, Grid, InlineBlock, Row } from 'jsxstyle'
 import React, { useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Card } from '~/components/Card'
+import { DefinitionList } from '~/components/DefinitionList/DefinitionList'
 import { colors } from '~/config/theme'
 import { useApiClient } from '~/libs/api'
 import {
@@ -10,6 +11,7 @@ import {
   createNullSource,
   PlaybackFromSourceProvider,
 } from '~/libs/playback'
+import { ucfirst } from '~/utils/string'
 import { DevTools } from './DevTools'
 import { EventHighlights } from './EventHighlights'
 
@@ -153,24 +155,37 @@ export const RecordingRoute: React.FC = () => {
                 {metadata.title}
               </Block>
 
-              <Row
-                paddingTop={10}
+              <Block
                 marginTop={10}
-                gap={5}
-                fontSize={11}
-                lineHeight={1}
-                borderTop={`1px solid ${colors.slate['200']}`}
-                color={colors.slate['700']}
+                marginH={-10}
+                padding={15}
+                background={colors.blue['50']}
+                border={`2px solid ${colors.blue['100']}`}
+                borderRadius={4}
               >
-                <InlineBlock fontWeight={700}>
-                  {metadata.authorName}
-                </InlineBlock>
-                <InlineBlock>
-                  posted {formatDate(metadata.createdAt)}
-                </InlineBlock>
-              </Row>
+                <DefinitionList
+                  entries={[
+                    ['Posted by', metadata.authorName],
+                    ['Created at', formatDate(metadata.createdAt)],
+                    [
+                      'Browser',
+                      metadata.browserName
+                        ? `${ucfirst(metadata.browserName)} ${
+                            metadata.browserVersion
+                          }`
+                        : null,
+                    ],
+                    ['OS', metadata.operatingSystem],
+                  ]}
+                />
+              </Block>
 
-              <Block marginTop={10} lineHeight={1.5} fontSize={13}>
+              <Block
+                marginTop={10}
+                lineHeight={1.5}
+                fontSize={13}
+                emptyDisplay="none"
+              >
                 {metadata.description}
               </Block>
             </Block>
