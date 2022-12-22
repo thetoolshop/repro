@@ -1,4 +1,3 @@
-import { Tooltip } from '~/components/Tooltip'
 import { Row } from 'jsxstyle'
 import React, { useCallback } from 'react'
 import { Inspect as PickerIcon } from 'lucide-react'
@@ -26,7 +25,6 @@ export const Picker: React.FC = () => {
       >
         <PickerIcon size={16} />
       </Row>
-      <Tooltip position="bottom">Ctrl+Shift+C</Tooltip>
     </Row>
   )
 }
