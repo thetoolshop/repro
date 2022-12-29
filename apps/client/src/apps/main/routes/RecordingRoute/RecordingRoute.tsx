@@ -1,5 +1,5 @@
 import { fork, FutureInstance } from 'fluture'
-import { Block, Grid, InlineBlock, Row } from 'jsxstyle'
+import { Block, Grid } from 'jsxstyle'
 import React, { useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Card } from '~/components/Card'

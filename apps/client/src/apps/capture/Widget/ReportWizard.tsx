@@ -27,7 +27,7 @@ import {
   usePlayback,
 } from '~/libs/playback'
 import { sliceEventsAtRange } from '~/libs/record'
-import { formatDate } from '~/utils/date'
+import { formatTime } from '~/utils/date'
 import { scheduleIdleCallback } from '~/utils/schedule'
 import { createRecordingId } from '~/utils/source'
 import { MAX_INT32 } from '../constants'
@@ -67,7 +67,7 @@ export const ReportWizard: React.FC<Props> = ({ onClose }) => {
   const minTime = Math.max(0, maxTime - selectedDuration)
 
   const durationOptions = [
-    { value: maxTime, label: `Max (${formatDate(maxTime, 'seconds')})` },
+    { value: maxTime, label: `Max (${formatTime(maxTime, 'seconds')})` },
     { value: 120_000, label: 'Last 2m' },
     { value: 60_000, label: 'Last 1m' },
     { value: 30_000, label: 'Last 30s' },

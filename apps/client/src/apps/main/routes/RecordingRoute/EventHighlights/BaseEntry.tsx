@@ -3,7 +3,7 @@ import { Block, Row } from 'jsxstyle'
 import React, { PropsWithChildren } from 'react'
 import { colors } from '~/config/theme'
 import { usePlayback } from '~/libs/playback'
-import { formatDate } from '~/utils/date'
+import { formatTime } from '~/utils/date'
 
 interface Props {
   eventIndex: number
@@ -50,7 +50,7 @@ export const BaseEntry: React.FC<PropsWithChildren<Props>> = ({
       props={{ onClick: handleClick }}
     >
       <Block color={colors.slate['500']}>
-        {formatDate(event.time, 'seconds')}
+        {formatTime(event.time, 'seconds')}
       </Block>
 
       <Block>{icon}</Block>

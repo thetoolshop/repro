@@ -11,7 +11,7 @@ import {
 } from 'rxjs/operators'
 import { colors } from '~/config/theme'
 import { Analytics } from '~/libs/analytics'
-import { formatDate } from '~/utils/date'
+import { formatTime } from '~/utils/date'
 import { usePlayback } from '../hooks'
 import { PlaybackState } from '../types'
 import { PlayAction } from './PlayAction'
@@ -110,7 +110,7 @@ export const SimpleTimeline: React.FC<Props> = ({ min, max }) => {
           )
           .subscribe(([offset, value]) => {
             updateBarOffset(ghost, offset)
-            updateTooltip(tooltip, offset, `${formatDate(value, 'millis')}`)
+            updateTooltip(tooltip, offset, `${formatTime(value, 'millis')}`)
             showTooltip(tooltip)
           })
       )
@@ -149,7 +149,7 @@ export const SimpleTimeline: React.FC<Props> = ({ min, max }) => {
           updateBarOffset(progress, offset)
           updateElapsedTime(
             elapsedTime,
-            formatDate(mapOffsetToRelativeValue(offset), 'seconds')
+            formatTime(mapOffsetToRelativeValue(offset), 'seconds')
           )
         })
       )
@@ -164,7 +164,7 @@ export const SimpleTimeline: React.FC<Props> = ({ min, max }) => {
             updateBarOffset(progress, offset)
             updateElapsedTime(
               elapsedTime,
-              formatDate(mapOffsetToRelativeValue(offset), 'seconds')
+              formatTime(mapOffsetToRelativeValue(offset), 'seconds')
             )
           })
       )
@@ -202,7 +202,7 @@ export const SimpleTimeline: React.FC<Props> = ({ min, max }) => {
         playback.$elapsed
           .pipe(map(mapAbsoluteToRelativeValue))
           .subscribe(elapsed => {
-            updateElapsedTime(elapsedTime, formatDate(elapsed, 'seconds'))
+            updateElapsedTime(elapsedTime, formatTime(elapsed, 'seconds'))
           })
       )
     }
@@ -243,7 +243,7 @@ export const SimpleTimeline: React.FC<Props> = ({ min, max }) => {
         </Block>
         <Block color={colors.slate['500']}>/</Block>
         <Block color={colors.blue['700']}>
-          {formatDate((max || playback.getDuration()) - (min || 0), 'seconds')}
+          {formatTime((max || playback.getDuration()) - (min || 0), 'seconds')}
         </Block>
       </Row>
     </Row>

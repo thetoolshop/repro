@@ -4,7 +4,7 @@ import { AlertCircle, AlertTriangle, SkipForward } from 'lucide-react'
 import React, { useCallback } from 'react'
 import { colors } from '~/config/theme'
 import { usePlayback } from '~/libs/playback'
-import { formatDate } from '~/utils/date'
+import { formatTime } from '~/utils/date'
 import { PartRenderer } from './PartRenderer'
 
 const bgColors = {
@@ -64,7 +64,7 @@ export const ConsoleRow: React.FC<Props> = ({
         cursor="pointer"
         props={{ onClick: onSelect }}
       >
-        {formatDate(time, 'millis')}
+        {formatTime(time, 'millis')}
 
         <Row
           alignItems="center"
