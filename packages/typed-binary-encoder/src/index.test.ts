@@ -396,7 +396,7 @@ describe('utils: buffer descriptors', () => {
   })
 
   describe('view', () => {
-    it('should encode a decode for a descriptor', () => {
+    it('should encode and decode for a descriptor', () => {
       const input = {
         foo: 'bar',
         bar: [10, 20],
@@ -455,6 +455,98 @@ describe('utils: buffer descriptors', () => {
       expect(decoded).toEqual(input)
       expect(View.decode(lens)).toEqual(input)
       expect(View.decode(decoded)).toEqual(input)
+    })
+
+    it('should serialize and deserialize for a descriptor', () => {
+      const input = {
+        foo: 'bar',
+        bar: [1, 2],
+        baz: new Uint8Array([30, 31, 32]).buffer,
+      }
+
+      const schema = z.object({
+        foo: z.string().length(3),
+        bar: z
+          .array(
+            z
+              .number()
+              .min(0)
+              .max(2 ** 8 - 1)
+          )
+          .length(2),
+        baz: z.instanceof(ArrayBuffer),
+      })
+
+      const View = createView<z.infer<typeof schema>, StructDescriptor>(
+        {
+          type: 'struct',
+          fields: [
+            ['foo', { type: 'char', bytes: 3 }],
+            [
+              'bar',
+              {
+                type: 'array',
+                size: 2,
+                items: { type: 'integer', signed: false, bits: 8 },
+              },
+            ],
+            ['baz', { type: 'buffer' }],
+          ],
+        },
+        schema
+      )
+
+      const serialized = View.serialize(input)
+      const deserialized = View.deserialize(serialized)
+
+      expect(typeof serialized).toBe('string')
+      expect(deserialized).toEqual(input)
+    })
+
+    it('should stringify and parse a value as JSON', () => {
+      const input = {
+        foo: 'bar',
+        bar: [1, 2],
+        baz: new Uint8Array([30, 31, 32]).buffer,
+      }
+
+      const schema = z.object({
+        foo: z.string().length(3),
+        bar: z
+          .array(
+            z
+              .number()
+              .min(0)
+              .max(2 ** 8 - 1)
+          )
+          .length(2),
+        baz: z.instanceof(ArrayBuffer),
+      })
+
+      const View = createView<z.infer<typeof schema>, StructDescriptor>(
+        {
+          type: 'struct',
+          fields: [
+            ['foo', { type: 'char', bytes: 3 }],
+            [
+              'bar',
+              {
+                type: 'array',
+                size: 2,
+                items: { type: 'integer', signed: false, bits: 8 },
+              },
+            ],
+            ['baz', { type: 'buffer' }],
+          ],
+        },
+        schema
+      )
+
+      const encoded = View.toJSON(input)
+      const decoded = View.fromJSON(encoded)
+
+      expect(typeof encoded).toBe('string')
+      expect(decoded).toEqual(input)
     })
   })
 })

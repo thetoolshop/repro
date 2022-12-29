@@ -1,5 +1,5 @@
 import { ApiClient, createApiClient } from '@repro/api-client'
-import { RecordingView } from '@repro/domain'
+import { SourceEventView } from '@repro/domain'
 import {
   and,
   attemptP,
@@ -82,16 +82,15 @@ agent.subscribeToIntent('api:call', ({ namespace, method, args = [] }) => {
 })
 
 agent.subscribeToIntent('upload', (payload: any) => {
-  const recording = RecordingView.deserialize(payload.recording)
-
   return apiClient.recording.saveRecording(
-    payload.projectId,
+    payload.recordingId,
     payload.title,
     payload.description,
-    recording,
-    payload.browserName,
-    payload.browserVersion,
-    payload.operatingSystem
+    payload.projectId,
+    payload.duration,
+    payload.mode,
+    payload.events.map(SourceEventView.deserialize),
+    payload.context
   ) as FutureInstance<Error, void>
 })
 

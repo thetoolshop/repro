@@ -12,11 +12,11 @@ export function createApiSource(
   const [$events, setEvents] = createAtom(LazyList.Empty<SourceEvent>())
   const [$readyState, setReadyState] = createAtom<ReadyState>('waiting')
 
-  apiClient.recording.getRecordingData(recordingId).pipe(
-    fork(() => setReadyState('failed'))(recording => {
+  apiClient.recording.getRecordingEvents(recordingId).pipe(
+    fork(() => setReadyState('failed'))(events => {
       setEvents(
         new LazyList<SourceEvent>(
-          recording.events.map(buffer => new DataView(buffer)),
+          events,
           SourceEventView.decode,
           SourceEventView.encode
         )

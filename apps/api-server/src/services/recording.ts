@@ -1,6 +1,8 @@
-import { RecordingMetadata, RecordingMode } from '@repro/domain'
+import { RecordingMetadata, RecordingMode, SourceEvent } from '@repro/domain'
 import { RecordingProvider } from '~/providers/recording'
 import { FutureInstance } from 'fluture'
+import { Observable } from 'rxjs'
+import { Readable } from 'stream'
 
 export function createRecordingService(recordingProvider: RecordingProvider) {
   function getAllRecordingsForUser(
@@ -43,10 +45,25 @@ export function createRecordingService(recordingProvider: RecordingProvider) {
     return recordingProvider.getRecordingMetadata(recordingId)
   }
 
+  function saveRecordingEvents(
+    recordingId: string,
+    eventStream: Readable
+  ): FutureInstance<Error, void> {
+    return recordingProvider.saveRecordingEvents(recordingId, eventStream)
+  }
+
+  function getRecordingEvents(
+    recordingId: string
+  ): FutureInstance<Error, Observable<SourceEvent>> {
+    return recordingProvider.getRecordingEvents(recordingId)
+  }
+
   return {
     getAllRecordingsForUser,
     saveRecordingMetadata,
     getRecordingMetadata,
+    saveRecordingEvents,
+    getRecordingEvents,
   }
 }
 

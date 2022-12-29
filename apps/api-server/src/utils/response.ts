@@ -1,6 +1,7 @@
 import { isLens, unwrapLens } from '@repro/typed-binary-encoder'
 import { Response } from 'express'
 import { fork, FutureInstance } from 'fluture'
+import { isObservable } from 'rxjs'
 import { isReadable } from 'stream'
 import { env } from '~/config/env'
 import {
@@ -51,8 +52,20 @@ export function respondWith<T>(
       res.status(200)
 
       if (isReadableStream(value)) {
-        res.header('Content-Type', 'application/octet-stream')
         value.pipe(res)
+      } else if (isObservable(value)) {
+        res.header('Content-Type', 'text/plain')
+        value.subscribe({
+          next: data => res.write(data),
+          complete: () => res.end(),
+
+          // TODO
+          error: err => {
+            if (env.DEBUG) {
+              console.trace(err)
+            }
+          },
+        })
       } else if (isLens(value)) {
         res.header('Content-Type', 'application/octet-stream')
         const view = unwrapLens(value)

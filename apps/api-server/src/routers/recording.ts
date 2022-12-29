@@ -1,22 +1,19 @@
+import { SourceEventView } from '@repro/domain'
 import { parseSchema } from '@repro/validation'
 import express from 'express'
-import { chain, map } from 'fluture'
-import fs from 'fs'
-import path from 'path'
+import { chain, map as fMap } from 'fluture'
+import { map as rxMap } from 'rxjs'
+import { pipeline, Transform } from 'stream'
+import { createGunzip } from 'zlib'
 import z from 'zod'
 import { ProjectService } from '~/services/project'
 import { RecordingService } from '~/services/recording'
 import { badRequest } from '~/utils/errors'
 import { respondWith } from '~/utils/response'
 
-interface Config {
-  recordingDataDirectory: string
-}
-
 export function createRecordingRouter(
   projectService: ProjectService,
-  recordingService: RecordingService,
-  config: Config
+  recordingService: RecordingService
 ) {
   const RecordingRouter = express.Router()
 
@@ -25,16 +22,36 @@ export function createRecordingRouter(
     respondWith(res, recordingService.getAllRecordingsForUser(userId))
   })
 
-  RecordingRouter.put('/:recordingId/data', (req, res) => {
-    req.pipe(
-      fs.createWriteStream(
-        path.join(config.recordingDataDirectory, req.params.recordingId)
-      )
-    )
+  RecordingRouter.put('/:recordingId/events', (req, res) => {
+    const recordingId = req.params.recordingId
 
-    req.on('end', () => {
-      res.status(204).end()
+    let tail = ''
+
+    const split = new Transform({
+      transform(chunk, _, callback) {
+        tail += chunk
+
+        const lines = tail.split(/\n/)
+        tail = lines.pop() || ''
+
+        for (const line of lines) {
+          this.push(line)
+        }
+
+        callback()
+      },
     })
+
+    const eventStream = pipeline(req, createGunzip(), split, err => {
+      if (err) {
+        req.destroy()
+      }
+    })
+
+    respondWith(
+      res,
+      recordingService.saveRecordingEvents(recordingId, eventStream)
+    )
   })
 
   const createRecordingRequestBodySchema = z.object({
@@ -81,7 +98,7 @@ export function createRecordingRouter(
     )
   })
 
-  RecordingRouter.get('/:recordingId/data', (req, res) => {
+  RecordingRouter.get('/:recordingId/events', (req, res) => {
     const userId = req.user.id
     const recordingId = req.params.recordingId
 
@@ -90,12 +107,13 @@ export function createRecordingRouter(
       projectService
         .getProjectForRecording(recordingId)
         .pipe(
-          chain(project => projectService.checkUserIsAdmin(userId, project.id))
+          chain(project => projectService.checkUserIsMember(userId, project.id))
         )
+        .pipe(chain(() => recordingService.getRecordingEvents(recordingId)))
         .pipe(
-          map(() =>
-            fs.createReadStream(
-              path.join(config.recordingDataDirectory, recordingId)
+          fMap(sourceEvent$ =>
+            sourceEvent$.pipe(
+              rxMap(event => `${SourceEventView.serialize(event)}\n`)
             )
           )
         )

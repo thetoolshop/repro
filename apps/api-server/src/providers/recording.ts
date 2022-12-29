@@ -2,9 +2,13 @@ import {
   RecordingMetadata,
   RecordingMetadataView,
   RecordingMode,
+  SourceEvent,
+  SourceEventView,
 } from '@repro/domain'
-import { FutureInstance, map } from 'fluture'
+import { FutureInstance, map as fMap } from 'fluture'
 import { QueryResultRow } from 'pg'
+import { Observable, map as rxMap } from 'rxjs'
+import { Readable, Transform } from 'stream'
 import { DatabaseClient } from './database'
 
 interface RecordingMetadataRow extends QueryResultRow {
@@ -39,6 +43,14 @@ function toRecordingMetadata(row: RecordingMetadataRow): RecordingMetadata {
     browserVersion: row.browser_version,
     operatingSystem: row.operating_system,
   })
+}
+
+interface SourceEventRow extends QueryResultRow {
+  data: string
+}
+
+function toSourceEvent(row: SourceEventRow): SourceEvent {
+  return SourceEventView.fromJSON(row.data)
 }
 
 export function createRecordingProvider(dbClient: DatabaseClient) {
@@ -107,7 +119,7 @@ export function createRecordingProvider(dbClient: DatabaseClient) {
           operatingSystem,
         ]
       )
-      .pipe(map(() => undefined))
+      .pipe(fMap(() => undefined))
   }
 
   function getRecordingMetadata(
@@ -139,10 +151,56 @@ export function createRecordingProvider(dbClient: DatabaseClient) {
     )
   }
 
+  function saveRecordingEvents(
+    recordingId: string,
+    eventStream: Readable
+  ): FutureInstance<Error, void> {
+    const transform = new Transform({
+      transform(data, _, callback) {
+        const event = SourceEventView.deserialize(data.toString())
+
+        const row = [
+          recordingId,
+          event.time,
+          event.type,
+          SourceEventView.toJSON(event),
+        ].join('\x02')
+
+        this.push(`${row}\n`)
+
+        callback()
+      },
+    })
+
+    return dbClient.writeFromStream(
+      'recording_events',
+      ['recording_id', 'time', 'type', 'data'],
+      eventStream.pipe(transform)
+    )
+  }
+
+  function getRecordingEvents(
+    recordingId: string
+  ): FutureInstance<Error, Observable<SourceEvent>> {
+    const result = dbClient.queryAsStream<SourceEventRow>(
+      `
+      SELECT data
+      FROM recording_events
+      WHERE recording_id = $1
+      ORDER BY id
+      `,
+      [recordingId]
+    )
+
+    return result.pipe(fMap(row$ => row$.pipe(rxMap(toSourceEvent))))
+  }
+
   return {
     getAllRecordingsForUser,
     saveRecordingMetadata,
     getRecordingMetadata,
+    saveRecordingEvents,
+    getRecordingEvents,
   }
 }
 

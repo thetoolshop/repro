@@ -2,7 +2,6 @@ import { approxByteLength } from '@repro/typed-binary-encoder'
 import { nanoid } from 'nanoid'
 import { LogLevel, MessagePartType } from './console'
 import {
-  CloseRecordingEvent,
   ConsoleEvent,
   DOMPatchEvent,
   InteractionEvent,
@@ -13,7 +12,6 @@ import {
 import { InteractionType, PointerState } from './interaction'
 import { NetworkMessageType, RequestType } from './network'
 import {
-  CloseRecordingEventView,
   ConsoleEventView,
   DOMPatchEventView,
   InteractionEventView,
@@ -135,19 +133,6 @@ describe('Event codecs', () => {
 
     const buffer = ConsoleEventView.encode(input)
     const view = ConsoleEventView.from(input)
-
-    expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
-    expect(view).toEqual(input)
-  })
-
-  it('should create a binary view for a close-recording event', () => {
-    const input: CloseRecordingEvent = {
-      type: SourceEventType.CloseRecording,
-      time: 123456,
-    }
-
-    const buffer = CloseRecordingEventView.encode(input)
-    const view = CloseRecordingEventView.from(input)
 
     expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
     expect(view).toEqual(input)

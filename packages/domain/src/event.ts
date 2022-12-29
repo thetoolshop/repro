@@ -160,42 +160,12 @@ export const ConsoleEventView = createSourceEventView<ConsoleEvent>(
   ConsoleEventSchema
 )
 
-// type CloseRecordingEvent: struct {
-//   type: SourceEventType.CloseRecording
-//   time: uint32
-// }
-
-export const CloseRecordingEventSchema = z.object({
-  type: z.literal(SourceEventType.CloseRecording),
-  time: z
-    .number()
-    .min(0)
-    .max(2 ** 32 - 1),
-})
-
-export type CloseRecordingEvent = z.infer<typeof CloseRecordingEventSchema>
-
-export const CloseRecordingEventView = createView<
-  CloseRecordingEvent,
-  StructDescriptor
->(
-  {
-    type: 'struct',
-    fields: [
-      ['type', UINT8],
-      ['time', UINT32],
-    ],
-  },
-  CloseRecordingEventSchema
-)
-
 // type SourceEvent: union on "type" {
 //   SnapshotEvent
 //   DOMPatchEvent
 //   InteractionEvent
 //   NetworkEvent
 //   ConsoleEvent
-//   CloseRecordingEvent
 // }
 
 export const SourceEventSchema = z.discriminatedUnion('type', [
@@ -204,7 +174,6 @@ export const SourceEventSchema = z.discriminatedUnion('type', [
   InteractionEventSchema,
   NetworkEventSchema,
   ConsoleEventSchema,
-  CloseRecordingEventSchema,
 ])
 
 export type SourceEvent = z.infer<typeof SourceEventSchema>
@@ -219,7 +188,6 @@ export const SourceEventView = createView<SourceEvent, UnionDescriptor>(
       [SourceEventType.Interaction]: InteractionEventView.descriptor,
       [SourceEventType.Network]: NetworkEventView.descriptor,
       [SourceEventType.Console]: ConsoleEventView.descriptor,
-      [SourceEventType.CloseRecording]: CloseRecordingEventView.descriptor,
     },
   },
   SourceEventSchema

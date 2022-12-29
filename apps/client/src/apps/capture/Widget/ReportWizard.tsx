@@ -1,11 +1,4 @@
-import {
-  CODEC_VERSION,
-  Project,
-  Recording,
-  RecordingMode,
-  RecordingView,
-  User,
-} from '@repro/domain'
+import { Project, RecordingMode, SourceEventView, User } from '@repro/domain'
 import { detect } from 'detect-browser'
 import { fork } from 'fluture'
 import { Block, Col, Grid, Row } from 'jsxstyle'
@@ -127,32 +120,36 @@ export const ReportWizard: React.FC<Props> = ({ onClose }) => {
         events = sliceEventsAtRange(events, [minTime, maxTime])
       }
 
-      const recording: Recording = RecordingView.from({
-        id: createRecordingId(),
-        codecVersion: CODEC_VERSION,
-        mode: recordingMode,
-        duration: maxTime - minTime,
-        events: events
-          .toSource()
-          .map(view => view.buffer.slice(view.byteOffset, view.byteLength)),
-      })
+      const recordingId = createRecordingId()
 
       Analytics.track('capture:save-start', {
-        recordingSize: RecordingView.encode(recording).byteLength.toString(),
+        recordingSize: events
+          .toSource()
+          .map(event => event.byteLength)
+          .reduce((a, b) => a + b, 0)
+          .toString(),
       })
 
       fork(onError)(onSuccess)(
         agent.raiseIntent({
           type: 'upload',
           payload: {
-            id: recording.id,
-            projectId: selectedProject && selectedProject.id,
+            recordingId,
             title: data.title,
             description: data.description,
-            recording: RecordingView.serialize(recording),
-            browserName: browser && browser.name,
-            browserVersion: browser && browser.version,
-            operatingSystem: browser && browser.os,
+            projectId: selectedProject && selectedProject.id,
+            duration: maxTime - minTime,
+            mode: recordingMode,
+            events: events
+              .toSource()
+              .map(view =>
+                SourceEventView.serialize(SourceEventView.over(view))
+              ),
+            context: {
+              browserName: browser && browser.name,
+              browserVersion: browser && browser.version,
+              operatingSystem: browser && browser.os,
+            },
           },
         })
       )
@@ -160,7 +157,7 @@ export const ReportWizard: React.FC<Props> = ({ onClose }) => {
       function onSuccess() {
         Analytics.track('capture:save-success')
         setUploading('done')
-        setRecordingId(recording.id)
+        setRecordingId(recordingId)
       }
 
       function onError(error: Error) {

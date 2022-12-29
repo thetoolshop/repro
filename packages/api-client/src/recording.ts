@@ -1,5 +1,10 @@
-import { Recording, RecordingMetadata, RecordingView } from '@repro/domain'
-import { gunzipSync, gzipSync } from 'fflate'
+import {
+  RecordingMetadata,
+  RecordingMode,
+  SourceEvent,
+  SourceEventView,
+} from '@repro/domain'
+import { gzipSync } from 'fflate'
 import { and, FutureInstance, map } from 'fluture'
 import { DataLoader } from './common'
 
@@ -9,63 +14,72 @@ export function createRecordingApi(dataLoader: DataLoader) {
   }
 
   function saveRecording(
-    projectId: string,
+    recordingId: string,
     title: string,
     description: string,
-    recording: Recording,
-    browserName: string | null,
-    browserVersion: string | null,
-    operatingSystem: string | null
+    projectId: string,
+    duration: number,
+    mode: RecordingMode,
+    events: Array<SourceEvent>,
+    context: {
+      browserName: string | null
+      browserVersion: string | null
+      operatingSystem: string | null
+    }
   ): FutureInstance<Error, void> {
-    const recordingData = RecordingView.encode(recording)
-
-    const compressedData = gzipSync(
-      new Uint8Array(
-        recordingData.buffer,
-        recordingData.byteOffset,
-        recordingData.byteLength
-      )
-    )
-
-    const data = dataLoader(
-      `/recordings/${recording.id}/data`,
-      {
-        method: 'PUT',
-        body: compressedData,
-        headers: {
-          'Content-Type': 'application/octet-stream',
-        },
-      },
-      'binary'
-    )
-
-    const metadata = dataLoader(`/recordings/${recording.id}/metadata`, {
+    const saveMetadata = dataLoader(`/recordings/${recordingId}/metadata`, {
       method: 'PUT',
       body: JSON.stringify({
-        projectId,
         title,
         description,
-        mode: recording.mode,
-        duration: recording.duration,
-        browserName,
-        browserVersion,
-        operatingSystem,
+        projectId,
+        duration,
+        mode,
+        browserName: context.browserName,
+        browserVersion: context.browserVersion,
+        operatingSystem: context.operatingSystem,
       }),
     })
 
-    return data.pipe(and(metadata))
+    const serializedData = events
+      .map(event => SourceEventView.serialize(event))
+      .join('\n')
+    const buffer = new Uint8Array(serializedData.length)
+
+    let i = 0
+
+    for (const char of serializedData) {
+      buffer[i] = char.charCodeAt(0)
+      i += 1
+    }
+
+    const saveData = dataLoader(`/recordings/${recordingId}/events`, {
+      method: 'PUT',
+      body: gzipSync(buffer),
+      headers: {
+        'Content-Encoding': 'gzip',
+        'Content-Type': 'text/plain',
+      },
+    })
+
+    return saveMetadata.pipe(and(saveData))
   }
 
-  function getRecordingData(
+  function getRecordingEvents(
     recordingId: string
-  ): FutureInstance<Error, Recording> {
-    return dataLoader<DataView>(`/recordings/${recordingId}/data`).pipe(
+  ): FutureInstance<Error, Array<SourceEvent>> {
+    return dataLoader<string>(`/recordings/${recordingId}/events`).pipe(
       map(data => {
-        const recordingData = gunzipSync(
-          new Uint8Array(data.buffer, data.byteOffset, data.byteLength)
-        )
+        const lines = data.split('\n')
+        const events: Array<SourceEvent> = []
 
-        return RecordingView.over(new DataView(recordingData.buffer))
+        for (const line of lines) {
+          if (line) {
+            events.push(SourceEventView.deserialize(line))
+          }
+        }
+
+        return events
       })
     )
   }
@@ -79,7 +93,7 @@ export function createRecordingApi(dataLoader: DataLoader) {
   return {
     getAllRecordings,
     saveRecording,
-    getRecordingData,
+    getRecordingEvents,
     getRecordingMetadata,
   }
 }

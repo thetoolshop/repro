@@ -4,11 +4,11 @@ import { QueryResultRow } from 'pg'
 import { DatabaseClient } from './database'
 
 interface SessionRow extends QueryResultRow {
-  data: Session
+  data: string
 }
 
 function toSession(row: SessionRow): Session {
-  return SessionView.validate(row.data)
+  return SessionView.fromJSON(row.data)
 }
 
 export function createSessionProvider(dbClient: DatabaseClient) {

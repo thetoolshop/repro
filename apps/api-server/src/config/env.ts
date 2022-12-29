@@ -22,7 +22,7 @@ const envSchema = z.object({
   EMAIL_SENDGRID_API_KEY: z.string(),
   EMAIL_TEMPLATE_DIRECTORY: z.string(),
 
-  PADDLE_VENDOR_ID: numericStringTransform,
+  PADDLE_VENDOR_ID: z.string(),
   PADDLE_API_KEY: z.string(),
   PADDLE_SANDBOX: z.string().optional(),
 
