@@ -50,7 +50,6 @@ export const ConsoleRow: React.FC<Props> = ({
     <Grid
       gridTemplateColumns="auto auto 1fr auto"
       columnGap={10}
-      rowGap={10}
       paddingV={5}
       paddingH={15}
       fontSize={13}

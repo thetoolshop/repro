@@ -8,7 +8,6 @@ import {
 import { colors } from '~/config/theme'
 import { View } from '../types'
 import { useView } from '../hooks'
-import { Tooltip } from '~/components/Tooltip'
 
 export const Tabs: React.FC = () => {
   return (
@@ -23,10 +22,9 @@ export const Tabs: React.FC = () => {
         <Inline>Console</Inline>
       </Item>
 
-      <Item view={View.Network} disabled>
+      <Item view={View.Network}>
         <NetworkIcon size={16} />
         <Inline>Network</Inline>
-        <Tooltip position="bottom">Coming soon</Tooltip>
       </Item>
     </Row>
   )

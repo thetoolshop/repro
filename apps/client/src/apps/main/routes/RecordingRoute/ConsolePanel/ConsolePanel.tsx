@@ -6,13 +6,14 @@ import {
   SourceEventView,
 } from '@repro/domain'
 import { Block, Grid } from 'jsxstyle'
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { Fragment, useMemo } from 'react'
 import { colors } from '~/config/theme'
 import { Stats } from '~/libs/diagnostics'
 import { usePlayback } from '~/libs/playback'
+import { ElapsedMarker } from '../ElapsedMarker'
 import { useConsoleLevelFilter, useConsoleSearch } from '../hooks'
+import { pairwise } from '../utils'
 import { ConsoleRow } from './ConsoleRow'
-import { ElapsedMarker } from './ElapsedMarker'
 import { LevelFilter } from './LevelFilter'
 import { SearchForm } from './SearchForm'
 import { enumToBitField } from './util'
@@ -21,35 +22,12 @@ function isConsoleEvent(event: SourceEvent): event is ConsoleEvent {
   return event.type === SourceEventType.Console
 }
 
-function pairwise<T>(items: Array<T>): Array<[T | null, T | null]> {
-  const pairs: Array<[T | null, T | null]> = []
-
-  let prevItem: T | null = null
-  let item: T | null = null
-
-  for (let i = 0, len = items.length; i <= len; i++) {
-    item = items[i] ?? null
-    pairs.push([prevItem, item])
-    prevItem = item
-  }
-
-  return pairs
-}
-
 export const ConsolePanel: React.FC = () => {
   const playback = usePlayback()
   const [consoleSearch, setConsoleSearch] = useConsoleSearch()
   const [consoleLevelFilter, setConsoleLevelFilter] = useConsoleLevelFilter()
 
-  const [consoleEvents, setConsoleEvents] = useState<
-    Array<[ConsoleEvent, number]>
-  >([])
-
-  const [filteredConsoleEvents, setFilteredConsoleEvents] = useState<
-    Array<[ConsoleEvent, number]>
-  >([])
-
-  useEffect(() => {
+  const consoleEvents = useMemo(() => {
     const events: Array<[ConsoleEvent, number]> = []
 
     Stats.time(
@@ -70,11 +48,11 @@ export const ConsolePanel: React.FC = () => {
       }
     )
 
-    setConsoleEvents(events)
-  }, [playback, setConsoleEvents])
+    return events
+  }, [playback])
 
-  useEffect(() => {
-    const events = Stats.time('ConsolePanel -> filter console events', () => {
+  const filteredConsoleEvents = useMemo(() => {
+    return Stats.time('ConsolePanel -> filter console events', () => {
       return consoleEvents.filter(([event]) => {
         const levelBitField = enumToBitField(event.data.level)
 
@@ -91,16 +69,15 @@ export const ConsolePanel: React.FC = () => {
         )
       })
     })
+  }, [consoleEvents, consoleSearch, consoleLevelFilter])
 
-    setFilteredConsoleEvents(events)
-  }, [
-    consoleEvents,
-    consoleSearch,
-    consoleLevelFilter,
-    setFilteredConsoleEvents,
-  ])
-
-  const filteredPairs = pairwise(filteredConsoleEvents)
+  const filteredPairs = useMemo(
+    () =>
+      Stats.time('ConsolePanel -> create console event pairs', () =>
+        pairwise(filteredConsoleEvents)
+      ),
+    [filteredConsoleEvents]
+  )
 
   return (
     <Grid gridTemplateRows="auto 1fr" height="100%">

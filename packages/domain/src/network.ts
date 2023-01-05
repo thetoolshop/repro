@@ -148,27 +148,15 @@ export const BinaryTypeView = createView<BinaryType, IntegerDescriptor>(
   BinaryTypeSchema
 )
 
-// type ConnectionId: char[4]
-
-export const ConnectionIdSchema = z.string().length(4)
-export type ConnectionId = z.infer<typeof ConnectionIdSchema>
-export const ConnectionIdView = createView<ConnectionId, CharDescriptor>(
-  {
-    type: 'char',
-    bytes: 4,
-  },
-  ConnectionIdSchema
-)
-
 // type WebSocketOpen: struct {
 //   type: NetworkMessageType.WebSocketOpen
-//   connectionId: ConnectionId
+//   correlationId: CorrelationId
 //   url: string
 // }
 
 export const WebSocketOpenSchema = z.object({
   type: z.literal(NetworkMessageType.WebSocketOpen),
-  connectionId: ConnectionIdSchema,
+  correlationId: CorrelationIdSchema,
   url: z.string(),
 })
 
@@ -179,7 +167,7 @@ export const WebSocketOpenView = createView<WebSocketOpen, StructDescriptor>(
     type: 'struct',
     fields: [
       ['type', UINT8],
-      ['connectionId', ConnectionIdView.descriptor],
+      ['correlationId', CorrelationIdView.descriptor],
       ['url', { type: 'string' }],
     ],
   },
@@ -193,7 +181,7 @@ export const WebSocketOpenView = createView<WebSocketOpen, StructDescriptor>(
 
 export const WebSocketCloseSchema = z.object({
   type: z.literal(NetworkMessageType.WebSocketClose),
-  connectionId: ConnectionIdSchema,
+  correlationId: CorrelationIdSchema,
 })
 
 export type WebSocketClose = z.infer<typeof WebSocketCloseSchema>
@@ -203,7 +191,7 @@ export const WebSocketCloseView = createView<WebSocketClose, StructDescriptor>(
     type: 'struct',
     fields: [
       ['type', UINT8],
-      ['connectionId', ConnectionIdView.descriptor],
+      ['correlationId', CorrelationIdView.descriptor],
     ],
   },
   WebSocketCloseSchema
@@ -218,7 +206,7 @@ export const WebSocketCloseView = createView<WebSocketClose, StructDescriptor>(
 
 export const WebSocketInboundSchema = z.object({
   type: z.literal(NetworkMessageType.WebSocketInbound),
-  connectionId: ConnectionIdSchema,
+  correlationId: CorrelationIdSchema,
   binaryType: BinaryTypeSchema,
   data: z.instanceof(ArrayBuffer),
 })
@@ -233,7 +221,7 @@ export const WebSocketInboundView = createView<
     type: 'struct',
     fields: [
       ['type', UINT8],
-      ['connectionId', ConnectionIdView.descriptor],
+      ['correlationId', CorrelationIdView.descriptor],
       ['binaryType', BinaryTypeView.descriptor],
       ['data', { type: 'buffer' }],
     ],
@@ -250,7 +238,7 @@ export const WebSocketInboundView = createView<
 
 export const WebSocketOutboundSchema = z.object({
   type: z.literal(NetworkMessageType.WebSocketOutbound),
-  connectionId: ConnectionIdSchema,
+  correlationId: CorrelationIdSchema,
   binaryType: BinaryTypeSchema,
   data: z.instanceof(ArrayBuffer),
 })
@@ -265,7 +253,7 @@ export const WebSocketOutboundView = createView<
     type: 'struct',
     fields: [
       ['type', UINT8],
-      ['connectionId', ConnectionIdView.descriptor],
+      ['correlationId', CorrelationIdView.descriptor],
       ['binaryType', BinaryTypeView.descriptor],
       ['data', { type: 'buffer' }],
     ],
@@ -310,7 +298,6 @@ export type NetworkMessage = z.infer<typeof NetworkMessageSchema>
 export const NETWORK_EVENT_TYPE_BYTE_LENGTH = 1
 export const CORRELATION_ID_BYTE_LENGTH = 4
 export const REQUEST_INITIATOR_BYTE_LENGTH = 1
-export const CONNECTION_ID_BYTE_LENGTH = 4
 export const BINARY_TYPE_BYTE_LENGTH = 1
 
 export const NetworkMessageView = createView<NetworkMessage, UnionDescriptor>(

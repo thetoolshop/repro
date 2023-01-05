@@ -3,7 +3,6 @@ import { nanoid } from 'nanoid'
 import { SyntheticId } from './common'
 import {
   BinaryType,
-  CONNECTION_ID_BYTE_LENGTH,
   CORRELATION_ID_BYTE_LENGTH,
   FetchRequest,
   FetchRequestView,
@@ -23,10 +22,6 @@ import {
 
 function createCorrelationId(): SyntheticId {
   return nanoid(CORRELATION_ID_BYTE_LENGTH)
-}
-
-function createConnectionId(): SyntheticId {
-  return nanoid(CONNECTION_ID_BYTE_LENGTH)
 }
 
 function encodeBody(body: string): ArrayBuffer {
@@ -75,7 +70,7 @@ describe('Network codecs', () => {
   it('should create a binary view for a WebSocket Open', () => {
     const input: WebSocketOpen = {
       type: NetworkMessageType.WebSocketOpen,
-      connectionId: createConnectionId(),
+      correlationId: createCorrelationId(),
       url: 'ws://example.com/path/to/resource',
     }
 
@@ -89,7 +84,7 @@ describe('Network codecs', () => {
   it('should create a binary view for a WebSocket Close', () => {
     const input: WebSocketClose = {
       type: NetworkMessageType.WebSocketClose,
-      connectionId: createConnectionId(),
+      correlationId: createCorrelationId(),
     }
 
     const buffer = WebSocketCloseView.encode(input)
@@ -102,7 +97,7 @@ describe('Network codecs', () => {
   it('should create a binary view for a WebSocket inbound message', () => {
     const input: WebSocketInbound = {
       type: NetworkMessageType.WebSocketInbound,
-      connectionId: createConnectionId(),
+      correlationId: createCorrelationId(),
       binaryType: BinaryType.Blob,
       data: encodeBody('{ "foo": "bar" }'),
     }
@@ -117,7 +112,7 @@ describe('Network codecs', () => {
   it('should create a binary view for a WebSocket outbound message', () => {
     const input: WebSocketOutbound = {
       type: NetworkMessageType.WebSocketOutbound,
-      connectionId: createConnectionId(),
+      correlationId: createCorrelationId(),
       binaryType: BinaryType.Blob,
       data: encodeBody('{ "foo": "bar" }'),
     }

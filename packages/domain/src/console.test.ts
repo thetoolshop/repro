@@ -1,11 +1,11 @@
 import { approxByteLength } from '@repro/typed-binary-encoder'
+import { elementNode } from './fixtures/vdom'
 import {
   ConsoleMessage,
   ConsoleMessageView,
   LogLevel,
   MessagePartType,
 } from './console'
-import { createNodeId } from './vdom'
 
 describe('Console codecs', () => {
   it('should create a binary view for a console message', () => {
@@ -13,7 +13,7 @@ describe('Console codecs', () => {
       level: LogLevel.Info,
       parts: [
         { type: MessagePartType.String, value: 'foo' },
-        { type: MessagePartType.Node, nodeId: createNodeId() },
+        { type: MessagePartType.Node, node: elementNode },
       ],
       stack: [
         {
