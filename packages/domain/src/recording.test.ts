@@ -13,7 +13,7 @@ import { Recording, RecordingMode, RecordingView } from './recording'
 describe('Recording codec', () => {
   it('should create a binary view for a recording', () => {
     const input: Recording = {
-      codecVersion: 1,
+      codecVersion: '1',
       id: uuid(),
       mode: RecordingMode.Replay,
       duration: 60000,
