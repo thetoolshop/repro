@@ -143,6 +143,20 @@ export function createSourcePlayback(events: LazyList<SourceEvent>): Playback {
     return [eventsBefore, eventsAfter] as const
   }
 
+  let mutexLock = false
+
+  function withMutexLock(callback: () => void) {
+    mutexLock = true
+    callback()
+    mutexLock = false
+  }
+
+  function unlessMutexLock(callback: () => void) {
+    if (!mutexLock) {
+      callback()
+    }
+  }
+
   let queuedEvents: LazyList<SourceEvent> = loadEvents()
 
   const eventLoop = connectable(
@@ -167,18 +181,20 @@ export function createSourcePlayback(events: LazyList<SourceEvent>): Playback {
 
   subscription.add(
     $elapsed.subscribe(elapsed => {
-      // TODO: investigate performance implications (especially after
-      // resuming background/idle tab)
-      const [before, after] = partitionEvents(
-        queuedEvents,
-        event => event.time > elapsed,
-        (sample, time) => time + sample.duration > elapsed
-      )
+      unlessMutexLock(() => {
+        // TODO: investigate performance implications (especially after
+        // resuming background/idle tab)
+        const [before, after] = partitionEvents(
+          queuedEvents,
+          event => event.time > elapsed,
+          (sample, time) => time + sample.duration > elapsed
+        )
 
-      queuedEvents = after
+        queuedEvents = after
 
-      setBuffer(before)
-      setActiveIndex(activeIndex => activeIndex + before.size())
+        setBuffer(before)
+        setActiveIndex(activeIndex => activeIndex + before.size())
+      })
 
       if (elapsed >= duration) {
         setPlaybackState(PlaybackState.Paused)
@@ -277,7 +293,11 @@ export function createSourcePlayback(events: LazyList<SourceEvent>): Playback {
 
     setSnapshot(snapshot || EMPTY_SNAPSHOT)
     setActiveIndex(nextIndex)
-    setElapsed(targetEvent.time)
+
+    withMutexLock(() => {
+      setElapsed(targetEvent.time)
+    })
+
     setLatestControlFrame(ControlFrame.SeekToEvent)
 
     Stats.value('Playback: seek to event', performance.now() - start)
@@ -347,7 +367,11 @@ export function createSourcePlayback(events: LazyList<SourceEvent>): Playback {
 
       setSnapshot(snapshot || EMPTY_SNAPSHOT)
       setActiveIndex(activeIndexOffset + before.size())
-      setElapsed(elapsed)
+
+      withMutexLock(() => {
+        setElapsed(elapsed)
+      })
+
       setLatestControlFrame(ControlFrame.SeekToTime)
     })
   }
