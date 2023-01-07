@@ -2,7 +2,6 @@ import { approxByteLength } from '@repro/typed-binary-encoder'
 import { nanoid } from 'nanoid'
 import { SyntheticId } from './common'
 import {
-  BinaryType,
   CORRELATION_ID_BYTE_LENGTH,
   FetchRequest,
   FetchRequestView,
@@ -14,6 +13,7 @@ import {
   WebSocketCloseView,
   WebSocketInbound,
   WebSocketInboundView,
+  WebSocketMessageType,
   WebSocketOpen,
   WebSocketOpenView,
   WebSocketOutbound,
@@ -98,7 +98,7 @@ describe('Network codecs', () => {
     const input: WebSocketInbound = {
       type: NetworkMessageType.WebSocketInbound,
       correlationId: createCorrelationId(),
-      binaryType: BinaryType.Blob,
+      messageType: WebSocketMessageType.Text,
       data: encodeBody('{ "foo": "bar" }'),
     }
 
@@ -113,7 +113,7 @@ describe('Network codecs', () => {
     const input: WebSocketOutbound = {
       type: NetworkMessageType.WebSocketOutbound,
       correlationId: createCorrelationId(),
-      binaryType: BinaryType.Blob,
+      messageType: WebSocketMessageType.Text,
       data: encodeBody('{ "foo": "bar" }'),
     }
 

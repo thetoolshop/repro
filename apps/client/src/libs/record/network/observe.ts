@@ -1,10 +1,10 @@
 import { nanoid } from 'nanoid'
 import {
-  BinaryType,
   NetworkMessage,
   NetworkMessageType,
   RequestType,
   SyntheticId,
+  WebSocketMessageType,
 } from '@repro/domain'
 import { ObserverLike } from '~/utils/observer'
 
@@ -341,21 +341,21 @@ function createFetchObserver(subscriber: Subscriber): ObserverLike<Document> {
 function createWebSocketObserver(
   subscriber: Subscriber
 ): ObserverLike<Document> {
-  const connectionIds = new WeakMap<WebSocket, SyntheticId>()
+  const correlationIds = new WeakMap<WebSocket, SyntheticId>()
 
-  function hasConnectionId(socket: WebSocket) {
-    return connectionIds.has(socket)
+  function hasCorrelationId(socket: WebSocket) {
+    return correlationIds.has(socket)
   }
 
-  function getOrCreateConnectionId(socket: WebSocket): SyntheticId {
-    let connectionId = connectionIds.get(socket)
+  function getOrCreateCorrelationId(socket: WebSocket): SyntheticId {
+    let correlationId = correlationIds.get(socket)
 
-    if (!connectionId) {
-      connectionId = nanoid(4)
-      connectionIds.set(socket, connectionId)
+    if (!correlationId) {
+      correlationId = nanoid(4)
+      correlationIds.set(socket, correlationId)
     }
 
-    return connectionId
+    return correlationId
   }
 
   const textEncoder = new TextEncoder()
@@ -379,33 +379,33 @@ function createWebSocketObserver(
   }
 
   function handleClose(this: WebSocket) {
-    if (hasConnectionId(this)) {
+    if (hasCorrelationId(this)) {
       closeEffect(this)
     }
   }
 
   function openEffect(socket: WebSocket) {
-    const connectionId = getOrCreateConnectionId(socket)
+    const correlationId = getOrCreateCorrelationId(socket)
     const url = socket.url
 
     socket.addEventListener('close', handleClose)
 
     subscriber({
       type: NetworkMessageType.WebSocketOpen,
-      connectionId,
+      correlationId,
       url,
     })
   }
 
   function closeEffect(socket: WebSocket) {
-    const connectionId = getOrCreateConnectionId(socket)
+    const correlationId = getOrCreateCorrelationId(socket)
 
     subscriber({
       type: NetworkMessageType.WebSocketClose,
-      connectionId,
+      correlationId,
     })
 
-    connectionIds.delete(socket)
+    correlationIds.delete(socket)
     socket.removeEventListener('close', handleClose)
   }
 
@@ -413,17 +413,19 @@ function createWebSocketObserver(
     socket: WebSocket,
     data: string | ArrayBufferLike | Blob | ArrayBufferView
   ) {
-    const connectionId = getOrCreateConnectionId(socket)
+    const correlationId = getOrCreateCorrelationId(socket)
 
-    const binaryType =
-      typeof data === 'string' || data instanceof Blob
-        ? BinaryType.Blob
-        : BinaryType.ArrayBuffer
+    const isBinary =
+      data instanceof ArrayBuffer ||
+      data instanceof Blob ||
+      ArrayBuffer.isView(data)
 
     subscriber({
       type: NetworkMessageType.WebSocketOutbound,
-      connectionId,
-      binaryType,
+      correlationId,
+      messageType: isBinary
+        ? WebSocketMessageType.Binary
+        : WebSocketMessageType.Text,
       data: await dataToArrayBuffer(data),
     })
   }
@@ -433,21 +435,23 @@ function createWebSocketObserver(
       const target = ev.currentTarget
 
       if (target && isWebSocket(target)) {
-        if (!hasConnectionId(target)) {
+        if (!hasCorrelationId(target)) {
           openEffect(target)
         }
 
-        const connectionId = getOrCreateConnectionId(target)
+        const correlationId = getOrCreateCorrelationId(target)
 
-        const binaryType =
-          target.binaryType === 'blob'
-            ? BinaryType.Blob
-            : BinaryType.ArrayBuffer
+        const isBinary =
+          ev.data instanceof ArrayBuffer ||
+          ev.data instanceof Blob ||
+          ArrayBuffer.isView(ev.data)
 
         subscriber({
           type: NetworkMessageType.WebSocketInbound,
-          connectionId,
-          binaryType,
+          correlationId,
+          messageType: isBinary
+            ? WebSocketMessageType.Binary
+            : WebSocketMessageType.Text,
           data: await dataToArrayBuffer(ev.data),
         })
       }
@@ -472,7 +476,7 @@ function createWebSocketObserver(
       window.WebSocket = WebSocketCtorProxy
 
       window.WebSocket.prototype.send = function (this, ...args) {
-        if (!hasConnectionId(this)) {
+        if (!hasCorrelationId(this)) {
           openEffect(this)
         }
 
@@ -481,7 +485,7 @@ function createWebSocketObserver(
       }
 
       window.WebSocket.prototype.close = function (this, ...args) {
-        if (hasConnectionId(this)) {
+        if (hasCorrelationId(this)) {
           closeEffect(this)
         }
 
