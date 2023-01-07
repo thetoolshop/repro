@@ -35,8 +35,6 @@ function getRequestTiming(group: FetchGroup | WebSocketGroup): number | null {
     return null
   }
 
-  console.log(group)
-
   if (!group.responseTime) {
     return null
   }
@@ -173,6 +171,7 @@ const Cell: React.FC<PropsWithChildren<JsxstyleProps<false>>> = ({
   ...props
 }) => (
   <Row
+    alignSelf="stretch"
     alignItems="center"
     paddingV={10}
     paddingH={10}

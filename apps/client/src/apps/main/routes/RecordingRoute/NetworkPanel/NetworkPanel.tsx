@@ -5,7 +5,7 @@ import {
   SourceEventType,
   SourceEventView,
 } from '@repro/domain'
-import { Block, Grid } from 'jsxstyle'
+import { Block, Grid, Row } from 'jsxstyle'
 import React, { Fragment, useMemo, useState } from 'react'
 import { colors } from '~/config/theme'
 import { Stats } from '~/libs/diagnostics'
@@ -164,15 +164,17 @@ export const NetworkPanel: React.FC = () => {
         overflow="auto"
       >
         <Block display="contents" fontWeight={700}>
-          {['Time', 'URL', 'Status', 'Type', 'Size', 'Duration'].map(
+          {['Time', 'URL', 'Status', 'Type', 'Size', 'Duration', ''].map(
             (label, i) => (
-              <Block
+              <Row
                 key={i}
+                alignSelf="stretch"
+                alignItems="center"
                 padding={10}
                 borderLeft={i !== 0 ? `1px solid ${colors.slate['200']}` : null}
               >
                 {label}
-              </Block>
+              </Row>
             )
           )}
         </Block>
@@ -202,6 +204,11 @@ export const NetworkPanel: React.FC = () => {
 
       {selectedGroup && (
         <DetailsOverlay
+          key={
+            selectedGroup.type === 'fetch'
+              ? selectedGroup.requestIndex
+              : selectedGroup.openIndex
+          }
           group={selectedGroup}
           onClose={() => setSelectedGroup(null)}
         />

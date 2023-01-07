@@ -36,7 +36,7 @@ export const ElapsedMarker: React.FC<Props> = ({ prevIndex, nextIndex }) => {
         borderStyle="solid"
         borderWidth="1px 0 0"
       />
-      {active && (
+      {active && prevIndex !== -1 && (
         <Block
           position="absolute"
           left={0}

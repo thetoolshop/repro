@@ -86,6 +86,7 @@ const DefinitionList: React.FC<DLProps> = ({ title, pairs }) => (
       fontSize={15}
       fontWeight={700}
       color={colors.blue['700']}
+      borderBottom={`1px solid ${colors.slate['200']}`}
     >
       {title}
     </Block>

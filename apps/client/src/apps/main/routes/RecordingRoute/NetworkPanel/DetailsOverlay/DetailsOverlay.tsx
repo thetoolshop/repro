@@ -1,5 +1,5 @@
 import React, { Fragment, useState } from 'react'
-import { Block, Row } from 'jsxstyle'
+import { Block, Grid, Row } from 'jsxstyle'
 import { X as CloseIcon } from 'lucide-react'
 import { colors } from '~/config/theme'
 import { FetchGroup, WebSocketGroup } from '../types'
@@ -29,26 +29,32 @@ export const DetailsOverlay: React.FC<Props> = ({ group, onClose }) => {
     group.type === 'ws' ? 'messages' : 'headers'
   )
 
-  const requestBody = group.type === 'fetch' ? group.request.body : null
+  const requestBody =
+    group.type === 'fetch' && group.request.body.byteLength
+      ? group.request.body
+      : null
+
   const requestContentType =
     group.type === 'fetch' ? extractContentType(group.request.headers) : null
 
   const responseBody =
-    group.type === 'fetch' ? group.response?.body ?? null : null
+    group.type === 'fetch' && group.response?.body.byteLength
+      ? group.response?.body ?? null
+      : null
+
   const responseContentType =
     group.type === 'fetch'
       ? extractContentType(group.response?.headers ?? {})
       : null
 
   return (
-    <Block
+    <Grid
+      gridTemplateRows="auto 1fr"
       position="absolute"
       width="75%"
       top={0}
       bottom={0}
       right={0}
-      padding={10}
-      overflow="auto"
       backgroundColor={colors.white}
       borderLeft={`1px solid ${colors.slate['200']}`}
       boxShadow={`
@@ -56,7 +62,13 @@ export const DetailsOverlay: React.FC<Props> = ({ group, onClose }) => {
         0 1px 2px rgba(0, 0, 0, 0.1)
       `}
     >
-      <Row gap={10} alignItems="center">
+      <Row
+        gap={10}
+        alignItems="center"
+        padding={10}
+        backgroundColor={colors.slate['50']}
+        borderBottom={`1px solid ${colors.slate['200']}`}
+      >
         <Row
           alignItems="center"
           justifyContent="center"
@@ -64,7 +76,7 @@ export const DetailsOverlay: React.FC<Props> = ({ group, onClose }) => {
           height={24}
           borderRadius="99rem"
           backgroundColor="transparent"
-          hoverBackgroundColor={colors.slate['100']}
+          hoverBackgroundColor={colors.slate['200']}
           cursor="pointer"
           props={{ onClick: onClose }}
         >
@@ -96,23 +108,35 @@ export const DetailsOverlay: React.FC<Props> = ({ group, onClose }) => {
             )}
           </Fragment>
         )}
+
+        {group.type === 'ws' && (
+          <Tab
+            active={view === 'messages'}
+            label="Messages"
+            onClick={() => setView('messages')}
+          />
+        )}
       </Row>
 
-      {group.type === 'fetch' && (
-        <Fragment>
-          {view === 'headers' && <Headers group={group} />}
-          {view === 'request' && requestBody && (
-            <Body body={requestBody} contentType={requestContentType} />
-          )}
-          {view === 'response' && responseBody && (
-            <Body body={responseBody} contentType={responseContentType} />
-          )}
-        </Fragment>
-      )}
+      <Block overflow="auto" padding={10}>
+        {group.type === 'fetch' && (
+          <Fragment>
+            {view === 'headers' && <Headers group={group} />}
+            {view === 'request' && requestBody && (
+              <Body body={requestBody} contentType={requestContentType} />
+            )}
+            {view === 'response' && responseBody && (
+              <Body body={responseBody} contentType={responseContentType} />
+            )}
+          </Fragment>
+        )}
 
-      {group.type === 'ws' && (
-        <Fragment>{view === 'messages' && <Messages group={group} />}</Fragment>
-      )}
-    </Block>
+        {group.type === 'ws' && (
+          <Fragment>
+            {view === 'messages' && <Messages group={group} />}
+          </Fragment>
+        )}
+      </Block>
+    </Grid>
   )
 }
