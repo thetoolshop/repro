@@ -34,38 +34,6 @@ export const RecordingModeView = createView<RecordingMode, IntegerDescriptor>(
   RecordingModeSchema
 )
 
-// type Recording: struct {
-//   codecVersion: uint32
-//   id: uuid
-//   mode: RecordingMode
-//   duration: uint32
-//   events: list<SourceEvent>
-// }
-
-export const RecordingSchema = z.object({
-  codecVersion: z.string(),
-  id: z.string().uuid(),
-  mode: RecordingModeSchema,
-  duration: z.number(),
-  events: z.array(z.instanceof(ArrayBuffer)),
-})
-
-export type Recording = z.infer<typeof RecordingSchema>
-
-export const RecordingView = createView<Recording, StructDescriptor>(
-  {
-    type: 'struct',
-    fields: [
-      ['codecVersion', { type: 'string' }],
-      ['id', { type: 'char', bytes: 36 }],
-      ['mode', UINT8],
-      ['duration', UINT32],
-      ['events', { type: 'vector', items: { type: 'buffer' } }],
-    ],
-  },
-  RecordingSchema
-)
-
 // tbe.extensions.js
 // defineCustomType('uuid', {
 //   as: 'char[36]',
