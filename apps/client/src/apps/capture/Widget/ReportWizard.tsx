@@ -136,6 +136,7 @@ export const ReportWizard: React.FC<Props> = ({ onClose }) => {
           payload: {
             recordingId,
             title: data.title,
+            url: location.href,
             description: data.description,
             projectId: selectedProject && selectedProject.id,
             duration: maxTime - minTime,

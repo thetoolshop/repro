@@ -48,6 +48,7 @@ export const RecordingModeView = createView<RecordingMode, IntegerDescriptor>(
 // type RecordingMetadata: struct {
 //   id: uuid
 //   title: string
+//   url: string
 //   description: string
 //   mode: RecordingMode
 //   duration: uint32
@@ -64,6 +65,7 @@ export const RecordingModeView = createView<RecordingMode, IntegerDescriptor>(
 export const RecordingMetadataSchema = z.object({
   id: z.string().uuid(),
   title: z.string(),
+  url: z.string(),
   description: z.string(),
   mode: RecordingModeSchema,
   duration: z
@@ -92,6 +94,7 @@ export const RecordingMetadataView = createView<
     fields: [
       ['id', { type: 'char', bytes: 36 }],
       ['title', { type: 'string' }],
+      ['url', { type: 'string' }],
       ['description', { type: 'string' }],
       ['mode', RecordingModeView.descriptor],
       ['duration', UINT32],

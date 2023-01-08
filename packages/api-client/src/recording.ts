@@ -16,6 +16,7 @@ export function createRecordingApi(dataLoader: DataLoader) {
   function saveRecording(
     recordingId: string,
     title: string,
+    url: string,
     description: string,
     projectId: string,
     duration: number,
@@ -31,6 +32,7 @@ export function createRecordingApi(dataLoader: DataLoader) {
       method: 'PUT',
       body: JSON.stringify({
         title,
+        url,
         description,
         projectId,
         duration,

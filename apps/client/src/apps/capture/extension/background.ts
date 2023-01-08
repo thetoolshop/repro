@@ -85,6 +85,7 @@ agent.subscribeToIntent('upload', (payload: any) => {
   return apiClient.recording.saveRecording(
     payload.recordingId,
     payload.title,
+    payload.url,
     payload.description,
     payload.projectId,
     payload.duration,

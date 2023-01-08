@@ -57,6 +57,7 @@ export function createRecordingRouter(
   const createRecordingRequestBodySchema = z.object({
     projectId: z.string(),
     title: z.string(),
+    url: z.string().url(),
     description: z.string(),
     mode: z.number(),
     duration: z.number(),
@@ -84,6 +85,7 @@ export function createRecordingRouter(
                   recordingId,
                   userId,
                   body.title,
+                  body.url,
                   body.description,
                   body.mode,
                   body.duration,

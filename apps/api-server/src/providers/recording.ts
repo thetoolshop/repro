@@ -14,6 +14,7 @@ import { DatabaseClient } from './database'
 interface RecordingMetadataRow extends QueryResultRow {
   id: string
   title: string
+  url: string
   description: string
   mode: number
   duration: number
@@ -31,6 +32,7 @@ function toRecordingMetadata(row: RecordingMetadataRow): RecordingMetadata {
   return RecordingMetadataView.validate({
     id: row.id,
     title: row.title,
+    url: row.url,
     description: row.description,
     mode: row.mode,
     duration: row.duration,
@@ -62,6 +64,7 @@ export function createRecordingProvider(dbClient: DatabaseClient) {
       SELECT
         r.id,
         r.title,
+        r.url,
         r.description,
         r.mode,
         r.duration,
@@ -90,6 +93,7 @@ export function createRecordingProvider(dbClient: DatabaseClient) {
     recordingId: string,
     authorId: string,
     title: string,
+    url: string,
     description: string,
     mode: RecordingMode,
     duration: number,
@@ -101,9 +105,9 @@ export function createRecordingProvider(dbClient: DatabaseClient) {
       .query(
         `
         INSERT INTO recordings
-          (id, team_id, author_id, project_id, title, description, mode, duration,
+          (id, team_id, author_id, project_id, title, url, description, mode, duration,
             browser_name, browser_version, operating_system)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
         `,
         [
           recordingId,
@@ -111,6 +115,7 @@ export function createRecordingProvider(dbClient: DatabaseClient) {
           authorId,
           projectId,
           title,
+          url,
           description,
           mode,
           duration,
@@ -130,6 +135,7 @@ export function createRecordingProvider(dbClient: DatabaseClient) {
       SELECT
         r.id,
         r.title,
+        r.url,
         r.description,
         r.mode,
         r.duration,
