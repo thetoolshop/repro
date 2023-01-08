@@ -11,11 +11,13 @@ import {
   ChevronsDown as InboundIcon,
 } from 'lucide-react'
 import prettyBytes from 'pretty-bytes'
-import React, { Fragment, PropsWithChildren } from 'react'
+import React, { PropsWithChildren } from 'react'
+import AutoSizer from 'react-virtualized-auto-sizer'
+import { FixedSizeList, ListChildComponentProps } from 'react-window'
 import { colors } from '~/config/theme'
+import { Stats } from '~/libs/diagnostics'
 import { formatTime } from '~/utils/date'
 import { ElapsedMarker } from '../../ElapsedMarker'
-import { pairwise } from '../../utils'
 import { WebSocketGroup } from '../types'
 
 interface Props {
@@ -23,107 +25,135 @@ interface Props {
 }
 
 function binaryToHex(buf: ArrayBuffer) {
-  const bytes = new Uint8Array(buf)
-  let output = ''
+  return Stats.time('NetworkPanel -> Messages -> binaryToHex', () => {
+    const bytes = new Uint8Array(buf)
+    let output = ''
 
-  for (const byte of bytes) {
-    output += byte.toString(16).padStart(2, '0') + ' '
-  }
+    for (const byte of bytes) {
+      output += byte.toString(16).padStart(2, '0') + ' '
+    }
 
-  return (
-    <Inline
-      fontFamily="monospace"
-      overflow="hidden"
-      whiteSpace="nowrap"
-      textOverflow="ellipsis"
-    >
-      {output}
-    </Inline>
-  )
+    return (
+      <Inline
+        fontFamily="monospace"
+        overflow="hidden"
+        whiteSpace="nowrap"
+        textOverflow="ellipsis"
+      >
+        {output}
+      </Inline>
+    )
+  })
 }
 
 function binaryToString(buf: ArrayBuffer) {
-  return (
-    <Inline
-      fontFamily="monospace"
-      overflow="hidden"
-      whiteSpace="nowrap"
-      textOverflow="ellipsis"
-    >
-      {new TextDecoder().decode(buf)}
-    </Inline>
-  )
+  return Stats.time('NetworkPanel -> Messages -> binaryToString', () => {
+    return (
+      <Inline
+        fontFamily="monospace"
+        overflow="hidden"
+        whiteSpace="nowrap"
+        textOverflow="ellipsis"
+      >
+        {new TextDecoder().decode(buf)}
+      </Inline>
+    )
+  })
 }
 
 export const Messages: React.FC<Props> = ({ group }) => {
-  const messagePairs = pairwise(group.messages || [])
+  const firstMessage = group.messages?.[0]
 
   return (
-    <Grid
-      gridTemplateColumns="auto auto 1fr max-content"
-      alignItems="stretch"
-      fontSize={13}
-    >
-      {messagePairs.map(([prev, event], i) => (
-        <Fragment key={i}>
-          <Block gridColumn="1 / span 4">
-            <ElapsedMarker
-              prevIndex={prev ? prev.index : -1}
-              nextIndex={event ? event.index : Number.MAX_SAFE_INTEGER}
-            />
-          </Block>
+    <Block height="100%" fontSize={13}>
+      {firstMessage && (
+        <ElapsedMarker prevIndex={-1} nextIndex={firstMessage.index} />
+      )}
 
-          {event && (
-            <MessageRow
-              key={event.index}
-              message={event.data}
-              time={event.time}
-              index={event.index}
-            />
-          )}
-        </Fragment>
-      ))}
-    </Grid>
+      <AutoSizer disableWidth>
+        {({ height }) => (
+          <FixedSizeList
+            height={height}
+            width="100%"
+            itemSize={32}
+            itemCount={group.messages?.length || 0}
+            itemData={group.messages}
+          >
+            {MessageRow}
+          </FixedSizeList>
+        )}
+      </AutoSizer>
+    </Block>
   )
 }
 
 interface MessageRowProps {
   time: number
   index: number
-  message: WebSocketInbound | WebSocketOutbound
+  data: WebSocketInbound | WebSocketOutbound
 }
 
-const MessageRow: React.FC<MessageRowProps> = ({ time, index, message }) => {
+const MessageRow: React.FC<ListChildComponentProps<Array<MessageRowProps>>> = ({
+  index,
+  style,
+  data: rows,
+}) => {
+  const row = rows[index]
+
+  if (!row) {
+    return null
+  }
+
+  const time = row.time
+  const message = row.data
+
   const bgColor =
     message.type === NetworkMessageType.WebSocketOutbound
       ? colors.emerald['100']
       : colors.white
 
+  const hoverBgColor =
+    message.type === NetworkMessageType.WebSocketOutbound
+      ? colors.emerald['200']
+      : colors.slate['100']
+
+  const nextIndex = rows[index + 1]?.index ?? Number.MAX_SAFE_INTEGER
+
   return (
-    <Fragment>
-      <Cell
-        backgroundColor={bgColor}
-        color={colors.slate['500']}
-        borderLeft="none"
-      >
+    <Grid
+      gridTemplateColumns="auto auto 1fr 80px"
+      gridTemplateRows="28px 4px"
+      backgroundColor={bgColor}
+      hoverBackgroundColor={hoverBgColor}
+      cursor="default"
+      style={style}
+    >
+      <Cell color={colors.slate['500']} borderLeft="none">
         {formatTime(time, 'millis')}
       </Cell>
-      <Cell backgroundColor={bgColor}>
+
+      <Cell>
         {message.type === NetworkMessageType.WebSocketOutbound ? (
           <OutboundIcon color={colors.emerald['700']} size={16} />
         ) : (
           <InboundIcon color={colors.rose['700']} size={16} />
         )}
       </Cell>
-      <Cell backgroundColor={bgColor} overflow="hidden">
+
+      <Cell overflow="hidden">
         {message.messageType === WebSocketMessageType.Binary
           ? binaryToHex(message.data)
           : binaryToString(message.data)}
       </Cell>
-      <Cell backgroundColor={bgColor} color={colors.slate['500']}>
+
+      <Cell color={colors.slate['500']}>
         {prettyBytes(message.data.byteLength)}
       </Cell>
-    </Fragment>
+
+      <Block gridColumn="1 / span 4">
+        <ElapsedMarker prevIndex={row.index} nextIndex={nextIndex} />
+      </Block>
+    </Grid>
   )
 }
 
@@ -133,7 +163,6 @@ const Cell: React.FC<PropsWithChildren<JsxstyleProps<false>>> = ({
 }) => (
   <Row
     alignItems="center"
-    paddingV={10}
     paddingH={10}
     borderLeft={`1px solid ${colors.slate['200']}`}
     lineHeight={1.25}
