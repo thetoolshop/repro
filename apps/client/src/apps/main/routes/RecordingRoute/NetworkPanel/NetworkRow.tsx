@@ -69,7 +69,7 @@ export const NetworkRow: React.FC<Props> = ({
   const bgColor = selected
     ? colors.blue['100']
     : hover
-    ? colors.slate['50']
+    ? colors.slate['100']
     : colors.white
 
   const startTime =

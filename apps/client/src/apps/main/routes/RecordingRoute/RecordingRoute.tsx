@@ -139,7 +139,7 @@ export const RecordingRoute: React.FC = () => {
       >
         <Card>
           <Grid
-            gridTemplateRows="auto 1fr"
+            gridTemplateRows="auto 1fr auto"
             height="100%"
             marginH={-20}
             overflow="hidden"
@@ -157,27 +157,12 @@ export const RecordingRoute: React.FC = () => {
 
               <Block
                 marginTop={10}
-                marginH={-10}
-                padding={15}
-                background={colors.blue['50']}
-                border={`2px solid ${colors.blue['100']}`}
-                borderRadius={4}
+                fontSize={13}
+                textDecoration="underline"
+                lineHeight={1.25}
+                color={colors.blue['500']}
               >
-                <DefinitionList
-                  entries={[
-                    ['Posted by', metadata.authorName],
-                    ['Created at', formatDate(metadata.createdAt)],
-                    [
-                      'Browser',
-                      metadata.browserName
-                        ? `${ucfirst(metadata.browserName)} ${
-                            metadata.browserVersion
-                          }`
-                        : null,
-                    ],
-                    ['OS', metadata.operatingSystem],
-                  ]}
-                />
+                {metadata.url}
               </Block>
 
               <Block
@@ -190,12 +175,36 @@ export const RecordingRoute: React.FC = () => {
               </Block>
             </Block>
 
-            <Block
-              backgroundColor={colors.slate['50']}
-              backgroundImage={`linear-gradient(to bottom, ${colors.slate['50']}, ${colors.white})`}
-            >
+            <Block backgroundColor={colors.slate['50']}>
               <EventHighlights />
             </Block>
+
+            <Grid
+              isolation="isolate"
+              paddingH={10}
+              gridTemplateColumns="max-content 1fr"
+              fontSize={13}
+              backgroundColor={colors.white}
+              borderTop={`1px solid ${colors.slate['200']}`}
+              boxShadow={`0 -4px 16px ${colors.slate['100']}`}
+            >
+              <DefinitionList
+                title="Details"
+                pairs={[
+                  ['Posted by', metadata.authorName],
+                  ['Created at', formatDate(metadata.createdAt)],
+                  [
+                    'Browser',
+                    metadata.browserName
+                      ? `${ucfirst(metadata.browserName)} ${
+                          metadata.browserVersion
+                        }`
+                      : null,
+                  ],
+                  ['OS', metadata.operatingSystem],
+                ]}
+              />
+            </Grid>
           </Grid>
         </Card>
 

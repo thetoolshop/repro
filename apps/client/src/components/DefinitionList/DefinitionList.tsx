@@ -1,19 +1,47 @@
-import { Block, Grid } from 'jsxstyle'
+import { Block } from 'jsxstyle'
 import React, { Fragment } from 'react'
+import { colors } from '~/config/theme'
 
 interface Props {
-  entries: Array<[string, string | null]>
+  title: string
+  pairs: Array<[string, React.ReactNode]>
 }
 
-export const DefinitionList: React.FC<Props> = ({ entries }) => (
-  <Grid gridTemplateColumns="1fr 3fr" gap={10} fontSize={13}>
-    {entries.map(([key, value]) =>
-      value !== null ? (
-        <Fragment key={key}>
-          <Block fontWeight={700}>{key}</Block>
-          <Block>{value}</Block>
-        </Fragment>
-      ) : null
-    )}
-  </Grid>
+export const DefinitionList: React.FC<Props> = ({ title, pairs }) => (
+  <Fragment>
+    <Block
+      gridColumn="1 / span 2"
+      paddingTop={30}
+      paddingBottom={10}
+      paddingH={10}
+      fontSize={15}
+      fontWeight={700}
+      color={colors.blue['700']}
+      borderBottom={`1px solid ${colors.slate['200']}`}
+    >
+      {title}
+    </Block>
+
+    {pairs.map(([key, value]) => (
+      <Fragment key={key}>
+        <Block
+          padding={10}
+          fontWeight={700}
+          lineHeight={1.25}
+          color={colors.slate['700']}
+          borderBottom={`1px solid ${colors.slate['200']}`}
+        >
+          {key}
+        </Block>
+        <Block
+          padding={10}
+          borderBottom={`1px solid ${colors.slate['200']}`}
+          lineHeight={1.25}
+          wordBreak="break-word"
+        >
+          {value}
+        </Block>
+      </Fragment>
+    ))}
+  </Fragment>
 )

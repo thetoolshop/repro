@@ -1,6 +1,7 @@
 import { getReasonPhrase } from 'http-status-codes'
 import { Block, Grid, Row } from 'jsxstyle'
-import React, { Fragment } from 'react'
+import React from 'react'
+import { DefinitionList } from '~/components/DefinitionList'
 import { colors } from '~/config/theme'
 import { FetchGroup } from '../types'
 
@@ -70,36 +71,3 @@ export const Headers: React.FC<Props> = ({ group }) => {
     </Grid>
   )
 }
-
-interface DLProps {
-  title: string
-  pairs: Array<[string, React.ReactNode]>
-}
-
-const DefinitionList: React.FC<DLProps> = ({ title, pairs }) => (
-  <Fragment>
-    <Block
-      gridColumn="1 / span 2"
-      paddingTop={30}
-      paddingBottom={10}
-      paddingH={10}
-      fontSize={15}
-      fontWeight={700}
-      color={colors.blue['700']}
-      borderBottom={`1px solid ${colors.slate['200']}`}
-    >
-      {title}
-    </Block>
-
-    {pairs.map(([key, value]) => (
-      <Fragment key={key}>
-        <Block padding={10} borderBottom={`1px solid ${colors.slate['200']}`} lineHeight={1.25}>
-          {key}
-        </Block>
-        <Block padding={10} borderBottom={`1px solid ${colors.slate['200']}`} lineHeight={1.25} wordBreak="break-word">
-          {value}
-        </Block>
-      </Fragment>
-    ))}
-  </Fragment>
-)
