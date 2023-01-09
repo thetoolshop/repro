@@ -63,14 +63,8 @@ function binaryToString(buf: ArrayBuffer) {
 }
 
 export const Messages: React.FC<Props> = ({ group }) => {
-  const firstMessage = group.messages?.[0]
-
   return (
     <Block height="100%" fontSize={13}>
-      {firstMessage && (
-        <ElapsedMarker prevIndex={-1} nextIndex={firstMessage.index} />
-      )}
-
       <AutoSizer disableWidth>
         {({ height }) => (
           <FixedSizeList
