@@ -26,6 +26,7 @@ export const TreeRow: React.FC<Props> = ({
       <Block
         position="relative"
         paddingLeft={INDENT * (depth + 1)}
+        backgroundColor={isSelected ? colors.blue['100'] : 'transparent'}
         hoverBackgroundColor={
           isSelected
             ? colors.blue['100']
