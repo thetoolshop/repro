@@ -19,25 +19,20 @@ export const TreeRow: React.FC<Props> = ({
   disableFocus,
   tag = 'open',
 }) => {
-  const { isFocused, isSelected, onFocusNode, onSelectNode } = useNodeState(
-    nodeId,
-    tag
-  )
-
-  let highlightColor = 'transparent'
-
-  if (isSelected) {
-    highlightColor = colors.blue['100'] as string
-  } else if (isFocused && !disableFocus) {
-    highlightColor = colors.blue['50'] as string
-  }
+  const { isSelected, onFocusNode, onSelectNode } = useNodeState(nodeId, tag)
 
   return (
     <div data-tree-node={`${nodeId}~${tag}`}>
       <Block
         position="relative"
         paddingLeft={INDENT * (depth + 1)}
-        backgroundColor={highlightColor}
+        hoverBackgroundColor={
+          isSelected
+            ? colors.blue['100']
+            : !disableFocus
+            ? colors.blue['50']
+            : undefined
+        }
         fontSize={FONT_SIZE}
         cursor="default"
         wordBreak="break-word"
