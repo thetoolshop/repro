@@ -18,6 +18,7 @@ import { colors } from '~/config/theme'
 import { Stats } from '~/libs/diagnostics'
 import { formatTime } from '~/utils/date'
 import { ElapsedMarker } from '../../ElapsedMarker'
+import { SeekAction } from '../../SeekAction'
 import { WebSocketGroup } from '../types'
 
 interface Props {
@@ -128,8 +129,12 @@ const MessageRow: React.FC<ListChildComponentProps<Array<MessageRowProps>>> = ({
       cursor="default"
       style={style}
     >
-      <Cell color={colors.slate['500']} borderLeft="none">
+      <Cell position="relative" color={colors.slate['500']} borderLeft="none">
         {formatTime(time, 'millis')}
+
+        <Block position="absolute" top={1} left={5}>
+          <SeekAction eventIndex={row.index} />
+        </Block>
       </Cell>
 
       <Cell>

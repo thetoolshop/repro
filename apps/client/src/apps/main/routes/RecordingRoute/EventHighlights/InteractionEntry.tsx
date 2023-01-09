@@ -14,8 +14,6 @@ import { BaseEntry } from './BaseEntry'
 interface Props {
   eventIndex: number
   event: InteractionEvent
-  rowIndex: number
-  style: React.CSSProperties
 }
 
 const icons = {
@@ -38,12 +36,7 @@ const icons = {
   ),
 }
 
-export const InteractionEntry: React.FC<Props> = ({
-  eventIndex,
-  event,
-  rowIndex,
-  style,
-}) => {
+export const InteractionEntry: React.FC<Props> = ({ eventIndex, event }) => {
   const [, setSelectedNode] = useSelectedNode()
   const icon = icons[event.data.type]
 
@@ -66,8 +59,6 @@ export const InteractionEntry: React.FC<Props> = ({
     <BaseEntry
       eventIndex={eventIndex}
       event={event}
-      rowIndex={rowIndex}
-      style={style}
       icon={icon}
       onClick={onClick}
     >

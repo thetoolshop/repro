@@ -1,13 +1,12 @@
 import { RequestType } from '@repro/domain'
 import { Block, Row } from 'jsxstyle'
 import { JsxstyleProps } from 'jsxstyle/lib/types'
-import { SkipForward } from 'lucide-react'
 import prettyBytes from 'pretty-bytes'
 import prettyMilliseconds from 'pretty-ms'
-import React, { PropsWithChildren, useCallback, useState } from 'react'
+import React, { PropsWithChildren, useState } from 'react'
 import { colors } from '~/config/theme'
-import { usePlayback } from '~/libs/playback'
 import { formatTime } from '~/utils/date'
+import { SeekAction } from '../SeekAction'
 import { FetchGroup, WebSocketGroup } from './types'
 
 interface Props {
@@ -47,16 +46,7 @@ export const NetworkRow: React.FC<Props> = ({
   onSelect,
   selected,
 }) => {
-  const playback = usePlayback()
   const [hover, setHover] = useState(false)
-
-  const onSeek = useCallback(() => {
-    playback.seekToEvent(
-      eventGroup.type === 'fetch'
-        ? eventGroup.requestIndex
-        : eventGroup.openIndex
-    )
-  }, [playback, eventGroup])
 
   function onMouseEnter() {
     setHover(true)
@@ -113,30 +103,23 @@ export const NetworkRow: React.FC<Props> = ({
         color={colors.slate['500']}
         lineHeight={1.25}
         cursor="pointer"
-        props={{ onClick: onSeek }}
       >
         {formatTime(startTime, 'millis')}
 
-        <Row
-          alignItems="center"
-          gap={5}
+        <Block
           position="absolute"
-          left={0}
           top="50%"
-          transform="translate(5px, -50%)"
-          padding={5}
-          whiteSpace="nowrap"
-          color={colors.white}
-          backgroundColor={colors.blue['500']}
-          borderRadius={4}
-          opacity={0}
-          hoverOpacity={1}
-          userSelect="none"
-          transition="opacity 100ms ease-in"
+          left={5}
+          transform="translateY(-50%)"
         >
-          <SkipForward size={13} />
-          <Block fontSize={11}>Go To Time</Block>
-        </Row>
+          <SeekAction
+            eventIndex={
+              eventGroup.type === 'fetch'
+                ? eventGroup.requestIndex
+                : eventGroup.openIndex
+            }
+          />
+        </Block>
       </Block>
 
       <Cell

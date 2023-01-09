@@ -1,10 +1,10 @@
 import { ConsoleEvent, LogLevel, StackEntry } from '@repro/domain'
 import { Block, Grid, InlineBlock, Row } from 'jsxstyle'
-import { AlertCircle, AlertTriangle, SkipForward } from 'lucide-react'
-import React, { useCallback } from 'react'
+import { AlertCircle, AlertTriangle } from 'lucide-react'
+import React from 'react'
 import { colors } from '~/config/theme'
-import { usePlayback } from '~/libs/playback'
 import { formatTime } from '~/utils/date'
+import { SeekAction } from '../SeekAction'
 import { PartRenderer } from './PartRenderer'
 
 const bgColors = {
@@ -40,17 +40,11 @@ export const ConsoleRow: React.FC<Props> = ({
   },
   index,
 }) => {
-  const playback = usePlayback()
-
-  const onSelect = useCallback(() => {
-    playback.seekToEvent(index)
-  }, [playback, index])
-
   return (
     <Grid
       gridTemplateColumns="auto auto 1fr auto"
       columnGap={10}
-      paddingV={5}
+      paddingV={6}
       paddingH={15}
       fontSize={13}
       color={textColors[level]}
@@ -61,30 +55,12 @@ export const ConsoleRow: React.FC<Props> = ({
         color={colors.slate['500']}
         lineHeight={1.25}
         cursor="pointer"
-        props={{ onClick: onSelect }}
       >
         {formatTime(time, 'millis')}
 
-        <Row
-          alignItems="center"
-          gap={5}
-          position="absolute"
-          left={0}
-          top="50%"
-          transform="translate(-10px, -50%)"
-          padding={5}
-          whiteSpace="nowrap"
-          color={colors.white}
-          backgroundColor={colors.blue['500']}
-          borderRadius={4}
-          opacity={0}
-          hoverOpacity={1}
-          userSelect="none"
-          transition="opacity 100ms ease-in"
-        >
-          <SkipForward size={13} />
-          <Block fontSize={11}>Go To Time</Block>
-        </Row>
+        <Block position="absolute" top={-3} left={-10}>
+          <SeekAction eventIndex={index} />
+        </Block>
       </Block>
 
       <Block>{icons[level]}</Block>

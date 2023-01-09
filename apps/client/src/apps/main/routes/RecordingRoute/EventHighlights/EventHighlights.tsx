@@ -5,10 +5,12 @@ import {
   SourceEventType,
   SourceEventView,
 } from '@repro/domain'
-import React, { useEffect, useState } from 'react'
+import { Grid } from 'jsxstyle'
+import React, { Fragment, useEffect, useState } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList, ListChildComponentProps } from 'react-window'
 import { usePlayback } from '~/libs/playback'
+import { ElapsedMarker } from '../ElapsedMarker'
 import { ConsoleEntry } from './ConsoleEntry'
 import { InteractionEntry } from './InteractionEntry'
 
@@ -51,20 +53,29 @@ export const EventHighlights: React.FC = () => {
     return null
   }
 
+  const firstEvent = userEvents[0]
+
   return (
-    <AutoSizer disableWidth>
-      {({ height }) => (
-        <FixedSizeList
-          height={height}
-          width="100%"
-          itemSize={40}
-          itemCount={userEvents.length}
-          itemData={userEvents}
-        >
-          {UserEventRow}
-        </FixedSizeList>
-      )}
-    </AutoSizer>
+    <Fragment>
+      <ElapsedMarker
+        prevIndex={-1}
+        nextIndex={firstEvent?.[0] ?? Number.MAX_SAFE_INTEGER}
+      />
+
+      <AutoSizer disableWidth>
+        {({ height }) => (
+          <FixedSizeList
+            height={height}
+            width="100%"
+            itemSize={40}
+            itemCount={userEvents.length}
+            itemData={userEvents}
+          >
+            {UserEventRow}
+          </FixedSizeList>
+        )}
+      </AutoSizer>
+    </Fragment>
   )
 }
 
@@ -78,31 +89,27 @@ const UserEventRow: React.FC<
   }
 
   const [eventIndex, event] = indexedEvent
+  const nextEvent = userEvents[index + 1]
+
   let entry: React.ReactNode = null
 
   switch (event.type) {
     case SourceEventType.Console:
-      entry = (
-        <ConsoleEntry
-          rowIndex={index}
-          style={style}
-          eventIndex={eventIndex}
-          event={event}
-        />
-      )
+      entry = <ConsoleEntry eventIndex={eventIndex} event={event} />
       break
 
     case SourceEventType.Interaction:
-      entry = (
-        <InteractionEntry
-          rowIndex={index}
-          style={style}
-          eventIndex={eventIndex}
-          event={event}
-        />
-      )
+      entry = <InteractionEntry eventIndex={eventIndex} event={event} />
       break
   }
 
-  return entry
+  return (
+    <Grid gridTemplateRows="36px 4px" style={style}>
+      {entry}
+      <ElapsedMarker
+        prevIndex={eventIndex}
+        nextIndex={nextEvent?.[0] ?? Number.MAX_SAFE_INTEGER}
+      />
+    </Grid>
+  )
 }

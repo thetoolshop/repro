@@ -7,8 +7,6 @@ import { BaseEntry } from './BaseEntry'
 interface Props {
   eventIndex: number
   event: ConsoleEvent
-  rowIndex: number
-  style: React.CSSProperties
 }
 
 const textColors = {
@@ -25,12 +23,7 @@ const icons = {
   [LogLevel.Verbose]: <AlertCircle size={16} color={colors.slate['500']} />,
 }
 
-export const ConsoleEntry: React.FC<Props> = ({
-  eventIndex,
-  event,
-  rowIndex,
-  style,
-}) => {
+export const ConsoleEntry: React.FC<Props> = ({ eventIndex, event }) => {
   const level = event.data.level
   const firstPart = event.data.parts[0]
 
@@ -42,8 +35,6 @@ export const ConsoleEntry: React.FC<Props> = ({
 
   return (
     <BaseEntry
-      rowIndex={rowIndex}
-      style={style}
       eventIndex={eventIndex}
       event={event}
       color={textColor}
