@@ -7,6 +7,7 @@ import {
   isSelectElement,
   isTextAreaElement,
   isTextNode,
+  maskValue,
 } from '~/utils/dom'
 import {
   NodeType,
@@ -81,7 +82,8 @@ export function createVElement(
     isTextAreaElement(element) ||
     isSelectElement(element)
   ) {
-    properties.value = element.value
+    properties.value =
+      element.type === 'password' ? maskValue(element.value) : element.value
   }
 
   if (

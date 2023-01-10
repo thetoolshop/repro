@@ -7,7 +7,12 @@ import {
   VText,
   VTree,
 } from '@repro/domain'
-import { isInputElement, isSelectElement, isTextAreaElement } from '~/utils/dom'
+import {
+  isInputElement,
+  isSelectElement,
+  isTextAreaElement,
+  maskValue,
+} from '~/utils/dom'
 import { createEventObserver, ObserverLike } from '~/utils/observer'
 import { createSyntheticId, getNodeId, isElementVNode } from '~/utils/vdom'
 import { RecordingOptions } from '../types'
@@ -43,6 +48,7 @@ function createInputObserver(
   let prevChangeMap = new WeakMap<EventTarget, string>()
   let prevCheckedMap = new WeakMap<EventTarget, boolean>()
   let prevSelectedIndexMap = new WeakMap<EventTarget, number>()
+  let maskedInputs = new WeakSet<EventTarget>()
 
   const handleChangeOrInput = (evt: Event) => {
     const eventTarget = evt.target as Node
@@ -52,20 +58,31 @@ function createInputObserver(
 
     if (isInput || isTextArea || isSelect) {
       // TODO: read prev value from vtree
-      const prevValue =
+      let oldValue =
         prevChangeMap.get(eventTarget) ||
         ('defaultValue' in eventTarget ? eventTarget.defaultValue : '')
 
-      if (eventTarget.value !== prevValue) {
+      let value = eventTarget.value
+
+      if (eventTarget.type === 'password') {
+        maskedInputs.add(eventTarget)
+      }
+
+      if (maskedInputs.has(eventTarget)) {
+        oldValue = maskValue(oldValue)
+        value = maskValue(value)
+      }
+
+      if (eventTarget.value !== oldValue) {
         subscriber({
           type: PatchType.TextProperty,
           targetId: getNodeId(eventTarget),
           name: 'value',
-          value: eventTarget.value,
-          oldValue: prevValue,
+          value,
+          oldValue,
         })
 
-        prevChangeMap.set(eventTarget, eventTarget.value)
+        prevChangeMap.set(eventTarget, value)
       }
     }
 

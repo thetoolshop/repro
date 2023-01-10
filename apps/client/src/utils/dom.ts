@@ -194,3 +194,7 @@ const inlineEventAttributes = new Set([
 export function isInlineEventAttribute(name: string) {
   return inlineEventAttributes.has(name)
 }
+
+export function maskValue(value: string): string {
+  return Array.from(value).fill('*').join('')
+}
