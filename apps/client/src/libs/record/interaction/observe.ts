@@ -1,5 +1,10 @@
 import { Interaction, InteractionType, Point } from '@repro/domain'
-import { isElementNode } from '~/utils/dom'
+import {
+  isElementNode,
+  isInputElement,
+  isSelectElement,
+  isTextAreaElement,
+} from '~/utils/dom'
 import { ObserverLike, createEventObserver } from '~/utils/observer'
 import { getNodeId } from '~/utils/vdom'
 import { createVElement } from '../dom/factory'
@@ -343,20 +348,33 @@ function createDoubleClickObserver(
   })
 }
 
+function shouldCaptureKeyEvent(activeElement: Node | null) {
+  return (
+    !activeElement ||
+    (!isInputElement(activeElement) &&
+      !isSelectElement(activeElement) &&
+      !isTextAreaElement(activeElement))
+  )
+}
+
 function createKeyDownObserver(callback: Callback): ObserverLike {
   return createEventObserver('keydown', evt => {
-    callback({
-      type: InteractionType.KeyDown,
-      key: evt.key,
-    })
+    if (shouldCaptureKeyEvent(document.activeElement)) {
+      callback({
+        type: InteractionType.KeyDown,
+        key: evt.key,
+      })
+    }
   })
 }
 
 function createKeyUpObserver(callback: Callback): ObserverLike {
   return createEventObserver('keyup', evt => {
-    callback({
-      type: InteractionType.KeyUp,
-      key: evt.key,
-    })
+    if (shouldCaptureKeyEvent(document.activeElement)) {
+      callback({
+        type: InteractionType.KeyUp,
+        key: evt.key,
+      })
+    }
   })
 }
