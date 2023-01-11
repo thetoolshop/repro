@@ -37,10 +37,10 @@ export function respondWith<T>(
     } else {
       message = env.DEBUG ? error.message : 'Server error'
       res.status(500)
-    }
 
-    if (env.DEBUG) {
-      console.trace(error)
+      if (env.DEBUG) {
+        console.debug(error)
+      }
     }
 
     res.json({ name: error.name, message })

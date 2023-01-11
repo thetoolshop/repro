@@ -34,12 +34,6 @@ import { createBillingInfoRouter } from './routers/billing-info'
 import { createBillingService } from './services/billing'
 import { serverError } from './utils/errors'
 
-const app = express()
-
-app.use(cors())
-app.use(express.json({ limit: '16mb' }))
-app.use(compression())
-
 const dbClient = createDatabaseClient({
   connectionString: env.DATABASE_URL,
 })
@@ -76,39 +70,71 @@ const authMiddleware = createAuthMiddleware(
   userService
 )
 
-const PublicRouter = express.Router()
-PublicRouter.use('/health', createHealthcheckRouter())
-PublicRouter.use(
-  '/auth',
-  createAuthRouter(authService, teamService, projectService, userService)
-)
-PublicRouter.use('/billing-info', createBillingInfoRouter(billingService))
-
-const PrivateRouter = express.Router()
-PrivateRouter.use(authMiddleware.requireAuth)
-PrivateRouter.use('/projects', createProjectRouter(projectService))
-PrivateRouter.use(
-  '/recordings',
-  createRecordingRouter(projectService, recordingService, {
-    recordingDataDirectory: path.resolve(
-      __dirname,
-      '..',
-      env.RECORDING_DATA_DIRECTORY
-    ),
-  })
-)
-PrivateRouter.use('/teams', createTeamRouter(teamService))
-PrivateRouter.use('/users', createUserRouter(userService))
-
-app.use(PublicRouter)
-app.use(PrivateRouter)
-
-const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
-  res.status(500).send(serverError(err.message))
+interface RouterConfig {
+  middleware?: Array<express.RequestHandler>
+  router: express.Router
 }
 
-app.use(errorHandler)
+function bootstrap(routers: Record<string, RouterConfig>) {
+  const app = express()
 
-app.listen(+env.PORT, () => {
-  console.log(`API server listening on port ${env.PORT}`)
+  app.use(cors())
+  app.use(express.json({ limit: '16mb' }))
+  app.use(compression())
+
+  for (const [path, config] of Object.entries(routers)) {
+    app.use(path, ...(config.middleware ?? []), config.router)
+  }
+
+  const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
+    res.status(500).send(serverError(err.message))
+  }
+
+  app.use(errorHandler)
+
+  app.listen(+env.PORT, () => {
+    console.log(`API server listening on port ${env.PORT}`)
+  })
+}
+
+bootstrap({
+  '/health': {
+    router: createHealthcheckRouter(),
+  },
+
+  '/auth': {
+    router: createAuthRouter(
+      authService,
+      teamService,
+      projectService,
+      userService
+    ),
+  },
+
+  '/billing-info': {
+    router: createBillingInfoRouter(billingService),
+  },
+
+  '/projects': {
+    middleware: [authMiddleware.requireSession],
+    router: createProjectRouter(projectService),
+  },
+
+  '/recordings': {
+    router: createRecordingRouter(
+      projectService,
+      recordingService,
+      authMiddleware
+    ),
+  },
+
+  '/teams': {
+    middleware: [authMiddleware.requireSession],
+    router: createTeamRouter(teamService),
+  },
+
+  '/users': {
+    middleware: [authMiddleware.requireSession],
+    router: createUserRouter(userService),
+  },
 })

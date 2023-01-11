@@ -10,7 +10,6 @@ import { register as browserConsumer } from '~/libs/analytics/browser'
 import { Stats } from '~/libs/diagnostics'
 import { DEFAULT_AGENT } from '~/libs/messaging'
 
-import { AuthBoundary } from './AuthBoundary'
 import { Layout } from './Layout'
 
 import { HomeRoute } from './routes/HomeRoute'
@@ -20,8 +19,9 @@ import { RecordingRoute } from './routes/RecordingRoute'
 import { SignUpRoute } from './routes/SignUpRoute'
 import { ResetPasswordRoute } from './routes/ResetPasswordRoute'
 
-import { GlobalStateProvider } from './state'
 import { AuthLayout } from './AuthLayout'
+import { SessionProvider } from '~/libs/auth/Session'
+import { RequireSession } from '~/libs/auth/Session/RequireSession'
 
 declare global {
   interface Window {
@@ -53,7 +53,7 @@ if (rootElem) {
   root.render(
     <ApiProvider>
       <BillingProvider>
-        <GlobalStateProvider>
+        <SessionProvider>
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<MainRoute />}>
@@ -66,19 +66,24 @@ if (rootElem) {
                   />
                 </Route>
 
-                <Route element={<AuthBoundary />}>
-                  <Route element={<Layout />}>
-                    <Route index element={<HomeRoute />} />
-                    <Route
-                      path="recordings/:recordingId"
-                      element={<RecordingRoute />}
-                    />
-                  </Route>
+                <Route element={<Layout />}>
+                  <Route
+                    index
+                    element={
+                      <RequireSession>
+                        <HomeRoute />
+                      </RequireSession>
+                    }
+                  />
+                  <Route
+                    path="recordings/:recordingId"
+                    element={<RecordingRoute />}
+                  />
                 </Route>
               </Route>
             </Routes>
           </BrowserRouter>
-        </GlobalStateProvider>
+        </SessionProvider>
       </BillingProvider>
     </ApiProvider>
   )

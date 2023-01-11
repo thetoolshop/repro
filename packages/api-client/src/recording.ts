@@ -22,6 +22,7 @@ export function createRecordingApi(dataLoader: DataLoader) {
     duration: number,
     mode: RecordingMode,
     events: Array<SourceEvent>,
+    isPublic: boolean,
     context: {
       browserName: string | null
       browserVersion: string | null
@@ -40,6 +41,7 @@ export function createRecordingApi(dataLoader: DataLoader) {
         browserName: context.browserName,
         browserVersion: context.browserVersion,
         operatingSystem: context.operatingSystem,
+        public: isPublic,
       }),
     })
 

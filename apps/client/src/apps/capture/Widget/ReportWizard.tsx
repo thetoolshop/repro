@@ -109,7 +109,11 @@ export const ReportWizard: React.FC<Props> = ({ onClose }) => {
     setLoginState(currentUser ? 'logged-in' : 'logged-out')
   }, [currentUser, setLoginState])
 
-  function handleSave(data: { title: string; description: string }) {
+  function handleSave(data: {
+    title: string
+    description: string
+    isPublic: boolean
+  }) {
     setUploading('uploading')
 
     // Schedule async callback to flush pending UI changes
@@ -146,6 +150,7 @@ export const ReportWizard: React.FC<Props> = ({ onClose }) => {
               .map(view =>
                 SourceEventView.serialize(SourceEventView.over(view))
               ),
+            public: false,
             context: {
               browserName: browser && browser.name,
               browserVersion: browser && browser.version,

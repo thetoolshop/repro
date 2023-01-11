@@ -6,24 +6,24 @@ import { Button } from '~/components/Button'
 import { Card } from '~/components/Card'
 import { colors } from '~/config/theme'
 import { LoginForm } from '~/libs/auth'
+import { setSession } from '~/libs/auth/Session'
 import { logger } from '~/libs/logger'
-import { useCurrentUser } from '../state'
 
 export const LoginRoute: React.FC = () => {
   const navigate = useNavigate()
-  const [, setCurrentUser] = useCurrentUser()
 
   function onSuccess(user: User) {
-    setCurrentUser(user)
+    setSession(user)
     navigate('/')
   }
 
   function onFailure(err: Error) {
+    setSession(null)
     logger.debug(err)
   }
 
   function onRedirectToRegister() {
-    navigate('/auth/register')
+    navigate('/account/signup')
   }
 
   return (

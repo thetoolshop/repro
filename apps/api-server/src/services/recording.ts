@@ -23,7 +23,8 @@ export function createRecordingService(recordingProvider: RecordingProvider) {
     duration: number,
     browserName: string | null,
     browserVersion: string | null,
-    operatingSystem: string | null
+    operatingSystem: string | null,
+    isPublic: boolean
   ): FutureInstance<Error, void> {
     return recordingProvider.saveRecordingMetadata(
       teamId,
@@ -37,7 +38,8 @@ export function createRecordingService(recordingProvider: RecordingProvider) {
       duration,
       browserName,
       browserVersion,
-      operatingSystem
+      operatingSystem,
+      isPublic
     )
   }
 
@@ -60,12 +62,19 @@ export function createRecordingService(recordingProvider: RecordingProvider) {
     return recordingProvider.getRecordingEvents(recordingId)
   }
 
+  function checkRecordingIsPublic(
+    recordingId: string
+  ): FutureInstance<Error, void> {
+    return recordingProvider.checkRecordingIsPublic(recordingId)
+  }
+
   return {
     getAllRecordingsForUser,
     saveRecordingMetadata,
     getRecordingMetadata,
     saveRecordingEvents,
     getRecordingEvents,
+    checkRecordingIsPublic,
   }
 }
 

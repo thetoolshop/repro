@@ -4,6 +4,13 @@ import { Outlet } from 'react-router'
 import { NavLink } from 'react-router-dom'
 import { Logo } from '~/components/Logo'
 import { colors } from '~/config/theme'
+import { IfSession, UnlessSession } from '~/libs/auth/Session'
+
+const navLinkStyle = {
+  color: colors.white,
+  fontSize: 15,
+  textDecoration: 'none',
+}
 
 export const Layout: React.FC = () => (
   <Grid
@@ -22,23 +29,45 @@ export const Layout: React.FC = () => (
           <Logo size={20} inverted={true} />
         </NavLink>
 
-        <Row alignItems="center" marginLeft={30} gap={15}>
-          <NavLink to="/recordings">
-            <Block color={colors.white} fontSize={15}>
+        <IfSession>
+          <Row alignItems="center" marginLeft={30} gap={15}>
+            <NavLink to="/recordings" style={navLinkStyle}>
               Recordings
-            </Block>
-          </NavLink>
+            </NavLink>
 
-          <NavLink to="/recordings">
-            <Block color={colors.white} fontSize={15}>
+            <NavLink to="/projects" style={navLinkStyle}>
               Projects
-            </Block>
-          </NavLink>
-        </Row>
+            </NavLink>
+          </Row>
+        </IfSession>
+
+        <UnlessSession>
+          <Row alignItems="center" gap={15} marginLeft="auto">
+            <NavLink to="/account/login" style={navLinkStyle}>
+              Log In
+            </NavLink>
+
+            <NavLink
+              to="/account/signup"
+              style={{
+                ...navLinkStyle,
+                padding: 10,
+                fontWeight: 700,
+                backgroundColor: colors.blue['500'],
+                backgroundImage: `linear-gradient(to top right, ${colors.blue['600']}, ${colors.blue['500']})`,
+                border: `1px solid ${colors.blue['800']}`,
+                borderRadius: 4,
+                boxShadow: `0 2px 4px ${colors.blue['800']}`,
+              }}
+            >
+              Create New Account
+            </NavLink>
+          </Row>
+        </UnlessSession>
       </Row>
     </Block>
 
-    <Block marginTop={-75} padding={15}>
+    <Block marginTop={-60} padding={15}>
       <Outlet />
     </Block>
   </Grid>

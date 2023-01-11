@@ -91,6 +91,7 @@ agent.subscribeToIntent('upload', (payload: any) => {
     payload.duration,
     payload.mode,
     payload.events.map(SourceEventView.deserialize),
+    payload.public,
     payload.context
   ) as FutureInstance<Error, void>
 })

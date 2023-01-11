@@ -5,10 +5,11 @@ import {
   SourceEvent,
   SourceEventView,
 } from '@repro/domain'
-import { FutureInstance, map as fMap } from 'fluture'
+import { FutureInstance, map as fMap, mapRej } from 'fluture'
 import { QueryResultRow } from 'pg'
 import { Observable, map as rxMap } from 'rxjs'
 import { Readable, Transform } from 'stream'
+import { permissionDenied } from '~/utils/errors'
 import { DatabaseClient } from './database'
 
 interface RecordingMetadataRow extends QueryResultRow {
@@ -26,6 +27,7 @@ interface RecordingMetadataRow extends QueryResultRow {
   browser_name: string | null
   browser_version: string | null
   operating_system: string | null
+  public: boolean
 }
 
 function toRecordingMetadata(row: RecordingMetadataRow): RecordingMetadata {
@@ -44,6 +46,7 @@ function toRecordingMetadata(row: RecordingMetadataRow): RecordingMetadata {
     browserName: row.browser_name,
     browserVersion: row.browser_version,
     operatingSystem: row.operating_system,
+    public: row.public,
   })
 }
 
@@ -75,7 +78,8 @@ export function createRecordingProvider(dbClient: DatabaseClient) {
         a.name as author_name,
         r.browser_name,
         r.browser_version,
-        r.operating_system
+        r.operating_system,
+        r.public
       FROM recordings r
       INNER JOIN projects p ON p.id = r.project_id
       INNER JOIN users a ON a.id = r.author_id
@@ -99,15 +103,16 @@ export function createRecordingProvider(dbClient: DatabaseClient) {
     duration: number,
     browserName: string | null,
     browserVersion: string | null,
-    operatingSystem: string | null
+    operatingSystem: string | null,
+    isPublic: boolean
   ): FutureInstance<Error, void> {
     return dbClient
       .query(
         `
         INSERT INTO recordings
           (id, team_id, author_id, project_id, title, url, description, mode, duration,
-            browser_name, browser_version, operating_system)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+            browser_name, browser_version, operating_system, public)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
         `,
         [
           recordingId,
@@ -122,6 +127,7 @@ export function createRecordingProvider(dbClient: DatabaseClient) {
           browserName,
           browserVersion,
           operatingSystem,
+          isPublic,
         ]
       )
       .pipe(fMap(() => undefined))
@@ -146,7 +152,8 @@ export function createRecordingProvider(dbClient: DatabaseClient) {
         a.name AS author_name,
         r.browser_name,
         r.browser_version,
-        r.operating_system
+        r.operating_system,
+        r.public
       FROM recordings r
       INNER JOIN projects p ON r.project_id = p.id
       INNER JOIN users a ON r.author_id = a.id
@@ -201,12 +208,29 @@ export function createRecordingProvider(dbClient: DatabaseClient) {
     return result.pipe(fMap(row$ => row$.pipe(rxMap(toSourceEvent))))
   }
 
+  function checkRecordingIsPublic(
+    recordingId: string
+  ): FutureInstance<Error, void> {
+    return dbClient
+      .getOne(
+        `
+        SELECT 1
+        FROM recordings
+        WHERE id = $1 AND public = true
+        `,
+        [recordingId]
+      )
+      .pipe(mapRej(() => permissionDenied()))
+      .pipe(fMap(() => undefined))
+  }
+
   return {
     getAllRecordingsForUser,
     saveRecordingMetadata,
     getRecordingMetadata,
     saveRecordingEvents,
     getRecordingEvents,
+    checkRecordingIsPublic,
   }
 }
 

@@ -6,7 +6,7 @@ type Props = PropsWithChildren<{
   type?: 'button' | 'reset' | 'submit'
   size?: 'small' | 'medium' | 'large'
   variant?: 'contained' | 'outlined' | 'text'
-  context?: 'info' | 'success' | 'warning' | 'danger' | 'neutral'
+  context?: 'info' | 'success' | 'warning' | 'danger' | 'neutral' | 'inverted'
   disabled?: boolean
   onClick?: () => void
 }>
@@ -23,6 +23,7 @@ const colorGroups = {
   warning: colors.amber,
   danger: colors.red,
   neutral: colors.slate,
+  inverted: colors.white,
 }
 
 const MINIMUM_FONT_SIZE = 12
@@ -68,7 +69,13 @@ export const Button: React.FC<Props> = ({
       borderStyle="solid"
       borderWidth={1}
       borderRadius={base / 2}
-      color={variant === 'contained' ? colors.white : colorGroup['900']}
+      color={
+        variant === 'contained'
+          ? context === 'inverted'
+            ? colors.slate['900']
+            : colors.white
+          : colorGroup['900']
+      }
       boxShadow={
         disabled
           ? 'none'

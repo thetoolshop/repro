@@ -1,11 +1,14 @@
 import { fork, FutureInstance } from 'fluture'
-import { Block, Grid } from 'jsxstyle'
+import { Block, Col, Grid, Row } from 'jsxstyle'
+import { AlertTriangle as AlertIcon, Loader as LoaderIcon } from 'lucide-react'
 import React, { useEffect, useRef, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { NavLink, useParams } from 'react-router-dom'
 import { Card } from '~/components/Card'
 import { DefinitionList } from '~/components/DefinitionList/DefinitionList'
+import * as FX from '~/components/FX'
 import { colors } from '~/config/theme'
 import { useApiClient } from '~/libs/api'
+import { IfSession, UnlessSession } from '~/libs/auth/Session'
 import {
   createApiSource,
   createNullSource,
@@ -104,10 +107,10 @@ export const RecordingRoute: React.FC = () => {
   const [source, setSource] = useState(createNullSource())
 
   useEffect(() => {
-    if (recordingId) {
+    if (recordingId && !loading && !error) {
       setSource(createApiSource(recordingId, apiClient))
     }
-  }, [recordingId, apiClient, setSource])
+  }, [error, loading, recordingId, apiClient, setSource])
 
   useEffect(() => {
     const originalTitle = document.title
@@ -122,18 +125,102 @@ export const RecordingRoute: React.FC = () => {
   }, [metadata])
 
   if (loading) {
-    return <div />
+    return (
+      <Grid
+        height="calc(100vh - 90px)"
+        alignItems="center"
+        justifyItems="center"
+      >
+        <FX.Spin>
+          <LoaderIcon />
+        </FX.Spin>
+      </Grid>
+    )
   }
 
   if (error) {
-    return <div />
+    return (
+      <Grid
+        height="calc(100vh - 90px)"
+        gridTemplateColumns="1fr"
+        gridTemplateRows="100%"
+        marginH={-15}
+        backgroundColor={colors.slate['50']}
+      >
+        <Row alignItems="center" justifyContent="center" height="100%">
+          <Card>
+            <Row gap={15}>
+              <AlertIcon size={48} color={colors.slate['300']} />
+
+              <Col gap={15}>
+                <Block
+                  fontSize={18}
+                  fontWeight={700}
+                  color={
+                    error.name === 'ServerName'
+                      ? colors.rose['700']
+                      : colors.blue['700']
+                  }
+                >
+                  {error.name === 'ServerError'
+                    ? 'Something went wrong'
+                    : 'Could not find recording'}
+                </Block>
+
+                <Block fontSize={15} color={colors.slate['700']}>
+                  {error.name === 'ServerError'
+                    ? 'There was an error loading this recording. Please try again.'
+                    : 'This recording does not exist.'}
+                </Block>
+
+                <UnlessSession>
+                  <Row
+                    alignItems="center"
+                    gap={5}
+                    paddingTop={15}
+                    fontSize={13}
+                    color={colors.slate['700']}
+                    borderTop={`1px solid ${colors.slate['200']}`}
+                  >
+                    <NavLink
+                      to="/account/login"
+                      style={{ color: colors.blue['700'] }}
+                    >
+                      Log In
+                    </NavLink>
+
+                    <Block>or</Block>
+
+                    <NavLink
+                      to="/account/signup"
+                      style={{ color: colors.blue['700'] }}
+                    >
+                      Create New Account
+                    </NavLink>
+                  </Row>
+                </UnlessSession>
+
+                <IfSession>
+                  <NavLink
+                    to="/recordings"
+                    style={{ color: colors.blue['700'] }}
+                  >
+                    Show all recordings
+                  </NavLink>
+                </IfSession>
+              </Col>
+            </Row>
+          </Card>
+        </Row>
+      </Grid>
+    )
   }
 
   return (
     <PlaybackFromSourceProvider source={source}>
       <Grid
         gap={15}
-        height="calc(100vh - 80px)"
+        height="calc(100vh - 90px)"
         gridTemplateColumns="1fr 4fr"
         gridTemplateRows="100%"
       >

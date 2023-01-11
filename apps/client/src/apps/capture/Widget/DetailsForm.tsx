@@ -4,11 +4,18 @@ import { useForm } from 'react-hook-form'
 import { Button } from '~/components/Button'
 import { Input } from '~/components/Input'
 import { Label } from '~/components/Label'
+import { ToggleGroup } from '~/components/ToggleGroup'
 import { colors } from '~/config/theme'
+
+enum Visibility {
+  Public,
+  Private,
+}
 
 interface FormState {
   title: string
   description: string
+  isPublic: boolean
 }
 
 interface Props {
@@ -16,12 +23,14 @@ interface Props {
 }
 
 export const DetailsForm: React.FC<Props> = ({ onSubmit }) => {
-  const { handleSubmit, register, formState } = useForm<FormState>({
-    defaultValues: {
-      title: '',
-      description: '',
-    },
-  })
+  const { handleSubmit, register, formState, setValue, watch } =
+    useForm<FormState>({
+      defaultValues: {
+        title: '',
+        description: '',
+        isPublic: true,
+      },
+    })
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -47,6 +56,22 @@ export const DetailsForm: React.FC<Props> = ({ onSubmit }) => {
             rows={12}
           />
         </Col>
+
+        <Row gap={10} alignItems="center">
+          <Label>Visibility</Label>
+          <ToggleGroup
+            options={[
+              { label: 'Public', value: Visibility.Public },
+              { label: 'Private', value: Visibility.Private },
+            ]}
+            selected={
+              watch('isPublic') ? Visibility.Public : Visibility.Private
+            }
+            onChange={value =>
+              setValue('isPublic', value === Visibility.Public)
+            }
+          />
+        </Row>
 
         <Row flexDirection="row-reverse">
           <Button type="submit" context="success" size="large">
