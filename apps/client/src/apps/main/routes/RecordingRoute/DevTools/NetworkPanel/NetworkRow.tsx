@@ -6,7 +6,7 @@ import prettyMilliseconds from 'pretty-ms'
 import React, { PropsWithChildren, useState } from 'react'
 import { colors } from '~/config/theme'
 import { formatTime } from '~/utils/date'
-import { SeekAction } from '../SeekAction'
+import { SeekAction } from '../../SeekAction'
 import { FetchGroup, WebSocketGroup } from './types'
 
 interface Props {

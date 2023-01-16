@@ -4,7 +4,7 @@ import { AlertCircle, AlertTriangle } from 'lucide-react'
 import React from 'react'
 import { colors } from '~/config/theme'
 import { formatTime } from '~/utils/date'
-import { SeekAction } from '../SeekAction'
+import { SeekAction } from '../../SeekAction'
 import { PartRenderer } from './PartRenderer'
 
 const bgColors = {

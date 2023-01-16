@@ -5,7 +5,7 @@ import { colors } from '~/config/theme'
 import { useSnapshot } from '~/libs/playback'
 import { VElement, VTree } from '@repro/domain'
 import { isDocumentVNode, isElementVNode } from '~/utils/vdom'
-import { useSelectedNode, useFocusedNode, usePicker } from '../hooks'
+import { useSelectedNode, useFocusedNode, usePicker } from '../../hooks'
 import { SelectedNodeComputedStyle } from './SelectedNodeComputedStyle'
 
 export const ElementsPanel: React.FC = () => {

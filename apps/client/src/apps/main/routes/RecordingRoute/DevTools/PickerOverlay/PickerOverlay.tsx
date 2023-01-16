@@ -4,15 +4,15 @@ import { Block } from 'jsxstyle'
 import React, { MutableRefObject, useEffect, useRef, useState } from 'react'
 import { fromEvent, Subscription } from 'rxjs'
 import { distinctUntilChanged, map, share } from 'rxjs/operators'
-import { MAX_INT32 } from '../constants'
+import { MAX_INT32 } from '../../constants'
 import {
   useCurrentDocument,
   useFocusedNode,
   useSelectedNode,
   usePicker,
   useView,
-} from '../hooks'
-import { View } from '../types'
+} from '../../hooks'
+import { View } from '../../types'
 
 function getTargetElementAtPoint(
   boundingBox: DOMRect,

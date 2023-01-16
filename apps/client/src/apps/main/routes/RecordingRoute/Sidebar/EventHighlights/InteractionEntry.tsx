@@ -8,7 +8,7 @@ import {
 import React from 'react'
 import { ElementR } from '~/components/DOM'
 import { colors } from '~/config/theme'
-import { useSelectedNode } from '../hooks'
+import { useSelectedNode } from '../../hooks'
 import { BaseEntry } from './BaseEntry'
 
 interface Props {

@@ -6,8 +6,8 @@ import {
   AlertTriangle as ConsoleIcon,
 } from 'lucide-react'
 import { colors } from '~/config/theme'
-import { View } from '../types'
-import { useView } from '../hooks'
+import { View } from '../../types'
+import { useView } from '../../hooks'
 
 export const Tabs: React.FC = () => {
   return (

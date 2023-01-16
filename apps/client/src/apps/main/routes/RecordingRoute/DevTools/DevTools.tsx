@@ -2,14 +2,7 @@ import { Block, Grid } from 'jsxstyle'
 import React, { PropsWithChildren, useEffect } from 'react'
 import { colors } from '~/config/theme'
 import { PlaybackCanvas } from '~/libs/playback'
-import { Toolbar } from './Toolbar'
-import { PickerOverlay } from './PickerOverlay'
-import { View } from './types'
-import { ElementsPanel } from './ElementsPanel'
-import { NetworkPanel } from './NetworkPanel'
-import { ConsolePanel } from './ConsolePanel'
-import { DragHandle } from './DragHandle'
-import { MAX_INT32 } from './constants'
+import { MAX_INT32 } from '../constants'
 import {
   useCurrentDocument,
   useInspecting,
@@ -18,7 +11,14 @@ import {
   usePicker,
   useSize,
   useView,
-} from './hooks'
+} from '../hooks'
+import { View } from '../types'
+import { Toolbar } from './Toolbar'
+import { PickerOverlay } from './PickerOverlay'
+import { ElementsPanel } from './ElementsPanel'
+import { NetworkPanel } from './NetworkPanel'
+import { ConsolePanel } from './ConsolePanel'
+import { DragHandle } from './DragHandle'
 import { ReferenceStyleProvider } from '~/libs/styles'
 import { Analytics } from '~/libs/analytics'
 

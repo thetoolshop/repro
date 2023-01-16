@@ -1,8 +1,8 @@
 import { Row } from 'jsxstyle'
 import React, { useCallback } from 'react'
 import { Inspect as PickerIcon } from 'lucide-react'
-import colors from 'tailwindcss/colors'
-import { usePicker } from '../hooks'
+import { colors } from '~/config/theme'
+import { usePicker } from '../../hooks'
 
 export const Picker: React.FC = () => {
   const [picker, setPicker] = usePicker()

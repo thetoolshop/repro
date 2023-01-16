@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { DragHandle as BaseDragHandle } from '~/components/DragHandle'
-import { MIN_HEIGHT, MAX_HEIGHT } from './constants'
-import { useMask, useSize } from './hooks'
+import { MIN_HEIGHT, MAX_HEIGHT } from '../constants'
+import { useMask, useSize } from '../hooks'
 
 export const DragHandle: React.FC = () => {
   const [, setMask] = useMask()

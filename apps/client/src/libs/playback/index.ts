@@ -1,3 +1,4 @@
+export * from './ElapsedMarker'
 export * from './PlaybackCanvas'
 export * from './PlaybackErrorBoundary'
 export * from './PlaybackTimeline'

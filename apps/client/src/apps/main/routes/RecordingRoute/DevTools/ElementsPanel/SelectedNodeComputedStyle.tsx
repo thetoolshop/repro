@@ -10,7 +10,7 @@ import {
   useReferenceStyle,
 } from '~/libs/styles'
 import { isElementNode } from '~/utils/dom'
-import { useSelectedElement } from '../hooks'
+import { useSelectedElement } from '../../hooks'
 
 export const SelectedNodeComputedStyle: React.FC = () => {
   const selectedElement = useSelectedElement()

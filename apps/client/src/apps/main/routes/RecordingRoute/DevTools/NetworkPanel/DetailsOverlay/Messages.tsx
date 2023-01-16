@@ -16,9 +16,9 @@ import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList, ListChildComponentProps } from 'react-window'
 import { colors } from '~/config/theme'
 import { Stats } from '~/libs/diagnostics'
+import { ElapsedMarker } from '~/libs/playback'
 import { formatTime } from '~/utils/date'
-import { ElapsedMarker } from '../../ElapsedMarker'
-import { SeekAction } from '../../SeekAction'
+import { SeekAction } from '../../../SeekAction'
 import { WebSocketGroup } from '../types'
 
 interface Props {
