@@ -9,11 +9,13 @@ import { JsxstyleProps } from 'jsxstyle/lib/types'
 import {
   ChevronsUp as OutboundIcon,
   ChevronsDown as InboundIcon,
+  X as CloseIcon,
 } from 'lucide-react'
 import prettyBytes from 'pretty-bytes'
-import React, { PropsWithChildren } from 'react'
+import React, { PropsWithChildren, useState } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList, ListChildComponentProps } from 'react-window'
+import { JSONView } from '~/components/JSONView'
 import { colors } from '~/config/theme'
 import { Stats } from '~/libs/diagnostics'
 import { ElapsedMarker } from '~/libs/playback'
@@ -38,7 +40,7 @@ function binaryToHex(buf: ArrayBuffer) {
       <Inline
         fontFamily="monospace"
         overflow="hidden"
-        whiteSpace="nowrap"
+        whiteSpace="inherit"
         textOverflow="ellipsis"
       >
         {output}
@@ -53,7 +55,7 @@ function binaryToString(buf: ArrayBuffer) {
       <Inline
         fontFamily="monospace"
         overflow="hidden"
-        whiteSpace="nowrap"
+        whiteSpace="inherit"
         textOverflow="ellipsis"
       >
         {new TextDecoder().decode(buf)}
@@ -62,9 +64,20 @@ function binaryToString(buf: ArrayBuffer) {
   })
 }
 
+function binaryToJSONView(buf: ArrayBuffer) {
+  return Stats.time('NetworkPanel -> Messages -> binaryToJSONView', () => {
+    return <JSONView data={JSON.parse(new TextDecoder().decode(buf))} />
+  })
+}
+
 export const Messages: React.FC<Props> = ({ group }) => {
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
+
+  const selectedEvent =
+    selectedIndex !== null ? group.messages?.[selectedIndex] ?? null : null
+
   return (
-    <Block height="100%" fontSize={13}>
+    <Block position="relative" height="100%" fontSize={13}>
       <AutoSizer disableWidth>
         {({ height }) => (
           <FixedSizeList
@@ -72,26 +85,43 @@ export const Messages: React.FC<Props> = ({ group }) => {
             width="100%"
             itemSize={32}
             itemCount={group.messages?.length || 0}
-            itemData={group.messages}
+            itemData={{
+              rows: group.messages ?? [],
+              selectedIndex,
+              onSelect: setSelectedIndex,
+            }}
           >
             {MessageRow}
           </FixedSizeList>
         )}
       </AutoSizer>
+
+      {selectedEvent !== null && (
+        <Body
+          message={selectedEvent.data}
+          onClose={() => setSelectedIndex(null)}
+        />
+      )}
     </Block>
   )
 }
 
-interface MessageRowProps {
+interface MessageRowData {
   time: number
   index: number
   data: WebSocketInbound | WebSocketOutbound
 }
 
-const MessageRow: React.FC<ListChildComponentProps<Array<MessageRowProps>>> = ({
+interface MessageListProps {
+  rows: Array<MessageRowData>
+  selectedIndex: number | null
+  onSelect(eventIndex: number): void
+}
+
+const MessageRow: React.FC<ListChildComponentProps<MessageListProps>> = ({
   index,
   style,
-  data: rows,
+  data: { rows, selectedIndex, onSelect },
 }) => {
   const row = rows[index]
 
@@ -101,6 +131,7 @@ const MessageRow: React.FC<ListChildComponentProps<Array<MessageRowProps>>> = ({
 
   const time = row.time
   const message = row.data
+  const isSelected = index === selectedIndex
 
   const bgColor =
     message.type === NetworkMessageType.WebSocketOutbound
@@ -112,16 +143,19 @@ const MessageRow: React.FC<ListChildComponentProps<Array<MessageRowProps>>> = ({
       ? colors.emerald['200']
       : colors.slate['100']
 
+  const selectedBgColor = colors.blue['100']
+
   const nextIndex = rows[index + 1]?.index ?? Number.MAX_SAFE_INTEGER
 
   return (
     <Grid
       gridTemplateColumns="auto auto 1fr 80px"
       gridTemplateRows="28px 4px"
-      backgroundColor={bgColor}
-      hoverBackgroundColor={hoverBgColor}
+      backgroundColor={isSelected ? selectedBgColor : bgColor}
+      hoverBackgroundColor={isSelected ? selectedBgColor : hoverBgColor}
       cursor="default"
       style={style}
+      props={{ onClick: () => onSelect(index) }}
     >
       <Cell position="relative" color={colors.slate['500']} borderLeft="none">
         {formatTime(time, 'millis')}
@@ -139,7 +173,7 @@ const MessageRow: React.FC<ListChildComponentProps<Array<MessageRowProps>>> = ({
         )}
       </Cell>
 
-      <Cell overflow="hidden">
+      <Cell overflow="hidden" whiteSpace="nowrap">
         {message.messageType === WebSocketMessageType.Binary
           ? binaryToHex(message.data)
           : binaryToString(message.data)}
@@ -169,4 +203,55 @@ const Cell: React.FC<PropsWithChildren<JsxstyleProps<false>>> = ({
   >
     {children}
   </Row>
+)
+
+interface BodyProps {
+  message: WebSocketInbound | WebSocketOutbound
+  onClose(): void
+}
+
+const Body: React.FC<BodyProps> = ({ message, onClose }) => (
+  <Block
+    position="absolute"
+    top={-10}
+    bottom={-10}
+    right={-10}
+    height="calc(100% + 20px)"
+    width="75%"
+    overflow="auto"
+    backgroundColor={colors.white}
+    borderLeft={`1px solid ${colors.slate['200']}`}
+    boxShadow={`
+      0 4px 16px rgba(0, 0, 0, 0.1),
+      0 1px 2px rgba(0, 0, 0, 0.1)
+    `}
+  >
+    <Block
+      paddingH={20}
+      paddingTop={50}
+      paddingBottom={20}
+      whiteSpace="pre-wrap"
+      lineHeight={1.5}
+    >
+      {message.messageType === WebSocketMessageType.Binary
+        ? binaryToHex(message.data)
+        : binaryToJSONView(message.data)}
+    </Block>
+
+    <Row
+      position="absolute"
+      top={10}
+      left={10}
+      width={32}
+      height={32}
+      alignItems="center"
+      justifyContent="center"
+      hoverBackgroundColor={colors.slate['100']}
+      borderRadius="99rem"
+      cursor="pointer"
+      props={{ onClick: onClose }}
+    >
+      <CloseIcon size={16} />
+    </Row>
+  </Block>
 )

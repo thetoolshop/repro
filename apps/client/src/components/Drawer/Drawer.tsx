@@ -1,4 +1,4 @@
-import { Block } from 'jsxstyle'
+import { Block, Row } from 'jsxstyle'
 import { X as CloseIcon } from 'lucide-react'
 import React, { PropsWithChildren } from 'react'
 import { Portal } from '~/components/Portal'
@@ -33,18 +33,21 @@ export const Drawer: React.FC<PropsWithChildren<Props>> = ({
             : 'transform 100ms ease-in-out'
         }
       >
-        <Block
+        <Row
           position="absolute"
           top={10}
           right={10}
-          padding={10}
-          hoverBackgroundColor={colors.slate['50']}
+          width={32}
+          height={32}
+          alignItems="center"
+          justifyContent="center"
+          hoverBackgroundColor={colors.slate['100']}
           borderRadius="99rem"
           cursor="pointer"
           props={{ onClick: onClose }}
         >
           <CloseIcon size={16} />
-        </Block>
+        </Row>
 
         {open && children}
       </Block>
