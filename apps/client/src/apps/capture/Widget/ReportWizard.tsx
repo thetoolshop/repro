@@ -150,7 +150,7 @@ export const ReportWizard: React.FC<Props> = ({ onClose }) => {
               .map(view =>
                 SourceEventView.serialize(SourceEventView.over(view))
               ),
-            public: false,
+            public: data.isPublic,
             context: {
               browserName: browser && browser.name,
               browserVersion: browser && browser.version,
