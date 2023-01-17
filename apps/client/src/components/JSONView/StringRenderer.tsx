@@ -1,15 +1,26 @@
 import { Block } from 'jsxstyle'
 import React from 'react'
 import { colors } from '~/config/theme'
+import { TreeRow } from './TreeRow'
 
 interface Props {
-  data: string
+  level: number
+  objectKey: string | null
+  value: string
   color?: string
 }
 
 const DEFAULT_COLOR = colors.slate['700']
 
 export const StringRenderer: React.FC<Props> = ({
-  data,
+  level,
+  objectKey,
+  value,
   color = DEFAULT_COLOR,
-}) => <Block color={color}>{data}</Block>
+}) => (
+  <TreeRow level={level} objectKey={objectKey}>
+    <Block color={color} whiteSpace="pre-wrap">
+      {value}
+    </Block>
+  </TreeRow>
+)

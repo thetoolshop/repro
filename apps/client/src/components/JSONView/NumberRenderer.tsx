@@ -1,11 +1,20 @@
-import { InlineFlex } from 'jsxstyle'
+import { Block } from 'jsxstyle'
 import React from 'react'
 import { colors } from '~/config/theme'
+import { TreeRow } from './TreeRow'
 
 interface Props {
-  data: number
+  level: number
+  objectKey: string | null
+  value: number
 }
 
-export const NumberRenderer: React.FC<Props> = ({ data }) => (
-  <InlineFlex color={colors.sky['700']}>{data}</InlineFlex>
+export const NumberRenderer: React.FC<Props> = ({
+  level,
+  objectKey,
+  value,
+}) => (
+  <TreeRow level={level} objectKey={objectKey}>
+    <Block color={colors.sky['700']}>{value}</Block>
+  </TreeRow>
 )

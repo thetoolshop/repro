@@ -8,25 +8,42 @@ import { ObjectRenderer } from './ObjectRenderer'
 import { StringRenderer } from './StringRenderer'
 import { UndefinedRenderer } from './UndefinedRenderer'
 
-export function getRendererForType(data: any, level: number) {
-  if (data === undefined) {
-    return <UndefinedRenderer />
-  } else if (data === null) {
-    return <NullRenderer />
-  } else if (data instanceof Date) {
-    const value = `Date(${data.toLocaleString()})`
-    return <StringRenderer data={value} color={colors.sky['700']} />
-  } else if (Array.isArray(data)) {
-    return <ArrayRenderer data={data} level={level} />
-  } else if (typeof data === 'object') {
-    return <ObjectRenderer data={data} level={level} />
-  } else if (typeof data === 'number') {
-    return <NumberRenderer data={data} />
-  } else if (typeof data === 'boolean') {
-    return <BooleanRenderer data={data} />
+export function getRendererForType(
+  objectKey: string | null,
+  value: any,
+  level: number
+) {
+  if (value === undefined) {
+    return <UndefinedRenderer level={level} objectKey={objectKey} />
+  } else if (value === null) {
+    return <NullRenderer level={level} objectKey={objectKey} />
+  } else if (value instanceof Date) {
+    return (
+      <StringRenderer
+        level={level}
+        objectKey={objectKey}
+        value={`Date(${value.toLocaleString()})`}
+        color={colors.sky['700']}
+      />
+    )
+  } else if (Array.isArray(value)) {
+    return <ArrayRenderer level={level} objectKey={objectKey} value={value} />
+  } else if (typeof value === 'object') {
+    return <ObjectRenderer level={level} objectKey={objectKey} value={value} />
+  } else if (typeof value === 'number') {
+    return <NumberRenderer level={level} objectKey={objectKey} value={value} />
+  } else if (typeof value === 'boolean') {
+    return <BooleanRenderer level={level} objectKey={objectKey} value={value} />
   } else {
-    const value = level > 0 ? `"${data.toString()}"` : data.toString()
-    const color = level > 0 ? colors.rose['700'] : colors.slate['800']
-    return <StringRenderer data={value} color={color} />
+    value = objectKey !== null ? `"${value.toString()}"` : value
+    const color = objectKey !== null ? colors.rose['700'] : colors.slate['700']
+    return (
+      <StringRenderer
+        level={level}
+        objectKey={objectKey}
+        value={value}
+        color={color}
+      />
+    )
   }
 }

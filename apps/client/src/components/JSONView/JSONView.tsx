@@ -9,12 +9,12 @@ interface Props {
 export const JSONView: React.FC<Props> = ({ data }) => {
   return (
     <Block
-      position="relative"
+      marginLeft={15}
       fontFamily="monospace"
       fontSize={13}
       lineHeight={1.25}
     >
-      {getRendererForType(data, 0)}
+      {getRendererForType(null, data, 0)}
     </Block>
   )
 }

@@ -1,42 +1,37 @@
-import { Block, Row } from 'jsxstyle'
-import React, { useState } from 'react'
-import { colors } from '~/config/theme'
+import { Block } from 'jsxstyle'
+import React, { Fragment, useState } from 'react'
 import { getRendererForType } from './getRendererForType'
 import { Toggle } from './Toggle'
+import { TreeRow } from './TreeRow'
 
 interface Props {
-  data: object
   level: number
+  objectKey: string | null
+  value: object
 }
 
-export const ObjectRenderer: React.FC<Props> = ({ data, level }) => {
+export const ObjectRenderer: React.FC<Props> = ({
+  level,
+  objectKey,
+  value,
+}) => {
   const [open, setOpen] = useState(false)
-  const entries = Object.entries(data)
+  const entries = Object.entries(value)
 
   return (
-    <Block paddingRight={level === 0 ? 15 : 0}>
-      <Block position="absolute" top={8.125} left={level > 0 ? -15 : 0}>
-        <Toggle isOpen={open} onClick={() => setOpen(open => !open)} />
-      </Block>
-
-      <Block transform={level === 0 ? 'translateX(15px)' : null}>
-        {'{...}'}
-      </Block>
-
-      {open && (
-        <Block paddingLeft={level > 0 ? 5 : 20}>
-          {entries.map(([key, value], i) => (
-            <Row key={i} position="relative">
-              <Block color={colors.slate['700']} fontWeight={700}>
-                {key}:
-              </Block>
-              <Block marginLeft={5}>
-                {getRendererForType(value, level + 1)}
-              </Block>
-            </Row>
-          ))}
+    <Fragment>
+      <TreeRow level={level} objectKey={objectKey}>
+        <Block position="absolute" top={8.125} left={-15}>
+          <Toggle isOpen={open} onClick={() => setOpen(open => !open)} />
         </Block>
-      )}
-    </Block>
+
+        <Block>{'{...}'}</Block>
+      </TreeRow>
+
+      {open &&
+        entries.map(([key, value]) =>
+          getRendererForType(key, value, level + 1)
+        )}
+    </Fragment>
   )
 }

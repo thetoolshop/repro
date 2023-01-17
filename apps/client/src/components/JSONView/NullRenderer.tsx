@@ -1,7 +1,15 @@
 import { Block } from 'jsxstyle'
 import React from 'react'
 import { colors } from '~/config/theme'
+import { TreeRow } from './TreeRow'
 
-export const NullRenderer: React.FC = () => (
-  <Block color={colors.slate['500']}>null</Block>
+interface Props {
+  level: number
+  objectKey: string | null
+}
+
+export const NullRenderer: React.FC<Props> = ({ level, objectKey }) => (
+  <TreeRow level={level} objectKey={objectKey}>
+    <Block color={colors.slate['500']}>null</Block>
+  </TreeRow>
 )

@@ -1,11 +1,20 @@
-import { InlineFlex } from 'jsxstyle'
+import { Block } from 'jsxstyle'
 import React from 'react'
 import { colors } from '~/config/theme'
+import { TreeRow } from './TreeRow'
 
 interface Props {
-  data: boolean
+  level: number
+  objectKey: string | null
+  value: boolean
 }
 
-export const BooleanRenderer: React.FC<Props> = ({ data }) => (
-  <InlineFlex color={colors.teal['700']}>{data ? 'true' : 'false'}</InlineFlex>
+export const BooleanRenderer: React.FC<Props> = ({
+  level,
+  objectKey,
+  value,
+}) => (
+  <TreeRow level={level} objectKey={objectKey}>
+    <Block color={colors.teal['700']}>{value ? 'true' : 'false'}</Block>
+  </TreeRow>
 )
