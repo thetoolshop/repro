@@ -41,38 +41,39 @@ export const ConsoleRow: React.FC<Props> = ({
   index,
 }) => {
   return (
-    <Grid
-      gridTemplateColumns="auto auto 1fr auto"
-      columnGap={10}
-      paddingV={6}
-      paddingH={15}
-      fontSize={13}
-      color={textColors[level]}
-      backgroundColor={bgColors[level]}
-    >
-      <Block
-        position="relative"
-        color={colors.slate['500']}
-        lineHeight={1.25}
-        cursor="pointer"
+    <div data-target="console-row">
+      <Grid
+        gridTemplateColumns="auto auto 1fr auto"
+        columnGap={10}
+        paddingV={6}
+        paddingH={15}
+        fontSize={13}
+        color={textColors[level]}
+        backgroundColor={bgColors[level]}
       >
-        {formatTime(time, 'millis')}
+        <Block
+          position="relative"
+          color={colors.slate['500']}
+          lineHeight={1.25}
+        >
+          {formatTime(time, 'millis')}
 
-        <Block position="absolute" top={-3} left={-10}>
-          <SeekAction eventIndex={index} />
+          <Block position="absolute" top={-3} left={-10}>
+            <SeekAction eventIndex={index} />
+          </Block>
         </Block>
-      </Block>
 
-      <Block>{icons[level]}</Block>
+        <Block>{icons[level]}</Block>
 
-      <Row flexWrap="wrap" gap={10}>
-        {parts.map((part, j) => {
-          return <PartRenderer part={part} key={j} />
-        })}
-      </Row>
+        <Row flexWrap="wrap" gap={10}>
+          {parts.map((part, j) => {
+            return <PartRenderer part={part} key={j} />
+          })}
+        </Row>
 
-      {stack[0] ? <StackReference entry={stack[0]} /> : <Block />}
-    </Grid>
+        {stack[0] ? <StackReference entry={stack[0]} /> : <Block />}
+      </Grid>
+    </div>
   )
 }
 

@@ -1,26 +1,17 @@
 import { useContext } from 'react'
-import { distinctUntilChanged, map } from 'rxjs'
 import { useAtomValue } from '~/utils/state'
 import { PlaybackContext } from './context'
 import { EMPTY_PLAYBACK } from './createSourcePlayback'
-import { PointerState, SourceEventType } from '@repro/domain'
+import { PointerState } from '@repro/domain'
 import { OUT_OF_BOUNDS_POINT, ZERO_POINT } from './constants'
 
 export function usePlayback() {
   return useContext(PlaybackContext) || EMPTY_PLAYBACK
 }
 
-export function useActiveIndex(type?: SourceEventType) {
+export function useActiveIndex() {
   const playback = usePlayback()
-
-  return type === undefined
-    ? useAtomValue(playback.$activeIndex)
-    : useAtomValue(
-        playback.$activeIndexByType.pipe(
-          map(indices => indices[type]),
-          distinctUntilChanged()
-        )
-      )
+  return useAtomValue(playback.$activeIndex)
 }
 
 export function useBuffer() {

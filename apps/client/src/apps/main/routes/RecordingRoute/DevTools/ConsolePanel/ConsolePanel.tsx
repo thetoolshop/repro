@@ -6,10 +6,17 @@ import {
   SourceEventView,
 } from '@repro/domain'
 import { Block, Grid } from 'jsxstyle'
-import React, { Fragment, useMemo } from 'react'
+import React, {
+  Fragment,
+  MutableRefObject,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react'
+import { filter } from 'rxjs'
 import { colors } from '~/config/theme'
 import { Stats } from '~/libs/diagnostics'
-import { ElapsedMarker, usePlayback } from '~/libs/playback'
+import { ControlFrame, ElapsedMarker, usePlayback } from '~/libs/playback'
 import { useConsoleLevelFilter, useConsoleSearch } from '../../hooks'
 import { pairwise } from '../../utils'
 import { ConsoleRow } from './ConsoleRow'
@@ -25,6 +32,7 @@ export const ConsolePanel: React.FC = () => {
   const playback = usePlayback()
   const [consoleSearch, setConsoleSearch] = useConsoleSearch()
   const [consoleLevelFilter, setConsoleLevelFilter] = useConsoleLevelFilter()
+  const rowContainerRef = useRef() as MutableRefObject<HTMLDivElement>
 
   const consoleEvents = useMemo(() => {
     const events: Array<[ConsoleEvent, number]> = []
@@ -78,6 +86,41 @@ export const ConsolePanel: React.FC = () => {
     [filteredConsoleEvents]
   )
 
+  useEffect(() => {
+    const subscription = playback.$latestControlFrame
+      .pipe(filter(controlFrame => controlFrame === ControlFrame.SeekToEvent))
+      .subscribe(() => {
+        const activeIndex = playback.getActiveIndex()
+        const listIndex = filteredConsoleEvents.findIndex(
+          ([, eventIndex]) => eventIndex === activeIndex
+        )
+
+        if (listIndex !== -1) {
+          const row = rowContainerRef.current.querySelectorAll(
+            `[data-target='console-row']`
+          )[listIndex]
+
+          if (row) {
+            const { top: containerTop, height: containerHeight } =
+              rowContainerRef.current.getBoundingClientRect()
+
+            const { top: rowTop } = row.getBoundingClientRect()
+
+            if (
+              rowTop < containerTop ||
+              rowTop > containerTop + containerHeight
+            ) {
+              row.scrollIntoView({ block: 'start' })
+            }
+          }
+        }
+      })
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [playback, filteredConsoleEvents, rowContainerRef])
+
   return (
     <Grid gridTemplateRows="auto 1fr" height="100%">
       <Grid
@@ -100,7 +143,7 @@ export const ConsolePanel: React.FC = () => {
         </Block>
       </Grid>
 
-      <Block overflow="auto">
+      <Block overflow="auto" props={{ ref: rowContainerRef }}>
         {filteredPairs.map(([prev, event], i) => (
           <Fragment key={i}>
             <ElapsedMarker

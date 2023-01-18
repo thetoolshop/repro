@@ -2,6 +2,8 @@ import { ConsoleEvent, LogLevel, MessagePartType } from '@repro/domain'
 import { AlertCircle, AlertTriangle } from 'lucide-react'
 import React from 'react'
 import { colors } from '~/config/theme'
+import { useView } from '../../hooks'
+import { View } from '../../types'
 import { BaseEntry } from './BaseEntry'
 
 interface Props {
@@ -24,6 +26,7 @@ const icons = {
 }
 
 export const ConsoleEntry: React.FC<Props> = ({ eventIndex, event }) => {
+  const [, setView] = useView()
   const level = event.data.level
   const firstPart = event.data.parts[0]
 
@@ -33,12 +36,17 @@ export const ConsoleEntry: React.FC<Props> = ({ eventIndex, event }) => {
   const value =
     firstPart?.type === MessagePartType.String ? firstPart.value : null
 
+  function onClick() {
+    setView(View.Console)
+  }
+
   return (
     <BaseEntry
       eventIndex={eventIndex}
       event={event}
       color={textColor}
       icon={icon}
+      onClick={onClick}
     >
       {value}
     </BaseEntry>
