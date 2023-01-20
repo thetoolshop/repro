@@ -1,6 +1,7 @@
 import {
   InteractionType,
   LogLevel,
+  NetworkMessageType,
   SourceEvent,
   SourceEventType,
   SourceEventView,
@@ -12,6 +13,7 @@ import { FixedSizeList, ListChildComponentProps } from 'react-window'
 import { ElapsedMarker, usePlayback } from '~/libs/playback'
 import { ConsoleEntry } from './ConsoleEntry'
 import { InteractionEntry } from './InteractionEntry'
+import { NetworkEntry } from './NetworkEntry'
 
 function shouldIncludeEvent(event: SourceEvent) {
   switch (event.type) {
@@ -20,6 +22,12 @@ function shouldIncludeEvent(event: SourceEvent) {
 
     case SourceEventType.Console:
       return event.data.level === LogLevel.Error
+
+    case SourceEventType.Network:
+      return (
+        event.data.type === NetworkMessageType.FetchRequest ||
+        event.data.type === NetworkMessageType.WebSocketOpen
+      )
   }
 
   return false
@@ -99,6 +107,10 @@ const UserEventRow: React.FC<
 
     case SourceEventType.Interaction:
       entry = <InteractionEntry eventIndex={eventIndex} event={event} />
+      break
+
+    case SourceEventType.Network:
+      entry = <NetworkEntry eventIndex={eventIndex} event={event} />
       break
   }
 

@@ -6,10 +6,11 @@ import {
   SourceEventView,
 } from '@repro/domain'
 import { Block, Grid, Row } from 'jsxstyle'
-import React, { Fragment, useMemo, useState } from 'react'
+import React, { Fragment, useEffect, useMemo, useState } from 'react'
+import { filter } from 'rxjs'
 import { colors } from '~/config/theme'
 import { Stats } from '~/libs/diagnostics'
-import { ElapsedMarker, usePlayback } from '~/libs/playback'
+import { ControlFrame, ElapsedMarker, usePlayback } from '~/libs/playback'
 import { pairwise } from '../../utils'
 import { DetailsOverlay } from './DetailsOverlay'
 import { NetworkRow } from './NetworkRow'
@@ -139,6 +140,28 @@ export const NetworkPanel: React.FC = () => {
       ),
     [networkEvents]
   )
+
+  useEffect(() => {
+    const subscription = playback.$latestControlFrame
+      .pipe(filter(controlFrame => controlFrame === ControlFrame.SeekToEvent))
+      .subscribe(() => {
+        const activeIndex = playback.getActiveIndex()
+
+        const group = networkEvents.find(group => {
+          return group.type === 'fetch'
+            ? group.requestIndex === activeIndex
+            : group.openIndex === activeIndex
+        })
+
+        if (group) {
+          setSelectedGroup(group)
+        }
+      })
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [playback, networkEvents, setSelectedGroup])
 
   const columnTracks = `
     auto
