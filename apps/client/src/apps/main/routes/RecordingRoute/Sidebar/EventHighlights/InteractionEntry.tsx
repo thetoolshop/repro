@@ -84,7 +84,7 @@ function createClickLabel(interaction: Click): React.ReactNode {
         paddingH={6}
         paddingV={3}
         borderRadius={4}
-        backgroundColor={colors.blue['200']}
+        backgroundColor={colors.blue['100']}
         color={colors.blue['900']}
       >
         <LinkIcon size={14} color={colors.blue['900']} strokeWidth={3} />
