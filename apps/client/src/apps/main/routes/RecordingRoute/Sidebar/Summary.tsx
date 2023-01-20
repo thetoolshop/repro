@@ -4,6 +4,7 @@ import React, { Fragment, useState } from 'react'
 import { Drawer } from '~/components/Drawer'
 import { Modal } from '~/components/Modal'
 import { colors } from '~/config/theme'
+import { formatDate } from '~/utils/date'
 
 interface Props {
   metadata: RecordingMetadata
@@ -12,7 +13,7 @@ interface Props {
 const DESCRIPTION_LENGTH = 360
 
 export const Summary: React.FC<Props> = ({ metadata }) => {
-  const [showDescriptionDrawer, setShowDescriptionDrawer] = useState(false)
+  const [showDrawer, setShowDrawer] = useState(false)
 
   const shouldTruncateDescription =
     metadata.description.length > DESCRIPTION_LENGTH
@@ -53,6 +54,15 @@ export const Summary: React.FC<Props> = ({ metadata }) => {
 
       <Block
         marginTop={10}
+        fontSize={13}
+        lineHeight={1.25}
+        color={colors.slate['700']}
+      >
+        Posted by {metadata.authorName} on {formatDate(metadata.createdAt)}
+      </Block>
+
+      <Block
+        marginTop={10}
         lineHeight={1.5}
         fontSize={13}
         textOverflow="ellipsis"
@@ -67,29 +77,48 @@ export const Summary: React.FC<Props> = ({ metadata }) => {
             color={colors.blue['700']}
             cursor="pointer"
             props={{
-              onClick: () => setShowDescriptionDrawer(true),
+              onClick: () => setShowDrawer(true),
             }}
           >
             Read More
           </InlineBlock>
         )}
 
-        <Drawer
-          open={showDescriptionDrawer}
-          onClose={() => setShowDescriptionDrawer(false)}
-        >
-          {showDescriptionDrawer && (
+        <Drawer open={showDrawer} onClose={() => setShowDrawer(false)}>
+          {showDrawer && (
             <Fragment>
-              <Block
-                paddingBottom={20}
-                fontSize={20}
-                fontWeight={700}
-                color={colors.blue['700']}
-              >
-                Description
+              <Block fontSize={24} fontWeight={700} color={colors.slate['900']}>
+                {metadata.title}
               </Block>
 
-              <Block fontSize={13} lineHeight={1.5} whiteSpace="pre-wrap">
+              <Block
+                component="a"
+                marginTop={20}
+                fontSize={15}
+                textDecoration="underline"
+                color={colors.blue['700']}
+                cursor="pointer"
+                props={{ href: metadata.url, target: '_blank' }}
+              >
+                {metadata.url}
+              </Block>
+
+              <Block
+                marginTop={10}
+                fontSize={15}
+                lineHeight={1.25}
+                color={colors.slate['700']}
+              >
+                Posted by {metadata.authorName} on{' '}
+                {formatDate(metadata.createdAt)}
+              </Block>
+
+              <Block
+                marginTop={20}
+                fontSize={13}
+                lineHeight={1.5}
+                whiteSpace="pre-wrap"
+              >
                 {metadata.description}
               </Block>
             </Fragment>

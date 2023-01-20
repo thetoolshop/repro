@@ -4,7 +4,6 @@ import React from 'react'
 import { Card } from '~/components/Card'
 import { DefinitionList } from '~/components/DefinitionList'
 import { colors } from '~/config/theme'
-import { formatDate } from '~/utils/date'
 import { ucfirst } from '~/utils/string'
 import { EventHighlights } from './EventHighlights'
 import { Summary } from './Summary'
@@ -37,10 +36,8 @@ export const Sidebar: React.FC<Props> = ({ metadata }) => (
         boxShadow={`0 -4px 16px ${colors.slate['100']}`}
       >
         <DefinitionList
-          title="Details"
+          title="System Info"
           pairs={[
-            ['Posted by', metadata.authorName],
-            ['Created at', formatDate(metadata.createdAt)],
             [
               'Browser',
               metadata.browserName
