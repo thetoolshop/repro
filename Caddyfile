@@ -1,3 +1,10 @@
 api.repro.dev {
 	reverse_proxy :8181
 }
+
+app.repro.dev {
+	root * apps/client/dist/main
+	encode gzip
+	try_files {path} index.html
+	file_server
+}

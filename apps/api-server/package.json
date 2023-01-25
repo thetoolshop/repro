@@ -6,6 +6,7 @@
   "scripts": {
     "build": "./scripts/build",
     "migrate": "node-pg-migrate",
+    "start": "ts-eager src/index.ts",
     "watch": "nodemon"
   },
   "license": "UNLICENSED",
