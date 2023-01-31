@@ -1,4 +1,4 @@
-import { createError } from '~/utils/errors'
+import { createError, notFound } from '~/utils/errors'
 import Future, {
   attempt,
   chain,
@@ -57,10 +57,6 @@ export interface DatabaseClient {
     values: Array<any>,
     resultSelector: (row: T) => U
   ): FutureInstance<Error, Array<U>>
-}
-
-function noResults() {
-  return createError('NoResultsError')
 }
 
 function tooManyResults() {
@@ -189,7 +185,7 @@ export function createDatabaseClient(config: PoolConfig): DatabaseClient {
         }
 
         if (result.rowCount === 0) {
-          return reject(noResults())
+          return reject(notFound())
         }
 
         return reject(tooManyResults())

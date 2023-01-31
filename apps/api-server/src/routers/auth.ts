@@ -1,6 +1,7 @@
+import { Project, ProjectRole, Team, User } from '@repro/domain'
 import { parseSchema } from '@repro/validation'
 import express from 'express'
-import { and, chain, map, mapRej, reject, resolve, swap } from 'fluture'
+import { chain, go, mapRej, reject, resolve, swap } from 'fluture'
 import z from 'zod'
 import { AuthService } from '~/services/auth'
 import { ProjectService } from '~/services/project'
@@ -79,46 +80,54 @@ export function createAuthRouter(
 
   const registerBodySchema = z.object({
     name: z.string(),
+    company: z.string().optional(),
     email: z.string().email(),
     password: z.string(),
   })
 
   AuthRouter.post('/register', (req, res) => {
-    respondWith<void>(
+    respondWith<string>(
       res,
       parseSchema(registerBodySchema, req.body, badRequest).pipe(
-        chain(({ name, email, password }) => {
-          const existingUser = userService.getUserByEmail(email)
+        chain(({ name, company, email, password }) => {
+          return go(function* () {
+            const checkExistingUser: Error = yield userService
+              .getUserByEmail(email)
+              .pipe(swap)
+              .pipe(mapRej(() => badRequest('User already exists')))
 
-          const newTeam = teamService.createTeam(`${name}'s Team`)
-
-          const newProject = newTeam.pipe(
-            chain(team =>
-              projectService.createProject(team.id, 'Default Project')
-            )
-          )
-
-          const newUser = newTeam.pipe(
-            chain(team =>
-              userService.createUser(team.id, name, email, password)
-            )
-          )
-
-          return existingUser
-            .pipe(swap)
-            .pipe(mapRej(() => badRequest('User already exists')))
-            .pipe(
-              chain(err =>
-                isNotFound(err)
-                  ? newTeam
-                      .pipe(and(newProject))
-                      .pipe(and(newUser))
-                      .pipe(
-                        chain(() => userService.sendVerificationEmail(email))
-                      )
-                  : reject(err)
+            if (isNotFound(checkExistingUser)) {
+              const newTeam: Team = yield teamService.createTeam(
+                company || `${name}'s Team'`
               )
-            )
+
+              const newUser: User = yield userService.createUser(
+                newTeam.id,
+                name,
+                email,
+                password
+              )
+
+              const newProject: Project = yield projectService.createProject(
+                newTeam.id,
+                'Default Project'
+              )
+
+              yield projectService.addUserToProject(
+                newProject.id,
+                newUser.id,
+                ProjectRole.Admin
+              )
+
+              yield userService.sendVerificationEmail(email)
+
+              return yield authService.createSessionToken({
+                userId: newUser.id,
+              })
+            } else {
+              yield reject(checkExistingUser)
+            }
+          })
         })
       )
     )
