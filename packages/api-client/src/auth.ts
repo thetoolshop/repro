@@ -27,10 +27,27 @@ export function createAuthApi(authStore: AuthStore, dataLoader: DataLoader) {
     return dataLoader('/auth/logout')
   }
 
+  function register(
+    name: string,
+    company: string,
+    email: string,
+    password: string
+  ): FutureInstance<Error, void> {
+    const token = dataLoader<string>('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify({ name, company, email, password }),
+    })
+
+    return token
+      .pipe(chain(token => authStore.setSessionToken(token)))
+      .pipe(map(() => undefined))
+  }
+
   return {
     forgotPassword,
     login,
     logout,
+    register,
   }
 }
 

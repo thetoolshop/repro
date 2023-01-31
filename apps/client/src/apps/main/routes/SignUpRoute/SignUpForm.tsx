@@ -102,6 +102,11 @@ export const SignUpForm: React.FC<Props> = ({ onSubmit }) => {
             context={formState.errors.confirmedPassword ? 'error' : 'normal'}
             {...register('confirmedPassword', { required: true })}
           />
+          {formState.errors.confirmedPassword && (
+            <Block color={colors.rose['700']} fontSize={13}>
+              {formState.errors.confirmedPassword.message}
+            </Block>
+          )}
         </Col>
 
         <Button size="large" type="submit">
