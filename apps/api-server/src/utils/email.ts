@@ -1,12 +1,11 @@
-import sendGrid from '@sendgrid/mail'
 import { attempt, attemptP, FutureInstance, go } from 'fluture'
 import { readFile } from 'fs/promises'
 import Handlebars from 'handlebars'
+import { Transporter } from 'nodemailer'
 import path from 'path'
 
 export interface EmailConfig {
   fromEmail: string
-  sendGridApiKey: string
   templateDirectory: string
 }
 
@@ -18,34 +17,35 @@ export interface EmailUtils {
   ): FutureInstance<Error, void>
 }
 
-export function createEmailUtils(config: EmailConfig): EmailUtils {
-  sendGrid.setApiKey(config.sendGridApiKey)
-
+export function createEmailUtils(
+  transporter: Transporter,
+  config: EmailConfig
+): EmailUtils {
   function sendEmail(
     templateName: string,
     email: string,
     templateContext: Record<string, string>
   ): FutureInstance<Error, void> {
     return go(function* () {
-      const subject = yield attemptP(() =>
+      const subject: Buffer = yield attemptP(() =>
         readFile(path.join(config.templateDirectory, `${templateName}/subject`))
       )
 
-      const template = yield attemptP(() =>
+      const template: Buffer = yield attemptP(() =>
         readFile(
           path.join(config.templateDirectory, `${templateName}/body.hbs`)
         )
       )
 
       const body = yield attempt(() =>
-        Handlebars.compile(template)(templateContext)
+        Handlebars.compile(template.toString())(templateContext)
       )
 
       yield attemptP(() =>
-        sendGrid.send({
+        transporter.sendMail({
           to: email,
           from: config.fromEmail,
-          subject,
+          subject: subject.toString(),
           html: body,
         })
       )

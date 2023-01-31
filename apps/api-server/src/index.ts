@@ -1,7 +1,8 @@
 import compression from 'compression'
 import cors from 'cors'
 import express, { ErrorRequestHandler } from 'express'
-import path from 'path'
+import { createTransport as createEmailTransport } from 'nodemailer'
+import SMTPTransport from 'nodemailer/lib/smtp-transport'
 
 import { env } from '~/config/env'
 
@@ -38,10 +39,18 @@ const dbClient = createDatabaseClient({
   connectionString: env.DATABASE_URL,
 })
 
+const emailTransporter = createEmailTransport({
+  host: env.EMAIL_SMTP_HOST,
+  port: env.EMAIL_SMTP_PORT,
+  auth: env.EMAIL_SMTP_USE_CREDENTIALS && {
+    user: env.EMAIL_SMTP_USER,
+    pass: env.EMAIL_SMTP_PASS,
+  },
+} as SMTPTransport.Options)
+
 const cryptoUtils = createCryptoUtils()
-const emailUtils = createEmailUtils({
+const emailUtils = createEmailUtils(emailTransporter, {
   fromEmail: env.EMAIL_FROM_ADDRESS,
-  sendGridApiKey: env.EMAIL_SENDGRID_API_KEY,
   templateDirectory: env.EMAIL_TEMPLATE_DIRECTORY,
 })
 

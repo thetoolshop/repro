@@ -19,7 +19,11 @@ const envSchema = z.object({
   DATABASE_URL: z.string(),
 
   EMAIL_FROM_ADDRESS: z.string().email(),
-  EMAIL_SENDGRID_API_KEY: z.string(),
+  EMAIL_SMTP_HOST: z.string(),
+  EMAIL_SMTP_PORT: numericStringTransform,
+  EMAIL_SMTP_USE_CREDENTIALS: z.string(),
+  EMAIL_SMTP_USER: z.string(),
+  EMAIL_SMTP_PASS: z.string(),
   EMAIL_TEMPLATE_DIRECTORY: z.string(),
 
   PADDLE_VENDOR_ID: z.string(),
