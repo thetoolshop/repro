@@ -119,7 +119,7 @@ export function createAuthRouter(
                 ProjectRole.Admin
               )
 
-              yield userService.sendVerificationEmail(email)
+              // yield userService.sendVerificationEmail(email)
 
               return yield authService.createSessionToken({
                 userId: newUser.id,
