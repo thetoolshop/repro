@@ -478,6 +478,12 @@ function createDOMFromVTree(
         }
       }
 
+      const fragment = document.createDocumentFragment()
+
+      for (const childId of vNode.children) {
+        fragment.appendChild(createNode(childId, nodeId, svgContext))
+      }
+
       frame.addEventListener(
         'load',
         () => {
@@ -491,13 +497,6 @@ function createDOMFromVTree(
             const root = document.createElement('html')
             doc.documentElement.remove()
             doc.appendChild(root)
-
-            const fragment = document.createDocumentFragment()
-
-            for (const childId of vNode.children) {
-              fragment.appendChild(createNode(childId, nodeId, svgContext))
-            }
-
             root.appendChild(fragment)
           }
         },
