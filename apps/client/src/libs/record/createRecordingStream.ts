@@ -364,6 +364,14 @@ export function createRecordingStream(
 
     iframeVisitor.subscribe(contentDocuments => {
       sourceDocuments.push(...contentDocuments)
+
+      if (started && trailingSnapshot.dom) {
+        for (const observer of observers) {
+          for (const doc of contentDocuments) {
+            observer.observe(doc, trailingSnapshot.dom)
+          }
+        }
+      }
     })
 
     domTreeWalker.accept(iframeVisitor)

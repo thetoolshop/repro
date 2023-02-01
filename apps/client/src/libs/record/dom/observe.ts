@@ -266,6 +266,26 @@ export function internal__processMutationRecords(
           .map(node => walkDOMTree(node))
           .filter(vtree => vtree !== null) as Array<VTree>
 
+        let previousSibling = record.previousSibling
+
+        while (
+          previousSibling &&
+          (isIgnoredBySelector(previousSibling, options.ignoredSelectors) ||
+            isIgnoredByNode(previousSibling, options.ignoredNodes))
+        ) {
+          previousSibling = previousSibling.previousSibling
+        }
+
+        let nextSibling = record.nextSibling
+
+        while (
+          nextSibling &&
+          (isIgnoredBySelector(nextSibling, options.ignoredSelectors) ||
+            isIgnoredByNode(nextSibling, options.ignoredNodes))
+        ) {
+          nextSibling = record.nextSibling
+        }
+
         if (removedVTrees.length) {
           for (const vtree of removedVTrees) {
             for (const nodeId of Object.keys(vtree.nodes)) {
@@ -277,13 +297,8 @@ export function internal__processMutationRecords(
             type: PatchType.RemoveNodes,
             parentId: getNodeId(record.target),
             previousSiblingId:
-              record.previousSibling !== null
-                ? getNodeId(record.previousSibling)
-                : null,
-            nextSiblingId:
-              record.nextSibling !== null
-                ? getNodeId(record.nextSibling)
-                : null,
+              previousSibling !== null ? getNodeId(previousSibling) : null,
+            nextSiblingId: nextSibling !== null ? getNodeId(nextSibling) : null,
             nodes: removedVTrees,
           })
         }
@@ -306,13 +321,9 @@ export function internal__processMutationRecords(
               type: PatchType.AddNodes,
               parentId: getNodeId(record.target),
               previousSiblingId:
-                record.previousSibling !== null
-                  ? getNodeId(record.previousSibling)
-                  : null,
+                previousSibling !== null ? getNodeId(previousSibling) : null,
               nextSiblingId:
-                record.nextSibling !== null
-                  ? getNodeId(record.nextSibling)
-                  : null,
+                nextSibling !== null ? getNodeId(nextSibling) : null,
               nodes: addedVTrees,
             })
           }
@@ -355,13 +366,12 @@ function createStyleSheetObserver(
   subscriber: (patch: Patch) => void
 ): ObserverLike<Document> {
   function insertRuleEffect(
-    doc: Document,
     vtree: Immutable<VTree>,
     sheet: CSSStyleSheet,
     rule: string,
     index: number = 0
   ) {
-    if (sheet.ownerNode && doc.contains(sheet.ownerNode)) {
+    if (sheet.ownerNode) {
       const parentId = getNodeId(sheet.ownerNode)
       const parentVNode = vtree.nodes[parentId]
 
@@ -394,12 +404,11 @@ function createStyleSheetObserver(
   }
 
   function deleteRuleEffect(
-    doc: Document,
     vtree: Immutable<VTree>,
     sheet: CSSStyleSheet,
     index: number
   ) {
-    if (sheet.ownerNode && doc.contains(sheet.ownerNode)) {
+    if (sheet.ownerNode) {
       const parentId = getNodeId(sheet.ownerNode)
       const parentVNode = vtree.nodes[parentId]
 
@@ -435,21 +444,31 @@ function createStyleSheetObserver(
   const insertRule = window.CSSStyleSheet.prototype.insertRule
   const deleteRule = window.CSSStyleSheet.prototype.deleteRule
 
+  const targets = new Set<Window & typeof globalThis>()
+
   return {
     disconnect() {
-      window.CSSStyleSheet.prototype.insertRule = insertRule
-      window.CSSStyleSheet.prototype.deleteRule = deleteRule
+      for (const win of targets) {
+        win.CSSStyleSheet.prototype.insertRule = insertRule
+        win.CSSStyleSheet.prototype.deleteRule = deleteRule
+      }
     },
 
     observe(doc, vtree) {
-      window.CSSStyleSheet.prototype.insertRule = function (this, ...args) {
-        insertRuleEffect(doc, vtree, this, ...args)
-        return insertRule.call(this, ...args)
-      }
+      const win = doc.defaultView
 
-      window.CSSStyleSheet.prototype.deleteRule = function (this, ...args) {
-        deleteRuleEffect(doc, vtree, this, ...args)
-        return deleteRule.call(this, ...args)
+      if (win) {
+        targets.add(win)
+
+        win.CSSStyleSheet.prototype.insertRule = function (this, ...args) {
+          insertRuleEffect(vtree, this, ...args)
+          return insertRule.call(this, ...args)
+        }
+
+        win.CSSStyleSheet.prototype.deleteRule = function (this, ...args) {
+          deleteRuleEffect(vtree, this, ...args)
+          return deleteRule.call(this, ...args)
+        }
       }
     },
   }
