@@ -24,7 +24,9 @@ export function createAuthApi(authStore: AuthStore, dataLoader: DataLoader) {
   }
 
   function logout(): FutureInstance<Error, void> {
-    return dataLoader('/auth/logout')
+    return dataLoader('/auth/logout', { method: 'POST' }).pipe(
+      chain(() => authStore.clearSessionToken())
+    )
   }
 
   function register(

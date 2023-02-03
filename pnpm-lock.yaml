@@ -90,6 +90,7 @@ importers:
       '@repro/validation': workspace:*
       '@types/chrome': ^0.0.176
       '@types/jest': ^27.4.0
+      '@types/md5': ^2.3.2
       '@types/mixpanel-browser': ^2.38.0
       '@types/node': ^18.6.2
       '@types/react': ^18.0.14
@@ -112,6 +113,7 @@ importers:
       jsxstyle: ^2.5.1
       jsxstyle-utils: ^2.5.0
       lucide-react: ^0.91.0
+      md5: ^2.3.0
       mixpanel-browser: ^2.45.0
       nanoid: ^4.0.0
       patch-package: ^6.4.7
@@ -156,6 +158,7 @@ importers:
       jsxstyle: 2.5.1
       jsxstyle-utils: 2.5.0
       lucide-react: 0.91.0_sh5qlbywuemxd2y3xkrw2y2kr4
+      md5: 2.3.0
       mixpanel-browser: 2.45.0
       nanoid: 4.0.0
       pretty-bytes: 6.0.0
@@ -179,6 +182,7 @@ importers:
     devDependencies:
       '@types/chrome': 0.0.176
       '@types/jest': 27.5.2
+      '@types/md5': 2.3.2
       '@types/mixpanel-browser': 2.38.0
       '@types/node': 18.7.13
       '@types/react': 18.0.17
@@ -1613,6 +1617,10 @@ packages:
       '@types/node': 18.7.13
     dev: false
 
+  /@types/md5/2.3.2:
+    resolution: {integrity: sha512-v+JFDu96+UYJ3/UWzB0mEglIS//MZXgRaJ4ubUPwOM0gvLc/kcQ3TWNYwENEK7/EcXGQVrW8h/XqednSjBd/Og==}
+    dev: true
+
   /@types/mime/3.0.1:
     resolution: {integrity: sha512-Y4XFY5VJAuw0FgAqPNd6NNoV44jbq9Bz2L7Rh/J6jLTiHBSBJa9fxqQIvkIld4GsoDOcCbvzOUAbLPsSKKg+uA==}
     dev: true
@@ -2545,6 +2553,10 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
+  /charenc/0.0.2:
+    resolution: {integrity: sha512-yrLQ/yVUFXkzg7EDQsPieE/53+0RlaWTs+wBrvW36cyilJ2SaDWfl4Yj7MtLTXleV9uEKefbAGUPv2/iWSooRA==}
+    dev: false
+
   /chokidar/3.5.3:
     resolution: {integrity: sha512-Dr3sfKRP6oTcjf2JmUmFJfeVMvXBdegxB0iVQ5eb2V10uFJUCAS8OByZdVAyVb8xXNz3GjjTgj9kLWsZTqE6kw==}
     engines: {node: '>= 8.10.0'}
@@ -2809,6 +2821,10 @@ packages:
       shebang-command: 2.0.0
       which: 2.0.2
     dev: true
+
+  /crypt/0.0.2:
+    resolution: {integrity: sha512-mCxBlsHFYh9C+HVpiEacem8FEBnMXgU9gy4zmNC+SXAZNB/1idgp/aulFJ4FgCi7GPEVbfyng092GqL2k2rmow==}
+    dev: false
 
   /css-loader/6.7.1_webpack@5.75.0:
     resolution: {integrity: sha512-yB5CNFa14MbPJcomwNh3wLThtkZgcNyI2bNMRt8iE5Z8Vwl7f8vQXFAzn2HDOJvtDq2NTZBUGMSUNNyrv3/+cw==}
@@ -5071,7 +5087,6 @@ packages:
 
   /is-buffer/1.1.6:
     resolution: {integrity: sha512-NcdALwpXkTm5Zvvbk7owOUSvVvBKDgKP5/ewfXEznmQFfs4ZRmanOeKBTjRVjka3QFoN6XJ+9F3USqfHqTaU5w==}
-    dev: true
 
   /is-ci/2.0.0:
     resolution: {integrity: sha512-YfJT7rkpQB0updsdHLGWrvhBJfcfzNNawYDNIyQXJz0IViGf75O8EBPKSdvw2rF+LGCsX4FZ8tcr3b19LcZq4w==}
@@ -6624,6 +6639,14 @@ packages:
     dependencies:
       object-visit: 1.0.1
     dev: true
+
+  /md5/2.3.0:
+    resolution: {integrity: sha512-T1GITYmFaKuO91vxyoQMFETst+O71VUPEU3ze5GNzDm0OWdP8v1ziTaAEPUr/3kLsY3Sftgz242A1SetQiDL7g==}
+    dependencies:
+      charenc: 0.0.2
+      crypt: 0.0.2
+      is-buffer: 1.1.6
+    dev: false
 
   /media-typer/0.3.0:
     resolution: {integrity: sha512-dq+qelQ9akHpcOl/gUVRTxVIOkAJ1wR3QAvb4RsVjS8oVoFjDGTc679wJYmUmknUF5HwMLOgb5O+a3KxfWapPQ==}

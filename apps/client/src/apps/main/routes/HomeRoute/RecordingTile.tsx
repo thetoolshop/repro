@@ -52,18 +52,10 @@ export const RecordingTile: React.FC<Props> = ({ recording }) => {
           borderRadius={4}
         >
           {(recording.mode === RecordingMode.Live ||
-            recording.mode === RecordingMode.Replay) && (
-            <Fragment>
-              <VideoIcon size={16} />
-              <Block>{formatTime(recording.duration, 'seconds')}</Block>
-            </Fragment>
-          )}
+            recording.mode === RecordingMode.Replay) && <VideoIcon size={16} />}
 
           {recording.mode === RecordingMode.Snapshot && (
-            <Fragment>
-              <CameraIcon size={16} />
-              <Block>Screenshot</Block>
-            </Fragment>
+            <CameraIcon size={16} />
           )}
         </InlineRow>
 
@@ -80,6 +72,10 @@ export const RecordingTile: React.FC<Props> = ({ recording }) => {
       </Row>
 
       <Row alignItems="center" gap={10} fontSize={13} lineHeight={1.5}>
+        {(recording.mode === RecordingMode.Live ||
+          recording.mode === RecordingMode.Replay) &&
+          formatTime(recording.duration, 'seconds')}
+
         <Block color={colors.slate['700']}>{recording.authorName}</Block>
 
         <Block color={colors.slate['700']}>

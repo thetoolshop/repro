@@ -19,6 +19,7 @@ export interface ApiConfiguration {
 export interface AuthStore {
   getSessionToken(): FutureInstance<Error, string>
   setSessionToken(token: string): FutureInstance<Error, string>
+  clearSessionToken(): FutureInstance<Error, void>
 }
 
 export function createLocalStorageAuthStore(): AuthStore {
@@ -36,9 +37,14 @@ export function createLocalStorageAuthStore(): AuthStore {
     return attemptP(() => localForage.setItem<string>(KEY, token))
   }
 
+  function clearSessionToken(): FutureInstance<Error, void> {
+    return attemptP(() => localForage.removeItem(KEY))
+  }
+
   return {
     getSessionToken,
     setSessionToken,
+    clearSessionToken,
   }
 }
 
@@ -54,9 +60,15 @@ export function createInMemoryAuthStore(): AuthStore {
     return resolve(storedToken)
   }
 
+  function clearSessionToken(): FutureInstance<Error, void> {
+    storedToken = null
+    return resolve(undefined)
+  }
+
   return {
     getSessionToken,
     setSessionToken,
+    clearSessionToken,
   }
 }
 
