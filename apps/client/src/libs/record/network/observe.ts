@@ -10,6 +10,9 @@ import { ObserverLike } from '~/utils/observer'
 
 type Subscriber = (message: NetworkMessage) => void
 
+const MAX_BODY_BYTE_LENGTH = 1_000_000
+const EMPTY_ARRAY_BUFFER = new ArrayBuffer(0)
+
 export function createNetworkObserver(
   subscriber: Subscriber
 ): ObserverLike<Document> {
@@ -59,7 +62,7 @@ function createXHRObserver(subscriber: Subscriber): ObserverLike<Document> {
       const value = parts.join(': ')
 
       if (key) {
-        headers[key] = value
+        headers[key.toLowerCase()] = value
       }
     }
 
@@ -83,7 +86,7 @@ function createXHRObserver(subscriber: Subscriber): ObserverLike<Document> {
         return
       }
 
-      let body: ArrayBuffer
+      let body: ArrayBuffer = EMPTY_ARRAY_BUFFER
 
       switch (this.responseType) {
         case 'arraybuffer':
@@ -115,7 +118,8 @@ function createXHRObserver(subscriber: Subscriber): ObserverLike<Document> {
         correlationId: params.correlationId,
         status: this.status,
         headers: parseHeaders(this.getAllResponseHeaders()),
-        body,
+        body:
+          body.byteLength > MAX_BODY_BYTE_LENGTH ? EMPTY_ARRAY_BUFFER : body,
       })
     })()
   }
@@ -228,7 +232,10 @@ function createXHRObserver(subscriber: Subscriber): ObserverLike<Document> {
             url: params.url,
             method: params.method,
             headers: params.headers,
-            body,
+            body:
+              body.byteLength > MAX_BODY_BYTE_LENGTH
+                ? EMPTY_ARRAY_BUFFER
+                : body,
           })
         }
       })()
@@ -286,7 +293,10 @@ function createFetchObserver(subscriber: Subscriber): ObserverLike<Document> {
               url: req.url,
               method: req.method,
               headers: createHeadersRecord(req.headers),
-              body,
+              body:
+                body.byteLength > MAX_BODY_BYTE_LENGTH
+                  ? EMPTY_ARRAY_BUFFER
+                  : body,
             })
           },
 
@@ -309,7 +319,10 @@ function createFetchObserver(subscriber: Subscriber): ObserverLike<Document> {
                 correlationId,
                 status: copy.status,
                 headers: createHeadersRecord(copy.headers),
-                body,
+                body:
+                  body.byteLength > MAX_BODY_BYTE_LENGTH
+                    ? EMPTY_ARRAY_BUFFER
+                    : body,
               })
             },
 
