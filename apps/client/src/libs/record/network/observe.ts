@@ -278,47 +278,68 @@ function createFetchObserver(subscriber: Subscriber): ObserverLike<Document> {
 
   const fetchProxy = new Proxy(window.fetch, {
     apply(target, thisArg, args: [RequestInfo, RequestInit | undefined]) {
+      const [requestInfo, requestInit] = args
       const correlationId = createCorrelationId()
-      const req = new Request(...args)
 
-      req
-        .clone()
-        .arrayBuffer()
-        .then(
-          body => {
-            subscriber({
-              type: NetworkMessageType.FetchRequest,
-              correlationId,
-              requestType: RequestType.Fetch,
-              url: req.url,
-              method: req.method,
-              headers: createHeadersRecord(req.headers),
-              body:
-                body.byteLength > MAX_BODY_BYTE_LENGTH
-                  ? EMPTY_ARRAY_BUFFER
-                  : body,
-            })
-          },
+      const req = new Request(requestInfo, requestInit)
 
-          // TODO: capture request errors
-          _err => {}
-        )
+      req.arrayBuffer().then(
+        body => {
+          subscriber({
+            type: NetworkMessageType.FetchRequest,
+            correlationId,
+            requestType: RequestType.Fetch,
+            url: req.url,
+            method: req.method,
+            headers: createHeadersRecord(req.headers),
+            body:
+              body.byteLength > MAX_BODY_BYTE_LENGTH
+                ? EMPTY_ARRAY_BUFFER
+                : body,
+          })
+        },
+
+        // TODO: capture request errors
+        _err => {}
+      )
+
+      const abortController = new AbortController()
+      let abortAfterResponse = false
+
+      function onAbort() {
+        abortAfterResponse = true
+      }
+
+      requestInit?.signal?.addEventListener('abort', onAbort)
+
+      function cleanUpAbortController() {
+        requestInit?.signal?.removeEventListener('abort', onAbort)
+      }
 
       const resP: Promise<Response> = Reflect.apply(target, thisArg, [
-        req.clone(),
+        requestInfo,
+        {
+          ...requestInit,
+          signal: abortController.signal,
+        },
       ])
 
       resP.then(
         res => {
-          const copy = res.clone()
+          const resCopy = res.clone()
 
-          copy.arrayBuffer().then(
+          resCopy.arrayBuffer().then(
             body => {
+              if (abortAfterResponse) {
+                abortController.abort()
+                cleanUpAbortController()
+              }
+
               subscriber({
                 type: NetworkMessageType.FetchResponse,
                 correlationId,
-                status: copy.status,
-                headers: createHeadersRecord(copy.headers),
+                status: resCopy.status,
+                headers: createHeadersRecord(resCopy.headers),
                 body:
                   body.byteLength > MAX_BODY_BYTE_LENGTH
                     ? EMPTY_ARRAY_BUFFER
@@ -328,12 +349,16 @@ function createFetchObserver(subscriber: Subscriber): ObserverLike<Document> {
 
             // TODO: capture response errors
             // If the request is aborted, reading the response body may fail
-            _err => {}
+            _err => {
+              cleanUpAbortController()
+            }
           )
         },
 
         // TODO: capture response errors
-        _err => {}
+        _err => {
+          cleanUpAbortController()
+        }
       )
 
       return resP
