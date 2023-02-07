@@ -2,6 +2,7 @@ import { ApiClient, createApiClient } from '@repro/api-client'
 import { SourceEventView } from '@repro/domain'
 import {
   and,
+  attempt,
   attemptP,
   chain,
   fork,
@@ -150,7 +151,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
 
 function syncActionState(): FutureInstance<unknown, void> {
   return isEnabled().pipe(
-    chain(enabled => (enabled ? showActionBadge() : hideActionBadge()))
+    chain(enabled => (enabled ? showActiveIcon() : showInactiveIcon()))
   )
 }
 
@@ -194,7 +195,7 @@ function setEnabledState(enabled: boolean) {
     chrome.storage.local.set({
       [StorageKeys.ENABLED]: enabled,
     })
-  ).pipe(chain(() => (enabled ? showActionBadge() : hideActionBadge())))
+  ).pipe(chain(() => (enabled ? showActiveIcon() : showInactiveIcon())))
 }
 
 function isFirstRun(): FutureInstance<unknown, boolean> {
@@ -205,21 +206,29 @@ function isFirstRun(): FutureInstance<unknown, boolean> {
   })
 }
 
-function showActionBadge(): FutureInstance<unknown, void> {
-  return attemptP(() =>
-    Promise.all([
-      chrome.action.setBadgeText({ text: 'on' }),
-      chrome.action.setBadgeBackgroundColor({ color: [0, 69, 133, 1] }),
-    ]).then(() => undefined)
+function showActiveIcon(): FutureInstance<unknown, void> {
+  return attempt(() =>
+    chrome.action.setIcon({
+      path: {
+        128: 'logo-128.png',
+        48: 'logo-48.png',
+        32: 'logo-32.png',
+        16: 'logo-16.png',
+      },
+    })
   )
 }
 
-function hideActionBadge(): FutureInstance<unknown, void> {
-  return attemptP(() =>
-    Promise.all([
-      chrome.action.setBadgeText({ text: '' }),
-      chrome.action.setBadgeBackgroundColor({ color: [0, 0, 0, 0] }),
-    ]).then(() => undefined)
+function showInactiveIcon(): FutureInstance<unknown, void> {
+  return attempt(() =>
+    chrome.action.setIcon({
+      path: {
+        128: 'logo-inactive-128.png',
+        48: 'logo-inactive-48.png',
+        32: 'logo-inactive-32.png',
+        16: 'logo-inactive-16.png',
+      },
+    })
   )
 }
 
