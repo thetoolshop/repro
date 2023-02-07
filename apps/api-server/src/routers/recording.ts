@@ -45,6 +45,11 @@ export function createRecordingRouter(
 
           callback()
         },
+
+        final(callback) {
+          this.push(tail)
+          callback()
+        },
       })
 
       const eventStream = pipeline(req, createGunzip(), split, err => {
