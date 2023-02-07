@@ -42,6 +42,7 @@ export const Summary: React.FC<Props> = ({ metadata }) => {
         fontSize={13}
         textDecoration="underline"
         lineHeight={1.25}
+        wordBreak="break-all"
         color={colors.blue['700']}
         cursor="pointer"
         props={{
