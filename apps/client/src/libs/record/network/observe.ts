@@ -281,7 +281,10 @@ function createFetchObserver(subscriber: Subscriber): ObserverLike<Document> {
       const [requestInfo, requestInit] = args
       const correlationId = createCorrelationId()
 
-      const req = new Request(requestInfo, requestInit)
+      const req = new Request(
+        requestInfo instanceof Request ? requestInfo.clone() : requestInfo,
+        requestInit
+      )
 
       req.arrayBuffer().then(
         body => {
