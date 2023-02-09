@@ -1,10 +1,10 @@
 import { Block, Col, Row } from 'jsxstyle'
+import { Eye as PublicVisibilityIcon } from 'lucide-react'
 import React, { PropsWithChildren } from 'react'
 import { useForm } from 'react-hook-form'
 import { Button } from '~/components/Button'
 import { Input } from '~/components/Input'
 import { Label } from '~/components/Label'
-import { ToggleGroup } from '~/components/ToggleGroup'
 import { colors } from '~/config/theme'
 
 enum Visibility {
@@ -57,23 +57,32 @@ export const DetailsForm: React.FC<Props> = ({ onSubmit }) => {
           />
         </Col>
 
-        <Row gap={10} alignItems="center">
-          <Label>Visibility</Label>
-          <ToggleGroup
-            options={[
-              { label: 'Public', value: Visibility.Public },
-              { label: 'Private', value: Visibility.Private },
-            ]}
-            selected={
-              watch('isPublic') ? Visibility.Public : Visibility.Private
-            }
-            onChange={value =>
-              setValue('isPublic', value === Visibility.Public)
-            }
-          />
-        </Row>
+        <Col
+          gap={10}
+          padding={20}
+          marginH={-20}
+          backgroundColor={colors.blue['50']}
+        >
+          <Row alignItems="center" gap={5} fontSize={15} fontWeight={700}>
+            <PublicVisibilityIcon size={16} />
+            <Block>Visible to anyone with the recording URL</Block>
+          </Row>
 
-        <Row flexDirection="row-reverse">
+          <Block fontSize={13} color={colors.slate['700']}>
+            Private recordings are available on the Team Plan (coming soon)
+          </Block>
+
+          <Block
+            component="a"
+            fontSize={13}
+            color={colors.blue['700']}
+            props={{ href: 'mailto:hi@repro.dev?subject=Repro Team Plan' }}
+          >
+            Get in touch to find out more
+          </Block>
+        </Col>
+
+        <Row>
           <Button type="submit" context="success" size="large">
             Create Bug Report
           </Button>
