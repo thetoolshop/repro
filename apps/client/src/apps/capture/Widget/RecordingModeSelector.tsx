@@ -1,7 +1,7 @@
 import { Block, Col, Row } from 'jsxstyle'
 import React, { PropsWithChildren } from 'react'
 import {
-  Camera as ScreenshotIcon,
+  // Camera as ScreenshotIcon,
   ChevronRight as ForwardIcon,
   History as ReplayIcon,
   Video as VideoIcon,
@@ -16,10 +16,10 @@ export const RecordingModeSelector: React.FC = () => {
   const [, setRecordingMode] = useRecordingMode()
   const [, setReadyState] = useReadyState()
 
-  function onUseSnapshot() {
-    setReadyState(ReadyState.Ready)
-    setRecordingMode(RecordingMode.Snapshot)
-  }
+  // function onUseSnapshot() {
+  //   setReadyState(ReadyState.Ready)
+  //   setRecordingMode(RecordingMode.Snapshot)
+  // }
 
   function onUseReplay() {
     setReadyState(ReadyState.Ready)
@@ -34,16 +34,16 @@ export const RecordingModeSelector: React.FC = () => {
   return (
     <WidgetContainer size="normal">
       <Container>
-        <Action
-          icon={<ScreenshotIcon size={20} />}
-          label="Screenshot"
-          helpText="Create a snap of your whole page"
-          onClick={onUseSnapshot}
-        />
+        {/* <Action */}
+        {/*   icon={<ScreenshotIcon size={20} />} */}
+        {/*   label="Screenshot" */}
+        {/*   helpText="Create a snap of your whole page" */}
+        {/*   onClick={onUseSnapshot} */}
+        {/* /> */}
 
         <Action
           icon={<VideoIcon size={20} />}
-          label="Video"
+          label="Screen Recording"
           helpText="Create a live recording"
           onClick={onUseLive}
         />
