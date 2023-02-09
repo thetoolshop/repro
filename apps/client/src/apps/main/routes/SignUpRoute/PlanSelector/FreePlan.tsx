@@ -5,18 +5,11 @@ import { colors } from '~/config/theme'
 import { OptionBase } from './OptionBase'
 
 interface Props {
-  includedSeats: number
-  uploadLimit: number
   selected: boolean
   onSelect(): void
 }
 
-export const FreePlan: React.FC<Props> = ({
-  includedSeats,
-  uploadLimit,
-  selected,
-  onSelect,
-}) => (
+export const FreePlan: React.FC<Props> = ({ selected, onSelect }) => (
   <OptionBase selected={selected} onSelect={onSelect}>
     <Block paddingV={10} paddingH={25}>
       <Block
@@ -25,7 +18,7 @@ export const FreePlan: React.FC<Props> = ({
         fontWeight={700}
         lineHeight={1}
       >
-        Starter Plan
+        Individual Plan
       </Block>
 
       <Block marginTop={10} color={colors.slate['500']}>
@@ -45,10 +38,10 @@ export const FreePlan: React.FC<Props> = ({
       borderWidth="1px 0 0"
     >
       <CheckIcon size={16} />
-      <Block>{uploadLimit} recordings per month</Block>
+      <Block>Unlimited public recordings</Block>
 
       <CheckIcon size={16} />
-      <Block>{includedSeats} team members included</Block>
+      <Block>Repro DevTools</Block>
       <Block gridColumn="2 / span 1" color={colors.blue['700']}>
         Upgrade for more
       </Block>
