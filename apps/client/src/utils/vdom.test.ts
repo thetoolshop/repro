@@ -13,7 +13,11 @@ describe('utils: vdom', () => {
             type: NodeType.Element,
             tagName: 'div',
             attributes: {},
-            properties: {},
+            properties: {
+              checked: null,
+              selectedIndex: null,
+              value: null,
+            },
             children: ['2', '3', '4'],
           },
 
@@ -23,7 +27,11 @@ describe('utils: vdom', () => {
             type: NodeType.Element,
             tagName: 'span',
             attributes: {},
-            properties: {},
+            properties: {
+              checked: null,
+              selectedIndex: null,
+              value: null,
+            },
             children: ['5'],
           },
 
@@ -73,7 +81,11 @@ describe('utils: vdom', () => {
             type: NodeType.Element,
             tagName: 'div',
             attributes: {},
-            properties: {},
+            properties: {
+              checked: null,
+              selectedIndex: null,
+              value: null,
+            },
             children: ['3', '4'],
           },
 
@@ -141,7 +153,11 @@ describe('utils: vdom', () => {
             type: NodeType.Element,
             tagName: 'div',
             attributes: {},
-            properties: {},
+            properties: {
+              checked: null,
+              selectedIndex: null,
+              value: null,
+            },
             children: ['3', '4'],
           },
 

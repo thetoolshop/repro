@@ -109,9 +109,7 @@ export function isStyleElementVNode(node: VNode | Immutable<VNode>) {
   return isElementVNode(node) && node.tagName === 'style'
 }
 
-export function isTextVNode(
-  node: VNode | Immutable<VNode>
-): node is VText | Immutable<VText> {
+export function isTextVNode(node: VNode): node is VText {
   return node.type === NodeType.Text
 }
 

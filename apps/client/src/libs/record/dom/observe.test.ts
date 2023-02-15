@@ -164,7 +164,7 @@ describe('libs/record: dom observers', () => {
 
     internal__processMutationRecords(records, walkDOMTree, options, subscriber)
 
-    expect(patches).toEqual([
+    expect(patches).toEqual<Array<Patch>>([
       {
         type: PatchType.RemoveNodes,
         parentId: getNodeId(target),
@@ -180,7 +180,11 @@ describe('libs/record: dom observers', () => {
                 type: NodeType.Element,
                 tagName: 'div',
                 attributes: {},
-                properties: {},
+                properties: {
+                  checked: null,
+                  selectedIndex: null,
+                  value: null,
+                },
                 children: [],
               },
             },
@@ -202,7 +206,11 @@ describe('libs/record: dom observers', () => {
                 type: NodeType.Element,
                 tagName: 'div',
                 attributes: {},
-                properties: {},
+                properties: {
+                  checked: null,
+                  selectedIndex: null,
+                  value: null,
+                },
                 children: [],
               },
             },
