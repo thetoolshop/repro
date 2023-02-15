@@ -1,5 +1,6 @@
 import { ApiClient, createApiClient } from '@repro/api-client'
 import { SourceEventView } from '@repro/domain'
+import { randomString } from '@repro/random-string'
 import {
   and,
   attempt,
@@ -11,7 +12,6 @@ import {
   reject,
   resolve,
 } from 'fluture'
-import { nanoid } from 'nanoid/non-secure'
 import { Analytics } from '~/libs/analytics'
 import { register as httpApiConsumer } from '~/libs/analytics/http-api'
 import { createRuntimeAgent } from './createRuntimeAgent'
@@ -35,7 +35,7 @@ function getInstallerId() {
         return
       }
 
-      const installerId = nanoid()
+      const installerId = randomString()
 
       chrome.storage.local.set({
         [StorageKeys.INSTALLER_ID]: installerId,

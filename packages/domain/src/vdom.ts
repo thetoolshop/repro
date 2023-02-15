@@ -1,3 +1,4 @@
+import { randomString } from '@repro/random-string'
 import {
   CharDescriptor,
   createView,
@@ -5,7 +6,6 @@ import {
   UINT8,
   UnionDescriptor,
 } from '@repro/typed-binary-encoder'
-import { nanoid } from 'nanoid'
 import z from 'zod'
 
 export const NODE_TYPE_BYTE_LENGTH = 1
@@ -28,7 +28,7 @@ export enum NodeType {
 export const NodeTypeSchema = z.nativeEnum(NodeType)
 
 export function createNodeId() {
-  return nanoid(NODE_ID_BYTE_LENGTH)
+  return randomString(NODE_ID_BYTE_LENGTH)
 }
 
 // type NodeId: char[5]

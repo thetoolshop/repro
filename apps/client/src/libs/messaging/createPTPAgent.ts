@@ -1,11 +1,11 @@
-import Future, { fork, FutureInstance } from 'fluture'
-import { nanoid } from 'nanoid'
-import { filter, fromEvent, map } from 'rxjs'
 import { SyntheticId } from '@repro/domain'
+import { randomString } from '@repro/random-string'
+import Future, { fork, FutureInstance } from 'fluture'
+import { filter, fromEvent, map } from 'rxjs'
 import { Agent, Intent, Resolver, Unsubscribe } from './types'
 
 function createCorrelationId(): SyntheticId {
-  return nanoid(5)
+  return randomString(5)
 }
 
 interface IntentMessage {

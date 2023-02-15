@@ -1,5 +1,5 @@
+import { randomString } from '@repro/random-string'
 import { fork } from 'fluture'
-import { nanoid } from 'nanoid'
 import { Agent, DEFAULT_AGENT } from '~/libs/messaging'
 import { TrackedEvent } from './types'
 
@@ -11,7 +11,7 @@ let activeIdentityId: string | null = null
 type Consumer = (agent: Agent, identityId?: string | null) => void
 
 function createEventId() {
-  return nanoid()
+  return randomString()
 }
 
 export const Analytics = {

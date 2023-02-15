@@ -1,5 +1,5 @@
+import { randomString } from '@repro/random-string'
 import { approxByteLength } from '@repro/typed-binary-encoder'
-import { nanoid } from 'nanoid'
 import { LogLevel, MessagePartType } from './console'
 import {
   ConsoleEvent,
@@ -84,7 +84,7 @@ describe('Event codecs', () => {
       time: 123456,
       data: {
         type: NetworkMessageType.FetchRequest,
-        correlationId: nanoid(4),
+        correlationId: randomString(4),
         requestType: RequestType.Fetch,
         url: 'http://example.com',
         method: 'GET',

@@ -23,8 +23,8 @@
   },
   "homepage": "https://github.com/reprohq/repro#readme",
   "dependencies": {
+    "@repro/random-string": "workspace:*",
     "@repro/typed-binary-encoder": "workspace:*",
-    "nanoid": "^3",
     "uuid": "^9.0.0",
     "zod": "^3.17.10"
   },

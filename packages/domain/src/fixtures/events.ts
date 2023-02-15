@@ -1,4 +1,4 @@
-import { nanoid } from 'nanoid'
+import { randomString } from '@repro/random-string'
 import {
   SnapshotEvent,
   InteractionEvent,
@@ -18,7 +18,7 @@ export const snapshotEvent: SnapshotEvent = {
       pointer: [50, 50],
       pointerState: PointerState.Up,
       scroll: {
-        [nanoid(5)]: [0, 100],
+        [randomString(5)]: [0, 100],
       },
       viewport: [1200, 800],
     },
@@ -52,7 +52,7 @@ export const textPatchEvent: DOMPatchEvent = {
   time: 1000,
   data: {
     type: PatchType.Text,
-    targetId: nanoid(5),
+    targetId: randomString(5),
     value:
       'Lorem ipsum dolor sit amet, consectetur adipiscing elit. In eget bibendum nunc. Nulla at arcu vel erat varius ultricies quis sed mauris. Proin scelerisque aliquam dictum. Nunc id interdum leo. Morbi erat metus, vehicula quis massa a, placerat ultrices leo. Praesent egestas maximus aliquet.',
     oldValue:
@@ -65,7 +65,7 @@ export const attributePatchEvent: DOMPatchEvent = {
   time: 1000,
   data: {
     type: PatchType.Attribute,
-    targetId: nanoid(5),
+    targetId: randomString(5),
     name: 'class',
     value: 'foo bar',
     oldValue: 'foo',
@@ -77,9 +77,9 @@ export const addNodesPatchEvent: DOMPatchEvent = {
   time: 1000,
   data: {
     type: PatchType.AddNodes,
-    parentId: nanoid(5),
+    parentId: randomString(5),
     previousSiblingId: null,
-    nextSiblingId: nanoid(5),
+    nextSiblingId: randomString(5),
     nodes: [vtree],
   },
 }

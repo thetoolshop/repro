@@ -1,5 +1,3 @@
-import { nanoid } from 'nanoid'
-import { Immutable } from '~/types/extensions'
 import {
   NodeType,
   Patch,
@@ -12,8 +10,10 @@ import {
   VText,
   VTree,
 } from '@repro/domain'
-import { copyObjectDeep } from '~/utils/lang'
+import { randomString } from '@repro/random-string'
 import { logger } from '~/libs/logger'
+import { Immutable } from '~/types/extensions'
+import { copyObjectDeep } from '~/utils/lang'
 
 // @deprecated: use createNodeId instead
 export function createSyntheticId() {
@@ -21,7 +21,7 @@ export function createSyntheticId() {
 }
 
 export function createNodeId() {
-  return nanoid(5)
+  return randomString(5)
 }
 
 function createNodeIdFactory() {

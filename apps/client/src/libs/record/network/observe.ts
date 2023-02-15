@@ -1,4 +1,3 @@
-import { nanoid } from 'nanoid'
 import {
   NetworkMessage,
   NetworkMessageType,
@@ -6,6 +5,7 @@ import {
   SyntheticId,
   WebSocketMessageType,
 } from '@repro/domain'
+import { randomString } from '@repro/random-string'
 import { ObserverLike } from '~/utils/observer'
 
 type Subscriber = (message: NetworkMessage) => void
@@ -126,7 +126,7 @@ function createXHRObserver(subscriber: Subscriber): ObserverLike<Document> {
 
   function register(xhr: XMLHttpRequest) {
     if (!requestParams.has(xhr)) {
-      const correlationId = nanoid(4)
+      const correlationId = randomString(4)
 
       requestParams.set(xhr, {
         correlationId,
@@ -261,7 +261,7 @@ function createXHRObserver(subscriber: Subscriber): ObserverLike<Document> {
 
 function createFetchObserver(subscriber: Subscriber): ObserverLike<Document> {
   function createCorrelationId() {
-    return nanoid(4)
+    return randomString(4)
   }
 
   function createHeadersRecord(headers: Headers): Record<string, string> {
@@ -392,7 +392,7 @@ function createWebSocketObserver(
     let correlationId = correlationIds.get(socket)
 
     if (!correlationId) {
-      correlationId = nanoid(4)
+      correlationId = randomString(4)
       correlationIds.set(socket, correlationId)
     }
 

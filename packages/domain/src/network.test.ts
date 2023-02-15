@@ -1,5 +1,5 @@
+import { randomString } from '@repro/random-string'
 import { approxByteLength } from '@repro/typed-binary-encoder'
-import { nanoid } from 'nanoid'
 import { SyntheticId } from './common'
 import {
   CORRELATION_ID_BYTE_LENGTH,
@@ -21,7 +21,7 @@ import {
 } from './network'
 
 function createCorrelationId(): SyntheticId {
-  return nanoid(CORRELATION_ID_BYTE_LENGTH)
+  return randomString(CORRELATION_ID_BYTE_LENGTH)
 }
 
 function encodeBody(body: string): ArrayBuffer {
