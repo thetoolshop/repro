@@ -29,9 +29,11 @@ export const ObjectRenderer: React.FC<Props> = ({
       </TreeRow>
 
       {open &&
-        entries.map(([key, value]) =>
-          getRendererForType(key, value, level + 1)
-        )}
+        entries.map(([key, value]) => (
+          <Fragment key={key}>
+            {getRendererForType(key, value, level + 1)}
+          </Fragment>
+        ))}
     </Fragment>
   )
 }
