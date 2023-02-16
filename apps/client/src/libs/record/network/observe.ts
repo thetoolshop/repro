@@ -35,6 +35,18 @@ export function createNetworkObserver(
   }
 }
 
+const EXCLUDED_HEADERS = ['authorization', 'cookie', 'set-cookie']
+
+function stripExcludedHeaders(
+  headers: Record<string, string>
+): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(headers).filter(
+      ([key]) => !EXCLUDED_HEADERS.includes(key.toLowerCase())
+    )
+  )
+}
+
 const textEncoder = new TextEncoder()
 
 function createXHRObserver(subscriber: Subscriber): ObserverLike<Document> {
@@ -117,7 +129,9 @@ function createXHRObserver(subscriber: Subscriber): ObserverLike<Document> {
         type: NetworkMessageType.FetchResponse,
         correlationId: params.correlationId,
         status: this.status,
-        headers: parseHeaders(this.getAllResponseHeaders()),
+        headers: stripExcludedHeaders(
+          parseHeaders(this.getAllResponseHeaders())
+        ),
         body:
           body.byteLength > MAX_BODY_BYTE_LENGTH ? EMPTY_ARRAY_BUFFER : body,
       })
@@ -163,7 +177,7 @@ function createXHRObserver(subscriber: Subscriber): ObserverLike<Document> {
     }
   }
 
-  const XMLHttpRequest = window.XMLHttpRequest
+  const XMLHttpRequest = globalThis.XMLHttpRequest
   const XHRCtorProxy = new Proxy(XMLHttpRequest, {
     construct(target, args, newTarget) {
       const xhr = Reflect.construct(target, args, newTarget)
@@ -231,7 +245,7 @@ function createXHRObserver(subscriber: Subscriber): ObserverLike<Document> {
             requestType: RequestType.XHR,
             url: params.url,
             method: params.method,
-            headers: params.headers,
+            headers: stripExcludedHeaders(params.headers),
             body:
               body.byteLength > MAX_BODY_BYTE_LENGTH
                 ? EMPTY_ARRAY_BUFFER
@@ -244,17 +258,18 @@ function createXHRObserver(subscriber: Subscriber): ObserverLike<Document> {
 
   return {
     observe() {
-      window.XMLHttpRequest = XHRCtorProxy
-      window.XMLHttpRequest.prototype.open = openProxy
-      window.XMLHttpRequest.prototype.setRequestHeader = setRequestHeaderProxy
-      window.XMLHttpRequest.prototype.send = sendProxy
+      globalThis.XMLHttpRequest = XHRCtorProxy
+      globalThis.XMLHttpRequest.prototype.open = openProxy
+      globalThis.XMLHttpRequest.prototype.setRequestHeader =
+        setRequestHeaderProxy
+      globalThis.XMLHttpRequest.prototype.send = sendProxy
     },
 
     disconnect() {
-      window.XMLHttpRequest = XMLHttpRequest
-      window.XMLHttpRequest.prototype.open = open
-      window.XMLHttpRequest.prototype.setRequestHeader = setRequestHeader
-      window.XMLHttpRequest.prototype.send = send
+      globalThis.XMLHttpRequest = XMLHttpRequest
+      globalThis.XMLHttpRequest.prototype.open = open
+      globalThis.XMLHttpRequest.prototype.setRequestHeader = setRequestHeader
+      globalThis.XMLHttpRequest.prototype.send = send
     },
   }
 }
@@ -271,12 +286,12 @@ function createFetchObserver(subscriber: Subscriber): ObserverLike<Document> {
       record[key] = value
     })
 
-    return record
+    return stripExcludedHeaders(record)
   }
 
-  const _fetch = window.fetch
+  const _fetch = globalThis.fetch
 
-  const fetchProxy = new Proxy(window.fetch, {
+  const fetchProxy = new Proxy(globalThis.fetch, {
     apply(target, thisArg, args: [RequestInfo, RequestInit | undefined]) {
       const [requestInfo, requestInit] = args
       const correlationId = createCorrelationId()
@@ -370,11 +385,11 @@ function createFetchObserver(subscriber: Subscriber): ObserverLike<Document> {
 
   return {
     observe() {
-      window.fetch = fetchProxy
+      globalThis.fetch = fetchProxy
     },
 
     disconnect() {
-      window.fetch = _fetch
+      globalThis.fetch = _fetch
     },
   }
 }
@@ -499,7 +514,7 @@ function createWebSocketObserver(
     })()
   })
 
-  const _WebSocket = window.WebSocket
+  const _WebSocket = globalThis.WebSocket
 
   const WebSocketCtorProxy = new Proxy(_WebSocket, {
     construct(target, args, newTarget) {
@@ -514,9 +529,9 @@ function createWebSocketObserver(
 
   return {
     observe(doc, vtree) {
-      window.WebSocket = WebSocketCtorProxy
+      globalThis.WebSocket = WebSocketCtorProxy
 
-      window.WebSocket.prototype.send = function (this, ...args) {
+      globalThis.WebSocket.prototype.send = function (this, ...args) {
         if (!hasCorrelationId(this)) {
           openEffect(this)
         }
@@ -525,7 +540,7 @@ function createWebSocketObserver(
         return send.apply(this, args)
       }
 
-      window.WebSocket.prototype.close = function (this, ...args) {
+      globalThis.WebSocket.prototype.close = function (this, ...args) {
         if (hasCorrelationId(this)) {
           closeEffect(this)
         }
@@ -537,9 +552,9 @@ function createWebSocketObserver(
     },
 
     disconnect() {
-      window.WebSocket = _WebSocket
-      window.WebSocket.prototype.send = send
-      window.WebSocket.prototype.close = close
+      globalThis.WebSocket = _WebSocket
+      globalThis.WebSocket.prototype.send = send
+      globalThis.WebSocket.prototype.close = close
       messageEventObserver.disconnect()
     },
   }
