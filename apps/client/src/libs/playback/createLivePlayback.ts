@@ -6,15 +6,10 @@ import {
   SourceEventView,
 } from '@repro/domain'
 import { copyObject, LazyList } from '~/utils/lang'
-import { applyEventToSnapshot } from '~/utils/source'
+import { applyEventToSnapshot, createEmptySnapshot } from '~/utils/source'
 import { createAtom } from '~/utils/state'
 import { first, Observable, skipUntil, Subscription } from 'rxjs'
 import { ControlFrame, Playback, PlaybackState } from './types'
-
-const EMPTY_SNAPSHOT: Snapshot = {
-  dom: null,
-  interaction: null,
-}
 
 export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
   const [$activeIndex, _setActiveIndex, getActiveIndex] = createAtom(-1)
@@ -27,8 +22,9 @@ export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
   const [$playbackState, _getPlaybackState, getPlaybackState] = createAtom(
     PlaybackState.Playing
   )
-  const [$snapshot, setSnapshot, getSnapshot] =
-    createAtom<Snapshot>(EMPTY_SNAPSHOT)
+  const [$snapshot, setSnapshot, getSnapshot] = createAtom<Snapshot>(
+    createEmptySnapshot()
+  )
 
   function getDuration() {
     return Infinity

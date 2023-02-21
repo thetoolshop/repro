@@ -17,14 +17,15 @@ import {
 import { map, observeOn, pairwise, switchMap } from 'rxjs/operators'
 import { Stats } from '~/libs/diagnostics'
 import { copyObject, LazyList } from '~/utils/lang'
-import { applyEventToSnapshot, isSample } from '~/utils/source'
+import {
+  applyEventToSnapshot,
+  createEmptySnapshot,
+  isSample,
+} from '~/utils/source'
 import { createAtom } from '~/utils/state'
 import { ControlFrame, Playback, PlaybackState } from './types'
 
-const EMPTY_SNAPSHOT: Snapshot = {
-  dom: null,
-  interaction: null,
-}
+const EMPTY_SNAPSHOT = createEmptySnapshot()
 
 const EMPTY_BUFFER = LazyList.Empty(
   SourceEventView.decode,
