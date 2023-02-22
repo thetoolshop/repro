@@ -283,7 +283,7 @@ export function internal__processMutationRecords(
           (isIgnoredBySelector(nextSibling, options.ignoredSelectors) ||
             isIgnoredByNode(nextSibling, options.ignoredNodes))
         ) {
-          nextSibling = record.nextSibling
+          nextSibling = nextSibling.nextSibling
         }
 
         if (removedVTrees.length) {
