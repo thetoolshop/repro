@@ -7,6 +7,8 @@ import {
   InteractionType,
   NetworkEvent,
   Patch,
+  PerformanceEntry,
+  PerformanceEvent,
   PointerState,
   Snapshot,
   SnapshotEvent,
@@ -47,6 +49,7 @@ import {
 } from 'rxjs'
 import { createViewportVisitor } from './interaction/visitor'
 import { NetworkMessage, ConsoleMessage } from '@repro/domain'
+import { createPerformanceObserver } from './performance'
 
 const defaultOptions: RecordingOptions = {
   types: new Set(['dom', 'interaction']),
@@ -496,7 +499,21 @@ export function createRecordingStream(
     )
   }
 
-  function registerPerformanceObserver() {}
+  function createPerformanceEvent(entry: PerformanceEntry): PerformanceEvent {
+    return {
+      type: SourceEventType.Performance,
+      time: performance.now(),
+      data: entry,
+    }
+  }
+
+  function registerPerformanceObserver() {
+    observers.push(
+      createPerformanceObserver(entry => {
+        addEvent(createPerformanceEvent(entry))
+      })
+    )
+  }
 
   function subscribeToBuffer() {
     bufferSubscriptions.onEvict = eventBuffer.onEvict(evicted => {

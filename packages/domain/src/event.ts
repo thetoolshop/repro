@@ -1,9 +1,3 @@
-import z, { ZodType, ZodTypeDef } from 'zod'
-import { InteractionSchema, InteractionView } from './interaction'
-import { SnapshotSchema, SnapshotView } from './snapshot'
-import { DOMPatchSchema, DOMPatchView } from './vdom'
-import { NetworkMessageSchema, NetworkMessageView } from './network'
-import { ConsoleMessageSchema, ConsoleMessageView } from './console'
 import {
   AnyDescriptor,
   createView,
@@ -12,6 +6,14 @@ import {
   UINT8,
   UnionDescriptor,
 } from '@repro/typed-binary-encoder'
+import z, { ZodType, ZodTypeDef } from 'zod'
+import { uint32 } from './common'
+import { InteractionSchema, InteractionView } from './interaction'
+import { SnapshotSchema, SnapshotView } from './snapshot'
+import { DOMPatchSchema, DOMPatchView } from './vdom'
+import { NetworkMessageSchema, NetworkMessageView } from './network'
+import { ConsoleMessageSchema, ConsoleMessageView } from './console'
+import { PerformanceEntrySchema, PerformanceEntryView } from './performance'
 
 // type SourceEventType: enum {
 //   Snapshot = 0
@@ -28,6 +30,7 @@ export enum SourceEventType {
   Interaction = 20,
   Network = 30,
   Console = 40,
+  Performance = 50,
   CloseRecording = 99,
 }
 
@@ -52,10 +55,7 @@ function createSourceEventView<T extends SourceEvent>(
 
 export const SnapshotEventSchema = z.object({
   type: z.literal(SourceEventType.Snapshot),
-  time: z
-    .number()
-    .min(0)
-    .max(2 ** 32 - 1),
+  time: uint32,
   data: SnapshotSchema,
 })
 
@@ -74,10 +74,7 @@ export const SnapshotEventView = createSourceEventView(
 
 export const DOMPatchEventSchema = z.object({
   type: z.literal(SourceEventType.DOMPatch),
-  time: z
-    .number()
-    .min(0)
-    .max(2 ** 32 - 1),
+  time: uint32,
   data: DOMPatchSchema,
 })
 
@@ -96,10 +93,7 @@ export const DOMPatchEventView = createSourceEventView<DOMPatchEvent>(
 
 export const InteractionEventSchema = z.object({
   type: z.literal(SourceEventType.Interaction),
-  time: z
-    .number()
-    .min(0)
-    .max(2 ** 32 - 1),
+  time: uint32,
   data: InteractionSchema,
 })
 
@@ -118,10 +112,7 @@ export const InteractionEventView = createSourceEventView<InteractionEvent>(
 
 export const NetworkEventSchema = z.object({
   type: z.literal(SourceEventType.Network),
-  time: z
-    .number()
-    .min(0)
-    .max(2 ** 32 - 1),
+  time: uint32,
   data: NetworkMessageSchema,
 })
 
@@ -140,10 +131,7 @@ export const NetworkEventView = createSourceEventView<NetworkEvent>(
 
 export const ConsoleEventSchema = z.object({
   type: z.literal(SourceEventType.Console),
-  time: z
-    .number()
-    .min(0)
-    .max(2 ** 32 - 1),
+  time: uint32,
   data: ConsoleMessageSchema,
 })
 
@@ -160,6 +148,25 @@ export const ConsoleEventView = createSourceEventView<ConsoleEvent>(
   ConsoleEventSchema
 )
 
+// type PerformanceEvent: struct {
+//   type: SourceEventType.Performance
+//   time: uint32
+//   data: PerformanceEntry
+// }
+
+export const PerformanceEventSchema = z.object({
+  type: z.literal(SourceEventType.Performance),
+  time: uint32,
+  data: PerformanceEntrySchema,
+})
+
+export type PerformanceEvent = z.infer<typeof PerformanceEventSchema>
+
+export const PerformanceEventView = createSourceEventView<PerformanceEvent>(
+  PerformanceEntryView.descriptor,
+  PerformanceEventSchema
+)
+
 // type SourceEvent: union on "type" {
 //   SnapshotEvent
 //   DOMPatchEvent
@@ -174,6 +181,7 @@ export const SourceEventSchema = z.discriminatedUnion('type', [
   InteractionEventSchema,
   NetworkEventSchema,
   ConsoleEventSchema,
+  PerformanceEventSchema,
 ])
 
 export type SourceEvent = z.infer<typeof SourceEventSchema>
@@ -188,6 +196,7 @@ export const SourceEventView = createView<SourceEvent, UnionDescriptor>(
       [SourceEventType.Interaction]: InteractionEventView.descriptor,
       [SourceEventType.Network]: NetworkEventView.descriptor,
       [SourceEventType.Console]: ConsoleEventView.descriptor,
+      [SourceEventType.Performance]: PerformanceEventView.descriptor,
     },
   },
   SourceEventSchema
