@@ -36,6 +36,7 @@ function createResourceTimingObserver(
         subscriber({
           type: PerformanceEntryType.ResourceTiming,
           id: randomString(4),
+          initiatorType: entry.initiatorType,
           url: entry.name,
           startTime: entry.startTime,
           domainLookupStart: entry.domainLookupStart,

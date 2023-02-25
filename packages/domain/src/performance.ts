@@ -14,6 +14,7 @@ export const PerformanceEntryTypeSchema = z.nativeEnum<
 //   type: PerformanceEntryType.ResourceTiming
 //
 //   id: char[4]
+//   initiatorType: string
 //   url: string
 //
 //   startTime: uint32
@@ -34,6 +35,7 @@ export const PerformanceEntryTypeSchema = z.nativeEnum<
 export const ResourceTimingSchema = z.object({
   type: z.literal(PerformanceEntryType.ResourceTiming),
   id: z.string().length(4),
+  initiatorType: z.string(),
   url: z.string(),
   startTime: uint32,
   domainLookupStart: uint32,
@@ -57,6 +59,7 @@ export const ResourceTimingView = createView(
     fields: [
       ['type', UINT8],
       ['id', { type: 'char', bytes: 4 }],
+      ['initiatorType', { type: 'string' }],
       ['url', { type: 'string' }],
       ['startTime', UINT32],
       ['domainLookupStart', UINT32],
@@ -77,19 +80,24 @@ export const ResourceTimingView = createView(
 
 // @ts-ignore
 // zod typings require discriminated unions to have at least two types
-export const PerformanceEntrySchema = z.discriminatedUnion('type', [
-  ResourceTimingSchema,
-])
+// export const PerformanceEntrySchema = z.discriminatedUnion('type', [
+//   ResourceTimingSchema,
+// ])
 
-export type PerformanceEntry = z.infer<typeof PerformanceEntrySchema>
+// export type PerformanceEntry = z.infer<typeof PerformanceEntrySchema>
 
-export const PerformanceEntryView = createView(
-  {
-    type: 'union',
-    tagField: 'type',
-    descriptors: {
-      [PerformanceEntryType.ResourceTiming]: ResourceTimingView.descriptor,
-    },
-  },
-  PerformanceEntrySchema
-)
+// export const PerformanceEntryView = createView(
+//   {
+//     type: 'union',
+//     tagField: 'type',
+//     descriptors: {
+//       [PerformanceEntryType.ResourceTiming]: ResourceTimingView.descriptor,
+//     },
+//   },
+//   PerformanceEntrySchema
+// )
+
+// Until the union contains multiple descriptors
+export type PerformanceEntry = ResourceTiming
+export const PerformanceEntrySchema = ResourceTimingSchema
+export const PerformanceEntryView = ResourceTimingView

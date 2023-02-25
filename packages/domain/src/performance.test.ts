@@ -12,6 +12,7 @@ describe('Performance codecs', () => {
     const input: ResourceTiming = {
       type: PerformanceEntryType.ResourceTiming,
       id: randomString(4),
+      initiatorType: 'img',
       url: 'https://example.com/foo.png',
       startTime: 1234,
       domainLookupStart: 2345,
