@@ -58,6 +58,14 @@ function toSourceEvent(row: SourceEventRow): SourceEvent {
   return SourceEventView.fromJSON(row.data)
 }
 
+interface ResourceMapRow extends QueryResultRow {
+  resource_map: string
+}
+
+function toResourceMap(row: ResourceMapRow): Record<string, string> {
+  return JSON.parse(row.resource_map)
+}
+
 export function createRecordingProvider(dbClient: DatabaseClient) {
   function getAllRecordingsForUser(
     userId: string
@@ -208,6 +216,31 @@ export function createRecordingProvider(dbClient: DatabaseClient) {
     return result.pipe(fMap(row$ => row$.pipe(rxMap(toSourceEvent))))
   }
 
+  function saveResourceMap(
+    recordingId: string,
+    resourceMap: Record<string, string>
+  ): FutureInstance<Error, void> {
+    return dbClient
+      .query(
+        `
+        INSERT INTO recording_resource_maps (recording_id, resource_map)
+        VALUES ($1, $2)
+        `,
+        [recordingId, JSON.stringify(resourceMap)]
+      )
+      .pipe(fMap(() => undefined))
+  }
+
+  function getResourceMap(
+    recordingId: string
+  ): FutureInstance<Error, Record<string, string>> {
+    return dbClient.getOne(
+      `SELECT resource_map FROM recording_resource_maps WHERE recording_id = $1`,
+      [recordingId],
+      toResourceMap
+    )
+  }
+
   function checkRecordingIsPublic(
     recordingId: string
   ): FutureInstance<Error, void> {
@@ -224,13 +257,33 @@ export function createRecordingProvider(dbClient: DatabaseClient) {
       .pipe(fMap(() => undefined))
   }
 
+  function checkUserIsAuthor(
+    recordingId: string,
+    userId: string
+  ): FutureInstance<Error, void> {
+    return dbClient
+      .getOne(
+        `
+        SELECT 1
+        FROM recordings
+        WHERE id = $1 AND author_id = $2
+        `,
+        [recordingId, userId]
+      )
+      .pipe(mapRej(() => permissionDenied()))
+      .pipe(fMap(() => undefined))
+  }
+
   return {
     getAllRecordingsForUser,
     saveRecordingMetadata,
     getRecordingMetadata,
     saveRecordingEvents,
     getRecordingEvents,
+    saveResourceMap,
+    getResourceMap,
     checkRecordingIsPublic,
+    checkUserIsAuthor,
   }
 }
 

@@ -1,7 +1,9 @@
 import { SourceEventView } from '@repro/domain'
 import { parseSchema } from '@repro/validation'
 import express from 'express'
-import { alt, chain, map as fMap, reject } from 'fluture'
+import Future, { alt, chain, map as fMap, node, reject } from 'fluture'
+import fs from 'fs'
+import path from 'path'
 import { map as rxMap } from 'rxjs'
 import { pipeline, Transform } from 'stream'
 import { createGunzip } from 'zlib'
@@ -10,12 +12,17 @@ import { AuthMiddleware } from '~/middleware/auth'
 import { ProjectService } from '~/services/project'
 import { RecordingService } from '~/services/recording'
 import { badRequest, notAuthenticated } from '~/utils/errors'
-import { respondWith } from '~/utils/response'
+import { respondWith, respondWithValue } from '~/utils/response'
+
+interface Config {
+  resourcesDataDirecory: string
+}
 
 export function createRecordingRouter(
   projectService: ProjectService,
   recordingService: RecordingService,
-  authMiddleware: AuthMiddleware
+  authMiddleware: AuthMiddleware,
+  config: Config
 ) {
   const RecordingRouter = express.Router()
 
@@ -121,6 +128,84 @@ export function createRecordingRouter(
     }
   )
 
+  const createResourceMapRequestBodySchema = z.record(z.string(), z.string())
+
+  RecordingRouter.put(
+    '/:recordingId/resource-map',
+    authMiddleware.requireSession,
+    (req, res) => {
+      const recordingId = req.params.recordingId!
+      const userId = req.user.id
+
+      const parseBody = parseSchema(
+        createResourceMapRequestBodySchema,
+        req.body,
+        badRequest
+      )
+
+      const checkPermissions = recordingService.checkUserIsAuthor(
+        recordingId,
+        userId
+      )
+
+      respondWith(
+        res,
+        checkPermissions.pipe(
+          chain(() =>
+            parseBody.pipe(
+              chain(resourceMap =>
+                recordingService.saveResourceMap(recordingId, resourceMap)
+              )
+            )
+          )
+        )
+      )
+    }
+  )
+
+  RecordingRouter.put(
+    '/:recordingId/resources/:resourceId',
+    authMiddleware.requireSession,
+    (req, res) => {
+      const recordingId = req.params.recordingId!
+      const resourceId = req.params.resourceId!
+      const userId = req.user.id
+
+      const checkPermissions = recordingService.checkUserIsAuthor(
+        recordingId,
+        userId
+      )
+
+      const createDirectoryIfNotExists = node<Error, string>(done =>
+        fs.mkdir(
+          path.join(config.resourcesDataDirecory, recordingId),
+          { recursive: true },
+          done
+        )
+      )
+
+      const writeResource = Future<Error, void>((reject, resolve) => {
+        req.pipe(
+          fs.createWriteStream(
+            path.join(config.resourcesDataDirecory, recordingId, resourceId)
+          )
+        )
+
+        req.on('error', error => reject(error))
+        req.on('end', () => resolve(undefined))
+
+        return () => {}
+      })
+
+      respondWith(
+        res,
+        checkPermissions
+          .pipe(chain(() => createDirectoryIfNotExists))
+          .pipe(chain(() => writeResource))
+      )
+    }
+  )
+
   function ensureUserHasAccess(userId: string | null, recordingId: string) {
     return alt(
       userId === null
@@ -172,6 +257,44 @@ export function createRecordingRouter(
       )
     }
   )
+
+  RecordingRouter.get(
+    '/:recordingId/resource-map',
+    authMiddleware.withSession,
+    (req, res) => {
+      const userId = req.user?.id ?? null
+      const recordingId = req.params.recordingId!
+
+      respondWith(
+        res,
+        ensureUserHasAccess(userId, recordingId).pipe(
+          chain(() => recordingService.getResourceMap(recordingId))
+        )
+      )
+    }
+  )
+
+  const RESOURCE_EXPIRY_SECONDS = 365 * 24 * 60 * 60
+
+  RecordingRouter.get('/:recordingId/resources/:resourceId', (req, res) => {
+    const recordingId = req.params.recordingId!
+    const resourceId = req.params.resourceId!
+
+    // Resources should be cached in the client
+    res.set('Cache-Control', `private, max-age=${RESOURCE_EXPIRY_SECONDS}`)
+
+    // TODO: should resources be behind auth wall? Eventually these will
+    // be served from object storage, not filesystem, so access control
+    // will be handled differently.
+    //
+    // Resources are public for MVP
+    respondWithValue(
+      res,
+      fs.createReadStream(
+        path.join(config.resourcesDataDirecory, recordingId, resourceId)
+      )
+    )
+  })
 
   return RecordingRouter
 }

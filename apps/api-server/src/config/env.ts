@@ -33,7 +33,7 @@ const envSchema = z.object({
   PADDLE_TEAM_PLAN_MONTHLY: numericStringTransform,
   PADDLE_TEAM_PLAN_ANNUAL: numericStringTransform,
 
-  RECORDING_DATA_DIRECTORY: z.string(),
+  RECORDING_RESOURCES_DATA_DIRECTORY: z.string(),
 
   DEBUG: z.string().default('').optional(),
 })

@@ -1,5 +1,5 @@
 node_modules
-data
+resources_data
 dist
 keys
 .env

@@ -133,7 +133,8 @@ bootstrap({
     router: createRecordingRouter(
       projectService,
       recordingService,
-      authMiddleware
+      authMiddleware,
+      { resourcesDataDirecory: env.RECORDING_RESOURCES_DATA_DIRECTORY }
     ),
   },
 

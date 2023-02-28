@@ -62,10 +62,30 @@ export function createRecordingService(recordingProvider: RecordingProvider) {
     return recordingProvider.getRecordingEvents(recordingId)
   }
 
+  function saveResourceMap(
+    recordingId: string,
+    resourceMap: Record<string, string>
+  ): FutureInstance<Error, void> {
+    return recordingProvider.saveResourceMap(recordingId, resourceMap)
+  }
+
+  function getResourceMap(
+    recordingId: string
+  ): FutureInstance<Error, Record<string, string>> {
+    return recordingProvider.getResourceMap(recordingId)
+  }
+
   function checkRecordingIsPublic(
     recordingId: string
   ): FutureInstance<Error, void> {
     return recordingProvider.checkRecordingIsPublic(recordingId)
+  }
+
+  function checkUserIsAuthor(
+    recordingId: string,
+    userId: string
+  ): FutureInstance<Error, void> {
+    return recordingProvider.checkUserIsAuthor(recordingId, userId)
   }
 
   return {
@@ -74,7 +94,10 @@ export function createRecordingService(recordingProvider: RecordingProvider) {
     getRecordingMetadata,
     saveRecordingEvents,
     getRecordingEvents,
+    saveResourceMap,
+    getResourceMap,
     checkRecordingIsPublic,
+    checkUserIsAuthor,
   }
 }
 
