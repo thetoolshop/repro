@@ -1,5 +1,5 @@
 import { Stats } from '~/libs/diagnostics'
-import { logger } from '~/libs/logger'
+import { logger } from '@repro/logger'
 import { usePlayback } from '~/libs/playback'
 import {
   DOMPatchEvent,
@@ -20,7 +20,6 @@ import {
   isTextNode,
   isValidAttributeName,
 } from '~/utils/dom'
-import { scheduleMicrotask } from '~/utils/schedule'
 import { interpolatePointFromSample } from '~/utils/source'
 import {
   isDocTypeVNode,
@@ -28,7 +27,7 @@ import {
   isElementVNode,
   isStyleElementVNode,
   isTextVNode,
-} from '~/utils/vdom'
+} from '@repro/vdom-utils'
 import React, { useEffect } from 'react'
 import { asapScheduler, from, Subscription } from 'rxjs'
 import {
@@ -525,7 +524,7 @@ function createDOMFromVTree(
         }
       }
 
-      scheduleMicrotask(() => {
+      queueMicrotask(() => {
         for (const [name, value] of Object.entries(vNode.properties)) {
           // TODO: ensure property is valid for target element
 

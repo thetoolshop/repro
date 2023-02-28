@@ -11,8 +11,8 @@ import {
 } from '@repro/domain'
 import { v4 as uuidv4 } from 'uuid'
 
-import { copyArray } from '~/utils/lang'
-import { applyVTreePatch } from '~/utils/vdom'
+import { copyArray } from '@repro/std'
+import { applyVTreePatch } from '@repro/vdom-utils'
 
 export function createRecordingId() {
   return uuidv4()

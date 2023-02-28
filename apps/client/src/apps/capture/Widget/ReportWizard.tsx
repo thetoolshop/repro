@@ -18,7 +18,7 @@ import { colors } from '~/config/theme'
 import { Analytics } from '~/libs/analytics'
 import { useApiClient } from '~/libs/api'
 import { LoginForm } from '~/libs/auth'
-import { logger } from '~/libs/logger'
+import { logger } from '@repro/logger'
 import { useMessaging } from '~/libs/messaging'
 import {
   PlaybackCanvas,

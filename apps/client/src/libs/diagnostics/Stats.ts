@@ -1,4 +1,4 @@
-import { logger } from '../logger'
+import { logger } from '@repro/logger'
 
 let enabled = false
 

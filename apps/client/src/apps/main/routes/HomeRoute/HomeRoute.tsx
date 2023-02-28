@@ -4,7 +4,7 @@ import { Col } from 'jsxstyle'
 import React, { useEffect, useState } from 'react'
 import { Card } from '~/components/Card'
 import { useApiClient } from '~/libs/api'
-import { logger } from '~/libs/logger'
+import { logger } from '@repro/logger'
 import { RecordingTile } from './RecordingTile'
 
 function sortByCreated(recordings: Array<RecordingMetadata>) {

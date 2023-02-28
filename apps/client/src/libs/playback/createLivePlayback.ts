@@ -5,7 +5,7 @@ import {
   SourceEventType,
   SourceEventView,
 } from '@repro/domain'
-import { copyObject, LazyList } from '~/utils/lang'
+import { copyObject, LazyList } from '@repro/std'
 import { applyEventToSnapshot, createEmptySnapshot } from '~/utils/source'
 import { createAtom } from '~/utils/state'
 import { first, Observable, skipUntil, Subscription } from 'rxjs'

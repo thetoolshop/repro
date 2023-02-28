@@ -1,4 +1,4 @@
-import { logger } from '~/libs/logger'
+import { logger } from '@repro/logger'
 import { Block } from 'jsxstyle'
 import React, { MutableRefObject, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'

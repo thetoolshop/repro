@@ -11,7 +11,7 @@ import {
   getNodeId,
   insertSubTreesAtNode,
   isElementVNode,
-} from '~/utils/vdom'
+} from '@repro/vdom-utils'
 import { Visitor, Subscribable, Subscriber } from '../types'
 import {
   createStyleSheetVTree,

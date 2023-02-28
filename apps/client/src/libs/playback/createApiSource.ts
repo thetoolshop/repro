@@ -1,7 +1,7 @@
 import { ApiClient } from '@repro/api-client'
 import { SourceEvent, SourceEventView } from '@repro/domain'
 import { fork } from 'fluture'
-import { LazyList } from '~/utils/lang'
+import { LazyList } from '@repro/std'
 import { createAtom } from '~/utils/state'
 import { ReadyState, Source } from './types'
 

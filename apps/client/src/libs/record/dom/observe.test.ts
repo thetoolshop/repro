@@ -4,7 +4,7 @@
 
 import { NodeType, Patch, PatchType } from '@repro/domain'
 import { MockNodeList } from '~/utils/testing'
-import { getNodeId } from '~/utils/vdom'
+import { getNodeId } from '@repro/vdom-utils'
 import { createDOMTreeWalker } from './utils'
 import { createDOMVisitor } from './visitor'
 import { RecordingOptions } from '../types'

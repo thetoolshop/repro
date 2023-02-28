@@ -17,7 +17,7 @@ import {
   Playback,
   PlaybackProvider,
 } from '~/libs/playback'
-import { LazyList } from '~/utils/lang'
+import { LazyList } from '@repro/std'
 import { MAX_INT32 } from './constants'
 import { Widget } from './Widget'
 import { useActive, useRecordingMode } from './hooks'

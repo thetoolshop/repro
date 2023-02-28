@@ -1,5 +1,5 @@
 import Future, { fork, FutureInstance } from 'fluture'
-import { logger } from '~/libs/logger'
+import { logger } from '@repro/logger'
 import { Agent, Intent, Resolver, Unsubscribe } from '~/libs/messaging'
 
 interface RuntimeOptions {

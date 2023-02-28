@@ -6,7 +6,7 @@ import {
 } from '@repro/domain'
 import { copy as copyDataView } from '@repro/typed-binary-encoder'
 import { Stats } from '~/libs/diagnostics'
-import { LazyList } from '~/utils/lang'
+import { LazyList } from '@repro/std'
 import { applyEventToSnapshot } from '~/utils/source'
 
 export function sliceEventsAtRange(

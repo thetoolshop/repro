@@ -8,7 +8,7 @@ import { colors } from '~/config/theme'
 import { useApiClient } from '~/libs/api'
 import { setSession } from '~/libs/auth/Session'
 import { useBillingClient } from '~/libs/billing'
-import { logger } from '~/libs/logger'
+import { logger } from '@repro/logger'
 import { PlanSelector } from './PlanSelector'
 import { SignUpForm } from './SignUpForm'
 

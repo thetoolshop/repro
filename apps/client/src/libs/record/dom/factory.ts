@@ -19,7 +19,7 @@ import {
   VTree,
   VNode,
 } from '@repro/domain'
-import { createSyntheticId, getNodeId } from '~/utils/vdom'
+import { createSyntheticId, getNodeId } from '@repro/vdom-utils'
 
 export function createVNode(node: Node): VNode | null {
   if (isDocumentNode(node)) {

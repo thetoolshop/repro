@@ -1,5 +1,5 @@
 import { SyntheticId, VElement } from '@repro/domain'
-import { isEmptyElementVNode } from '~/utils/vdom'
+import { isEmptyElementVNode } from '@repro/vdom-utils'
 import { Block } from 'jsxstyle'
 import React, { useContext } from 'react'
 import { ElementR } from '~/components/DOM'

@@ -4,7 +4,7 @@ import { ElementTree } from '~/components/ElementTree'
 import { colors } from '~/config/theme'
 import { useSnapshot } from '~/libs/playback'
 import { VElement, VTree } from '@repro/domain'
-import { isDocumentVNode, isElementVNode } from '~/utils/vdom'
+import { isDocumentVNode, isElementVNode } from '@repro/vdom-utils'
 import { useSelectedNode, useFocusedNode, usePicker } from '../../hooks'
 import { SelectedNodeComputedStyle } from './SelectedNodeComputedStyle'
 

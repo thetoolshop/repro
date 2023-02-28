@@ -8,7 +8,7 @@ import { Logo } from '~/components/Logo'
 import { colors } from '~/config/theme'
 import { useApiClient } from '~/libs/api'
 import { IfSession, UnlessSession } from '~/libs/auth/Session'
-import { logger } from '~/libs/logger'
+import { logger } from '@repro/logger'
 import { MyAvatar } from '~/libs/profile'
 
 const navLinkStyle = {

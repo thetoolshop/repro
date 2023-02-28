@@ -1,5 +1,5 @@
-import { Immutable } from '~/types/extensions'
 import { VTree } from '@repro/domain'
+import { Immutable } from '@repro/ts-utils'
 
 export interface ObserverLike<T extends any = any> {
   disconnect(): void

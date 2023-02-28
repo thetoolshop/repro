@@ -6,7 +6,7 @@ import {
   isTextAreaElement,
 } from '~/utils/dom'
 import { ObserverLike, createEventObserver } from '~/utils/observer'
-import { getNodeId } from '~/utils/vdom'
+import { getNodeId } from '@repro/vdom-utils'
 import { createVElement } from '../dom/factory'
 import { isIgnoredByNode, isIgnoredBySelector } from '../dom/utils'
 import { RecordingOptions } from '../types'

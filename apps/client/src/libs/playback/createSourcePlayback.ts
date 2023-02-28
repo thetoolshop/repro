@@ -16,7 +16,7 @@ import {
 } from 'rxjs'
 import { map, observeOn, pairwise, switchMap } from 'rxjs/operators'
 import { Stats } from '~/libs/diagnostics'
-import { copyObject, LazyList } from '~/utils/lang'
+import { copyObject, LazyList } from '@repro/std'
 import {
   applyEventToSnapshot,
   createEmptySnapshot,

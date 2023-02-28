@@ -6,7 +6,7 @@ import {
   isDocumentVNode,
   isElementVNode,
   isTextVNode,
-} from '~/utils/vdom'
+} from '@repro/vdom-utils'
 
 interface Props {
   node: VNode

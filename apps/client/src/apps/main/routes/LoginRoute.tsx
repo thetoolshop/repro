@@ -7,7 +7,7 @@ import { Card } from '~/components/Card'
 import { colors } from '~/config/theme'
 import { LoginForm } from '~/libs/auth'
 import { setSession } from '~/libs/auth/Session'
-import { logger } from '~/libs/logger'
+import { logger } from '@repro/logger'
 
 export const LoginRoute: React.FC = () => {
   const navigate = useNavigate()
