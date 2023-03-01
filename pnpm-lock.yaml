@@ -225,6 +225,7 @@ importers:
   packages/api-client:
     specifiers:
       '@repro/domain': workspace:*
+      '@repro/random-string': workspace:*
       '@repro/vdom-utils': workspace:*
       '@types/node': ^18.6.2
       concurrently: ^7.3.0
@@ -240,6 +241,7 @@ importers:
       zod: ^3.17.10
     dependencies:
       '@repro/domain': link:../domain
+      '@repro/random-string': link:../random-string
       '@repro/vdom-utils': link:../vdom-utils
       deepmerge-ts: 4.2.2
       fflate: 0.7.3

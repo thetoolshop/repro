@@ -15,6 +15,7 @@
   "license": "UNLICENSED",
   "dependencies": {
     "@repro/domain": "workspace:*",
+    "@repro/random-string": "workspace:*",
     "@repro/vdom-utils": "workspace:*",
     "deepmerge-ts": "^4.2.2",
     "fflate": "^0.7.3",

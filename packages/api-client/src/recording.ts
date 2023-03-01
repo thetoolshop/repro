@@ -4,9 +4,14 @@ import {
   SourceEvent,
   SourceEventView,
 } from '@repro/domain'
+import { createResourceMap } from '@repro/vdom-utils'
 import { gzipSync } from 'fflate'
-import { and, FutureInstance, map } from 'fluture'
+// @ts-ignore
+import { and, chain, FutureInstance, map, parallel } from 'fluture'
 import { DataLoader } from './common'
+
+// Resources bigger than 1MiB should either load from origin or be replaced by placeholder (TBD)
+const MAX_RESOURCE_SIZE = 1_000_000
 
 export function createRecordingApi(dataLoader: DataLoader) {
   function getAllRecordings(): FutureInstance<Error, Array<RecordingMetadata>> {
@@ -45,6 +50,46 @@ export function createRecordingApi(dataLoader: DataLoader) {
       }),
     })
 
+    // Source events are decoded for efficiency. It is expensive to deeply traverse
+    // all VDOM lenses contained within events.
+    const resourceMap = createResourceMap(events.map(SourceEventView.decode))
+    const resourceEntries = Object.entries(resourceMap)
+
+    const readResources = parallel(Infinity)(
+      resourceEntries.map(([resourceId, url]) =>
+        dataLoader<DataView>(url).pipe(
+          map(resource => [resourceId, resource] as const)
+        )
+      )
+    )
+
+    const saveResources = readResources.pipe(
+      chain(resources =>
+        parallel(Infinity)(
+          resources
+            .filter(([_, resource]) => resource.byteLength <= MAX_RESOURCE_SIZE)
+            .map(([resourceId, resource]) =>
+              dataLoader<void>(
+                `/recordings/${recordingId}/resources/${resourceId}`,
+                {
+                  method: 'PUT',
+                  body: resource,
+                  headers: { 'Content-Type': 'application/octet-stream' },
+                }
+              )
+            )
+        )
+      )
+    )
+
+    const saveResourceMap = dataLoader(
+      `/recordings/${recordingId}/resource-map`,
+      {
+        method: 'PUT',
+        body: JSON.stringify(resourceMap),
+      }
+    )
+
     const serializedData = events
       .map(event => SourceEventView.serialize(event))
       .join('\n')
@@ -66,7 +111,10 @@ export function createRecordingApi(dataLoader: DataLoader) {
       },
     })
 
-    return saveMetadata.pipe(and(saveData))
+    return saveMetadata
+      .pipe(and(saveData))
+      .pipe(and(saveResources))
+      .pipe(and(saveResourceMap))
   }
 
   function getRecordingEvents(
@@ -94,11 +142,18 @@ export function createRecordingApi(dataLoader: DataLoader) {
     return dataLoader(`/recordings/${recordingId}/metadata`)
   }
 
+  function getResourceMap(
+    recordingId: string
+  ): FutureInstance<Error, Record<string, string>> {
+    return dataLoader(`/recordings/${recordingId}/resource-map`)
+  }
+
   return {
     getAllRecordings,
     saveRecording,
     getRecordingEvents,
     getRecordingMetadata,
+    getResourceMap,
   }
 }
 

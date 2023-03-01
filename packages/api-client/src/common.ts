@@ -113,7 +113,9 @@ export function createDataLoader(
       chain(reqOptions => {
         return attemptP<Error, Response>(() => {
           return nativeFetch(
-            `${config.baseUrl}/${url.replace(/^\//, '')}`,
+            url.startsWith('http:') || url.startsWith('https:')
+              ? url
+              : `${config.baseUrl}/${url.replace(/^\//, '')}`,
             deepmerge(reqOptions, init)
           )
         })
@@ -132,6 +134,8 @@ export function createDataLoader(
           } else if (contentType.includes('application/json')) {
             body = await res.json()
           } else if (contentType.includes('application/octet-stream')) {
+            body = new DataView(await res.arrayBuffer())
+          } else if (contentType.includes('image/')) {
             body = new DataView(await res.arrayBuffer())
           } else {
             body = await res.text()
