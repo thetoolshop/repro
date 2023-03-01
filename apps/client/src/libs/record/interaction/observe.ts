@@ -40,6 +40,7 @@ export function createInteractionObserver(
   const doubleClickObserver = createDoubleClickObserver(callback, options)
   const keyDownObserver = createKeyDownObserver(callback)
   const keyUpObserver = createKeyUpObserver(callback)
+  const pageTransitionObserver = createPageTransitionObserver(callback)
 
   return {
     disconnect() {
@@ -52,6 +53,7 @@ export function createInteractionObserver(
       doubleClickObserver.disconnect()
       keyDownObserver.disconnect()
       keyUpObserver.disconnect()
+      pageTransitionObserver.disconnect()
     },
 
     observe(doc, vtree) {
@@ -64,6 +66,7 @@ export function createInteractionObserver(
       doubleClickObserver.observe(doc, vtree)
       keyDownObserver.observe(doc, vtree)
       keyUpObserver.observe(doc, vtree)
+      pageTransitionObserver.observe(doc, vtree)
     },
   }
 }
@@ -377,4 +380,38 @@ function createKeyUpObserver(callback: Callback): ObserverLike {
       })
     }
   })
+}
+
+function createPageTransitionObserver(callback: Callback): ObserverLike {
+  let currentPageURL: string | null = null
+
+  function capturePageTransition() {
+    const nextPageURL = globalThis.location.href
+
+    if (nextPageURL !== currentPageURL) {
+      callback({
+        type: InteractionType.PageTransition,
+        from: currentPageURL,
+        to: nextPageURL,
+      })
+
+      currentPageURL = nextPageURL
+    }
+  }
+
+  const historyObserver = createEventObserver('popstate', capturePageTransition)
+  const hashObserver = createEventObserver('hashchange', capturePageTransition)
+
+  return {
+    disconnect() {
+      historyObserver.disconnect()
+      hashObserver.disconnect()
+    },
+
+    observe(doc, vtree) {
+      historyObserver.observe(doc.defaultView, vtree)
+      hashObserver.observe(doc.defaultView, vtree)
+      capturePageTransition()
+    },
+  }
 }

@@ -34,6 +34,7 @@ export const ScrollMapView = createView<ScrollMap, DictDescriptor>(
 //   KeyUp
 //   Click
 //   DoubleClick
+//   PageTransition
 // }
 
 export enum InteractionType {
@@ -46,6 +47,7 @@ export enum InteractionType {
   KeyUp = 6,
   Click = 7,
   DoubleClick = 8,
+  PageTransition = 9,
 }
 
 export const InteractionTypeSchema = z.nativeEnum(InteractionType)
@@ -366,6 +368,32 @@ export const DoubleClickView = createView<DoubleClick, StructDescriptor>(
   DoubleClickSchema
 )
 
+// type PageTransition: struct {
+//   type: InteractionType.PageTransition
+//   from?: string
+//   to: string
+// }
+
+export const PageTransitionSchema = z.object({
+  type: z.literal(InteractionType.PageTransition),
+  from: z.string().url().nullable(),
+  to: z.string().url(),
+})
+
+export type PageTransition = z.infer<typeof PageTransitionSchema>
+
+export const PageTransitionView = createView<PageTransition, StructDescriptor>(
+  {
+    type: 'struct',
+    fields: [
+      ['type', UINT8],
+      ['from', { type: 'string', nullable: true }],
+      ['to', { type: 'string' }],
+    ],
+  },
+  PageTransitionSchema
+)
+
 // type Interaction: union {
 //   ViewportResize
 //   Scroll
@@ -376,6 +404,7 @@ export const DoubleClickView = createView<DoubleClick, StructDescriptor>(
 //   KeyDown
 //   Click
 //   DoubleClick
+//   PageTransition
 // }
 
 export const InteractionSchema = z.discriminatedUnion('type', [
@@ -388,6 +417,7 @@ export const InteractionSchema = z.discriminatedUnion('type', [
   KeyUpSchema,
   ClickSchema,
   DoubleClickSchema,
+  PageTransitionSchema,
 ])
 
 export type Interaction = z.infer<typeof InteractionSchema>
@@ -406,6 +436,7 @@ export const InteractionView = createView<Interaction, UnionDescriptor>(
       [InteractionType.KeyDown]: KeyDownView.descriptor,
       [InteractionType.Click]: ClickView.descriptor,
       [InteractionType.DoubleClick]: DoubleClickView.descriptor,
+      [InteractionType.PageTransition]: PageTransitionView.descriptor,
     },
   },
   InteractionSchema

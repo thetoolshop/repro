@@ -12,6 +12,8 @@ import {
   KeyUp,
   KeyUpView,
   MouseButton,
+  PageTransition,
+  PageTransitionView,
   PointerDown,
   PointerDownView,
   PointerMove,
@@ -175,6 +177,22 @@ describe('Interaction codecs', () => {
 
     const buffer = DoubleClickView.encode(input)
     const view = DoubleClickView.from(input)
+    const envelope = InteractionView.from(input)
+
+    expect(buffer.byteLength).toBeLessThan(approxByteLength(input))
+    expect(view).toEqual(input)
+    expect(envelope).toEqual(input)
+  })
+
+  it('should create a binary view from a page transition', () => {
+    const input: PageTransition = {
+      type: InteractionType.PageTransition,
+      from: 'http://example.com/foo',
+      to: 'http://example.com/bar',
+    }
+
+    const buffer = PageTransitionView.encode(input)
+    const view = PageTransitionView.from(input)
     const envelope = InteractionView.from(input)
 
     expect(buffer.byteLength).toBeLessThan(approxByteLength(input))

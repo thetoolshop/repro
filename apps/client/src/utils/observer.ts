@@ -12,10 +12,25 @@ export function createEventObserver<
   type: K,
   listener: (
     this: GlobalEventHandlers,
-    ev: GlobalEventHandlersEventMap[K]
+    evt: GlobalEventHandlersEventMap[K]
   ) => void
-): ObserverLike<GlobalEventHandlers> {
-  const listenerMap = new Map<GlobalEventHandlers, Array<typeof listener>>()
+): ObserverLike<GlobalEventHandlers>
+
+export function createEventObserver<
+  K extends keyof WindowEventHandlersEventMap
+>(
+  type: K,
+  listener: (
+    this: WindowEventHandlers,
+    ev: WindowEventHandlersEventMap[K]
+  ) => void
+): ObserverLike<WindowEventHandlers>
+
+export function createEventObserver(
+  type: string,
+  listener: (ev: Event) => void
+): ObserverLike {
+  const listenerMap = new Map<any, Array<typeof listener>>()
 
   return {
     disconnect() {
