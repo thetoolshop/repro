@@ -1,4 +1,4 @@
-![](/packages/client/src/apps/capture/extension/static/logo-48.png)
+![](/apps/client/src/apps/capture/extension/static/logo-48.png)
 
 ## Repro
 
