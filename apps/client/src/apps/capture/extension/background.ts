@@ -157,7 +157,7 @@ function syncActionState(): FutureInstance<unknown, void> {
 
 function getActiveTabId(): FutureInstance<unknown, number | null> {
   return node(done => {
-    chrome.tabs.query({ active: true }, result => {
+    chrome.tabs.query({ active: true, lastFocusedWindow: true }, result => {
       const activeTabId = result[0]?.id
       done(null, activeTabId ?? null)
     })
