@@ -2,7 +2,7 @@ import { isLens, unwrapLens } from '@repro/typed-binary-encoder'
 import { Response } from 'express'
 import { fork, FutureInstance } from 'fluture'
 import { isObservable } from 'rxjs'
-import { isReadable } from 'stream'
+import { isReadable, pipeline } from 'stream'
 import { env } from '~/config/env'
 import {
   isBadRequest,
@@ -50,7 +50,11 @@ export function respondWithValue<T>(res: Response, value: T) {
     res.status(200)
 
     if (isReadableStream(value)) {
-      value.pipe(res)
+      pipeline(value, res, error => {
+        if (error) {
+          respondWithError(res, error)
+        }
+      })
     } else if (isObservable(value)) {
       res.header('Content-Type', 'text/plain')
       value.subscribe({

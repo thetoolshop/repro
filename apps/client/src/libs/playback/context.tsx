@@ -40,11 +40,15 @@ export const PlaybackFromSourceProvider: React.FC<
   PropsWithChildren<PlaybackFromSourceProviderProps>
 > = ({ children, source }) => {
   const events = useAtomValue(source.$events)
+  const resourceMap = useAtomValue(source.$resourceMap)
+  const readyState = useAtomValue(source.$readyState)
   const [playback, setPlayback] = useState(EMPTY_PLAYBACK)
 
   useEffect(() => {
-    setPlayback(createSourcePlayback(events))
-  }, [events, setPlayback])
+    if (readyState === 'ready') {
+      setPlayback(createSourcePlayback(events, resourceMap))
+    }
+  }, [readyState, events, resourceMap, setPlayback])
 
   return <PlaybackProvider playback={playback}>{children}</PlaybackProvider>
 }

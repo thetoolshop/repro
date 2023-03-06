@@ -1,4 +1,5 @@
 import {
+  InteractionType,
   Sample,
   Snapshot,
   SnapshotEvent,
@@ -33,10 +34,14 @@ const EMPTY_BUFFER = LazyList.Empty(
 )
 
 export const EMPTY_PLAYBACK = createSourcePlayback(
-  LazyList.Empty<SourceEvent>()
+  LazyList.Empty<SourceEvent>(),
+  {}
 )
 
-export function createSourcePlayback(events: LazyList<SourceEvent>): Playback {
+export function createSourcePlayback(
+  events: LazyList<SourceEvent>,
+  resourceMap: Record<string, string>
+): Playback {
   const subscription = new Subscription()
 
   const [$activeIndex, setActiveIndex, getActiveIndex] = createAtom(-1)
@@ -47,11 +52,15 @@ export function createSourcePlayback(events: LazyList<SourceEvent>): Playback {
   const [$playbackState, setPlaybackState, getPlaybackState] = createAtom(
     PlaybackState.Paused
   )
+  const [$currentPageURL, setCurrentPageURL, getCurrentPageURL] =
+    createAtom<string>('')
   const [$snapshot, setSnapshot, getSnapshot] = createAtom<Snapshot>(
     getLeadingSnapshot()
   )
   const [$latestControlFrame, setLatestControlFrame, getLatestControlFrame] =
     createAtom<ControlFrame>(ControlFrame.Idle)
+
+  setInitialPageURL()
 
   const firstEvent = events.at(0)
   const lastEvent = events.at(events.size() - 1)
@@ -97,6 +106,23 @@ export function createSourcePlayback(events: LazyList<SourceEvent>): Playback {
     }
 
     return firstEvent.data
+  }
+
+  function setInitialPageURL() {
+    for (const dataView of events.toSource()) {
+      const event = SourceEventView.over(dataView)
+      updateCurrentPageURL(event)
+    }
+  }
+
+  function updateCurrentPageURL(event: SourceEvent) {
+    if (
+      event &&
+      event.type === SourceEventType.Interaction &&
+      event.data.type === InteractionType.PageTransition
+    ) {
+      setCurrentPageURL(event.data.to)
+    }
   }
 
   function partitionEvents(
@@ -210,8 +236,10 @@ export function createSourcePlayback(events: LazyList<SourceEvent>): Playback {
       if (events.size()) {
         const snapshot = copyObject(getSnapshot())
 
-        for (const event of events.toSource()) {
-          applyEventToSnapshot(snapshot, SourceEventView.over(event), elapsed)
+        for (const dataView of events.toSource()) {
+          const event = SourceEventView.over(dataView)
+          applyEventToSnapshot(snapshot, event, elapsed)
+          updateCurrentPageURL(event)
         }
 
         setSnapshot(snapshot)
@@ -235,6 +263,10 @@ export function createSourcePlayback(events: LazyList<SourceEvent>): Playback {
 
   function getDuration() {
     return duration
+  }
+
+  function getResourceMap() {
+    return resourceMap
   }
 
   function play() {
@@ -283,12 +315,10 @@ export function createSourcePlayback(events: LazyList<SourceEvent>): Playback {
     if (snapshot && before.size()) {
       snapshot = copyObject(snapshot)
 
-      for (const event of before.toSource()) {
-        applyEventToSnapshot(
-          snapshot,
-          SourceEventView.over(event),
-          targetEvent.time
-        )
+      for (const dataView of before.toSource()) {
+        const event = SourceEventView.over(dataView)
+        applyEventToSnapshot(snapshot, event, targetEvent.time)
+        updateCurrentPageURL(event)
       }
     }
 
@@ -355,12 +385,10 @@ export function createSourcePlayback(events: LazyList<SourceEvent>): Playback {
           if (snapshot && before.size()) {
             snapshot = copyObject(SnapshotView.decode(snapshot))
 
-            for (const event of before.toSource()) {
-              applyEventToSnapshot(
-                snapshot,
-                SourceEventView.over(event),
-                elapsed
-              )
+            for (const dataView of before.toSource()) {
+              const event = SourceEventView.over(dataView)
+              applyEventToSnapshot(snapshot, event, elapsed)
+              updateCurrentPageURL(event)
             }
           }
         }
@@ -386,13 +414,14 @@ export function createSourcePlayback(events: LazyList<SourceEvent>): Playback {
   }
 
   function copy() {
-    return createSourcePlayback(events)
+    return createSourcePlayback(events, resourceMap)
   }
 
   return {
     // Read-only atoms
     $activeIndex,
     $buffer,
+    $currentPageURL,
     $elapsed,
     $latestControlFrame,
     $playbackState,
@@ -401,12 +430,14 @@ export function createSourcePlayback(events: LazyList<SourceEvent>): Playback {
     // Accessors
     getActiveIndex,
     getBuffer,
+    getCurrentPageURL,
     getDuration,
     getElapsed,
     getEventTimeAtIndex,
     getEventTypeAtIndex,
     getLatestControlFrame,
     getPlaybackState,
+    getResourceMap,
     getSnapshot,
     getSourceEvents,
 

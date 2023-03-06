@@ -10,6 +10,7 @@ export function createFixtureSource(name: string): Source {
 
   const [$events, setEvents] = createAtom(LazyList.Empty<SourceEvent>())
   const [$readyState, setReadyState] = createAtom<ReadyState>('waiting')
+  const [$resourceMap] = createAtom<Record<string, string>>({})
 
   request.then(events => {
     setEvents(
@@ -29,5 +30,6 @@ export function createFixtureSource(name: string): Source {
   return {
     $readyState,
     $events,
+    $resourceMap,
   }
 }

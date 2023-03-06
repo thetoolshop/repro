@@ -1,3 +1,4 @@
+import { RecordingMetadata } from '@repro/domain'
 import { Block, Grid } from 'jsxstyle'
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
@@ -23,7 +24,7 @@ export const RecordingRoute: React.FC = () => {
     loading,
     error,
     result: metadata,
-  } = useFuture(() => {
+  } = useFuture<Error, RecordingMetadata>(() => {
     return apiClient.recording.getRecordingMetadata(recordingId!)
   }, [apiClient, recordingId])
 

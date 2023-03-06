@@ -8,6 +8,14 @@ import { randomString } from '@repro/random-string'
 import { createVTreeWalker } from './createVTreeWalker'
 import { isElementVNode } from './matchers'
 
+const MATCH_URL_PATTERN = /url\(['"]?((?:\S*?\(\S*?\))*\S*?)['"]?\)/g
+
+export function extractCSSEmbeddedURLs(line: string) {
+  return [...line.matchAll(MATCH_URL_PATTERN)].map(
+    match => match[1]
+  ) as Array<string>
+}
+
 export function createResourceMap(events: Array<SourceEvent>) {
   const visitedURLs = new Set<string>()
   const resourceMap: Record<string, string> = {}
@@ -39,26 +47,50 @@ export function createResourceMap(events: Array<SourceEvent>) {
 
   walkVTree.accept({
     elementNode(node, vtree) {
-      if (node.tagName !== 'img' && node.tagName !== 'source') {
-        return
-      }
+      if (node.attributes.style) {
+        const urls = extractCSSEmbeddedURLs(node.attributes.style)
 
-      if (node.tagName === 'source') {
-        const parent = node.parentId ? vtree.nodes[node.parentId] : null
-        const isPictureSource =
-          parent && isElementVNode(parent) && parent.tagName === 'picture'
-
-        if (!isPictureSource) {
-          return
+        for (const url of urls) {
+          addResource(url)
         }
       }
 
-      if (node.attributes.src) {
-        addResource(node.attributes.src)
+      if (node.tagName === 'img' || node.tagName === 'source') {
+        if (node.tagName === 'source') {
+          const parent = node.parentId ? vtree.nodes[node.parentId] : null
+          const isPictureSource =
+            parent && isElementVNode(parent) && parent.tagName === 'picture'
+
+          if (!isPictureSource) {
+            return
+          }
+        }
+
+        if (node.attributes.src) {
+          addResource(node.attributes.src)
+        }
+
+        if (node.attributes.srcset) {
+          const urls = parseSrcset(node.attributes.srcset)
+
+          for (const url of urls) {
+            addResource(url)
+          }
+        }
       }
 
-      if (node.attributes.srcset) {
-        const urls = parseSrcset(node.attributes.srcset)
+      if (node.tagName === 'link' && node.attributes.rel === 'stylesheet') {
+        if (node.attributes.href) {
+          addResource(node.attributes.href)
+        }
+      }
+    },
+
+    textNode(node, vtree) {
+      const parent = node.parentId ? vtree.nodes[node.parentId] : null
+
+      if (parent && isElementVNode(parent) && parent.tagName === 'style') {
+        const urls = extractCSSEmbeddedURLs(node.value)
 
         for (const url of urls) {
           addResource(url)
@@ -69,7 +101,6 @@ export function createResourceMap(events: Array<SourceEvent>) {
     // Not implemented
     documentNode() {},
     docTypeNode() {},
-    textNode() {},
   })
 
   // Get initial page URL

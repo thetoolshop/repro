@@ -105,7 +105,8 @@ export function createDataLoader(
   return function dataLoader<R = any>(
     url: string,
     init: RequestInit = {},
-    requestType: 'json' | 'binary' = 'json'
+    requestType: 'json' | 'binary' = 'json',
+    responseType: 'auto' | 'json' | 'binary' | 'text' = 'auto'
   ): FutureInstance<Error, R> {
     const reqOptions = createDefaultRequestOptions(authStore, requestType)
 
@@ -129,16 +130,26 @@ export function createDataLoader(
 
           let body: any
 
-          if (!contentType) {
-            body = await res.text()
-          } else if (contentType.includes('application/json')) {
-            body = await res.json()
-          } else if (contentType.includes('application/octet-stream')) {
-            body = new DataView(await res.arrayBuffer())
-          } else if (contentType.includes('image/')) {
-            body = new DataView(await res.arrayBuffer())
+          if (responseType === 'auto') {
+            if (!contentType) {
+              body = await res.text()
+            } else if (contentType.includes('application/json')) {
+              body = await res.json()
+            } else if (contentType.includes('application/octet-stream')) {
+              body = new DataView(await res.arrayBuffer())
+            } else if (contentType.includes('image/')) {
+              body = new DataView(await res.arrayBuffer())
+            } else {
+              body = await res.text()
+            }
           } else {
-            body = await res.text()
+            if (responseType === 'json') {
+              body = await res.json()
+            } else if (responseType === 'text') {
+              body = await res.text()
+            } else {
+              body = await res.arrayBuffer()
+            }
           }
 
           if (!res.ok) {

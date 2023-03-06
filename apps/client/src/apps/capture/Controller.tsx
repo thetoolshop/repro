@@ -76,7 +76,8 @@ export const Controller: React.FC = () => {
                     [event],
                     SourceEventView.decode,
                     SourceEventView.encode
-                  )
+                  ),
+                  {}
                 )
               )
             })
@@ -87,7 +88,7 @@ export const Controller: React.FC = () => {
             defer(() => from(stream.slice()))
               .pipe(observeOn(asyncScheduler))
               .subscribe(events => {
-                setPlayback(createSourcePlayback(events))
+                setPlayback(createSourcePlayback(events, {}))
               })
           )
           break
@@ -108,7 +109,7 @@ export const Controller: React.FC = () => {
                 )
               )
               .subscribe(events => {
-                setPlayback(createSourcePlayback(events))
+                setPlayback(createSourcePlayback(events, {}))
               })
           )
           break

@@ -1,5 +1,6 @@
 import { Block, Grid } from 'jsxstyle'
 import React, { PropsWithChildren, useEffect } from 'react'
+import { useParams } from 'react-router'
 import { colors } from '~/config/theme'
 import { PlaybackCanvas } from '~/libs/playback'
 import { MAX_INT32 } from '../constants'
@@ -35,6 +36,10 @@ export const DevTools: React.FC<Props> = React.memo(() => {
   const [picker] = usePicker()
   const [mask] = useMask()
   const [view] = useView()
+  const { recordingId } = useParams()
+  const resourceBaseURL = recordingId
+    ? `${process.env.REPRO_API_URL}/recordings/${recordingId}/resources/`
+    : undefined
 
   useEffect(() => {
     if (inspecting) {
@@ -57,6 +62,7 @@ export const DevTools: React.FC<Props> = React.memo(() => {
             trackPointer={true}
             trackScroll={true}
             scaling="scale-to-fit"
+            resourceBaseURL={resourceBaseURL}
             onDocumentReady={setCurrentDocument}
             onLoad={setNodeMap}
           >

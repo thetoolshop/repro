@@ -55,9 +55,9 @@ export function createRecordingApi(dataLoader: DataLoader) {
     const resourceMap = createResourceMap(events.map(SourceEventView.decode))
     const resourceEntries = Object.entries(resourceMap)
 
-    const readResources = parallel(Infinity)(
+    const readResources = parallel(6)(
       resourceEntries.map(([resourceId, url]) =>
-        dataLoader<DataView>(url).pipe(
+        dataLoader<DataView>(url, {}, 'binary', 'binary').pipe(
           map(resource => [resourceId, resource] as const)
         )
       )
@@ -65,7 +65,7 @@ export function createRecordingApi(dataLoader: DataLoader) {
 
     const saveResources = readResources.pipe(
       chain(resources =>
-        parallel(Infinity)(
+        parallel(6)(
           resources
             .filter(([_, resource]) => resource.byteLength <= MAX_RESOURCE_SIZE)
             .map(([resourceId, resource]) =>

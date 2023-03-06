@@ -22,13 +22,14 @@ import {
 } from '~/utils/dom'
 import { interpolatePointFromSample } from '~/utils/source'
 import {
+  extractCSSEmbeddedURLs,
   isDocTypeVNode,
   isDocumentVNode,
   isElementVNode,
   isStyleElementVNode,
   isTextVNode,
 } from '@repro/vdom-utils'
-import React, { useEffect } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { asapScheduler, from, Subscription } from 'rxjs'
 import {
   distinctUntilChanged,
@@ -51,15 +52,26 @@ function isNotIdle(controlFrame: ControlFrame) {
 interface Props {
   ownerDocument: Document | null
   trackScroll: boolean
+  resourceBaseURL?: string
   onLoad?: (nodeMap: MutableNodeMap) => void
 }
 
 export const NativeDOMRenderer: React.FC<Props> = ({
   ownerDocument,
+  resourceBaseURL,
   trackScroll,
   onLoad,
 }) => {
   const playback = usePlayback()
+
+  const resourceMap = playback.getResourceMap()
+  const invertedResourceMap = useMemo(
+    () =>
+      Object.fromEntries(
+        Object.entries(resourceMap).map(([key, value]) => [value, key])
+      ),
+    [resourceMap]
+  )
 
   useEffect(() => {
     let nodeMap: MutableNodeMap = {}
@@ -84,7 +96,13 @@ export const NativeDOMRenderer: React.FC<Props> = ({
                 const [rootNode, vtreeNodeMap] = Stats.time(
                   'NativeDOMRenderer (effect): create DOM from VTree',
                   () => {
-                    return createDOMFromVTree(vtree, nodeMap)
+                    return createDOMFromVTree(
+                      vtree,
+                      nodeMap,
+                      playback.getCurrentPageURL(),
+                      resourceBaseURL || '',
+                      invertedResourceMap
+                    )
                   }
                 )
 
@@ -152,7 +170,13 @@ export const NativeDOMRenderer: React.FC<Props> = ({
         .subscribe(event => {
           switch (event.type) {
             case SourceEventType.DOMPatch:
-              applyDOMPatchEvent(event, nodeMap)
+              applyDOMPatchEvent(
+                event,
+                nodeMap,
+                playback.getCurrentPageURL(),
+                resourceBaseURL || '',
+                invertedResourceMap
+              )
               break
 
             case SourceEventType.Interaction:
@@ -232,7 +256,13 @@ function updateScroll(node: Node, x: number, y: number) {
   }
 }
 
-function applyDOMPatchEvent(event: DOMPatchEvent, nodeMap: MutableNodeMap) {
+function applyDOMPatchEvent(
+  event: DOMPatchEvent,
+  nodeMap: MutableNodeMap,
+  currentPageURL: string,
+  resourceBaseURL: string,
+  resourceMap: Record<string, string>
+) {
   outer: {
     switch (event.data.type) {
       case PatchType.Text: {
@@ -252,6 +282,33 @@ function applyDOMPatchEvent(event: DOMPatchEvent, nodeMap: MutableNodeMap) {
 
         if (node && isElementNode(node)) {
           if (isValidAttributeName(event.data.name)) {
+            let value = event.data.value
+
+            if (value !== null) {
+              if (event.data.name === 'src') {
+                value = resolveURLToResource(
+                  value,
+                  currentPageURL,
+                  resourceBaseURL,
+                  resourceMap
+                )
+              } else if (event.data.name === 'srcset') {
+                value = replaceURLsInSrcset(
+                  value,
+                  currentPageURL,
+                  resourceBaseURL,
+                  resourceMap
+                )
+              } else if (event.data.name === 'style') {
+                value = replaceURLsInCSSText(
+                  value,
+                  currentPageURL,
+                  resourceBaseURL,
+                  resourceMap
+                )
+              }
+            }
+
             node.setAttribute(event.data.name, event.data.value ?? '')
           }
         }
@@ -300,7 +357,15 @@ function applyDOMPatchEvent(event: DOMPatchEvent, nodeMap: MutableNodeMap) {
 
         if (parent) {
           const [fragment, newNodeMap] = event.data.nodes
-            .map(vtree => createDOMFromVTree(vtree, nodeMap))
+            .map(vtree =>
+              createDOMFromVTree(
+                vtree,
+                nodeMap,
+                currentPageURL,
+                resourceBaseURL,
+                resourceMap
+              )
+            )
             .reduce(
               ([fragment, nodeMap], [node, nextNodeMap]) => {
                 if (fragment && node) {
@@ -415,7 +480,10 @@ function applyInteractionEvent(
 
 function createDOMFromVTree(
   vtree: VTree,
-  rootNodeMap: MutableNodeMap
+  rootNodeMap: MutableNodeMap,
+  currentPageURL: string,
+  resourceBaseURL: string,
+  resourceMap: Record<string, string>
 ): [Node | null, MutableNodeMap] {
   const nodeMap: MutableNodeMap = {}
 
@@ -455,6 +523,12 @@ function createDOMFromVTree(
       // Replace hover pseudo-selectors with class selector.
       if (parentVNode && isStyleElementVNode(parentVNode)) {
         value = value.replace(':hover', HOVER_SELECTOR)
+        value = replaceURLsInCSSText(
+          value,
+          currentPageURL,
+          resourceBaseURL,
+          resourceMap
+        )
       }
 
       node = document.createTextNode(value)
@@ -518,8 +592,40 @@ function createDOMFromVTree(
         svgContext = false
       }
 
-      for (const [name, value] of Object.entries(vNode.attributes)) {
+      for (let [name, value] of Object.entries(vNode.attributes)) {
         if (isValidAttributeName(name)) {
+          if (value !== null) {
+            if (name === 'src') {
+              value = resolveURLToResource(
+                value,
+                currentPageURL,
+                resourceBaseURL,
+                resourceMap
+              )
+            } else if (name === 'srcset') {
+              value = replaceURLsInSrcset(
+                value,
+                currentPageURL,
+                resourceBaseURL,
+                resourceMap
+              )
+            } else if (name === 'style') {
+              value = replaceURLsInCSSText(
+                value,
+                currentPageURL,
+                resourceBaseURL,
+                resourceMap
+              )
+            } else if (name === 'href' && vNode.tagName === 'link') {
+              value = resolveURLToResource(
+                value,
+                currentPageURL,
+                resourceBaseURL,
+                resourceMap
+              )
+            }
+          }
+
           element.setAttribute(name, value ?? '')
         }
       }
@@ -557,6 +663,58 @@ function createDOMFromVTree(
   }
 
   return [createNode(vtree.rootId, null, false), nodeMap]
+}
+
+function replaceURLsInSrcset(
+  srcset: string,
+  currentPageURL: string,
+  resourceBaseURL: string,
+  resourceMap: Record<string, string>
+) {
+  return srcset
+    .split(',')
+    .map(source => source.trim().split(/\s+/) as [string, string | undefined])
+    .map(([url, condition]) =>
+      [
+        resolveURLToResource(url, currentPageURL, resourceBaseURL, resourceMap),
+        condition,
+      ].join(' ')
+    )
+    .join(',')
+}
+
+function replaceURLsInCSSText(
+  cssText: string,
+  currentPageURL: string,
+  resourceBaseURL: string,
+  resourceMap: Record<string, string>
+) {
+  const urls = extractCSSEmbeddedURLs(cssText).map(
+    url =>
+      [
+        url,
+        resolveURLToResource(url, currentPageURL, resourceBaseURL, resourceMap),
+      ] as const
+  )
+
+  for (const [url, resourceURL] of urls) {
+    if (url !== resourceURL) {
+      cssText = cssText.replace(url, resourceURL)
+    }
+  }
+
+  return cssText
+}
+
+function resolveURLToResource(
+  url: string,
+  currentPageURL: string,
+  resourceBaseURL: string,
+  resourceMap: Record<string, string>
+) {
+  const absoluteURL = new URL(url, currentPageURL || undefined).href
+  const resourceId = resourceMap[absoluteURL]
+  return resourceId ? `${resourceBaseURL}${resourceId}` : absoluteURL
 }
 
 function patchDocumentElement(

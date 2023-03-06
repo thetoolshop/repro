@@ -23,6 +23,7 @@ interface Props {
   trackPointer: boolean
   trackScroll: boolean
   scaling: 'full-width' | 'scale-to-fit'
+  resourceBaseURL?: string
   onDocumentReady?: (doc: Document) => void
   onLoad?: (nodeMap: MutableNodeMap) => void
 }
@@ -33,6 +34,7 @@ export const PlaybackCanvas: React.FC<PropsWithChildren<Props>> = ({
   trackPointer,
   trackScroll,
   scaling,
+  resourceBaseURL,
   onDocumentReady,
   onLoad,
 }) => {
@@ -71,6 +73,7 @@ export const PlaybackCanvas: React.FC<PropsWithChildren<Props>> = ({
         <NativeDOMRenderer
           trackScroll={trackScroll}
           ownerDocument={ownerDocument}
+          resourceBaseURL={resourceBaseURL || undefined}
           onLoad={handleLoad}
         />
       </FrameRealm>

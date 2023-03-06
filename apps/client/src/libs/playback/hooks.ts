@@ -53,3 +53,8 @@ export function useViewport() {
   const snapshot = useSnapshot()
   return snapshot.interaction?.viewport || ZERO_POINT
 }
+
+export function useCurrentPageURL() {
+  const playback = usePlayback()
+  return useAtomValue(playback.$currentPageURL)
+}
