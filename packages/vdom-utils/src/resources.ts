@@ -154,3 +154,18 @@ export function createResourceMap(events: Array<SourceEvent>) {
 
   return resourceMap
 }
+
+export function filterResourceMap(
+  resourceMap: Record<string, string>,
+  resourceIds: Array<string>
+): Record<string, string> {
+  return resourceIds.reduce((filteredResourceMap, resourceId) => {
+    const resource = resourceMap[resourceId]
+
+    if (resource) {
+      filteredResourceMap[resourceId] = resource
+    }
+
+    return filteredResourceMap
+  }, {} as Record<string, string>)
+}

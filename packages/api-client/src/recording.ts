@@ -4,10 +4,10 @@ import {
   SourceEvent,
   SourceEventView,
 } from '@repro/domain'
-import { createResourceMap } from '@repro/vdom-utils'
+import { createResourceMap, filterResourceMap } from '@repro/vdom-utils'
 import { gzipSync } from 'fflate'
 // @ts-ignore
-import { and, chain, FutureInstance, map, parallel } from 'fluture'
+import { and, cache, chain, FutureInstance, map, parallel } from 'fluture'
 import { DataLoader } from './common'
 
 // Resources bigger than 1MiB should either load from origin or be replaced by placeholder (TBD)
@@ -55,10 +55,18 @@ export function createRecordingApi(dataLoader: DataLoader) {
     const resourceMap = createResourceMap(events.map(SourceEventView.decode))
     const resourceEntries = Object.entries(resourceMap)
 
-    const readResources = parallel(6)(
-      resourceEntries.map(([resourceId, url]) =>
-        dataLoader<DataView>(url, {}, 'binary', 'binary').pipe(
-          map(resource => [resourceId, resource] as const)
+    const readResources = cache(
+      parallel(6)(
+        resourceEntries.map(([resourceId, url]) =>
+          dataLoader<DataView>(url, {}, 'binary', 'binary').pipe(
+            map(resource => [resourceId, resource] as const)
+          )
+        )
+      ).pipe(
+        map(resources =>
+          resources.filter(
+            ([_, resource]) => resource.byteLength <= MAX_RESOURCE_SIZE
+          )
         )
       )
     )
@@ -66,29 +74,31 @@ export function createRecordingApi(dataLoader: DataLoader) {
     const saveResources = readResources.pipe(
       chain(resources =>
         parallel(6)(
-          resources
-            .filter(([_, resource]) => resource.byteLength <= MAX_RESOURCE_SIZE)
-            .map(([resourceId, resource]) =>
-              dataLoader<void>(
-                `/recordings/${recordingId}/resources/${resourceId}`,
-                {
-                  method: 'PUT',
-                  body: resource,
-                  headers: { 'Content-Type': 'application/octet-stream' },
-                }
-              )
+          resources.map(([resourceId, resource]) =>
+            dataLoader<void>(
+              `/recordings/${recordingId}/resources/${resourceId}`,
+              {
+                method: 'PUT',
+                body: resource,
+                headers: { 'Content-Type': 'application/octet-stream' },
+              }
             )
+          )
         )
       )
     )
 
-    const saveResourceMap = dataLoader(
-      `/recordings/${recordingId}/resource-map`,
-      {
-        method: 'PUT',
-        body: JSON.stringify(resourceMap),
-      }
-    )
+    const saveResourceMap = readResources
+      .pipe(map(resources => resources.map(([id]) => id)))
+      .pipe(map(resourceIds => filterResourceMap(resourceMap, resourceIds)))
+      .pipe(
+        chain(() =>
+          dataLoader(`/recordings/${recordingId}/resource-map`, {
+            method: 'PUT',
+            body: JSON.stringify(resourceMap),
+          })
+        )
+      )
 
     const serializedData = events
       .map(event => SourceEventView.serialize(event))
