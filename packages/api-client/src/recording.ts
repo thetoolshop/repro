@@ -6,8 +6,16 @@ import {
 } from '@repro/domain'
 import { createResourceMap, filterResourceMap } from '@repro/vdom-utils'
 import { gzipSync } from 'fflate'
-// @ts-ignore
-import { and, cache, chain, FutureInstance, map, parallel } from 'fluture'
+import {
+  and,
+  cache,
+  chain,
+  chainRej,
+  FutureInstance,
+  map,
+  parallel,
+  resolve,
+} from 'fluture'
 import { DataLoader } from './common'
 
 // Resources bigger than 1MiB should either load from origin or be replaced by placeholder (TBD)
@@ -58,15 +66,17 @@ export function createRecordingApi(dataLoader: DataLoader) {
     const readResources = cache(
       parallel(6)(
         resourceEntries.map(([resourceId, url]) =>
-          dataLoader<DataView>(url, {}, 'binary', 'binary').pipe(
-            map(resource => [resourceId, resource] as const)
-          )
+          dataLoader<DataView>(url, {}, 'binary', 'binary')
+            .pipe(map(resource => [resourceId, resource] as const))
+            .pipe(chainRej(() => resolve([resourceId, null] as const)))
         )
       ).pipe(
-        map(resources =>
-          resources.filter(
-            ([_, resource]) => resource.byteLength <= MAX_RESOURCE_SIZE
-          )
+        map(
+          resources =>
+            resources.filter(
+              ([_, resource]) =>
+                resource && resource.byteLength <= MAX_RESOURCE_SIZE
+            ) as Array<[string, DataView]>
         )
       )
     )
@@ -92,10 +102,10 @@ export function createRecordingApi(dataLoader: DataLoader) {
       .pipe(map(resources => resources.map(([id]) => id)))
       .pipe(map(resourceIds => filterResourceMap(resourceMap, resourceIds)))
       .pipe(
-        chain(() =>
+        chain(filteredResourceMap =>
           dataLoader(`/recordings/${recordingId}/resource-map`, {
             method: 'PUT',
-            body: JSON.stringify(resourceMap),
+            body: JSON.stringify(filteredResourceMap),
           })
         )
       )
