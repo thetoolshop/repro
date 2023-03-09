@@ -1,0 +1,8 @@
+# DEPENDENCIES
+**/node_modules
+
+# BUILD
+**/dist
+
+# ENVIRONMENT
+**/.env
