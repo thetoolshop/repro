@@ -14,6 +14,8 @@ RUN pnpm -r run prepare
 
 WORKDIR /project/apps/api-server
 
+ARG DATABASE_URL
+ENV DATABASE_URL=${DATABASE_URL}
 RUN pnpm run migrate up
 
 CMD ["pnpm", "start"]
