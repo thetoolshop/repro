@@ -14,4 +14,6 @@ RUN pnpm -r run prepare
 
 WORKDIR /project/apps/api-server
 
+RUN pnpm run migrate up
+
 CMD ["pnpm", "start"]
