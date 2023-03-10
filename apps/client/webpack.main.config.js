@@ -49,7 +49,6 @@ module.exports = {
 
   plugins: [
     new DotenvPlugin({
-      safe: true,
       systemvars: true,
     }),
   ],
