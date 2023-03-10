@@ -5,7 +5,7 @@
   "password": "${repro-prod-db.PASSWORD}",
   "database": "${repro-prod-db.DATABASE}",
   "ssl": {
-    "rejectUnauthorized": true,
+    "rejectUnauthorized": false,
     "ca": "${repro-prod-db.CA_CERT}"
   }
 }
