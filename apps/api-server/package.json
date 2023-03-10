@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "./scripts/build",
-    "migrate": "node-pg-migrate",
+    "migrate": "ts-eager src/migrate.ts",
     "start": "ts-eager src/index.ts",
     "watch": "nodemon"
   },

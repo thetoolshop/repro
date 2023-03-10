@@ -36,7 +36,16 @@ import { createBillingService } from './services/billing'
 import { serverError } from './utils/errors'
 
 const dbClient = createDatabaseClient({
-  connectionString: env.DATABASE_URL,
+  host: env.DB_HOST,
+  port: env.DB_PORT,
+  user: env.DB_USER,
+  password: env.DB_PASSWORD,
+  ssl: env.DB_USE_SSL
+    ? {
+        rejectUnauthorized: true,
+        ca: env.DB_CA_CERT,
+      }
+    : false,
 })
 
 const emailTransporter = createEmailTransport({

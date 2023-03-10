@@ -16,7 +16,13 @@ const numericStringTransform = z.preprocess(val => {
 const envSchema = z.object({
   PORT: z.string(),
 
-  DATABASE_URL: z.string(),
+  DB_HOST: z.string(),
+  DB_PORT: numericStringTransform,
+  DB_USER: z.string(),
+  DB_PASSWORD: z.string(),
+  DB_DATABASE: z.string(),
+  DB_USE_SSL: z.string(),
+  DB_CA_CERT: z.string().default('').optional(),
 
   EMAIL_FROM_ADDRESS: z.string().email(),
   EMAIL_SMTP_HOST: z.string(),
