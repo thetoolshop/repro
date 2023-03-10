@@ -1,5 +1,5 @@
 FROM node
-RUN yarn global add pnpm@7.18.1
+RUN yarn global add pnpm
 
 WORKDIR /project
 
@@ -13,8 +13,5 @@ RUN pnpm -r install --offline --ignore-scripts
 RUN pnpm -r run prepare 
 
 WORKDIR /project/apps/api-server
-
-ARG DATABASE_URL
-ENV DATABASE_URL=${DATABASE_URL}
 
 CMD ["pnpm", "start"]
