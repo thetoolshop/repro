@@ -14,7 +14,7 @@ const numericStringTransform = z.preprocess(val => {
 }, z.number())
 
 const envSchema = z.object({
-  PORT: z.string(),
+  PORT: z.string().default('8080'),
 
   DB_HOST: z.string(),
   DB_PORT: numericStringTransform,
