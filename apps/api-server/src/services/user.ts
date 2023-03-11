@@ -62,6 +62,14 @@ export function createUserService(
     return userProvider.verifyUser(verificationToken)
   }
 
+  function activateUser(userId: string): FutureInstance<Error, void> {
+    return userProvider.activateUser(userId)
+  }
+
+  function deactivateUser(userId: string): FutureInstance<Error, void> {
+    return userProvider.deactivateUser(userId)
+  }
+
   return {
     createUser,
     getUserById,
@@ -71,6 +79,8 @@ export function createUserService(
     sendPasswordResetEmail,
     sendVerificationEmail,
     verifyUser,
+    activateUser,
+    deactivateUser,
   }
 }
 

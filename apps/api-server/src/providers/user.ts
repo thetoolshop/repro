@@ -45,8 +45,8 @@ export function createUserProvider(
       chain(hash =>
         dbClient.getOne(
           `
-          INSERT INTO users (team_id, name, email, password)
-          VALUES ($1, $2, $3, $4)
+          INSERT INTO users (team_id, name, email, password, active)
+          VALUES ($1, $2, $3, $4, true)
           RETURNING id, name, email
           `,
           [teamId, name, email, hash],
@@ -62,6 +62,7 @@ export function createUserProvider(
       SELECT reset_token
       FROM users
       WHERE email = $1 
+      AND active = true
       AND reset_token IS NOT NULL
       AND reset_token_expires_at > NOW()
       LIMIT 1
@@ -76,7 +77,7 @@ export function createUserProvider(
           `
           UPDATE users
           SET reset_token = $1, reset_token_expires_at = (NOW() + interval '1 hour')
-          WHERE email = $2
+          WHERE email = $2 AND active = true
           RETURNING reset_token
           `,
           [resetToken, email],
@@ -97,7 +98,7 @@ export function createUserProvider(
           `
           UPDATE users
           SET verification_token = $1
-          WHERE email = $2
+          WHERE email = $2 AND active = true
           RETURNING verification_token
           `,
           [verificationToken, email],
@@ -109,7 +110,7 @@ export function createUserProvider(
 
   function getUserById(userId: string): FutureInstance<Error, User> {
     return dbClient.getOne(
-      'SELECT id, name, email FROM users WHERE id = $1::UUID LIMIT 1',
+      'SELECT id, name, email FROM users WHERE id = $1::UUID AND active = true LIMIT 1',
       [userId],
       UserView.validate
     )
@@ -117,7 +118,7 @@ export function createUserProvider(
 
   function getUserByEmail(email: string): FutureInstance<Error, User> {
     return dbClient.getOne(
-      'SELECT id, name, email FROM users WHERE email = $1 LIMIT 1',
+      'SELECT id, name, email FROM users WHERE email = $1 AND active = true LIMIT 1',
       [email],
       UserView.validate
     )
@@ -128,7 +129,7 @@ export function createUserProvider(
     password: string
   ): FutureInstance<Error, User> {
     const result = dbClient.getOne<UserWithPasswordRow>(
-      'SELECT id, name, email, password FROM users WHERE email = $1 LIMIT 1',
+      'SELECT id, name, email, password FROM users WHERE email = $1 AND active = true LIMIT 1',
       [email]
     )
 
@@ -145,7 +146,7 @@ export function createUserProvider(
     resetToken: string
   ): FutureInstance<Error, User> {
     return dbClient.getOne(
-      'SELECT id, name, email FROM users WHERE reset_token = $1 LIMIT 1',
+      'SELECT id, name, email FROM users WHERE reset_token = $1 AND active = true LIMIT 1',
       [resetToken],
       UserView.validate
     )
@@ -162,7 +163,7 @@ export function createUserProvider(
         `
         UPDATE users
         SET password = $1
-        WHERE id = $2
+        WHERE id = $2 AND active = true
         `,
         [hash, userId]
       )
@@ -171,9 +172,22 @@ export function createUserProvider(
 
   function verifyUser(verificationToken: string): FutureInstance<Error, void> {
     return dbClient
-      .query(`UPDATE users SET verified = 1 WHERE verification_token = $1`, [
-        verificationToken,
-      ])
+      .query(
+        `UPDATE users SET verified = 1 WHERE verification_token = $1 AND active = true`,
+        [verificationToken]
+      )
+      .pipe(map(() => undefined))
+  }
+
+  function activateUser(userId: string): FutureInstance<Error, void> {
+    return dbClient
+      .query(`UPDATE users SET active = true WHERE id = $1`, [userId])
+      .pipe(map(() => undefined))
+  }
+
+  function deactivateUser(userId: string): FutureInstance<Error, void> {
+    return dbClient
+      .query(`UPDATE users SET active = false WHERE id = $1`, [userId])
       .pipe(map(() => undefined))
   }
 
@@ -187,6 +201,8 @@ export function createUserProvider(
     getUserByResetToken,
     setPassword,
     verifyUser,
+    activateUser,
+    deactivateUser,
   }
 }
 
