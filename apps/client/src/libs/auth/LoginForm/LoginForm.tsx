@@ -33,6 +33,7 @@ export const LoginForm: React.FC<Props> = ({ onSuccess, onFailure }) => {
   const [errorMessage, setErrorMessage] = useState('')
   const [showResetFlow, setShowResetFlow] = useState(false)
   const [showPostResetMessage, setShowPostResetMessage] = useState(false)
+  const [supportPasswordReset] = useState(false)
   const apiClient = useApiClient()
 
   const { register, formState, handleSubmit } = useForm<FormState>({
@@ -97,7 +98,7 @@ export const LoginForm: React.FC<Props> = ({ onSuccess, onFailure }) => {
           : 'Log in to your Repro account'}
       </Block>
 
-      {showPostResetMessage && (
+      {supportPasswordReset && showPostResetMessage && (
         <Block
           alignSelf="stretch"
           padding={10}
@@ -138,27 +139,27 @@ export const LoginForm: React.FC<Props> = ({ onSuccess, onFailure }) => {
       />
 
       {!showResetFlow && (
-        <Fragment>
-          <Input
-            type="password"
-            placeholder="Password"
-            {...register('password', { required: true })}
-          />
+        <Input
+          type="password"
+          placeholder="Password"
+          {...register('password', { required: true })}
+        />
+      )}
 
-          <Block>
-            <Button
-              variant="text"
-              size="small"
-              onClick={() => {
-                setShowResetFlow(true)
-                setShowPostResetMessage(false)
-                setErrorMessage('')
-              }}
-            >
-              Forgot password?
-            </Button>
-          </Block>
-        </Fragment>
+      {supportPasswordReset && showResetFlow && (
+        <Block>
+          <Button
+            variant="text"
+            size="small"
+            onClick={() => {
+              setShowResetFlow(true)
+              setShowPostResetMessage(false)
+              setErrorMessage('')
+            }}
+          >
+            Forgot password?
+          </Button>
+        </Block>
       )}
 
       <Button
@@ -168,7 +169,7 @@ export const LoginForm: React.FC<Props> = ({ onSuccess, onFailure }) => {
         {showResetFlow ? 'Send Reset Email' : 'Log In'}
       </Button>
 
-      {showResetFlow && (
+      {supportPasswordReset && showResetFlow && (
         <Block alignSelf="center">
           <Button
             variant="text"

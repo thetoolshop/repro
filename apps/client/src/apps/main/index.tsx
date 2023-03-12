@@ -60,10 +60,10 @@ if (rootElem) {
                 <Route element={<AuthLayout />}>
                   <Route path="account/login" element={<LoginRoute />} />
                   <Route path="account/signup" element={<SignUpRoute />} />
-                  <Route
-                    path="account/reset-password"
-                    element={<ResetPasswordRoute />}
-                  />
+                  {/* <Route */}
+                  {/*   path="account/reset-password" */}
+                  {/*   element={<ResetPasswordRoute />} */}
+                  {/* /> */}
                 </Route>
 
                 <Route element={<Layout />}>
