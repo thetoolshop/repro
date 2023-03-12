@@ -1,7 +1,7 @@
 import { Project, RecordingMode, SourceEventView, User } from '@repro/domain'
 import { detect } from 'detect-browser'
 import { fork } from 'fluture'
-import { Block, Col, Grid, Row } from 'jsxstyle'
+import { Block, Col, Grid, InlineBlock, Row } from 'jsxstyle'
 import {
   CheckCircle2 as SuccessIcon,
   Copy as CopyIcon,
@@ -245,6 +245,28 @@ export const ReportWizard: React.FC<Props> = ({ onClose }) => {
                     onSuccess={handleAuthSuccess}
                     onFailure={handleAuthFailure}
                   />
+                  <Row
+                    justifyContent="center"
+                    marginTop={20}
+                    paddingTop={10}
+                    borderTop={`1px solid ${colors.slate['200']}`}
+                  >
+                    <InlineBlock
+                      component="a"
+                      padding={12}
+                      fontSize={12}
+                      textDecoration="none"
+                      color={colors.blue['900']}
+                      hoverBackgroundColor={colors.blue['50']}
+                      borderRadius={3}
+                      props={{
+                        href: `${process.env.REPRO_APP_URL}/account/signup`,
+                        target: '_blank',
+                      }}
+                    >
+                      Not signed up? Create a new account
+                    </InlineBlock>
+                  </Row>
                 </Card>
               </Block>
             </BlockingOverlay>
