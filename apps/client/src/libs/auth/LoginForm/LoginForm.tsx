@@ -81,109 +81,108 @@ export const LoginForm: React.FC<Props> = ({ onSuccess, onFailure }) => {
   }
 
   return (
-    <Col gap={10}>
-      <Block fontSize={15} fontWeight={700} color={colors.blue['700']}>
-        {showResetFlow ? 'Reset Your Password' : 'Log In'}
-      </Block>
-
-      <Block
-        paddingBottom={10}
-        fontSize={13}
-        lineHeight="1.5em"
-        borderBottom={`1px solid ${colors.slate['200']}`}
-        color={colors.slate['500']}
-      >
-        {showResetFlow
-          ? 'Enter your email for password reset instructions'
-          : 'Log in to your Repro account'}
-      </Block>
-
-      {supportPasswordReset && showPostResetMessage && (
-        <Block
-          alignSelf="stretch"
-          padding={10}
-          fontSize={13}
-          lineHeight={1.5}
-          backgroundColor={colors.blue['100']}
-          color={colors.blue['700']}
-          borderRadius={4}
-          borderColor={colors.blue['300']}
-          borderStyle="solid"
-          borderWidth={1}
-        >
-          Please check your email for instructions to reset your password.
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <Col gap={10}>
+        <Block fontSize={15} fontWeight={700} color={colors.blue['700']}>
+          {showResetFlow ? 'Reset Your Password' : 'Log In'}
         </Block>
-      )}
 
-      {errorMessage && (
         <Block
-          alignSelf="stretch"
-          padding={10}
+          paddingBottom={10}
           fontSize={13}
-          lineHeight={1.5}
-          backgroundColor={colors.rose['100']}
-          color={colors.rose['700']}
-          borderRadius={4}
-          borderColor={colors.rose['300']}
-          borderStyle="solid"
-          borderWidth={1}
+          lineHeight="1.5em"
+          borderBottom={`1px solid ${colors.slate['200']}`}
+          color={colors.slate['500']}
         >
-          {errorMessage}
+          {showResetFlow
+            ? 'Enter your email for password reset instructions'
+            : 'Log in to your Repro account'}
         </Block>
-      )}
 
-      <Input
-        autoFocus={true}
-        placeholder="Email"
-        {...register('email', { required: true })}
-      />
+        {supportPasswordReset && showPostResetMessage && (
+          <Block
+            alignSelf="stretch"
+            padding={10}
+            fontSize={13}
+            lineHeight={1.5}
+            backgroundColor={colors.blue['100']}
+            color={colors.blue['700']}
+            borderRadius={4}
+            borderColor={colors.blue['300']}
+            borderStyle="solid"
+            borderWidth={1}
+          >
+            Please check your email for instructions to reset your password.
+          </Block>
+        )}
 
-      {!showResetFlow && (
+        {errorMessage && (
+          <Block
+            alignSelf="stretch"
+            padding={10}
+            fontSize={13}
+            lineHeight={1.5}
+            backgroundColor={colors.rose['100']}
+            color={colors.rose['700']}
+            borderRadius={4}
+            borderColor={colors.rose['300']}
+            borderStyle="solid"
+            borderWidth={1}
+          >
+            {errorMessage}
+          </Block>
+        )}
+
         <Input
-          type="password"
-          placeholder="Password"
-          {...register('password', { required: true })}
+          autoFocus={true}
+          placeholder="Email"
+          {...register('email', { required: true })}
         />
-      )}
 
-      {supportPasswordReset && showResetFlow && (
-        <Block>
-          <Button
-            variant="text"
-            size="small"
-            onClick={() => {
-              setShowResetFlow(true)
-              setShowPostResetMessage(false)
-              setErrorMessage('')
-            }}
-          >
-            Forgot password?
-          </Button>
-        </Block>
-      )}
+        {!showResetFlow && (
+          <Input
+            type="password"
+            placeholder="Password"
+            {...register('password', { required: true })}
+          />
+        )}
 
-      <Button
-        disabled={formState.isSubmitting}
-        onClick={handleSubmit(onSubmit)}
-      >
-        {showResetFlow ? 'Send Reset Email' : 'Log In'}
-      </Button>
+        {supportPasswordReset && showResetFlow && (
+          <Block>
+            <Button
+              variant="text"
+              size="small"
+              onClick={() => {
+                setShowResetFlow(true)
+                setShowPostResetMessage(false)
+                setErrorMessage('')
+              }}
+            >
+              Forgot password?
+            </Button>
+          </Block>
+        )}
 
-      {supportPasswordReset && showResetFlow && (
-        <Block alignSelf="center">
-          <Button
-            variant="text"
-            size="small"
-            onClick={() => {
-              setShowResetFlow(false)
-              setShowPostResetMessage(false)
-              setErrorMessage('')
-            }}
-          >
-            Back to login
-          </Button>
-        </Block>
-      )}
-    </Col>
+        <Button disabled={formState.isSubmitting} type="submit">
+          {showResetFlow ? 'Send Reset Email' : 'Log In'}
+        </Button>
+
+        {supportPasswordReset && showResetFlow && (
+          <Block alignSelf="center">
+            <Button
+              variant="text"
+              size="small"
+              onClick={() => {
+                setShowResetFlow(false)
+                setShowPostResetMessage(false)
+                setErrorMessage('')
+              }}
+            >
+              Back to login
+            </Button>
+          </Block>
+        )}
+      </Col>
+    </form>
   )
 }
