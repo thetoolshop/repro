@@ -17,7 +17,7 @@ import { LoginRoute } from './routes/LoginRoute'
 import { MainRoute } from './routes/MainRoute'
 import { RecordingRoute } from './routes/RecordingRoute'
 import { SignUpRoute } from './routes/SignUpRoute'
-import { ResetPasswordRoute } from './routes/ResetPasswordRoute'
+// import { ResetPasswordRoute } from './routes/ResetPasswordRoute'
 
 import { AuthLayout } from './AuthLayout'
 import { SessionProvider } from '~/libs/auth/Session'
