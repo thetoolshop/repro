@@ -31,14 +31,18 @@ const MainPane: React.FC = React.memo(() => {
 
   useEffect(() => {
     setSelectedNode(selectedNode => {
-      if (selectedNode) {
-        return selectedNode
-      }
+      const vtree = snapshot.dom
 
-      const bodyElement = snapshot.dom ? getBodyVElement(snapshot.dom) : null
+      if (vtree) {
+        if (selectedNode && vNodeExists(vtree, selectedNode)) {
+          return selectedNode
+        }
 
-      if (bodyElement) {
-        return bodyElement.id
+        const bodyElement = vtree ? getBodyVElement(vtree) : null
+
+        if (bodyElement) {
+          return bodyElement.id
+        }
       }
 
       return null
@@ -103,4 +107,8 @@ function getBodyVElement(vtree: VTree): VElement | null {
   }
 
   return bodyNode
+}
+
+function vNodeExists(vtree: VTree, nodeId: string): boolean {
+  return !!vtree.nodes[nodeId]
 }
