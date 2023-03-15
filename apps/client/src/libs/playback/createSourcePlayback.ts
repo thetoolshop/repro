@@ -52,15 +52,11 @@ export function createSourcePlayback(
   const [$playbackState, setPlaybackState, getPlaybackState] = createAtom(
     PlaybackState.Paused
   )
-  const [$currentPageURL, setCurrentPageURL, getCurrentPageURL] =
-    createAtom<string>('')
   const [$snapshot, setSnapshot, getSnapshot] = createAtom<Snapshot>(
     getLeadingSnapshot()
   )
   const [$latestControlFrame, setLatestControlFrame, getLatestControlFrame] =
     createAtom<ControlFrame>(ControlFrame.Idle)
-
-  setInitialPageURL()
 
   const firstEvent = events.at(0)
   const lastEvent = events.at(events.size() - 1)
@@ -106,23 +102,6 @@ export function createSourcePlayback(
     }
 
     return firstEvent.data
-  }
-
-  function setInitialPageURL() {
-    for (const dataView of events.toSource()) {
-      const event = SourceEventView.over(dataView)
-      updateCurrentPageURL(event)
-    }
-  }
-
-  function updateCurrentPageURL(event: SourceEvent) {
-    if (
-      event &&
-      event.type === SourceEventType.Interaction &&
-      event.data.type === InteractionType.PageTransition
-    ) {
-      setCurrentPageURL(event.data.to)
-    }
   }
 
   function partitionEvents(
@@ -239,7 +218,6 @@ export function createSourcePlayback(
         for (const dataView of events.toSource()) {
           const event = SourceEventView.over(dataView)
           applyEventToSnapshot(snapshot, event, elapsed)
-          updateCurrentPageURL(event)
         }
 
         setSnapshot(snapshot)
@@ -318,7 +296,6 @@ export function createSourcePlayback(
       for (const dataView of before.toSource()) {
         const event = SourceEventView.over(dataView)
         applyEventToSnapshot(snapshot, event, targetEvent.time)
-        updateCurrentPageURL(event)
       }
     }
 
@@ -388,7 +365,6 @@ export function createSourcePlayback(
             for (const dataView of before.toSource()) {
               const event = SourceEventView.over(dataView)
               applyEventToSnapshot(snapshot, event, elapsed)
-              updateCurrentPageURL(event)
             }
           }
         }
@@ -421,7 +397,6 @@ export function createSourcePlayback(
     // Read-only atoms
     $activeIndex,
     $buffer,
-    $currentPageURL,
     $elapsed,
     $latestControlFrame,
     $playbackState,
@@ -430,7 +405,6 @@ export function createSourcePlayback(
     // Accessors
     getActiveIndex,
     getBuffer,
-    getCurrentPageURL,
     getDuration,
     getElapsed,
     getEventTimeAtIndex,

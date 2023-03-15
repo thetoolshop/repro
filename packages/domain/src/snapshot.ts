@@ -17,6 +17,7 @@ import { VTreeSchema, VTreeView } from './vdom'
 //   pointerState: PointerState
 //   scroll: ScrollMap
 //   viewport: Point
+//   pageURL: string
 // }
 
 export const InteractionSnapshotSchema = z.object({
@@ -24,6 +25,7 @@ export const InteractionSnapshotSchema = z.object({
   pointerState: PointerStateSchema,
   scroll: ScrollMapSchema,
   viewport: PointSchema,
+  pageURL: z.string(),
 })
 
 export type InteractionSnapshot = z.infer<typeof InteractionSnapshotSchema>
@@ -39,6 +41,7 @@ export const InteractionSnapshotView = createView<
       ['pointerState', UINT8],
       ['scroll', ScrollMapView.descriptor],
       ['viewport', PointView.descriptor],
+      ['pageURL', { type: 'string' }],
     ],
   },
   InteractionSnapshotSchema

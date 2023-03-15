@@ -34,6 +34,7 @@ describe('Event codecs', () => {
             [elementNode.id]: [0, 250],
           },
           viewport: [1200, 800],
+          pageURL: 'http://example.com',
         },
       },
     }

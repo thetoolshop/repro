@@ -86,6 +86,7 @@ export const NativeDOMRenderer: React.FC<Props> = ({
             const snapshot = playback.getSnapshot()
             const pointer = snapshot.interaction?.pointer || OUT_OF_BOUNDS_POINT
             const scrollMap = snapshot.interaction?.scroll || {}
+            const pageURL = snapshot.interaction?.pageURL ?? ''
 
             nodeMap = {}
 
@@ -99,7 +100,7 @@ export const NativeDOMRenderer: React.FC<Props> = ({
                     return createDOMFromVTree(
                       vtree,
                       nodeMap,
-                      playback.getCurrentPageURL(),
+                      pageURL,
                       resourceBaseURL || '',
                       invertedResourceMap
                     )
@@ -170,10 +171,12 @@ export const NativeDOMRenderer: React.FC<Props> = ({
         .subscribe(event => {
           switch (event.type) {
             case SourceEventType.DOMPatch:
+              const snapshot = playback.getSnapshot()
+              const pageURL = snapshot.interaction?.pageURL ?? ''
               applyDOMPatchEvent(
                 event,
                 nodeMap,
-                playback.getCurrentPageURL(),
+                pageURL,
                 resourceBaseURL || '',
                 invertedResourceMap
               )
@@ -712,9 +715,16 @@ function resolveURLToResource(
   resourceBaseURL: string,
   resourceMap: Record<string, string>
 ) {
-  const absoluteURL = new URL(url, currentPageURL || undefined).href
-  const resourceId = resourceMap[absoluteURL]
-  return resourceId ? `${resourceBaseURL}${resourceId}` : absoluteURL
+  try {
+    // If the url is relative and we do not have access to the base URL,
+    // `new URL` will throw. In this case, we just fall back to the URL
+    // contained in the source event.
+    const absoluteURL = new URL(url, currentPageURL || undefined).href
+    const resourceId = resourceMap[absoluteURL]
+    return resourceId ? `${resourceBaseURL}${resourceId}` : absoluteURL
+  } catch {
+    return url
+  }
 }
 
 function patchDocumentElement(

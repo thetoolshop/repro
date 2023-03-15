@@ -24,7 +24,7 @@ export function createResourceMap(events: Array<SourceEvent>) {
   let currentPageURL = ''
 
   function addResource(url: string) {
-    const absoluteURL = new URL(url, currentPageURL).href
+    const absoluteURL = new URL(url, currentPageURL || undefined).href
 
     if (!visitedURLs.has(absoluteURL)) {
       const resourceId = randomString(4)

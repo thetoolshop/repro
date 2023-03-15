@@ -22,8 +22,6 @@ export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
   const [$playbackState, _setPlaybackState, getPlaybackState] = createAtom(
     PlaybackState.Playing
   )
-  const [$currentPageURL, _setCurrentPageURL, getCurrentPageURL] =
-    createAtom('')
   const [$snapshot, setSnapshot, getSnapshot] = createAtom<Snapshot>(
     createEmptySnapshot()
   )
@@ -95,7 +93,6 @@ export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
     // Read-only atoms
     $activeIndex,
     $buffer,
-    $currentPageURL,
     $elapsed,
     $latestControlFrame,
     $playbackState,
@@ -104,7 +101,6 @@ export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
     // Accessors
     getActiveIndex,
     getBuffer,
-    getCurrentPageURL,
     getDuration,
     getElapsed,
     getEventTimeAtIndex,

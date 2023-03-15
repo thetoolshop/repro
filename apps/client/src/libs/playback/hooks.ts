@@ -55,6 +55,6 @@ export function useViewport() {
 }
 
 export function useCurrentPageURL() {
-  const playback = usePlayback()
-  return useAtomValue(playback.$currentPageURL)
+  const snapshot = useSnapshot()
+  return snapshot.interaction?.pageURL
 }

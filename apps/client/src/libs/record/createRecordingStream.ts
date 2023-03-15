@@ -424,6 +424,10 @@ export function createRecordingStream(
           case InteractionType.ViewportResize:
             trailingInteraction.viewport = interaction.to
             break
+
+          case InteractionType.PageTransition:
+            trailingInteraction.pageURL = interaction.to
+            break
         }
 
         addEvent(createInteractionEvent(interaction, transposition))

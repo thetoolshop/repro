@@ -98,6 +98,10 @@ function applyInteractionEventToSnapshot(
         snapshot.interaction.scroll[event.data.target] =
           interpolatePointFromSample(event.data, event.time, elapsed)
         break
+
+      case InteractionType.PageTransition:
+        snapshot.interaction.pageURL = event.data.to
+        break
     }
   }
 }

@@ -17,7 +17,6 @@ export interface Playback {
   // Atoms
   readonly $activeIndex: Atom<number>
   readonly $buffer: Atom<LazyList<SourceEvent>>
-  readonly $currentPageURL: Atom<string>
   readonly $elapsed: Atom<number>
   readonly $latestControlFrame: Atom<ControlFrame>
   readonly $playbackState: Atom<PlaybackState>
@@ -26,7 +25,6 @@ export interface Playback {
   // Accessors
   getActiveIndex(): number
   getBuffer(): LazyList<SourceEvent>
-  getCurrentPageURL(): string
   getDuration(): number
   getElapsed(): number
   getEventTimeAtIndex(index: number): number | null
