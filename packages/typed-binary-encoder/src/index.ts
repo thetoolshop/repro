@@ -797,41 +797,6 @@ export function encodeProperty(
   return view
 }
 
-const BYTES_PREFIX = '__REPRO_BUF:'
-
-function serializeBytes(bytes: Uint8Array): string {
-  let output = ''
-
-  for (const byte of bytes) {
-    output += String.fromCharCode(byte)
-  }
-
-  return BYTES_PREFIX + btoa(output)
-}
-
-function deserializeBytes(input: string): Uint8Array {
-  if (typeof input !== 'string') {
-    throw new TypeError(
-      `Cannot deserialize byte string. Invalid type: (${typeof input})`
-    )
-  }
-
-  if (!input.startsWith(BYTES_PREFIX)) {
-    throw new Error('Invalid byte encoding: missing prefix')
-  }
-
-  const decodedInput = atob(input.slice(BYTES_PREFIX.length))
-  const bytes = new Uint8Array(decodedInput.length)
-  let offset = 0
-
-  for (const char of decodedInput) {
-    bytes[offset] = char.charCodeAt(0)
-    offset += 1
-  }
-
-  return bytes
-}
-
 export interface Lens {
   __repro_IS_VIEW_LENS: true
   __repro_DATAVIEW: DataView
@@ -856,12 +821,6 @@ export interface View<T, D extends AnyDescriptor> {
   over(data: DataView): T & Lens
 
   nullable(): View<T | null, D & { nullable: true }>
-
-  serialize(data: T | (T & Lens)): string
-  deserialize(input: string): T
-
-  toJSON(data: T): string
-  fromJSON(data: string): T
 }
 
 export function createView<T, D extends AnyDescriptor>(
@@ -932,42 +891,6 @@ export function createView<T, D extends AnyDescriptor>(
     return createView({ ...descriptor, nullable: true }, schema.nullable())
   }
 
-  function serialize(data: T | (T & Lens)): string {
-    const view = encode(data)
-    return serializeBytes(
-      new Uint8Array(view.buffer, view.byteOffset, view.byteLength)
-    )
-  }
-
-  function deserialize(input: string): T {
-    const bytes = deserializeBytes(input)
-    const view = new DataView(bytes.buffer)
-    return over(view)
-  }
-
-  function toJSON(data: T): string {
-    return JSON.stringify(data, (_, value) => {
-      if (value instanceof ArrayBuffer) {
-        return serializeBytes(new Uint8Array(value))
-      }
-
-      return value
-    })
-  }
-
-  function fromJSON(data: string): T {
-    return from(
-      JSON.parse(data, (_, value) => {
-        if (typeof value === 'string' && value.startsWith(BYTES_PREFIX)) {
-          const bytes = deserializeBytes(value)
-          return bytes.buffer
-        }
-
-        return value
-      })
-    )
-  }
-
   return {
     // Metadata
     descriptor,
@@ -982,13 +905,5 @@ export function createView<T, D extends AnyDescriptor>(
 
     // Transforms
     nullable,
-
-    // Safe wire encoding
-    serialize,
-    deserialize,
-
-    // Safe JSON encoding
-    toJSON,
-    fromJSON,
   }
 }

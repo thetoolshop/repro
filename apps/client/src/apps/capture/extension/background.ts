@@ -1,6 +1,7 @@
 import { ApiClient, createApiClient } from '@repro/api-client'
 import { SourceEventView } from '@repro/domain'
 import { randomString } from '@repro/random-string'
+import { fromByteString } from '@repro/wire-formats'
 import {
   and,
   attempt,
@@ -91,7 +92,9 @@ agent.subscribeToIntent('upload', (payload: any) => {
     payload.projectId,
     payload.duration,
     payload.mode,
-    payload.events.map(SourceEventView.deserialize),
+    payload.events.map((data: string) =>
+      SourceEventView.over(new DataView(fromByteString(data).buffer))
+    ),
     payload.public,
     payload.context
   ) as FutureInstance<Error, void>

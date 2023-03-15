@@ -1,4 +1,5 @@
-import { Project, RecordingMode, SourceEventView, User } from '@repro/domain'
+import { Project, RecordingMode, User } from '@repro/domain'
+import { toByteString } from '@repro/wire-formats'
 import { detect } from 'detect-browser'
 import { fork } from 'fluture'
 import { Block, Col, Grid, InlineBlock, Row } from 'jsxstyle'
@@ -148,7 +149,9 @@ export const ReportWizard: React.FC<Props> = ({ onClose }) => {
             events: events
               .toSource()
               .map(view =>
-                SourceEventView.serialize(SourceEventView.over(view))
+                toByteString(
+                  new Uint8Array(view.buffer, view.byteOffset, view.byteLength)
+                )
               ),
             public: data.isPublic,
             context: {

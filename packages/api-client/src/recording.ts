@@ -5,6 +5,7 @@ import {
   SourceEventView,
 } from '@repro/domain'
 import { createResourceMap, filterResourceMap } from '@repro/vdom-utils'
+import { fromWireFormat, toWireFormat } from '@repro/wire-formats'
 import { gzipSync } from 'fflate'
 import {
   and,
@@ -110,9 +111,7 @@ export function createRecordingApi(dataLoader: DataLoader) {
         )
       )
 
-    const serializedData = events
-      .map(event => SourceEventView.serialize(event))
-      .join('\n')
+    const serializedData = events.map(toWireFormat).join('\n')
     const buffer = new Uint8Array(serializedData.length)
 
     let i = 0
@@ -147,7 +146,7 @@ export function createRecordingApi(dataLoader: DataLoader) {
 
         for (const line of lines) {
           if (line) {
-            events.push(SourceEventView.deserialize(line))
+            events.push(SourceEventView.from(fromWireFormat(line)))
           }
         }
 

@@ -1,11 +1,12 @@
-import { SourceEventView } from '@repro/domain'
 import { parseSchema } from '@repro/validation'
+import { toJSON, toWireFormat } from '@repro/wire-formats'
 import express from 'express'
 import Future, { alt, chain, map as fMap, node, reject } from 'fluture'
 import fs from 'fs'
 import path from 'path'
 import { map as rxMap } from 'rxjs'
 import { pipeline, Transform } from 'stream'
+import { TextEncoder } from 'util'
 import { createGunzip } from 'zlib'
 import z from 'zod'
 import { AuthMiddleware } from '~/middleware/auth'
@@ -233,9 +234,7 @@ export function createRecordingRouter(
           .pipe(chain(() => recordingService.getRecordingEvents(recordingId)))
           .pipe(
             fMap(sourceEvent$ =>
-              sourceEvent$.pipe(
-                rxMap(event => `${SourceEventView.serialize(event)}\n`)
-              )
+              sourceEvent$.pipe(rxMap(event => `${toWireFormat(event)}\n`))
             )
           )
       )

@@ -1,4 +1,5 @@
 import { Session, SessionView } from '@repro/domain'
+import { fromJSON } from '@repro/wire-formats'
 import { FutureInstance, map } from 'fluture'
 import { QueryResultRow } from 'pg'
 import { DatabaseClient } from './database'
@@ -8,7 +9,7 @@ interface SessionRow extends QueryResultRow {
 }
 
 function toSession(row: SessionRow): Session {
-  return SessionView.fromJSON(row.data)
+  return SessionView.from(fromJSON(row.data))
 }
 
 export function createSessionProvider(dbClient: DatabaseClient) {
