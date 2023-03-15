@@ -1,9 +1,11 @@
 import { ApiClient } from '@repro/api-client'
 import { SourceEvent, SourceEventView } from '@repro/domain'
-import { both, fork } from 'fluture'
+import { both, chainRej, fork, resolve } from 'fluture'
 import { LazyList } from '@repro/std'
 import { createAtom } from '~/utils/state'
 import { ReadyState, Source } from './types'
+
+const EMPTY_RESOURCE_MAP = {}
 
 export function createApiSource(
   recordingId: string,
@@ -14,7 +16,9 @@ export function createApiSource(
   const [$resourceMap, setResourceMap] = createAtom<Record<string, string>>({})
 
   both(apiClient.recording.getRecordingEvents(recordingId))(
-    apiClient.recording.getResourceMap(recordingId)
+    apiClient.recording
+      .getResourceMap(recordingId)
+      .pipe(chainRej(() => resolve(EMPTY_RESOURCE_MAP)))
   ).pipe(
     fork(() => setReadyState('failed'))(([events, resourceMap]) => {
       setEvents(
