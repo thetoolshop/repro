@@ -9,8 +9,7 @@
     "build:declarations": "tsc --project tsconfig-build.json --emitDeclarationOnly",
     "build:source": "./scripts/build",
     "clean": "rimraf dist",
-    "prepare": "npm run build",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "prepare": "npm run build"
   },
   "keywords": [],
   "author": "",
