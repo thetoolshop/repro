@@ -61,6 +61,7 @@ export const RecordingModeView = createView<RecordingMode, IntegerDescriptor>(
 //   browserVersion?: string
 //   operatingSystem?: string
 //   public: bool
+//   codecVersion: string
 // }
 
 export const RecordingMetadataSchema = z.object({
@@ -83,6 +84,7 @@ export const RecordingMetadataSchema = z.object({
   browserVersion: z.string().nullable(),
   operatingSystem: z.string().nullable(),
   public: z.boolean(),
+  codecVersion: z.string(),
 })
 
 export type RecordingMetadata = z.infer<typeof RecordingMetadataSchema>
@@ -109,6 +111,7 @@ export const RecordingMetadataView = createView<
       ['browserVersion', { type: 'string', nullable: true }],
       ['operatingSystem', { type: 'string', nullable: true }],
       ['public', { type: 'bool' }],
+      ['codecVersion', { type: 'string' }],
     ],
   },
   RecordingMetadataSchema

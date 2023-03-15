@@ -1,14 +1,18 @@
 import {
+  CODEC_VERSION,
+  migrate,
+  CodecVersion,
   RecordingMetadata,
   RecordingMetadataView,
   RecordingMode,
   SourceEvent,
-  SourceEventView,
 } from '@repro/domain'
-import { FutureInstance, map as fMap, mapRej } from 'fluture'
+import { fromJSON, fromWireFormat, toJSON } from '@repro/wire-formats'
+import { chain, FutureInstance, map as fMap, mapRej } from 'fluture'
 import { QueryResultRow } from 'pg'
 import { Observable, map as rxMap } from 'rxjs'
 import { Readable, Transform } from 'stream'
+import { TextDecoder } from 'util'
 import { permissionDenied } from '~/utils/errors'
 import { DatabaseClient } from './database'
 
@@ -28,6 +32,7 @@ interface RecordingMetadataRow extends QueryResultRow {
   browser_version: string | null
   operating_system: string | null
   public: boolean
+  codec_version: string
 }
 
 function toRecordingMetadata(row: RecordingMetadataRow): RecordingMetadata {
@@ -47,6 +52,7 @@ function toRecordingMetadata(row: RecordingMetadataRow): RecordingMetadata {
     browserVersion: row.browser_version,
     operatingSystem: row.operating_system,
     public: row.public,
+    codecVersion: row.codec_version,
   })
 }
 
@@ -54,8 +60,13 @@ interface SourceEventRow extends QueryResultRow {
   data: string
 }
 
-function toSourceEvent(row: SourceEventRow): SourceEvent {
-  return SourceEventView.fromJSON(row.data)
+function toSourceEvent(
+  row: SourceEventRow,
+  codecVersion: CodecVersion
+): SourceEvent {
+  const data = fromJSON(row.data)
+  migrate(data, codecVersion, CODEC_VERSION)
+  return data
 }
 
 interface ResourceMapRow extends QueryResultRow {
@@ -87,7 +98,8 @@ export function createRecordingProvider(dbClient: DatabaseClient) {
         r.browser_name,
         r.browser_version,
         r.operating_system,
-        r.public
+        r.public,
+        r.codec_version
       FROM recordings r
       INNER JOIN projects p ON p.id = r.project_id
       INNER JOIN users a ON a.id = r.author_id
@@ -119,8 +131,8 @@ export function createRecordingProvider(dbClient: DatabaseClient) {
         `
         INSERT INTO recordings
           (id, team_id, author_id, project_id, title, url, description, mode, duration,
-            browser_name, browser_version, operating_system, public)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+            browser_name, browser_version, operating_system, public, codec_version)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
         `,
         [
           recordingId,
@@ -136,6 +148,7 @@ export function createRecordingProvider(dbClient: DatabaseClient) {
           browserVersion,
           operatingSystem,
           isPublic,
+          CODEC_VERSION,
         ]
       )
       .pipe(fMap(() => undefined))
@@ -161,7 +174,8 @@ export function createRecordingProvider(dbClient: DatabaseClient) {
         r.browser_name,
         r.browser_version,
         r.operating_system,
-        r.public
+        r.public,
+        r.codec_version
       FROM recordings r
       INNER JOIN projects p ON r.project_id = p.id
       INNER JOIN users a ON r.author_id = a.id
@@ -178,14 +192,10 @@ export function createRecordingProvider(dbClient: DatabaseClient) {
   ): FutureInstance<Error, void> {
     const transform = new Transform({
       transform(data, _, callback) {
-        const event = SourceEventView.deserialize(data.toString())
-
-        const row = [
-          recordingId,
-          event.time,
-          event.type,
-          SourceEventView.toJSON(event),
-        ].join('\x02')
+        const event = fromWireFormat(data.toString())
+        const row = [recordingId, event.time, event.type, toJSON(event)].join(
+          '\x02'
+        )
 
         this.push(`${row}\n`)
 
@@ -203,17 +213,31 @@ export function createRecordingProvider(dbClient: DatabaseClient) {
   function getRecordingEvents(
     recordingId: string
   ): FutureInstance<Error, Observable<SourceEvent>> {
-    const result = dbClient.queryAsStream<SourceEventRow>(
-      `
-      SELECT data
-      FROM recording_events
-      WHERE recording_id = $1
-      ORDER BY id
-      `,
-      [recordingId]
+    const codecVersion = dbClient.getOne(
+      `SELECT codec_version FROM recordings WHERE id = $1`,
+      [recordingId],
+      row => row.codec_version as CodecVersion
     )
 
-    return result.pipe(fMap(row$ => row$.pipe(rxMap(toSourceEvent))))
+    return codecVersion.pipe(
+      chain(codecVersion => {
+        return dbClient
+          .queryAsStream<SourceEventRow>(
+            `
+            SELECT data
+            FROM recording_events
+            WHERE recording_id = $1
+            ORDER BY id
+            `,
+            [recordingId]
+          )
+          .pipe(
+            fMap(row$ =>
+              row$.pipe(rxMap(row => toSourceEvent(row, codecVersion)))
+            )
+          )
+      })
+    )
   }
 
   function saveResourceMap(

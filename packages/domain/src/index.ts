@@ -1,8 +1,12 @@
+import { CodecVersion } from './migrations/types'
+
 // Importing file from outside TypeScript root directory
 // @ts-ignore
 import pkg from '../package.json'
 
-export const CODEC_VERSION = pkg.version
+export const CODEC_VERSION = pkg.version as CodecVersion
+export type { CodecVersion }
+export { migrate } from './migrations'
 
 export * from './billing'
 export * from './common'
