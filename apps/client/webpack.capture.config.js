@@ -1,5 +1,3 @@
-require('dotenv').config()
-
 const DotenvPlugin = require('dotenv-webpack')
 const { ESBuildMinifyPlugin } = require('esbuild-loader')
 const path = require('path')
@@ -51,7 +49,7 @@ module.exports = {
 
   plugins: [
     new DotenvPlugin({
-      path: process.env.BUILD_ENV === 'production' ? './.env.production' : './.env',
+      path: process.env.ENV_FILE || '.env',
       safe: true,
       systemvars: true,
     }),

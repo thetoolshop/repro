@@ -8,6 +8,12 @@ import {
 import { attemptP, chain, FutureInstance, reject, resolve } from 'fluture'
 import { notFound } from './errors'
 
+interface UploadMetadata {
+  ContentType: string
+  ContentLength: number
+  ACL: string
+}
+
 export interface S3Utils {
   readFileAsStream(
     bucket: string,
@@ -17,7 +23,8 @@ export interface S3Utils {
   writeFileFromStream(
     bucket: string,
     key: string,
-    stream: ReadableStream
+    body: ReadableStream,
+    metadata: Partial<UploadMetadata>
   ): FutureInstance<Error, void>
 }
 
@@ -42,14 +49,18 @@ export function createS3Utils(s3Client: S3Client): S3Utils {
   function writeFileFromStream(
     bucket: string,
     key: string,
-    stream: ReadableStream
+    body: ReadableStream,
+    metadata: Partial<UploadMetadata>
   ): FutureInstance<Error, void> {
     return attemptP<Error, PutObjectCommandOutput>(() =>
       s3Client.send(
         new PutObjectCommand({
           Bucket: bucket,
           Key: key,
-          Body: stream,
+          Body: body,
+          ContentType: metadata.ContentType,
+          ContentLength: metadata.ContentLength,
+          ACL: metadata.ACL,
         })
       )
     ).pipe(chain(() => resolve(undefined)))

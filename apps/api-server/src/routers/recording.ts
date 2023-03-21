@@ -176,10 +176,20 @@ export function createRecordingRouter(
         userId
       )
 
+      const ContentType = req.get('Content-Type')
+      const ContentLength = req.get('Content-Length')
+
       const writeResource = s3Utils.writeFileFromStream(
         config.resourcesBucket,
         `${recordingId}/${resourceId}`,
-        req
+        req,
+        {
+          ContentType,
+          ContentLength: ContentLength
+            ? parseInt(ContentLength, 10)
+            : undefined,
+          ACL: 'public-read',
+        }
       )
 
       respondWith(res, checkPermissions.pipe(chain(() => writeResource)))
