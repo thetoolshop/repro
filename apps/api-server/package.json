@@ -4,12 +4,14 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
+    "dev-resources:start": "s3rver -p 9000 -d ./s3_data --no-vhost-buckets --configure-bucket resources",
     "migrate": "ts-eager src/migrate.ts",
     "start": "ts-eager src/index.ts",
     "watch": "nodemon"
   },
   "license": "UNLICENSED",
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.295.0",
     "@repro/domain": "workspace:*",
     "@repro/typed-binary-encoder": "workspace:*",
     "@repro/validation": "workspace:*",
@@ -47,6 +49,7 @@
     "esbuild": "^0.14.49",
     "node-pg-migrate": "^6.2.2",
     "nodemon": "^2.0.19",
+    "s3rver": "^3.7.1",
     "ts-eager": "^2.0.2",
     "tsconfig-paths": "^4.1.0",
     "typescript": "^4.9.4"

@@ -1,3 +1,4 @@
+import { S3 } from '@aws-sdk/client-s3'
 import compression from 'compression'
 import cors from 'cors'
 import express, { ErrorRequestHandler } from 'express'
@@ -34,6 +35,7 @@ import { createPaddleAdapter } from './adapters/paddle'
 import { createBillingInfoRouter } from './routers/billing-info'
 import { createBillingService } from './services/billing'
 import { serverError } from './utils/errors'
+import { createS3Utils } from './utils/s3'
 
 const dbClient = createDatabaseClient({
   host: env.DB_HOST,
@@ -58,11 +60,23 @@ const emailTransporter = createEmailTransport({
   },
 } as SMTPTransport.Options)
 
+const s3Client = new S3({
+  forcePathStyle: true,
+  endpoint: env.AWS_S3_ENDPOINT,
+  region: env.AWS_REGION,
+  credentials: {
+    accessKeyId: env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
+  },
+})
+
 const cryptoUtils = createCryptoUtils()
 const emailUtils = createEmailUtils(emailTransporter, {
   fromEmail: env.EMAIL_FROM_ADDRESS,
   templateDirectory: env.EMAIL_TEMPLATE_DIRECTORY,
 })
+
+const s3Utils = createS3Utils(s3Client)
 
 const paddleAdapter = createPaddleAdapter({
   vendorId: env.PADDLE_VENDOR_ID,
@@ -144,7 +158,8 @@ bootstrap({
       projectService,
       recordingService,
       authMiddleware,
-      { resourcesDataDirecory: env.RECORDING_RESOURCES_DATA_DIRECTORY }
+      s3Utils,
+      { resourcesBucket: env.RESOURCES_BUCKET_NAME }
     ),
   },
 

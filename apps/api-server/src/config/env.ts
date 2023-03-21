@@ -24,6 +24,12 @@ const envSchema = z.object({
   DB_USE_SSL: z.string(),
   DB_CA_CERT: z.string().default('').optional(),
 
+  AWS_S3_ENDPOINT: z.string().default('').optional(),
+  AWS_ACCESS_KEY_ID: z.string(),
+  AWS_SECRET_ACCESS_KEY: z.string(),
+  AWS_REGION: z.string(),
+  RESOURCES_BUCKET_NAME: z.string(),
+
   EMAIL_FROM_ADDRESS: z.string().email(),
   EMAIL_SMTP_HOST: z.string(),
   EMAIL_SMTP_PORT: numericStringTransform,
@@ -38,8 +44,6 @@ const envSchema = z.object({
 
   PADDLE_TEAM_PLAN_MONTHLY: numericStringTransform,
   PADDLE_TEAM_PLAN_ANNUAL: numericStringTransform,
-
-  RECORDING_RESOURCES_DATA_DIRECTORY: z.string(),
 
   DEBUG: z.string().default('').optional(),
 })

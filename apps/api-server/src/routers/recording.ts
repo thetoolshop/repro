@@ -1,28 +1,27 @@
 import { parseSchema } from '@repro/validation'
-import { toJSON, toWireFormat } from '@repro/wire-formats'
+import { toWireFormat } from '@repro/wire-formats'
 import express from 'express'
-import Future, { alt, chain, map as fMap, node, reject } from 'fluture'
-import fs from 'fs'
-import path from 'path'
+import { alt, chain, map as fMap, reject } from 'fluture'
 import { map as rxMap } from 'rxjs'
 import { pipeline, Transform } from 'stream'
-import { TextEncoder } from 'util'
 import { createGunzip } from 'zlib'
 import z from 'zod'
 import { AuthMiddleware } from '~/middleware/auth'
 import { ProjectService } from '~/services/project'
 import { RecordingService } from '~/services/recording'
 import { badRequest, notAuthenticated } from '~/utils/errors'
-import { respondWith, respondWithValue } from '~/utils/response'
+import { respondWith } from '~/utils/response'
+import { S3Utils } from '~/utils/s3'
 
 interface Config {
-  resourcesDataDirecory: string
+  resourcesBucket: string
 }
 
 export function createRecordingRouter(
   projectService: ProjectService,
   recordingService: RecordingService,
   authMiddleware: AuthMiddleware,
+  s3Utils: S3Utils,
   config: Config
 ) {
   const RecordingRouter = express.Router()
@@ -177,33 +176,13 @@ export function createRecordingRouter(
         userId
       )
 
-      const createDirectoryIfNotExists = node<Error, string>(done =>
-        fs.mkdir(
-          path.join(config.resourcesDataDirecory, recordingId),
-          { recursive: true },
-          done
-        )
+      const writeResource = s3Utils.writeFileFromStream(
+        config.resourcesBucket,
+        `${recordingId}/${resourceId}`,
+        req
       )
 
-      const writeResource = Future<Error, void>((reject, resolve) => {
-        req.pipe(
-          fs.createWriteStream(
-            path.join(config.resourcesDataDirecory, recordingId, resourceId)
-          )
-        )
-
-        req.on('error', error => reject(error))
-        req.on('end', () => resolve(undefined))
-
-        return () => {}
-      })
-
-      respondWith(
-        res,
-        checkPermissions
-          .pipe(chain(() => createDirectoryIfNotExists))
-          .pipe(chain(() => writeResource))
-      )
+      respondWith(res, checkPermissions.pipe(chain(() => writeResource)))
     }
   )
 
@@ -287,10 +266,11 @@ export function createRecordingRouter(
     // will be handled differently.
     //
     // Resources are public for MVP
-    respondWithValue(
+    respondWith(
       res,
-      fs.createReadStream(
-        path.join(config.resourcesDataDirecory, recordingId, resourceId)
+      s3Utils.readFileAsStream(
+        config.resourcesBucket,
+        `${recordingId}/${resourceId}`
       )
     )
   })

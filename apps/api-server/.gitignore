@@ -1,5 +1,5 @@
 node_modules
-resources_data
+s3_data
 dist
 keys
 .env
