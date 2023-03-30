@@ -1,5 +1,5 @@
 FROM node
-RUN yarn global add pnpm
+RUN yarn global add pnpm@7.18.1
 
 WORKDIR /project
 
