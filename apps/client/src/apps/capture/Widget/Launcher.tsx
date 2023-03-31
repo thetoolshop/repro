@@ -20,7 +20,7 @@ export const Launcher: React.FC<Props> = ({ onClick }) => {
       backgroundColor={colors.white}
       borderRadius={2}
       boxShadow="0 0 16px rgba(0, 0, 0, 0.15)"
-      height={80}
+      height={84}
       isolation="isolate"
       justifyContent="center"
       transform="translate(20px, -20px)"
@@ -37,13 +37,13 @@ export const Launcher: React.FC<Props> = ({ onClick }) => {
         component="a"
         alignItems="center"
         marginTop={10}
-        gap={2}
+        gap={4}
         color={colors.slate['700']}
         textDecoration="none"
         props={{ href: 'https://repro.dev', target: '_blank' }}
       >
         <Block>Powered by</Block>
-        <Logo size={12} />
+        <Logo size={16} />
       </Row>
     </InlineCol>
   )

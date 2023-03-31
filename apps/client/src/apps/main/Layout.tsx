@@ -43,7 +43,7 @@ export const Layout: React.FC = () => {
       >
         <Row alignItems="center">
           <NavLink to="/">
-            <Logo size={20} inverted={true} />
+            <Logo size={30} inverted={true} />
           </NavLink>
 
           <IfSession>
