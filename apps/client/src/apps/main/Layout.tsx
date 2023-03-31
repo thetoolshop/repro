@@ -42,8 +42,22 @@ export const Layout: React.FC = () => {
         backgroundImage={`linear-gradient(to bottom right, ${colors.blue['900']}, ${colors.blue['700']})`}
       >
         <Row alignItems="center">
-          <NavLink to="/">
-            <Logo size={30} inverted={true} />
+          <NavLink to="/" style={{ textDecoration: 'none' }}>
+            <Row alignItems="center" gap={5}>
+              <Logo size={30} inverted={true} />
+
+              <Block
+                padding={5}
+                backgroundColor={colors.blue['500']}
+                color={colors.white}
+                fontSize={13}
+                fontWeight={700}
+                textTransform="lowercase"
+                borderRadius={4}
+              >
+                Beta
+              </Block>
+            </Row>
           </NavLink>
 
           <IfSession>
