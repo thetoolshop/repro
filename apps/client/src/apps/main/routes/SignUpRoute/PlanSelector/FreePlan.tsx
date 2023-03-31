@@ -18,11 +18,12 @@ export const FreePlan: React.FC<Props> = ({ selected, onSelect }) => (
         fontWeight={700}
         lineHeight={1}
       >
-        Individual Plan
+        Starter Plan
       </Block>
 
-      <Block marginTop={10} color={colors.slate['500']}>
-        Free forever
+      <Block marginTop={10} color={colors.slate['500']} lineHeight={1.25}>
+        Free during beta.
+        <br /> No credit card required.
       </Block>
     </Block>
 
