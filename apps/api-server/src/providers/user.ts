@@ -46,8 +46,8 @@ export function createUserProvider(
         dbClient.getOne(
           `
           INSERT INTO users (team_id, name, email, password, active)
-          VALUES ($1, $2, $3, $4, true)
-          RETURNING id, name, email
+          VALUES ($1, $2, LOWER($3), $4, true)
+          RETURNING id, name, LOWER(email)
           `,
           [teamId, name, email, hash],
           UserView.validate
@@ -61,7 +61,7 @@ export function createUserProvider(
       `
       SELECT reset_token
       FROM users
-      WHERE email = $1 
+      WHERE LOWER(email) = LOWER($1)
       AND active = true
       AND reset_token IS NOT NULL
       AND reset_token_expires_at > NOW()
@@ -77,7 +77,7 @@ export function createUserProvider(
           `
           UPDATE users
           SET reset_token = $1, reset_token_expires_at = (NOW() + interval '1 hour')
-          WHERE email = $2 AND active = true
+          WHERE LOWER(email) = LOWER($2) AND active = true
           RETURNING reset_token
           `,
           [resetToken, email],
@@ -98,7 +98,7 @@ export function createUserProvider(
           `
           UPDATE users
           SET verification_token = $1
-          WHERE email = $2 AND active = true
+          WHERE LOWER(email) = LOWER($2) AND active = true
           RETURNING verification_token
           `,
           [verificationToken, email],
@@ -118,7 +118,7 @@ export function createUserProvider(
 
   function getUserByEmail(email: string): FutureInstance<Error, User> {
     return dbClient.getOne(
-      'SELECT id, name, email FROM users WHERE email = $1 AND active = true LIMIT 1',
+      'SELECT id, name, email FROM users WHERE LOWER(email) = LOWER($1) AND active = true LIMIT 1',
       [email],
       UserView.validate
     )
@@ -129,7 +129,7 @@ export function createUserProvider(
     password: string
   ): FutureInstance<Error, User> {
     const result = dbClient.getOne<UserWithPasswordRow>(
-      'SELECT id, name, email, password FROM users WHERE email = $1 AND active = true LIMIT 1',
+      'SELECT id, name, email, password FROM users WHERE LOWER(email) = LOWER($1) AND active = true LIMIT 1',
       [email]
     )
 
