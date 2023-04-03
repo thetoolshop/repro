@@ -5,16 +5,18 @@ import { colors } from '~/config/theme'
 interface Props {
   fullBleed?: boolean
   height?: CSSProperties['height']
+  padding?: CSSProperties['padding']
 }
 
 export const Card: React.FC<PropsWithChildren<Props>> = ({
   children,
   fullBleed,
+  padding = fullBleed ? 0 : 20,
   height = 'auto',
 }) => (
   <Block
     height={height}
-    padding={fullBleed ? 0 : 20}
+    padding={padding}
     backgroundColor={fullBleed ? 'transparent' : colors.white}
     borderRadius={4}
     boxShadow={`

@@ -7,6 +7,7 @@ type Props = PropsWithChildren<JsxstyleProps<'div'>>
 export const Spin: React.FC<Props> = ({ children, ...props }) => (
   <InlineBlock
     {...props}
+    lineHeight={0}
     animationIterationCount="infinite"
     animationDuration="1s"
     animation={{
