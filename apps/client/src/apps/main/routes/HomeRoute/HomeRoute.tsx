@@ -52,7 +52,7 @@ export const HomeRoute: React.FC = () => {
     return null
   }
 
-  if (recordings.length) {
+  if (recordings.length === 0) {
     return (
       <Card padding={0}>
         <Col
