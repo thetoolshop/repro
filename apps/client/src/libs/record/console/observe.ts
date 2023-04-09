@@ -1,3 +1,4 @@
+import { isErrorLike, serializeError } from 'serialize-error'
 import StackTrace, { StackTraceOptions } from 'stacktrace-js'
 import {
   ConsoleMessage,
@@ -37,6 +38,18 @@ export function createConsoleObserver(
     }))
   }
 
+  function safeSerialize(value: any) {
+    try {
+      if (isErrorLike(value)) {
+        value = serializeError(value)
+      }
+
+      return JSON.stringify(value)
+    } catch {
+      return value.toString()
+    }
+  }
+
   function catchError(this: Window, ev: ErrorEvent) {
     ;(async function () {
       subscriber({
@@ -44,7 +57,7 @@ export function createConsoleObserver(
         parts: [
           {
             type: MessagePartType.String,
-            value: ev.message,
+            value: safeSerialize(ev.message),
           },
         ],
         stack: await getStackEntries(ev.error),
@@ -59,7 +72,11 @@ export function createConsoleObserver(
         parts: [
           {
             type: MessagePartType.String,
-            value: ev.reason.toString(),
+            value: 'Uncaught (in promise)',
+          },
+          {
+            type: MessagePartType.String,
+            value: safeSerialize(ev.reason),
           },
         ],
         stack: await getStackEntries(),
@@ -105,17 +122,9 @@ export function createConsoleObserver(
                 }
               }
 
-              let serializedValue: string
-
-              try {
-                serializedValue = JSON.stringify(value)
-              } catch {
-                serializedValue = value.toString()
-              }
-
               return {
                 type: MessagePartType.String,
-                value: serializedValue,
+                value: safeSerialize(value),
               }
             }),
             stack: await getStackEntries(),

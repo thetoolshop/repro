@@ -1,11 +1,18 @@
 import { MessagePart, MessagePartType } from '@repro/domain'
 import React from 'react'
+import { isErrorLike, deserializeError } from 'serialize-error'
 import { JSONView } from '~/components/JSONView'
 import { VNodeRenderer } from './VNodeRenderer'
 
 function safeParse(value: string) {
   try {
-    return JSON.parse(value)
+    value = JSON.parse(value)
+
+    if (isErrorLike(value)) {
+      return deserializeError(value)
+    }
+
+    return value
   } catch {
     return value
   }
