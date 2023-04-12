@@ -45,5 +45,5 @@ jobs:
       - name: Publish to cloud storage
         uses: google-github-actions/upload-cloud-storage@v1
         with:
-          path: /apps/client/dist/main
+          path: apps/client/dist/main
           destination: repro-workspace-builds/branch/main
