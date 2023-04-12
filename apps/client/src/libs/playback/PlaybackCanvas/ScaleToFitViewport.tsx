@@ -7,7 +7,7 @@ import React, {
   useRef,
   useState,
 } from 'react'
-import { colors } from '~/config/theme'
+import { colors } from '@repro/design'
 import { useViewport } from '~/libs/playback'
 import { Point } from '@repro/domain'
 

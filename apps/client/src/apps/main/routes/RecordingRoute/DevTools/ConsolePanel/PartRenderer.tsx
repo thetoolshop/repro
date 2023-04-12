@@ -1,7 +1,7 @@
+import { JSONView } from '@repro/design'
 import { MessagePart, MessagePartType } from '@repro/domain'
 import React from 'react'
 import { isErrorLike, deserializeError } from 'serialize-error'
-import { JSONView } from '~/components/JSONView'
 import { VNodeRenderer } from './VNodeRenderer'
 
 function safeParse(value: string) {

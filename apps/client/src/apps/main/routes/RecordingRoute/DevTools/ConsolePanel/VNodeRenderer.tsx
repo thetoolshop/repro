@@ -1,6 +1,6 @@
+import { DocTypeR, DocumentR, ElementR, TextR } from '@repro/design'
 import { VNode } from '@repro/domain'
 import React from 'react'
-import { DocTypeR, DocumentR, ElementR, TextR } from '~/components/DOM'
 import {
   isDocTypeVNode,
   isDocumentVNode,

@@ -7,7 +7,7 @@ import { Block, Col, Grid, InlineRow, Row } from 'jsxstyle'
 import { Camera as CameraIcon, Video as VideoIcon } from 'lucide-react'
 import React, { Fragment, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { colors } from '~/config/theme'
+import { colors } from '@repro/design'
 import { formatDate, formatTime } from '~/utils/date'
 
 interface Props {

@@ -1,8 +1,8 @@
+import { useParams } from 'react-router-dom'
+import { Card } from '@repro/design'
 import { RecordingMetadata } from '@repro/domain'
 import { Block, Grid } from 'jsxstyle'
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { Card } from '~/components/Card'
 import { useApiClient } from '~/libs/api'
 import {
   createApiSource,

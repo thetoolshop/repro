@@ -5,7 +5,7 @@ import {
   Globe as NetworkIcon,
   AlertTriangle as ConsoleIcon,
 } from 'lucide-react'
-import { colors } from '~/config/theme'
+import { colors } from '@repro/design'
 import { View } from '../../types'
 import { useView } from '../../hooks'
 

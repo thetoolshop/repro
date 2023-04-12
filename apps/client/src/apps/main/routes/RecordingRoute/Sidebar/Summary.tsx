@@ -1,9 +1,7 @@
+import { Drawer, colors } from '@repro/design'
 import { RecordingMetadata } from '@repro/domain'
 import { Block, InlineBlock } from 'jsxstyle'
 import React, { Fragment, useState } from 'react'
-import { Drawer } from '~/components/Drawer'
-import { Modal } from '~/components/Modal'
-import { colors } from '~/config/theme'
 import { formatDate } from '~/utils/date'
 
 interface Props {

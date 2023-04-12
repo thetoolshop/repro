@@ -6,7 +6,7 @@ import {
   History as ReplayIcon,
   Video as VideoIcon,
 } from 'lucide-react'
-import { colors } from '~/config/theme'
+import { colors } from '@repro/design'
 import { RecordingMode } from '@repro/domain'
 import { useReadyState, useRecordingMode } from '../hooks'
 import { ReadyState } from '../types'

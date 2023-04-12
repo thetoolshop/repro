@@ -9,7 +9,7 @@ import {
   take,
   takeUntil,
 } from 'rxjs/operators'
-import { colors } from '~/config/theme'
+import { colors } from '@repro/design'
 import { Analytics } from '~/libs/analytics'
 import { formatTime } from '~/utils/date'
 import { usePlayback } from '../hooks'

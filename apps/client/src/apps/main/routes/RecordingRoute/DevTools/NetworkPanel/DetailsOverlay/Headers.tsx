@@ -1,8 +1,7 @@
+import { DefinitionList, colors } from '@repro/design'
 import { getReasonPhrase } from 'http-status-codes'
 import { Block, Grid, Row } from 'jsxstyle'
 import React from 'react'
-import { DefinitionList } from '~/components/DefinitionList'
-import { colors } from '~/config/theme'
 import { FetchGroup } from '../types'
 
 interface Props {
@@ -31,7 +30,12 @@ function getStatusValue(status: number | undefined) {
   }
 
   const statusIndicator = (
-    <Block width={10} height={10} borderRadius="99rem" backgroundColor={indicatorColor} />
+    <Block
+      width={10}
+      height={10}
+      borderRadius="99rem"
+      backgroundColor={indicatorColor}
+    />
   )
 
   try {
@@ -60,7 +64,11 @@ export const Headers: React.FC<Props> = ({ group }) => {
     : null
 
   return (
-    <Grid gridTemplateColumns="max-content 1fr" fontSize={13} overflowX="hidden">
+    <Grid
+      gridTemplateColumns="max-content 1fr"
+      fontSize={13}
+      overflowX="hidden"
+    >
       <DefinitionList title="General" pairs={generalHeaders} />
 
       <DefinitionList title="Request" pairs={requestHeaders} />

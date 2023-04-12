@@ -1,7 +1,7 @@
 import { Block } from 'jsxstyle'
 import React, { useEffect, useState } from 'react'
 import { Subscription } from 'rxjs'
-import { colors } from '~/config/theme'
+import { colors } from '@repro/design'
 import { usePlayback } from '~/libs/playback'
 
 interface Props {

@@ -1,6 +1,6 @@
+import { Input } from '@repro/design'
 import React from 'react'
 import { useForm } from 'react-hook-form'
-import { Input } from '~/components/Input'
 
 interface Props {
   value: string

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Avatar } from '~/components/Avatar'
+import { Avatar } from '@repro/design'
 import { useApiClient } from '~/libs/api'
 import { useFuture } from '~/utils/future'
 

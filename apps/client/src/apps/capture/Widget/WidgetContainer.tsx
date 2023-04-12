@@ -1,7 +1,6 @@
+import { Logo, colors } from '@repro/design'
 import { Block, InlineBlock, Row } from 'jsxstyle'
 import React, { PropsWithChildren } from 'react'
-import { Logo } from '~/components/Logo'
-import { colors } from '~/config/theme'
 import { useActive } from '../hooks'
 
 interface Props {

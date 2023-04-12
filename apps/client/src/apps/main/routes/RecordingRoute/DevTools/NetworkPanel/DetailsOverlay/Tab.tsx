@@ -1,6 +1,6 @@
 import { Block } from 'jsxstyle'
 import React from 'react'
-import { colors } from '~/config/theme'
+import { colors } from '@repro/design'
 
 interface Props {
   active: boolean

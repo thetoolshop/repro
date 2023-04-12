@@ -1,7 +1,7 @@
 import { SourceEvent } from '@repro/domain'
 import { Block, Row } from 'jsxstyle'
 import React, { PropsWithChildren } from 'react'
-import { colors } from '~/config/theme'
+import { colors } from '@repro/design'
 import { usePlayback } from '~/libs/playback'
 import { formatTime } from '~/utils/date'
 

@@ -1,6 +1,6 @@
 import { Block, InlineBlock } from 'jsxstyle'
 import React, { useEffect, useState } from 'react'
-import { colors } from '~/config/theme'
+import { colors } from '@repro/design'
 import { useElapsed, useLatestControlFrame } from '~/libs/playback'
 import {
   CSSPropertyMap,

@@ -2,7 +2,7 @@ import { LogLevel } from '@repro/domain'
 import { Block, Row } from 'jsxstyle'
 import { CheckCircle, Circle } from 'lucide-react'
 import React, { PropsWithChildren } from 'react'
-import { colors } from '~/config/theme'
+import { colors } from '@repro/design'
 import { enumToBitField } from './util'
 
 interface Props {

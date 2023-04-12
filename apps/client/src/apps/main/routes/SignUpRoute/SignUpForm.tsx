@@ -1,13 +1,10 @@
+import { Button, Input, Label, colors } from '@repro/design'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Block, Col } from 'jsxstyle'
 import { Rocket as SubmitIcon } from 'lucide-react'
 import React from 'react'
 import { useForm } from 'react-hook-form'
 import z from 'zod'
-import { Button } from '~/components/Button'
-import { Input } from '~/components/Input'
-import { Label } from '~/components/Label'
-import { colors } from '~/config/theme'
 
 const formSchema = z
   .object({

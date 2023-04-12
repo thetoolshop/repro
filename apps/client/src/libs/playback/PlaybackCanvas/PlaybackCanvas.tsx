@@ -1,3 +1,4 @@
+import { FrameRealm, FX, colors } from '@repro/design'
 import { Block, Row } from 'jsxstyle'
 import React, {
   MutableRefObject,
@@ -8,9 +9,6 @@ import React, {
   useState,
 } from 'react'
 import { Loader as LoaderIcon } from 'lucide-react'
-import { FrameRealm } from '~/components/FrameRealm'
-import * as FX from '~/components/FX'
-import { colors } from '~/config/theme'
 import { InteractionMask } from './InteractionMask'
 import { NativeDOMRenderer } from './NativeDOMRenderer'
 import { PointerOverlay } from './PointerOverlay'

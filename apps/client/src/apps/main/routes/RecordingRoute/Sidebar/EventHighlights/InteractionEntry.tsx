@@ -1,3 +1,4 @@
+import { ElementR, colors } from '@repro/design'
 import { Click, InteractionEvent, InteractionType } from '@repro/domain'
 import { Block, Row } from 'jsxstyle'
 import {
@@ -6,8 +7,6 @@ import {
   Scaling as ViewportResizeIcon,
 } from 'lucide-react'
 import React from 'react'
-import { ElementR } from '~/components/DOM'
-import { colors } from '~/config/theme'
 import { useSelectedNode, useView } from '../../hooks'
 import { View } from '../../types'
 import { BaseEntry } from './BaseEntry'
@@ -25,6 +24,7 @@ const icons = {
   [InteractionType.PointerUp]: null,
   [InteractionType.PointerDown]: null,
   [InteractionType.PointerMove]: null,
+  [InteractionType.PageTransition]: null,
 
   [InteractionType.ViewportResize]: (
     <ViewportResizeIcon size={16} color={colors.blue['500']} />

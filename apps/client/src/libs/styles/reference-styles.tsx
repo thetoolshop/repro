@@ -1,3 +1,4 @@
+import { FrameRealm } from '@repro/design'
 import React, {
   MutableRefObject,
   PropsWithChildren,
@@ -5,7 +6,6 @@ import React, {
   useContext,
   useRef,
 } from 'react'
-import { FrameRealm } from '~/components/FrameRealm'
 import { CSSPropertyMap, createCSSPropertyMap } from './utils'
 
 const ReferenceStyleContext = React.createContext<

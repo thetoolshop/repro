@@ -1,4 +1,4 @@
-import { colors } from '~/config/theme'
+import { colors } from '@repro/design'
 import { isIFrameElement } from '~/utils/dom'
 import { Block } from 'jsxstyle'
 import React, { MutableRefObject, useEffect, useRef, useState } from 'react'

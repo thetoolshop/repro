@@ -1,7 +1,7 @@
 import { Block, Grid } from 'jsxstyle'
 import { Check as CheckIcon } from 'lucide-react'
 import React from 'react'
-import { colors } from '~/config/theme'
+import { colors } from '@repro/design'
 import { OptionBase } from './OptionBase'
 
 interface Props {

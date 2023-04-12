@@ -1,7 +1,6 @@
+import { ElementTree, colors } from '@repro/design'
 import { Block, Grid } from 'jsxstyle'
 import React, { PropsWithChildren, useEffect, useState } from 'react'
-import { ElementTree } from '~/components/ElementTree'
-import { colors } from '~/config/theme'
 import { useSnapshot } from '~/libs/playback'
 import { VElement, VTree } from '@repro/domain'
 import { isDocumentVNode, isElementVNode } from '@repro/vdom-utils'

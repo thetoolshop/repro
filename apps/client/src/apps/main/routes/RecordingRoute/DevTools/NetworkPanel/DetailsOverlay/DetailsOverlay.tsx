@@ -1,7 +1,7 @@
 import React, { Fragment, useState } from 'react'
 import { Block, Grid, Row } from 'jsxstyle'
 import { X as CloseIcon } from 'lucide-react'
-import { colors } from '~/config/theme'
+import { colors } from '@repro/design'
 import { FetchGroup, WebSocketGroup } from '../types'
 import { Headers } from './Headers'
 import { Messages } from './Messages'

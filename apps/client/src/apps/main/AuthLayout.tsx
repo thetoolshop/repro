@@ -1,8 +1,7 @@
+import { Logo, colors } from '@repro/design'
 import { Block, Col, Grid, Row } from 'jsxstyle'
 import React from 'react'
 import { Outlet } from 'react-router'
-import { Logo } from '~/components/Logo'
-import { colors } from '~/config/theme'
 
 export const AuthLayout: React.FC = () => (
   <Grid

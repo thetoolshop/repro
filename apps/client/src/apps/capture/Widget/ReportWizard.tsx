@@ -1,3 +1,4 @@
+import { Button, Card, FX, ToggleGroup, colors } from '@repro/design'
 import { Project, RecordingMode, User } from '@repro/domain'
 import { toByteString } from '@repro/wire-formats'
 import { detect } from 'detect-browser'
@@ -11,11 +12,6 @@ import {
   XCircle as ErrorIcon,
 } from 'lucide-react'
 import React, { PropsWithChildren, useEffect, useState } from 'react'
-import { Button } from '~/components/Button'
-import { Card } from '~/components/Card'
-import * as FX from '~/components/FX'
-import { ToggleGroup } from '~/components/ToggleGroup'
-import { colors } from '~/config/theme'
 import { Analytics } from '~/libs/analytics'
 import { useApiClient } from '~/libs/api'
 import { LoginForm } from '~/libs/auth'

@@ -1,7 +1,7 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { createPortalRoot } from '~/components/Portal'
+import { createPortalRoot } from '@repro/design'
 import { applyResetStyles } from '~/config/theme'
 import { Analytics } from '~/libs/analytics'
 import { ApiProvider } from '~/libs/api'

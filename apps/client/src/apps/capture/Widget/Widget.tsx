@@ -2,7 +2,7 @@ import { done } from 'fluture'
 import { Block, InlineBlock } from 'jsxstyle'
 import React, { Fragment, useEffect } from 'react'
 import { RecordingMode } from '@repro/domain'
-import { colors } from '~/config/theme'
+import { colors } from '@repro/design'
 import {
   useActive,
   useCurrentUser,

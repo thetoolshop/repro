@@ -1,7 +1,6 @@
+import { Cursor, colors } from '@repro/design'
 import { Block } from 'jsxstyle'
 import React from 'react'
-import { Cursor } from '~/components/Cursor'
-import { colors } from '~/config/theme'
 import { usePointer, usePointerState } from '~/libs/playback'
 import { PointerState } from '@repro/domain'
 

@@ -1,4 +1,4 @@
-import { colors } from './colors'
+import { colors } from '@repro/design'
 
 function createResetRules(rootSelector: string) {
   return [

@@ -1,7 +1,7 @@
 import { Block, Grid } from 'jsxstyle'
 import React, { PropsWithChildren, useEffect } from 'react'
 import { useParams } from 'react-router'
-import { colors } from '~/config/theme'
+import { colors } from '@repro/design'
 import { PlaybackCanvas } from '~/libs/playback'
 import { MAX_INT32 } from '../constants'
 import {

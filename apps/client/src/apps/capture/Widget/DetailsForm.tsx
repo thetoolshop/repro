@@ -1,11 +1,8 @@
+import { Button, Input, Label, colors } from '@repro/design'
 import { Block, Col, Row } from 'jsxstyle'
 import { Eye as PublicVisibilityIcon } from 'lucide-react'
 import React, { PropsWithChildren } from 'react'
 import { useForm } from 'react-hook-form'
-import { Button } from '~/components/Button'
-import { Input } from '~/components/Input'
-import { Label } from '~/components/Label'
-import { colors } from '~/config/theme'
 
 enum Visibility {
   Public,

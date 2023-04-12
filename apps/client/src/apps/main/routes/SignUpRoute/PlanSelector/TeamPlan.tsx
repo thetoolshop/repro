@@ -1,8 +1,7 @@
+import { Button, colors } from '@repro/design'
 import { Block, Col, Grid, InlineBlock, Row } from 'jsxstyle'
 import { Check as CheckIcon } from 'lucide-react'
 import React from 'react'
-import { Button } from '~/components/Button'
-import { colors } from '~/config/theme'
 import { OptionBase } from './OptionBase'
 
 interface Props {

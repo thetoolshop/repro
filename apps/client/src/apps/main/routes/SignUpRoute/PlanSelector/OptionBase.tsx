@@ -1,7 +1,7 @@
 import { Col, Row } from 'jsxstyle'
 import { Check as SelectedIcon } from 'lucide-react'
 import React, { PropsWithChildren } from 'react'
-import { colors } from '~/config/theme'
+import { colors } from '@repro/design'
 
 interface Props {
   selected: boolean

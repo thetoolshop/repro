@@ -1,14 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Button, Input, colors } from '@repro/design'
 import { User } from '@repro/domain'
 import { isValidationError } from '@repro/validation'
 import { and, fork } from 'fluture'
 import { Block, Col } from 'jsxstyle'
-import React, { Fragment, useState } from 'react'
+import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import z from 'zod'
-import { Button } from '~/components/Button'
-import { Input } from '~/components/Input'
-import { colors } from '~/config/theme'
 import { useApiClient } from '~/libs/api'
 
 interface Props {

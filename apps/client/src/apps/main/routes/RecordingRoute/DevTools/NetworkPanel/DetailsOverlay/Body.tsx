@@ -1,6 +1,6 @@
+import { JSONView } from '@repro/design'
 import { Block } from 'jsxstyle'
 import React, { PropsWithChildren } from 'react'
-import { JSONView } from '~/components/JSONView'
 
 interface Props {
   body: ArrayBuffer
