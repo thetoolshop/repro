@@ -14,3 +14,14 @@ jobs:
       - uses: asdf-vm/actions/install@v2
       - name: Install dependencies and prepare packages
         run: pnpm install
+      - name: Build workspace client
+        run: pnpm run --filter "@repro/client" build:main
+        env:
+          BUILD_ENV: production
+          PADDLE_VENDOR_ID: ${{ secrets.PADDLE_VENDOR_ID }}
+          MIXPANEL_API_URL: https://api-eu.mixpanel.com
+          MIXPANEL_TOKEN: ${{ secrets.MIXPANEL_TOKEN }}
+          REPRO_APP_URL: https://app.repro.dev
+          REPRO_API_URL: https://api.repro.dev
+          AUTH_STORAGE: local-storage
+          STATS_LEVEL: error
