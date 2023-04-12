@@ -9,11 +9,21 @@ on:
 jobs:
   build:
     runs-on: ubuntu-20.04
+    
+    permissions:
+      contents: read
+      id-token: write
+
     steps:
-      - uses: actions/checkout@v3
-      - uses: asdf-vm/actions/install@v2
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup toolchain
+        uses: asdf-vm/actions/install@v2
+
       - name: Install dependencies and prepare packages
         run: pnpm install
+
       - name: Build workspace client
         run: pnpm run --filter "@repro/client" build:main
         env:
@@ -25,3 +35,15 @@ jobs:
           REPRO_API_URL: https://api.repro.dev
           AUTH_STORAGE: local-storage
           STATS_LEVEL: error
+
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          service_account: ${{ secrets.GOOGLE_SERVICE_ACCOUNT }}
+          credentials_json: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
+
+      - name: Publish to cloud storage
+        uses: google-github-actions/upload-cloud-storage@v1
+        with:
+          path: /apps/client/dist/main
+          destination: repro-workspace-builds/branch/main
