@@ -28,7 +28,10 @@ RUN pnpm fetch
 
 COPY . .
 
+ENV NODE_ENV=development
 RUN pnpm -r install --offline --ignore-scripts
+
+ENV NODE_ENV=production
 RUN pnpm -r run prepare
 
 WORKDIR /project/apps/client
