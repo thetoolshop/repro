@@ -42,8 +42,12 @@ jobs:
           service_account: ${{ secrets.GOOGLE_SERVICE_ACCOUNT }}
           credentials_json: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
 
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+
       - name: Publish to cloud storage
-        uses: google-github-actions/upload-cloud-storage@v1
-        with:
-          path: apps/client/dist/main
-          destination: repro-workspace-builds/branch/main
+        run: |
+          gsutil -m \
+            -h "Cache-Control: no-cache" \
+            rsync -d -r apps/client/dist/main \
+            gs://repro-workspace-builds/branch/main
