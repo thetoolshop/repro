@@ -2,6 +2,7 @@ require('dotenv').config()
 
 const DotenvPlugin = require('dotenv-webpack')
 const { ESBuildMinifyPlugin } = require('esbuild-loader')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 const path = require('path')
 
 module.exports = {
@@ -50,6 +51,12 @@ module.exports = {
   plugins: [
     new DotenvPlugin({
       systemvars: true,
+    }),
+
+    new HtmlWebpackPlugin({
+      template: path.resolve(__dirname, 'src/apps/main/templates/index.html'),
+      base: process.env.REPRO_APP_URL,
+      hash: true,
     }),
   ],
 
