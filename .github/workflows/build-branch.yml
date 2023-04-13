@@ -1,10 +1,7 @@
 name: Branch build & deploy
 run-name: Branch build started by @${{ github.actor }} 
 
-on:
-  push:
-    branches:
-      - main
+on: push
 
 jobs:
   build:
@@ -17,6 +14,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Set variables
+        id: vars
+        run: |
+          echo "::set-output name=branch::$(git branch --show-current | sed 's/\//_/g')"
 
       - name: Setup toolchain
         uses: asdf-vm/actions/install@v2
@@ -31,7 +33,7 @@ jobs:
           PADDLE_VENDOR_ID: ${{ secrets.PADDLE_VENDOR_ID }}
           MIXPANEL_API_URL: https://api-eu.mixpanel.com
           MIXPANEL_TOKEN: ${{ secrets.MIXPANEL_TOKEN }}
-          REPRO_APP_URL: https://app-preview.repro.dev/branch/main
+          REPRO_APP_URL: https://app-preview.repro.dev/branch/${{ steps.vars.outputs.branch }}
           REPRO_API_URL: https://api.repro.dev
           AUTH_STORAGE: local-storage
           STATS_LEVEL: error
@@ -50,4 +52,4 @@ jobs:
           gsutil -m \
             -h "Cache-Control: no-cache" \
             rsync -d -r apps/client/dist/main \
-            gs://repro-workspace-builds/branch/main
+            gs://repro-workspace-builds/branch/${{ steps.vars.outputs.branch }}
