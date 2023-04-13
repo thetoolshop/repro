@@ -50,11 +50,16 @@ createPortalRoot()
 
 if (rootElem) {
   const root = createRoot(rootElem)
+
+  const basename = process.env.REPRO_APP_URL
+    ? new URL(process.env.REPRO_APP_URL).pathname
+    : undefined
+
   root.render(
     <ApiProvider>
       <BillingProvider>
         <SessionProvider>
-          <BrowserRouter>
+          <BrowserRouter basename={basename}>
             <Routes>
               <Route path="/" element={<MainRoute />}>
                 <Route element={<AuthLayout />}>

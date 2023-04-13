@@ -31,7 +31,7 @@ jobs:
           PADDLE_VENDOR_ID: ${{ secrets.PADDLE_VENDOR_ID }}
           MIXPANEL_API_URL: https://api-eu.mixpanel.com
           MIXPANEL_TOKEN: ${{ secrets.MIXPANEL_TOKEN }}
-          REPRO_APP_URL: https://app.repro.dev
+          REPRO_APP_URL: https://app-preview.repro.dev/branch/main
           REPRO_API_URL: https://api.repro.dev
           AUTH_STORAGE: local-storage
           STATS_LEVEL: error
