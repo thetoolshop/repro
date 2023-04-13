@@ -5,6 +5,12 @@ const { ESBuildMinifyPlugin } = require('esbuild-loader')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const path = require('path')
 
+let baseURL = process.env.REPRO_APP_URL || '/'
+
+if (!baseURL.endsWith('/')) {
+  baseURL += '/'
+}
+
 module.exports = {
   mode: process.env.BUILD_ENV === 'production'
     ? 'production'
@@ -55,7 +61,7 @@ module.exports = {
 
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, 'src/apps/main/templates/index.html'),
-      base: process.env.REPRO_APP_URL,
+      base: baseURL,
       hash: true,
     }),
   ],
