@@ -1,5 +1,5 @@
 name: API server build & deploy
-run-name: API server build started by @{{ github.actor }}
+run-name: API server build started by @${{ github.actor }}
 
 on:
   push:
@@ -52,4 +52,4 @@ jobs:
           push: true
           tags: |
             us-docker.pkg.dev/repro-383518/repro/api-server:${{ github.sha }}
-            us-docker.pkg.dev/repro-383518/repro/api-server:${{ steps.vars.outputs.branch }}}
+            us-docker.pkg.dev/repro-383518/repro/api-server:${{ steps.vars.outputs.branch }}
