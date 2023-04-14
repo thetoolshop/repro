@@ -1,0 +1,55 @@
+name: API server build & deploy
+run-name: API server build started by @{{ github.actor }}
+
+on:
+  push:
+    paths:
+      - apps/api-server/**
+      - packages/**
+      - .github/workflows/api-server-build.yml
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set variables
+        id: vars
+        run: |
+          echo "::set-output name=branch::$(git branch --show-current | sed 's/\//_/g')"
+
+      - name: Setup toolchain
+        uses: asdf-vm/actions/install@v2
+
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          service_account: ${{ secrets.GOOGLE_SERVICE_ACCOUNT }}
+          credentials_json: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
+
+      - name: Login to Artifact Registry
+        uses: docker/login-action@v1
+        with:
+          registry: us-docker.pkg.dev
+          username: _json_key
+          password: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Tag Docker image and push to Google Artifact Registry
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: apps/api-server/Dockerfile
+          push: true
+          tags: |
+            us-docker.pkg.dev/repro-383518/repro/api-server:${{ github.sha }}
+            us-docker.pkg.dev/repro-383518/repro/api-server:${{ steps.vars.outputs.branch }}}
