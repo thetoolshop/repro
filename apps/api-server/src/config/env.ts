@@ -22,7 +22,6 @@ const envSchema = z.object({
   DB_PASSWORD: z.string(),
   DB_DATABASE: z.string(),
   DB_USE_SSL: z.string(),
-  DB_CA_CERT: z.string().default('').optional(),
 
   AWS_S3_ENDPOINT: z.string().default('').optional(),
   AWS_ACCESS_KEY_ID: z.string(),

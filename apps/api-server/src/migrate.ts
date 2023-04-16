@@ -9,12 +9,7 @@ const dbClient = new pg.Client({
   user: env.DB_USER,
   password: env.DB_PASSWORD,
   database: env.DB_DATABASE,
-  ssl: env.DB_USE_SSL
-    ? {
-        rejectUnauthorized: true,
-        ca: env.DB_CA_CERT,
-      }
-    : false,
+  ssl: env.DB_USE_SSL ? true : false,
 })
 
 async function main() {
