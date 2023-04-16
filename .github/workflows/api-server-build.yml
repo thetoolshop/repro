@@ -62,7 +62,6 @@ jobs:
           image: us-docker.pkg.dev/repro-383518/repro/api-server:${{ github.sha }}
           env_vars: |
             NODE_ENV=production
-            PORT=8080
             DB_HOST=${{ secrets.PROD_DB_HOST }}
             DB_PORT=${{ secrets.PROD_DB_PORT }}
             DB_USER=${{ secrets.PROD_DB_USER }}
