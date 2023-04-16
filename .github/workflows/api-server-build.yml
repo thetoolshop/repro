@@ -60,6 +60,8 @@ jobs:
         with:
           service: production-api
           image: us-docker.pkg.dev/repro-383518/repro/api-server:${{ github.sha }}
+          region: us-east1
+          flags: '--min-instances=1 --allow-unauthenticated'
           env_vars: |
             NODE_ENV=production
             DB_HOST=${{ secrets.PROD_DB_HOST }}
