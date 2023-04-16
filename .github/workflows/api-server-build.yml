@@ -53,3 +53,37 @@ jobs:
           tags: |
             us-docker.pkg.dev/repro-383518/repro/api-server:${{ github.sha }}
             us-docker.pkg.dev/repro-383518/repro/api-server:${{ steps.vars.outputs.branch }}
+
+      - name: Deploy production build to Cloud Run
+        if: steps.vars.outputs.branch == "main"
+        uses: google-github-actions/deploy-cloudrun@v1
+        with:
+          service: production-api
+          image: us-docker.pkg.dev/repro-383518/repro/api-server:${{ github.sha }}
+          env_vars:
+            NODE_ENV: production
+            PORT: 8080
+            DB_HOST: ${{ secrets.PROD_DB_HOST }}
+            DB_PORT: ${{ secrets.PROD_DB_PORT }}
+            DB_USER: ${{ secrets.PROD_DB_USER }}
+            DB_PASSWORD: ${{ secrets.PROD_DB_PASSWORD }}
+            DB_DATABASE: ${{ secrets.PROD_DB_DATABASE }}
+            DB_USE_SSL: true
+            DB_CA_CERT: ${{ secrets.PROD_DB_CA_CERT }}
+            AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
+            AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            AWS_REGION: ${{ secrets.AWS_REGION }}
+            RESOURCES_BUCKET_NAME: ${{ secrets.RESOURCES_BUCKET_NAME }}
+            EMAIL_FROM_ADDRESS: noreply@repro.dev
+            EMAIL_SMTP_HOST: localhost
+            EMAIL_SMTP_PORT: 1025
+            EMAIL_SMTP_USE_CREDENTIALS: true
+            EMAIL_SMTP_USER: 
+            EMAIL_SMTP_PASS:
+            EMAIL_TEMPLATE_DIRECTORY: templates/email
+            PADDLE_VENDOR_ID: 0
+            PADDLE_API_KEY:
+            PADDLE_SANDBOX: true
+            PADDLE_TEAM_PLAN_MONTHLY: 0
+            PADDLE_TEAM_PLAN_ANNUAL: 0
