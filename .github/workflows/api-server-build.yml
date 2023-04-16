@@ -79,11 +79,11 @@ jobs:
             EMAIL_SMTP_HOST=localhost
             EMAIL_SMTP_PORT=1025
             EMAIL_SMTP_USE_CREDENTIALS=true
-            EMAIL_SMTP_USER= 
-            EMAIL_SMTP_PASS=
+            EMAIL_SMTP_USER='' 
+            EMAIL_SMTP_PASS=''
             EMAIL_TEMPLATE_DIRECTORY=templates/email
             PADDLE_VENDOR_ID=0
-            PADDLE_API_KEY=
+            PADDLE_API_KEY=''
             PADDLE_SANDBOX=true
             PADDLE_TEAM_PLAN_MONTHLY=0
             PADDLE_TEAM_PLAN_ANNUAL=0
