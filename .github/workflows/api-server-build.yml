@@ -55,7 +55,7 @@ jobs:
             us-docker.pkg.dev/repro-383518/repro/api-server:${{ steps.vars.outputs.branch }}
 
       - name: Deploy production build to Cloud Run
-        if: ${{ steps.vars.outputs.branch == "main" }}
+        if: steps.vars.outputs.branch == 'main'
         uses: google-github-actions/deploy-cloudrun@v1
         with:
           service: production-api
