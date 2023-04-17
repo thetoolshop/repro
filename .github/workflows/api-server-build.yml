@@ -2,6 +2,7 @@ name: API server build & deploy
 run-name: API server build started by @${{ github.actor }}
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - apps/api-server/**
