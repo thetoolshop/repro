@@ -69,7 +69,7 @@ jobs:
           service_account: ${{ secrets.GOOGLE_SERVICE_ACCOUNT }}
           credentials_json: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
 
-      - name: Migrate production DB_DATABASE
+      - name: Migrate production database
         run: |
           gcloud run jobs create production-database-migration \
             --image us-docker.pkg.dev/repro-383518/repro/api-server:${{ github.sha }} \
