@@ -9,13 +9,13 @@ on:
       - packages/**
       - .github/workflows/api-server-build.yml
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   build:
     runs-on: ubuntu-20.04
-
-    permissions:
-      contents: read
-      id-token: write
 
     steps:
       - name: Checkout repository
@@ -55,40 +55,44 @@ jobs:
             us-docker.pkg.dev/repro-383518/repro/api-server:${{ github.sha }}
             us-docker.pkg.dev/repro-383518/repro/api-server:${{ steps.vars.outputs.branch }}
 
+  deploy:
+    runs-on: ubuntu-20.04
+
+    if: github.ref == 'refs/heads/main'
+
+    steps:
       - name: Migrate production DB_DATABASE
-        if: steps.vars.outputs.branch == 'main'
         run: |
           gcloud run jobs create production-database-migration \
             --image us-docker.pkg.dev/repro-383518/repro/api-server:${{ github.sha }} \
             --command "pnpm migrate" \
             --execute-now \
             --set-env-vars \
-              NODE_ENV=production,\
-              DB_HOST=${{ secrets.PROD_DB_HOST }},\
-              DB_PORT=${{ secrets.PROD_DB_PORT }},\
-              DB_USER=${{ secrets.PROD_DB_USER }},\
-              DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }},\
-              DB_USE_SSL=true,\
-              AWS_S3_ENDPOINT=${{ secrets.AWS_S3_ENDPOINT }},\
-              AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }},\
-              AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }},\
-              AWS_REGION=${{ secrets.AWS_REGION }},\
-              RESOURCES_BUCKET_NAME=${{ secrets.RESOURCES_BUCKET_NAME }},\
-              EMAIL_FROM_ADDRESS=noreply@repro.dev,\
-              EMAIL_SMTP_HOST=localhost,\
-              EMAIL_SMTP_PORT=1025,\
-              EMAIL_SMTP_USE_CREDENTIALS=true,\
-              EMAIL_SMTP_USER=0,\
-              EMAIL_SMTP_PASS=0,\
-              EMAIL_TEMPLATE_DIRECTORY=templates/email,\
-              PADDLE_VENDOR_ID=0,\
-              PADDLE_API_KEY=0,\
-              PADDLE_SANDBOX=true,\
-              PADDLE_TEAM_PLAN_MONTHLY=0,\
-              PADDLE_TEAM_PLAN_ANNUAL=0
+              NODE_ENV="production",\
+              DB_HOST="${{ secrets.PROD_DB_HOST }}",\
+              DB_PORT="${{ secrets.PROD_DB_PORT }}",\
+              DB_USER="${{ secrets.PROD_DB_USER }}",\
+              DB_PASSWORD="${{ secrets.PROD_DB_PASSWORD }}",\
+              DB_USE_SSL="true",\
+              AWS_S3_ENDPOINT="${{ secrets.AWS_S3_ENDPOINT }}",\
+              AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}",\
+              AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}",\
+              AWS_REGION="${{ secrets.AWS_REGION }}",\
+              RESOURCES_BUCKET_NAME="${{ secrets.RESOURCES_BUCKET_NAME }}",\
+              EMAIL_FROM_ADDRESS="noreply@repro.dev",\
+              EMAIL_SMTP_HOST="localhost",\
+              EMAIL_SMTP_PORT="1025",\
+              EMAIL_SMTP_USE_CREDENTIALS="true",\
+              EMAIL_SMTP_USER="0",\
+              EMAIL_SMTP_PASS="0",\
+              EMAIL_TEMPLATE_DIRECTORY="templates/email",\
+              PADDLE_VENDOR_ID="0",\
+              PADDLE_API_KEY="0",\
+              PADDLE_SANDBOX="true",\
+              PADDLE_TEAM_PLAN_MONTHLY="0",\
+              PADDLE_TEAM_PLAN_ANNUAL="0"
 
       - name: Deploy production build to Cloud Run
-        if: steps.vars.outputs.branch == 'main'
         uses: google-github-actions/deploy-cloudrun@v1
         with:
           service: production-api
