@@ -71,7 +71,7 @@ jobs:
 
       - name: Migrate production database
         run: |
-          gcloud run jobs create production-database-migration \
+          gcloud beta run jobs deploy production-database-migration \
             --image us-docker.pkg.dev/repro-383518/repro/api-server:${{ github.sha }} \
             --region us-east1 \
             --command "pnpm migrate" \
