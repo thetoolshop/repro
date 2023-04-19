@@ -56,9 +56,11 @@ jobs:
             us-docker.pkg.dev/repro-383518/repro/api-server:${{ steps.vars.outputs.branch }}
 
   deploy:
-    runs-on: ubuntu-20.04
+    needs: build
 
     if: github.ref == 'refs/heads/main'
+
+    runs-on: ubuntu-20.04
 
     steps:
       - name: Migrate production DB_DATABASE
@@ -67,30 +69,29 @@ jobs:
             --image us-docker.pkg.dev/repro-383518/repro/api-server:${{ github.sha }} \
             --command "pnpm migrate" \
             --execute-now \
-            --set-env-vars \
-              NODE_ENV="production",\
-              DB_HOST="${{ secrets.PROD_DB_HOST }}",\
-              DB_PORT="${{ secrets.PROD_DB_PORT }}",\
-              DB_USER="${{ secrets.PROD_DB_USER }}",\
-              DB_PASSWORD="${{ secrets.PROD_DB_PASSWORD }}",\
-              DB_USE_SSL="true",\
-              AWS_S3_ENDPOINT="${{ secrets.AWS_S3_ENDPOINT }}",\
-              AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}",\
-              AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}",\
-              AWS_REGION="${{ secrets.AWS_REGION }}",\
-              RESOURCES_BUCKET_NAME="${{ secrets.RESOURCES_BUCKET_NAME }}",\
-              EMAIL_FROM_ADDRESS="noreply@repro.dev",\
-              EMAIL_SMTP_HOST="localhost",\
-              EMAIL_SMTP_PORT="1025",\
-              EMAIL_SMTP_USE_CREDENTIALS="true",\
-              EMAIL_SMTP_USER="0",\
-              EMAIL_SMTP_PASS="0",\
-              EMAIL_TEMPLATE_DIRECTORY="templates/email",\
-              PADDLE_VENDOR_ID="0",\
-              PADDLE_API_KEY="0",\
-              PADDLE_SANDBOX="true",\
-              PADDLE_TEAM_PLAN_MONTHLY="0",\
-              PADDLE_TEAM_PLAN_ANNUAL="0"
+            --set-env-vars NODE_ENV="production" \
+            --set-env-vars DB_HOST="${{ secrets.PROD_DB_HOST }}" \
+            --set-env-vars DB_PORT="${{ secrets.PROD_DB_PORT }}" \
+            --set-env-vars DB_USER="${{ secrets.PROD_DB_USER }}"\
+            --set-env-vars DB_PASSWORD="${{ secrets.PROD_DB_PASSWORD }}" \
+            --set-env-vars DB_USE_SSL="true" \
+            --set-env-vars AWS_S3_ENDPOINT="${{ secrets.AWS_S3_ENDPOINT }}" \
+            --set-env-vars AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
+            --set-env-vars AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
+            --set-env-vars AWS_REGION="${{ secrets.AWS_REGION }}" \
+            --set-env-vars RESOURCES_BUCKET_NAME="${{ secrets.RESOURCES_BUCKET_NAME }}" \
+            --set-env-vars EMAIL_FROM_ADDRESS="noreply@repro.dev" \
+            --set-env-vars EMAIL_SMTP_HOST="localhost" \
+            --set-env-vars EMAIL_SMTP_PORT="1025" \
+            --set-env-vars EMAIL_SMTP_USE_CREDENTIALS="true" \
+            --set-env-vars EMAIL_SMTP_USER="0" \
+            --set-env-vars EMAIL_SMTP_PASS="0" \
+            --set-env-vars EMAIL_TEMPLATE_DIRECTORY="templates/email" \
+            --set-env-vars PADDLE_VENDOR_ID="0" \
+            --set-env-vars PADDLE_API_KEY="0" \
+            --set-env-vars PADDLE_SANDBOX="true" \
+            --set-env-vars PADDLE_TEAM_PLAN_MONTHLY="0" \
+            --set-env-vars PADDLE_TEAM_PLAN_ANNUAL="0"
 
       - name: Deploy production build to Cloud Run
         uses: google-github-actions/deploy-cloudrun@v1
