@@ -6,6 +6,7 @@ on:
     paths:
       - apps/client/**
       - packages/**
+      - .github/workflows/workspace-branch-build.yml
 
 jobs:
   build:
@@ -19,16 +20,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set variables
-        id: vars
-        run: |
-          echo "::set-output name=branch::$(git branch --show-current | sed 's/\//_/g')"
-
       - name: Load NX build cache
         uses: actions/cache@v3
         with:
           path: ${{ github.workspace }}/.nx-cache
           key: nx-build-cache
+
+      - name: Set variables
+        id: vars
+        run: |
+          echo "::set-output name=branch::$(git branch --show-current | sed 's/\//_/g')"
 
       - name: Setup toolchain
         uses: asdf-vm/actions/install@v2
