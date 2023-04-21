@@ -28,15 +28,8 @@ RUN pnpm fetch
 
 COPY . .
 
-ENV NODE_ENV=development
 RUN pnpm -r install --offline --ignore-scripts
-
-ENV NODE_ENV=production
-RUN pnpm -r run prepare
-
-WORKDIR /project/apps/client
-
-RUN pnpm run build:main
+RUN pnpm nx @repro/client:build:main
 
 FROM caddy:2.6.4-alpine
 COPY ./apps/client/Caddyfile /etc/caddy/Caddyfile

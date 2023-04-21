@@ -31,7 +31,7 @@ jobs:
         run: pnpm install
 
       - name: Build workspace client
-        run: pnpm run --filter "@repro/client" build:main
+        run: pnpm nx run @repro/client:build:main
         env:
           BUILD_ENV: production
           PADDLE_VENDOR_ID: ${{ secrets.PADDLE_VENDOR_ID }}

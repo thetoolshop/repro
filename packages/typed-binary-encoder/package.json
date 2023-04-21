@@ -8,7 +8,6 @@
     "build": "concurrently npm:build:source npm:build:declarations",
     "build:declarations": "tsc --emitDeclarationOnly",
     "build:source": "esbuild src/index.ts --outdir=dist --platform=node --format=cjs",
-    "prepare": "npm run build",
     "test": "jest"
   },
   "repository": {
