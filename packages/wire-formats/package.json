@@ -8,7 +8,6 @@
     "build:declarations": "tsc --project tsconfig-build.json --emitDeclarationOnly",
     "build:source": "./scripts/build",
     "clean": "rimraf dist",
-    "prepare": "npm run build",
     "test": "jest"
   },
   "license": "UNLICENSED",

@@ -6,6 +6,7 @@ on:
     paths:
       - apps/client/**
       - packages/**
+      - .github/workflows/workspace-branch-build.yml
 
 jobs:
   build:
@@ -19,6 +20,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Load NX build cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ github.workspace }}/.nx-cache
+          key: nx-build-cache
+
       - name: Set variables
         id: vars
         run: |
@@ -31,7 +38,7 @@ jobs:
         run: pnpm install
 
       - name: Build workspace client
-        run: pnpm run --filter "@repro/client" build:main
+        run: pnpm nx run @repro/client:build:main
         env:
           BUILD_ENV: production
           PADDLE_VENDOR_ID: ${{ secrets.PADDLE_VENDOR_ID }}
