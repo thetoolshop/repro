@@ -24,6 +24,12 @@ jobs:
         run: |
           echo "::set-output name=branch::$(git branch --show-current | sed 's/\//_/g')"
 
+      - name: Load NX build cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ github.workspace }}/.nx-cache
+          key: nx-build-cache
+
       - name: Setup toolchain
         uses: asdf-vm/actions/install@v2
 
