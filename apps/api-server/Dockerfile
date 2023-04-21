@@ -5,7 +5,7 @@ WORKDIR /project
 
 COPY . .
 RUN pnpm install
-RUN pnpm nx @repro/api-server:build
+RUN pnpm nx run @repro/api-server:build
 
 WORKDIR /project/apps/api-server
 
