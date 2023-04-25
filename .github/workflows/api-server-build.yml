@@ -64,7 +64,7 @@ jobs:
   migrate:
     needs: build
 
-    if: github.ref == 'refs/head/main'
+    if: github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-20.04
 
