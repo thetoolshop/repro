@@ -91,6 +91,7 @@ jobs:
           DB_PORT: ${{ secrets.PROD_DB_PORT }}
           DB_USER: ${{ secrets.PROD_DB_USER }}
           DB_PASSWORD: ${{ secrets.PROD_DB_PASSWORD }}
+          DB_DATABASE: ${{ secrets.PROD_DB_DATABASE }}
           DB_USE_SSL: true
 
   deploy:
