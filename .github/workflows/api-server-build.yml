@@ -61,8 +61,40 @@ jobs:
             us-docker.pkg.dev/repro-383518/repro/api-server:${{ github.sha }}
             us-docker.pkg.dev/repro-383518/repro/api-server:${{ steps.vars.outputs.branch }}
 
-  deploy:
+  migrate:
     needs: build
+
+    if: github.ref == 'refs/head/main'
+
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Load NX build cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ github.workspace }}/.nx-cache
+          key: nx-build-cache
+
+      - name: Setup toolchain
+        uses: asdf-vm/actions/install@v2
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run database migration
+        run: pnpm nx run @repro/api-server:migrate
+        env:
+          DB_HOST: ${{ secrets.PROD_DB_HOST }}
+          DB_PORT: ${{ secrets.PROD_DB_PORT }}
+          DB_USER: ${{ secrets.PROD_DB_USER }}
+          DB_PASSWORD: ${{ secrets.PROD_DB_PASSWORD }}
+          DB_USE_SSL: true
+
+  deploy:
+    needs: migrate
 
     if: github.ref == 'refs/heads/main'
 
@@ -74,37 +106,6 @@ jobs:
         with:
           service_account: ${{ secrets.GOOGLE_SERVICE_ACCOUNT }}
           credentials_json: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
-
-      - name: Migrate production database
-        run: |
-          gcloud beta run jobs deploy production-database-migration \
-            --image us-docker.pkg.dev/repro-383518/repro/api-server:${{ github.sha }} \
-            --region us-east1 \
-            --command "pnpm migrate" \
-            --execute-now \
-            --set-env-vars NODE_ENV="production" \
-            --set-env-vars DB_HOST="${{ secrets.PROD_DB_HOST }}" \
-            --set-env-vars DB_PORT="${{ secrets.PROD_DB_PORT }}" \
-            --set-env-vars DB_USER="${{ secrets.PROD_DB_USER }}"\
-            --set-env-vars DB_PASSWORD="${{ secrets.PROD_DB_PASSWORD }}" \
-            --set-env-vars DB_USE_SSL="true" \
-            --set-env-vars AWS_S3_ENDPOINT="${{ secrets.AWS_S3_ENDPOINT }}" \
-            --set-env-vars AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
-            --set-env-vars AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
-            --set-env-vars AWS_REGION="${{ secrets.AWS_REGION }}" \
-            --set-env-vars RESOURCES_BUCKET_NAME="${{ secrets.RESOURCES_BUCKET_NAME }}" \
-            --set-env-vars EMAIL_FROM_ADDRESS="noreply@repro.dev" \
-            --set-env-vars EMAIL_SMTP_HOST="localhost" \
-            --set-env-vars EMAIL_SMTP_PORT="1025" \
-            --set-env-vars EMAIL_SMTP_USE_CREDENTIALS="true" \
-            --set-env-vars EMAIL_SMTP_USER="0" \
-            --set-env-vars EMAIL_SMTP_PASS="0" \
-            --set-env-vars EMAIL_TEMPLATE_DIRECTORY="templates/email" \
-            --set-env-vars PADDLE_VENDOR_ID="0" \
-            --set-env-vars PADDLE_API_KEY="0" \
-            --set-env-vars PADDLE_SANDBOX="true" \
-            --set-env-vars PADDLE_TEAM_PLAN_MONTHLY="0" \
-            --set-env-vars PADDLE_TEAM_PLAN_ANNUAL="0"
 
       - name: Deploy production build to Cloud Run
         uses: google-github-actions/deploy-cloudrun@v1

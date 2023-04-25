@@ -1,7 +1,7 @@
 import path from 'path'
 import pg from 'pg'
 import runner from 'node-pg-migrate'
-import { env } from '~/config/env'
+import { env } from '~/config/env-db-only'
 
 const dbClient = new pg.Client({
   host: env.DB_HOST,
