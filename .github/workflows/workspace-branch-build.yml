@@ -29,7 +29,7 @@ jobs:
       - name: Set variables
         id: vars
         run: |
-          echo "::set-output name=branch::$(git branch --show-current | sed 's/\//_/g')"
+          echo "branch=$(git branch --show-current | sed 's/\//_/g')" >> "$GITHUB_OUTPUT"
 
       - name: Setup toolchain
         uses: asdf-vm/actions/install@v2
