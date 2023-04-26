@@ -3,7 +3,7 @@ name: PR (close) - teardown
 on:
   pull_request:
     types:
-      - close
+      - closed
     branches:
       - main
 

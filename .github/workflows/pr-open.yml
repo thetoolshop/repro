@@ -3,8 +3,8 @@ name: PR (open) - full build & deploy
 on:
   pull_request:
     types:
-      - open
-      - reopen
+      - opened
+      - reopened
     branches:
       - main
 
