@@ -1,14 +1,16 @@
-name: Workspace production build & deploy
-run-name: Workspace production build started by @${{ github.actor }} 
+name: PR (sync) - workspace build & deploy
+run-name: [pr-sync, workspace] workflow started by @${{ github.actor }} 
 
 on:
-  push:
+  pull_request:
+    types:
+      - synchronize
     branches:
       - main
     paths:
       - apps/client/**
       - packages/**
-      - .github/workflows/workspace-prod-build.yml
+      - .github/workflows/pr-sync-workspace.yml
 
 jobs:
   build:
@@ -41,8 +43,8 @@ jobs:
           PADDLE_VENDOR_ID: ${{ secrets.PADDLE_VENDOR_ID }}
           MIXPANEL_API_URL: https://api-eu.mixpanel.com
           MIXPANEL_TOKEN: ${{ secrets.MIXPANEL_TOKEN }}
-          REPRO_APP_URL: https://app.repro.dev
-          REPRO_API_URL: https://api.repro.dev
+          REPRO_APP_URL: https://app-preview.repro.dev/pull/${{ github.event.number }}
+          REPRO_API_URL: https://api-preview.repro.dev/pull/${{ github.event.number }}
           AUTH_STORAGE: local-storage
           STATS_LEVEL: error
 
@@ -60,4 +62,4 @@ jobs:
           gsutil -m \
             -h "Cache-Control: no-cache" \
             rsync -d -r apps/client/dist/main \
-            gs://repro-workspace-builds/production
+            gs://repro-workspace-builds/pull/${{ github.event.number }}

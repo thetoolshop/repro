@@ -1,13 +1,14 @@
-name: API server build & deploy
-run-name: API server build started by @${{ github.actor }}
+name: Production - API server build & deploy
+run-name: [Production, api-server] workflow started by @${{ github.actor }}
 
 on:
-  workflow_dispatch:
   push:
+    branches:
+      - main
     paths:
       - apps/api-server/**
       - packages/**
-      - .github/workflows/api-server-build.yml
+      - .github/workflows/prod-api-server.yml
 
 permissions:
   contents: read

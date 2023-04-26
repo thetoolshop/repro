@@ -1,0 +1,38 @@
+name: PR (close) - teardown
+run-name: [pr-close] workflow started by @${{ github.actor }}
+
+on:
+  pull_request:
+    types:
+      - close
+    branches:
+      - main
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  teardown-api-server:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          service_account: ${{ secrets.GOOGLE_SERVICE_ACCOUNT }}
+          credentials_json: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
+
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+
+      - name: Destroy API server
+        run: |
+          gcloud run services delete pull-${{ github.event.number }}-api
+
+      - name: Destroy database branch
+        uses: neondatabase/delete-branch-by-name-action@main
+        with:
+          project_id: ${{ secrets.NEON_PROJECT_ID }}
+          branch_name: pull-${{ github.event.number }}
+          api_key: ${{ secrets.NEON_API_KEY }}
