@@ -1,5 +1,4 @@
 name: PR (sync) - workspace build & deploy
-run-name: [pr-sync, workspace] workflow started by @${{ github.actor }} 
 
 on:
   pull_request:

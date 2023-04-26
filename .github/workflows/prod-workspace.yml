@@ -1,5 +1,4 @@
 name: Production - workspace build & deploy
-run-name: [production, workspace] workflow started by @${{ github.actor }} 
 
 on:
   push:

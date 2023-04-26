@@ -1,5 +1,4 @@
 name: PR (sync) - API server build & deploy
-run-name: [pr-sync, api-server] workflow started by @${{ github.actor }}
 
 on:
   pull_request:

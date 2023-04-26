@@ -1,5 +1,4 @@
 name: PR (close) - teardown
-run-name: [pr-close] workflow started by @${{ github.actor }}
 
 on:
   pull_request:

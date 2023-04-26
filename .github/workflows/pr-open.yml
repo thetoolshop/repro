@@ -1,5 +1,4 @@
 name: PR (open) - full build & deploy
-run-name: [pr-open] workflow started by @${{ github.actor }} 
 
 on:
   pull_request:

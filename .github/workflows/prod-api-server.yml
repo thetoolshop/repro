@@ -1,5 +1,4 @@
 name: Production - API server build & deploy
-run-name: [Production, api-server] workflow started by @${{ github.actor }}
 
 on:
   push:
