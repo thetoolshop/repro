@@ -61,60 +61,60 @@ jobs:
             us-docker.pkg.dev/repro-383518/repro/api-server:${{ github.sha }}
             us-docker.pkg.dev/repro-383518/repro/api-server:pull-${{ github.event.number }}
 
-    deploy-api-server:
-      needs: build-api-server
+  deploy-api-server:
+    needs: build-api-server
 
-      runs-on: ubuntu-20.04
+    runs-on: ubuntu-20.04
 
-      steps:
-        - name: Create database branch
-          id: database
-          uses: neondatabase/create-branch-action@main
-          with:
-            project_id: ${{ secrets.NEON_PROJECT_ID }}
-            parent_branch_id: ${{ secrets.NEON_MAIN_BRANCH_ID }}
-            branch_name: pull-${{ github.event.number }}
-            api_key: ${{ secrets.NEON_API_KEY }}
+    steps:
+      - name: Create database branch
+        id: database
+        uses: neondatabase/create-branch-action@main
+        with:
+          project_id: ${{ secrets.NEON_PROJECT_ID }}
+          parent_branch_id: ${{ secrets.NEON_MAIN_BRANCH_ID }}
+          branch_name: pull-${{ github.event.number }}
+          api_key: ${{ secrets.NEON_API_KEY }}
 
-        - name: Authenticate with Google Cloud
-          uses: google-github-actions/auth@v1
-          with:
-            service_account: ${{ secrets.GOOGLE_SERVICE_ACCOUNT }}
-            credentials_json: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          service_account: ${{ secrets.GOOGLE_SERVICE_ACCOUNT }}
+          credentials_json: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
 
-        - name: Deploy PR build to Cloud Run
-          id: service
-          uses: google-github-actions/deploy-cloudrun@v1
-          with:
-            service: pull-${{ github.event.number }}-api
-            image: us-docker.pkg.dev/repro-383518/repro/api-server:pull-${{ github.event.number }}
-            region: us-east1
-            flags: '--allow-unauthenticated'
-            env_vars: |
-              NODE_ENV=production
-              DB_HOST=${{ steps.database.outputs.host }}
-              DB_PORT=${{ secrets.PROD_DB_PORT }}
-              DB_USER=${{ secrets.PROD_DB_USER }}
-              DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }}
-              DB_DATABASE=${{ secrets.PROD_DB_DATABASE }}
-              DB_USE_SSL=true
-              AWS_S3_ENDPOINT=${{ secrets.AWS_S3_ENDPOINT }}
-              AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
-              AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
-              AWS_REGION=${{ secrets.AWS_REGION }}
-              RESOURCES_BUCKET_NAME=${{ secrets.PREVIEW_RESOURCES_BUCKET_NAME }}
-              EMAIL_FROM_ADDRESS=noreply@repro.dev
-              EMAIL_SMTP_HOST=localhost
-              EMAIL_SMTP_PORT=1025
-              EMAIL_SMTP_USE_CREDENTIALS=true
-              EMAIL_SMTP_USER=0
-              EMAIL_SMTP_PASS=0
-              EMAIL_TEMPLATE_DIRECTORY=templates/email
-              PADDLE_VENDOR_ID=0
-              PADDLE_API_KEY=0
-              PADDLE_SANDBOX=true
-              PADDLE_TEAM_PLAN_MONTHLY=0
-              PADDLE_TEAM_PLAN_ANNUAL=0
+      - name: Deploy PR build to Cloud Run
+        id: service
+        uses: google-github-actions/deploy-cloudrun@v1
+        with:
+          service: pull-${{ github.event.number }}-api
+          image: us-docker.pkg.dev/repro-383518/repro/api-server:pull-${{ github.event.number }}
+          region: us-east1
+          flags: '--allow-unauthenticated'
+          env_vars: |
+            NODE_ENV=production
+            DB_HOST=${{ steps.database.outputs.host }}
+            DB_PORT=${{ secrets.PROD_DB_PORT }}
+            DB_USER=${{ secrets.PROD_DB_USER }}
+            DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }}
+            DB_DATABASE=${{ secrets.PROD_DB_DATABASE }}
+            DB_USE_SSL=true
+            AWS_S3_ENDPOINT=${{ secrets.AWS_S3_ENDPOINT }}
+            AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            AWS_REGION=${{ secrets.AWS_REGION }}
+            RESOURCES_BUCKET_NAME=${{ secrets.PREVIEW_RESOURCES_BUCKET_NAME }}
+            EMAIL_FROM_ADDRESS=noreply@repro.dev
+            EMAIL_SMTP_HOST=localhost
+            EMAIL_SMTP_PORT=1025
+            EMAIL_SMTP_USE_CREDENTIALS=true
+            EMAIL_SMTP_USER=0
+            EMAIL_SMTP_PASS=0
+            EMAIL_TEMPLATE_DIRECTORY=templates/email
+            PADDLE_VENDOR_ID=0
+            PADDLE_API_KEY=0
+            PADDLE_SANDBOX=true
+            PADDLE_TEAM_PLAN_MONTHLY=0
+            PADDLE_TEAM_PLAN_ANNUAL=0
 
   build-workspace:
     runs-on: ubuntu-20.04
