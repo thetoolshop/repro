@@ -76,6 +76,9 @@ jobs:
           NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
           BRANCH_NAME: pull-${{ github.event.number }}
 
+      - name: Echo endpoint host
+        run: echo ${{ steps.branch.outputs.host }}
+
   migrate:
     needs:
       - build
