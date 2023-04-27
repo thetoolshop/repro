@@ -28,7 +28,8 @@ jobs:
       - name: Destroy API server
         run: |
           gcloud run services delete pull-${{ github.event.number }}-api \
-            --region us-east1
+            --region us-east2 \
+            --quiet
 
       - name: Destroy database branch
         uses: neondatabase/delete-branch-by-name-action@main
