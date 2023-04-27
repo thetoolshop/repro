@@ -60,7 +60,7 @@ jobs:
     runs-on: ubuntu-20.04
 
     outputs:
-      host: steps.branch.outputs.host
+      host: ${{ steps.branch.outputs.host }}
 
     steps:
       - name: Checkout repository
