@@ -74,7 +74,9 @@ jobs:
             "https://console.neon.tech/api/v2/projects/${NEON_PROJECT_ID}/branches" \
             --header "Accept: application/json" \
             --header "Content-Type: application/json" \
-            --header "Authorization: Bearer ${NEON_API_KEY}"
+            --header "Authorization: Bearer ${NEON_API_KEY}" \
+            | jq -r .branches \
+            | jq -c '.[] | select(.name == "'${BRANCH_NAME}'")'
 
           branch_id=$(curl --silent \
             "https://console.neon.tech/api/v2/projects/${NEON_PROJECT_ID}/branches" \
