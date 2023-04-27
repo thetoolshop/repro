@@ -2,8 +2,6 @@ name: PR (sync) - workspace build & deploy
 
 on:
   pull_request:
-    types:
-      - synchronize
     branches:
       - main
     paths:

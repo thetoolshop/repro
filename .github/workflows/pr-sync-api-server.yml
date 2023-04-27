@@ -2,8 +2,6 @@ name: PR (sync) - API server build & deploy
 
 on:
   pull_request:
-    types:
-      - synchronize
     branches:
       - main
     paths:
@@ -62,43 +60,22 @@ jobs:
     runs-on: ubuntu-20.04
 
     outputs:
-      host: steps.endpoint.outputs.host
+      host: steps.branch.outputs.host
 
     steps:
-      - name: Get branch ID
+      - name: Get or create database branch
         shell: bash
         id: branch
-        run: |
-          branch_id=$(curl --silent \
-            "https://console.neon.tech/api/v2/projects/${{ secrets.NEON_PROJECT_ID }}/branches" \
-            --header "Accept: application/json" \
-            --header "Content-Type: application/json" \
-            --header "Authorization: Bearer ${{ secrets.NEON_API_KEY }}" \
-            | jq -r .branches \
-            | jq -c '.[] | select(.name == "pull-'${{ github.event.number }}'"))' .id \
-            | jq -r \
-          ) \
-
-          echo "branch_id=${branch_id}" >> $GITHUB_OUTPUT
-
-      - name: Get endpoint host
-        shell: bash
-        id: endpoint
-        run: |
-          host=$(curl --silent \
-            "https://console.neon.tech/api/v2/projects/${{ secrets.NEON_PROJECT_ID }}/endpoints" \
-            --header "Accept: application/json" \
-            --header "Content-Type: application/json" \
-            --header "Authorization: Bearer ${{ secrets.NEON_API_KEY }}" \
-            | jq -r .endpoints \
-            | jq -c '.[] | select(.branch_id == "'${{ steps.branch.outputs.branch_id }}'"))' .host \
-            | jq -r \
-          ) \
-
-          echo "host=${host}" >> $GITHUB_OUTPUT
+        run: ${{ github.workspace }}/.github/scripts/get-or-create-database.sh
+        env:
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+          NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
+          BRANCH_NAME: pull-${{ github.event.number }}
 
   migrate:
-    needs: build, database
+    needs:
+      - build
+      - database
 
     runs-on: ubuntu-20.04
 
@@ -129,7 +106,10 @@ jobs:
           DB_USE_SSL: true
 
   deploy:
-    needs: migrate, database
+    needs:
+      - build
+      - migrate
+      - database
 
     runs-on: ubuntu-20.04
 
