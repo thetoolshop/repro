@@ -37,4 +37,4 @@ host=$(curl --silent \
   | jq -r .host \
 )
 
-echo "host=${host}" >> $GITHUB_OUTPUT
+echo -n $host

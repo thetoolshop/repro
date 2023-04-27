@@ -69,7 +69,8 @@ jobs:
       - name: Get or create database branch
         shell: bash
         id: branch
-        run: ${{ github.workspace }}/.github/scripts/get-or-create-database.sh
+        run: |
+          echo "host=$(bash ${{ github.workspace }}/.github/scripts/get-or-create-database.sh)" >> $GITHUB_OUTPUT
         env:
           NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
           NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
