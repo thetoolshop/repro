@@ -32,6 +32,7 @@ jobs:
             --quiet
 
       - name: Destroy database branch
+        if: always()
         uses: neondatabase/delete-branch-by-name-action@main
         with:
           project_id: ${{ secrets.NEON_PROJECT_ID }}
