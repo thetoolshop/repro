@@ -63,6 +63,9 @@ jobs:
       host: steps.branch.outputs.host
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
       - name: Get or create database branch
         shell: bash
         id: branch
