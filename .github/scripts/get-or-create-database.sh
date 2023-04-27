@@ -3,7 +3,7 @@
 set -euo pipefail
 
 # Find the branch id for the branch name
-branch_id=$(curl \
+branch_id=$(curl --silent \
   "https://console.neon.tech/api/v2/projects/${NEON_PROJECT_ID}/branches" \
   --header "Accept: application/json" \
   --header "Content-Type: application/json" \
@@ -15,7 +15,7 @@ branch_id=$(curl \
 
 if [[ "$branch_id" == "" ]]; then
   # Create a new branch if it doesn't exist
-  branch_id=$(curl \
+  branch_id=$(curl --silent \
     "https://console.neon.tech/api/v2/projects/${NEON_PROJECT_ID}/branches" \
     -X POST \
     --header "Accept: application/json" \
