@@ -27,6 +27,7 @@ if [[ "$branch_id" == "" ]]; then
   )
 fi
 
+# Find the endpoint host for the branch
 host=$(curl --silent \
   "https://console.neon.tech/api/v2/projects/${NEON_PROJECT_ID}/endpoints" \
   --header "Accept: application/json" \
@@ -36,5 +37,20 @@ host=$(curl --silent \
   | jq -c '.[] | select(.branch_id == "'${branch_id}'")' \
   | jq -r .host \
 )
+
+if [[ "$host" == "" ]]; then
+  # Create a new endpoint if it doesn't exist
+  host=$(curl --silent \
+    "https://console.neon.tech/api/v2/projects/${NEON_PROJECT_ID}/endpoints" \
+    -X POST \
+    --header "Accept: application/json" \
+    --header "Content-Type: application/json" \
+    --header "Authorization: Bearer ${NEON_API_KEY}" \
+    --data "{\"branch_id\":\"${branch_id}\",\"type\":\"read_write\"}" \
+    | jq -r .endpoints \
+    | jq -c '.[] | select(.branch_id == "'${branch_id}'")' \
+    | jq -r .host \
+  )
+fi
 
 echo -n $host
