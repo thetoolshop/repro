@@ -70,7 +70,7 @@ jobs:
         shell: bash
         id: branch
         run: |
-          host=$(sh ${{ github.workspace }}/.github/scripts/get-or-create-database.sh)
+          host=$(bash ${{ github.workspace }}/.github/scripts/get-or-create-database.sh)
           echo "host=${host}" >> $GITHUB_OUTPUT
         env:
           NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
