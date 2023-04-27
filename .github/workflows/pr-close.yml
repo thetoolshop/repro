@@ -28,7 +28,7 @@ jobs:
       - name: Destroy API server
         run: |
           gcloud run services delete pull-${{ github.event.number }}-api \
-            --region us-east2 \
+            --region us-east1 \
             --quiet
 
       - name: Destroy database branch
