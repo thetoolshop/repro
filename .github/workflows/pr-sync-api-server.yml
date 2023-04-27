@@ -70,15 +70,6 @@ jobs:
         shell: bash
         id: branch
         run: |
-          curl --silent \
-            "https://console.neon.tech/api/v2/projects/${NEON_PROJECT_ID}/branches" \
-            --header "Accept: application/json" \
-            --header "Content-Type: application/json" \
-            --header "Authorization: Bearer ${NEON_API_KEY}" \
-            | jq -r .branches \
-            | jq -c '.[] | select(.name == "'${BRANCH_NAME}'")' \
-            | jq -r .id
-
           branch_id=$(curl --silent \
             "https://console.neon.tech/api/v2/projects/${NEON_PROJECT_ID}/branches" \
             --header "Accept: application/json" \
@@ -102,15 +93,6 @@ jobs:
               | jq -r .id \
             )
           fi
-
-          curl --silent \
-            "https://console.neon.tech/api/v2/projects/${NEON_PROJECT_ID}/endpoints" \
-            --header "Accept: application/json" \
-            --header "Content-Type: application/json" \
-            --header "Authorization: Bearer ${NEON_API_KEY}" \
-            | jq -r .endpoints \
-            | jq -c '.[] | select(.branch_id == "'${branch_id}'")'
-
 
           host=$(curl --silent \
             "https://console.neon.tech/api/v2/projects/${NEON_PROJECT_ID}/endpoints" \
