@@ -59,4 +59,4 @@ jobs:
           gsutil -m \
             -h "Cache-Control: no-cache" \
             rsync -d -r apps/client/dist/main \
-            gs://repro-workspace-builds/production
+            gs://repro-deployments/workspace/builds/production
