@@ -213,3 +213,15 @@ jobs:
             PADDLE_SANDBOX=true
             PADDLE_TEAM_PLAN_MONTHLY=0
             PADDLE_TEAM_PLAN_ANNUAL=0
+
+      - name: Save domain mapping to Cloud Storage
+        run: |
+          service_url=$(gcloud run services describe pull-${{ github.event.number }}-api --region us-east1 --format 'value(status.url)')
+
+          mkdir -p apps/api-server/dist
+
+          echo ${service_url} | tee apps/api-server/dist/URL
+
+          gsutil cp \
+            apps/api-server/dist/URL \
+            gs://repro-deployments/api/domains/pull/${{ github.event.number }}
