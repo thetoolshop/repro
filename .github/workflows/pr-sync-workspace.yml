@@ -1,12 +1,13 @@
-name: Workspace branch build & deploy
-run-name: Workspace branch build started by @${{ github.actor }} 
+name: PR (sync) - workspace build & deploy
 
 on:
-  push:
+  pull_request:
+    branches:
+      - main
     paths:
       - apps/client/**
       - packages/**
-      - .github/workflows/workspace-branch-build.yml
+      - .github/workflows/pr-sync-workspace.yml
 
 jobs:
   build:
@@ -26,11 +27,6 @@ jobs:
           path: ${{ github.workspace }}/.nx-cache
           key: nx-build-cache
 
-      - name: Set variables
-        id: vars
-        run: |
-          echo "branch=$(git branch --show-current | sed 's/\//_/g')" >> "$GITHUB_OUTPUT"
-
       - name: Setup toolchain
         uses: asdf-vm/actions/install@v2
 
@@ -44,8 +40,8 @@ jobs:
           PADDLE_VENDOR_ID: ${{ secrets.PADDLE_VENDOR_ID }}
           MIXPANEL_API_URL: https://api-eu.mixpanel.com
           MIXPANEL_TOKEN: ${{ secrets.MIXPANEL_TOKEN }}
-          REPRO_APP_URL: https://app-preview.repro.dev/branch/${{ steps.vars.outputs.branch }}
-          REPRO_API_URL: https://api.repro.dev
+          REPRO_APP_URL: https://app-preview.repro.dev/pull/${{ github.event.number }}
+          REPRO_API_URL: https://api-preview.repro.dev/pull/${{ github.event.number }}
           AUTH_STORAGE: local-storage
           STATS_LEVEL: error
 
@@ -63,4 +59,4 @@ jobs:
           gsutil -m \
             -h "Cache-Control: no-cache" \
             rsync -d -r apps/client/dist/main \
-            gs://repro-workspace-builds/branch/${{ steps.vars.outputs.branch }}
+            gs://repro-deployments/workspace/builds/pull/${{ github.event.number }}

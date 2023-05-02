@@ -1,13 +1,13 @@
-name: API server build & deploy
-run-name: API server build started by @${{ github.actor }}
+name: Production - API server build & deploy
 
 on:
-  workflow_dispatch:
   push:
+    branches:
+      - main
     paths:
       - apps/api-server/**
       - packages/**
-      - .github/workflows/api-server-build.yml
+      - .github/workflows/prod-api-server.yml
 
 permissions:
   contents: read
@@ -64,8 +64,6 @@ jobs:
   migrate:
     needs: build
 
-    if: github.ref == 'refs/heads/main'
-
     runs-on: ubuntu-20.04
 
     steps:
@@ -97,8 +95,6 @@ jobs:
   deploy:
     needs: migrate
 
-    if: github.ref == 'refs/heads/main'
-
     runs-on: ubuntu-20.04
 
     steps:
@@ -114,7 +110,7 @@ jobs:
           service: production-api
           image: us-docker.pkg.dev/repro-383518/repro/api-server:${{ github.sha }}
           region: us-east1
-          flags: '--min-instances=1 --allow-unauthenticated'
+          flags: '--allow-unauthenticated'
           env_vars: |
             NODE_ENV=production
             DB_HOST=${{ secrets.PROD_DB_HOST }}
