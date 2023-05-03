@@ -1,5 +1,5 @@
 import Future, { chain } from 'fluture'
-import { createPTPAgent } from '~/libs/messaging'
+import { createPTPAgent } from '@repro/messaging'
 import { createRuntimeAgent } from './createRuntimeAgent'
 
 let scriptElement: HTMLScriptElement | null = null

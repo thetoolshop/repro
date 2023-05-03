@@ -1,6 +1,6 @@
 import { ApiClient, createApiClient } from '@repro/api-client'
 import React, { PropsWithChildren, useContext } from 'react'
-import { Agent } from '~/libs/messaging'
+import { Agent } from '@repro/messaging'
 
 const defaultClient = createApiClient({
   baseUrl: process.env.REPRO_API_URL || '',

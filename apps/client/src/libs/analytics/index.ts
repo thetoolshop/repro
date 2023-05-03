@@ -1,6 +1,6 @@
 import { randomString } from '@repro/random-string'
 import { fork } from 'fluture'
-import { Agent, DEFAULT_AGENT } from '~/libs/messaging'
+import { Agent, DEFAULT_AGENT } from '@repro/messaging'
 import { TrackedEvent } from './types'
 
 type Properties = Record<string, string>
