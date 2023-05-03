@@ -10,10 +10,16 @@ import {
   reject,
   resolve,
 } from 'fluture'
+import { env } from '~/config/env'
 import { AuthService } from '~/services/auth'
 import { TeamService } from '~/services/team'
 import { UserService } from '~/services/user'
-import { badRequest, notAuthenticated } from '~/utils/errors'
+import {
+  badRequest,
+  isNotFound,
+  notAuthenticated,
+  serverError,
+} from '~/utils/errors'
 
 export interface AuthMiddleware {
   withSession: RequestHandler
@@ -40,7 +46,15 @@ export function createAuthMiddleware(
       resolve(token)
         .pipe(chain(token => authService.loadSession(token)))
         .pipe(chain(session => userService.getUserById(session.userId)))
-        .pipe(mapRej(() => notAuthenticated('Not authenticated')))
+        .pipe(
+          mapRej(err => {
+            if (isNotFound(err)) {
+              return notAuthenticated('Not authenticated')
+            }
+
+            return env.DEBUG ? serverError(err.message) : serverError()
+          })
+        )
     )
 
     const team = user.pipe(chain(user => teamService.getTeamForUser(user.id)))
