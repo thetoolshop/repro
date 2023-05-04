@@ -8,7 +8,7 @@ import { ApiProvider } from '~/libs/api'
 import { BillingProvider } from '~/libs/billing'
 import { register as browserConsumer } from '~/libs/analytics/browser'
 import { Stats } from '~/libs/diagnostics'
-import { DEFAULT_AGENT } from '~/libs/messaging'
+import { DEFAULT_AGENT } from '@repro/messaging'
 
 import { Layout } from './Layout'
 

@@ -16,7 +16,7 @@ import { Analytics } from '~/libs/analytics'
 import { useApiClient } from '~/libs/api'
 import { LoginForm } from '~/libs/auth'
 import { logger } from '@repro/logger'
-import { useMessaging } from '~/libs/messaging'
+import { useMessaging } from '@repro/messaging'
 import {
   PlaybackCanvas,
   PlaybackProvider,

@@ -1,6 +1,6 @@
 import Future, { fork, FutureInstance } from 'fluture'
 import { logger } from '@repro/logger'
-import { Agent, Intent, Resolver, Unsubscribe } from '~/libs/messaging'
+import { Agent, Intent, Resolver, Unsubscribe } from '@repro/messaging'
 
 interface RuntimeOptions {
   target?: number
