@@ -4,10 +4,6 @@ on:
   pull_request:
     branches:
       - main
-    paths:
-      - apps/api-server/**
-      - packages/**
-      - .github/workflows/pr-sync-api-server.yml
 
 permissions:
   contents: read
@@ -54,7 +50,7 @@ jobs:
           push: true
           tags: |
             us-docker.pkg.dev/repro-383518/repro/api-server:${{ github.sha }}
-            us-docker.pkg.dev/repro-383518/repro/api-server:${{ github.event.number }}
+            us-docker.pkg.dev/repro-383518/repro/api-server:pull-${{ github.event.number }}
 
   database:
     runs-on: ubuntu-20.04
