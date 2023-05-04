@@ -8,6 +8,11 @@ output_dir=$project_dir/dist
 cd $project_dir
 
 pnpx esbuild \
-  `find src \\( -name '*.ts' -and ! -name '*.bench.ts' -and ! -name '*.test.ts' \\)` \
+  `find src -regextype posix-extended \\( \
+    -regex '.*/.*\.tsx?$' \
+    -and ! -regex '.*/.*\.bench.tsx?$' \
+    -and ! -regex '.*/.*\.test.tsx?$' \
+  \\)` \
   --format=cjs \
   --outdir=$output_dir
+
