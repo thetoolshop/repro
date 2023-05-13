@@ -67,7 +67,7 @@ jobs:
       - name: Get target branch commit timestamp
         id: timestamp
         run: |
-          value=$(git rev-list --exclude-first-parent-only ^main HEAD | \
+          value=$(git rev-list --exclude-first-parent-only ^refs/heads/main HEAD | \
             tail -1 | \
             xargs -I {} git rev-parse {}^ | \
             xargs git show -s --format=%ci | \
