@@ -59,12 +59,25 @@ jobs:
       host: ${{ steps.branch.outputs.host }}
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Get target branch commit timestamp
+        id: timestamp
+        run: |
+          value=$(git rev-list --exclude-first-parent-only ^main HEAD | \
+            tail -1 | \
+            xargs -I {} git rev-parse {}^ | \
+            xargs git show -s --format=%ci)
+          echo "value=${value}" >> $GITHUB_OUTPUT
+
       - name: Get or create database branch
         id: branch
         uses: reprohq/neon-create-branch-action@0bcfe82d913a120ea3d9d8c4d549041a32eb0fd9
         with:
           project_id: ${{ secrets.NEON_PROJECT_ID }}
           branch_name: pull-${{ github.event.number }}
+          parent_timestamp: ${{ steps.timestamp.outputs.value }}
           api_key: ${{ secrets.NEON_API_KEY }}
           pg_user: ${{ secrets.PROD_DB_USER }}
           pg_password: ${{ secrets.PROD_DB_PASSWORD }}
