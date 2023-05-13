@@ -69,8 +69,7 @@ jobs:
             tail -1 | \
             xargs -I {} git rev-parse {}^ | \
             xargs git show -s --format=%ci | \
-            sed 's/\s/T/' | \
-            sed 's/\s//')
+            xargs -I {} date -d {} -u +"%Y-%m-%dT%H:%M:%SZ")
           echo "value=${value}" >> $GITHUB_OUTPUT
 
       - name: Get or create database branch
