@@ -68,7 +68,9 @@ jobs:
           value=$(git rev-list --exclude-first-parent-only ^main HEAD | \
             tail -1 | \
             xargs -I {} git rev-parse {}^ | \
-            xargs git show -s --format=%ci)
+            xargs git show -s --format=%ci | \
+            sed 's/\s/T/' | \
+            sed 's/\s//')
           echo "value=${value}" >> $GITHUB_OUTPUT
 
       - name: Get or create database branch
