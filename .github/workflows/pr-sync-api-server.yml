@@ -61,7 +61,7 @@ jobs:
     steps:
       - name: Get or create database branch
         id: branch
-        uses: reprohq/neon-create-branch-action@main
+        uses: reprohq/neon-create-branch-action@0bcfe82
         with:
           project_id: ${{ secrets.NEON_PROJECT_ID }}
           branch_name: pull-${{ github.event.number }}
