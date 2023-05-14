@@ -64,13 +64,16 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Fetch main branch git history
-        run: git fetch -f origin refs/heads/main
+      # - name: Fetch main branch git history
+      #   run: |
+      #     git fetch -f origin refs/heads/main
+      #     git checkout main
+      #     git checkout ${{ github.ref }}
 
       - name: Get target branch commit timestamp
         id: timestamp
         run: |
-          value=$(git rev-list --exclude-first-parent-only ^main HEAD | \
+          value=$(git rev-list --exclude-first-parent-only ^refs/remotes/origin/main HEAD | \
             tail -1 | \
             xargs -I {} git rev-parse {}^ | \
             xargs git show -s --format=%ci | \
