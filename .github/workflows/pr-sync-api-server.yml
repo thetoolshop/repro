@@ -64,12 +64,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      # - name: Fetch main branch git history
-      #   run: |
-      #     git fetch -f origin refs/heads/main
-      #     git checkout main
-      #     git checkout ${{ github.ref }}
-
       - name: Get target branch commit timestamp
         id: timestamp
         run: |
