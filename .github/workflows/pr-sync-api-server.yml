@@ -64,12 +64,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      # - name: Fetch main branch git history
-      #   run: |
-      #     git fetch -f origin refs/heads/main
-      #     git checkout main
-      #     git checkout ${{ github.ref }}
-
       - name: Get target branch commit timestamp
         id: timestamp
         run: |
@@ -82,7 +76,7 @@ jobs:
 
       - name: Get or create database branch
         id: branch
-        uses: reprohq/neon-create-branch-action@0bcfe82d913a120ea3d9d8c4d549041a32eb0fd9
+        uses: reprohq/neon-create-branch-action@v1
         with:
           project_id: ${{ secrets.NEON_PROJECT_ID }}
           branch_name: pull-${{ github.event.number }}
