@@ -13,6 +13,7 @@
   "license": "UNLICENSED",
   "dependencies": {
     "@repro/domain": "workspace:*",
+    "@repro/messaging": "workspace:*",
     "@repro/random-string": "workspace:*",
     "@repro/vdom-utils": "workspace:*",
     "@repro/wire-formats": "workspace:*",
@@ -21,10 +22,12 @@
     "fluture": "^14.0.0",
     "isomorphic-unfetch": "^3.1.0",
     "localforage": "^1.10.0",
+    "react": "^18.2.0",
     "zod": "^3.17.10"
   },
   "devDependencies": {
-    "@types/node": "^18.6.2",
+    "@types/node": "^18.7.13",
+    "@types/react": "^18.0.14",
     "concurrently": "^7.3.0",
     "esbuild": "^0.15.7",
     "rimraf": "^3.0.2",

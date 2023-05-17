@@ -1,7 +1,22 @@
 import { chain, FutureInstance, map } from 'fluture'
 import { AuthStore, DataLoader } from './common'
 
-export function createAuthApi(authStore: AuthStore, dataLoader: DataLoader) {
+export interface AuthApi {
+  forgotPassword(email: string): FutureInstance<Error, void>
+  login(email: string, password: string): FutureInstance<Error, void>
+  logout(): FutureInstance<Error, void>
+  register(
+    name: string,
+    company: string,
+    email: string,
+    password: string
+  ): FutureInstance<Error, void>
+}
+
+export function createAuthApi(
+  authStore: AuthStore,
+  dataLoader: DataLoader
+): AuthApi {
   function forgotPassword(email: string): FutureInstance<Error, void> {
     return dataLoader('/auth/forgot', {
       method: 'POST',
@@ -52,5 +67,3 @@ export function createAuthApi(authStore: AuthStore, dataLoader: DataLoader) {
     register,
   }
 }
-
-export type AuthApi = ReturnType<typeof createAuthApi>

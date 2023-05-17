@@ -22,7 +22,36 @@ import { DataLoader } from './common'
 // Resources bigger than 1MiB should either load from origin or be replaced by placeholder (TBD)
 const MAX_RESOURCE_SIZE = 1_000_000
 
-export function createRecordingApi(dataLoader: DataLoader) {
+export interface RecordingApi {
+  getAllRecordings(): FutureInstance<Error, Array<RecordingMetadata>>
+  saveRecording(
+    recordingId: string,
+    title: string,
+    url: string,
+    description: string,
+    projectId: string,
+    duration: number,
+    mode: RecordingMode,
+    events: Array<SourceEvent>,
+    isPublic: boolean,
+    context: {
+      browserName: string | null
+      browserVersion: string | null
+      operatingSystem: string | null
+    }
+  ): FutureInstance<Error, void>
+  getRecordingEvents(
+    recordingId: string
+  ): FutureInstance<Error, Array<SourceEvent>>
+  getRecordingMetadata(
+    recordingId: string
+  ): FutureInstance<Error, RecordingMetadata>
+  getResourceMap(
+    recordingId: string
+  ): FutureInstance<Error, Record<string, string>>
+}
+
+export function createRecordingApi(dataLoader: DataLoader): RecordingApi {
   function getAllRecordings(): FutureInstance<Error, Array<RecordingMetadata>> {
     return dataLoader('/recordings')
   }
@@ -175,5 +204,3 @@ export function createRecordingApi(dataLoader: DataLoader) {
     getResourceMap,
   }
 }
-
-export type RecordingApi = ReturnType<typeof createRecordingApi>
