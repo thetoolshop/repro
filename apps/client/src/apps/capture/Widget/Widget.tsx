@@ -1,6 +1,7 @@
 import { done } from 'fluture'
 import { Block, InlineBlock } from 'jsxstyle'
 import React, { Fragment, useEffect } from 'react'
+import { useApiClient } from '@repro/api-client'
 import { RecordingMode } from '@repro/domain'
 import { colors } from '@repro/design'
 import {
@@ -14,7 +15,6 @@ import { Launcher } from './Launcher'
 import { LiveControls } from './LiveControls'
 import { RecordingModeSelector } from './RecordingModeSelector'
 import { ReportWizard } from './ReportWizard'
-import { useApiClient } from '~/libs/api'
 
 export const Widget: React.FC = () => {
   const apiClient = useApiClient()

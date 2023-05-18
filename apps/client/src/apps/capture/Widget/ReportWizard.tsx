@@ -1,3 +1,4 @@
+import { useApiClient } from '@repro/api-client'
 import { Button, Card, FX, ToggleGroup, colors } from '@repro/design'
 import { Project, RecordingMode, User } from '@repro/domain'
 import { toByteString } from '@repro/wire-formats'
@@ -13,7 +14,6 @@ import {
 } from 'lucide-react'
 import React, { PropsWithChildren, useEffect, useState } from 'react'
 import { Analytics } from '~/libs/analytics'
-import { useApiClient } from '~/libs/api'
 import { LoginForm } from '~/libs/auth'
 import { logger } from '@repro/logger'
 import { useMessaging } from '@repro/messaging'

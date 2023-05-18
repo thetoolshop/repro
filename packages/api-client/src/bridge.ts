@@ -1,13 +1,5 @@
-import { ApiClient, createApiClient } from '@repro/api-client'
-import React, { PropsWithChildren, useContext } from 'react'
 import { Agent } from '@repro/messaging'
-
-const defaultClient = createApiClient({
-  baseUrl: process.env.REPRO_API_URL || '',
-  authStorage: (process.env.AUTH_STORAGE as any) || 'local-storage',
-})
-
-const ApiClientContext = React.createContext(defaultClient)
+import { ApiClient, defaultClient } from './createApiClient'
 
 export function createApiClientBridge(
   agent: Agent,
@@ -37,21 +29,4 @@ export function createApiClientBridge(
       })
     },
   })
-}
-
-interface ProviderProps {
-  client?: ApiClient
-}
-
-export const ApiProvider: React.FC<PropsWithChildren<ProviderProps>> = ({
-  children,
-  client = defaultClient,
-}) => (
-  <ApiClientContext.Provider value={client}>
-    {children}
-  </ApiClientContext.Provider>
-)
-
-export function useApiClient() {
-  return useContext(ApiClientContext)
 }

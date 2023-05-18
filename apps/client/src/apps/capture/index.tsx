@@ -1,7 +1,7 @@
 import { resolve } from 'fluture'
 import { applyResetStyles } from '~/config/theme'
 import { Analytics } from '~/libs/analytics'
-import { ApiProvider, createApiClientBridge } from '~/libs/api'
+import { ApiProvider, createApiClientBridge } from '@repro/api-client'
 import { Stats, Trace } from '~/libs/diagnostics'
 import { createPTPAgent, MessagingProvider } from '@repro/messaging'
 import { createRecordingStream, RecordingStreamProvider } from '~/libs/record'
