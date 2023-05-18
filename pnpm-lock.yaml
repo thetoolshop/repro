@@ -611,36 +611,6 @@ importers:
         specifier: ^4.8.3
         version: 4.9.4
 
-  packages/playback:
-    devDependencies:
-      '@types/jest':
-        specifier: ^28.1.7
-        version: 28.1.8
-      '@types/node':
-        specifier: ^18.6.2
-        version: 18.7.13
-      concurrently:
-        specifier: ^7.3.0
-        version: 7.3.0
-      esbuild:
-        specifier: ^0.15.7
-        version: 0.15.11
-      jest:
-        specifier: ^28.1.3
-        version: 28.1.3(@types/node@18.7.13)(ts-node@10.9.1)
-      rimraf:
-        specifier: ^3.0.2
-        version: 3.0.2
-      ts-eager:
-        specifier: ^2.0.2
-        version: 2.0.2
-      ts-jest:
-        specifier: ^28.0.8
-        version: 28.0.8(@babel/core@7.18.13)(esbuild@0.15.11)(jest@28.1.3)(typescript@4.9.4)
-      typescript:
-        specifier: ^4.8.3
-        version: 4.9.4
-
   packages/random-string:
     devDependencies:
       '@types/node':
@@ -658,36 +628,6 @@ importers:
       ts-eager:
         specifier: ^2.0.2
         version: 2.0.2
-      typescript:
-        specifier: ^4.8.3
-        version: 4.9.4
-
-  packages/recording:
-    devDependencies:
-      '@types/jest':
-        specifier: ^28.1.7
-        version: 28.1.8
-      '@types/node':
-        specifier: ^18.6.2
-        version: 18.7.13
-      concurrently:
-        specifier: ^7.3.0
-        version: 7.3.0
-      esbuild:
-        specifier: ^0.15.7
-        version: 0.15.11
-      jest:
-        specifier: ^28.1.3
-        version: 28.1.3(@types/node@18.7.13)(ts-node@10.9.1)
-      rimraf:
-        specifier: ^3.0.2
-        version: 3.0.2
-      ts-eager:
-        specifier: ^2.0.2
-        version: 2.0.2
-      ts-jest:
-        specifier: ^28.0.8
-        version: 28.0.8(@babel/core@7.18.13)(esbuild@0.15.11)(jest@28.1.3)(typescript@4.9.4)
       typescript:
         specifier: ^4.8.3
         version: 4.9.4
