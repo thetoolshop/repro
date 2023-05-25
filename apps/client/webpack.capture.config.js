@@ -1,5 +1,5 @@
 const DotenvPlugin = require('dotenv-webpack')
-const { ESBuildMinifyPlugin } = require('esbuild-loader')
+const { EsbuildPlugin } = require('esbuild-loader')
 const path = require('path')
 
 module.exports = {
@@ -41,7 +41,7 @@ module.exports = {
 
   optimization: {
     minimizer: [
-      new ESBuildMinifyPlugin({
+      new EsbuildPlugin({
         target: 'es2015'
       })
     ],
