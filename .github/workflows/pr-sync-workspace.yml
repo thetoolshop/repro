@@ -8,9 +8,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-20.04
-    
+
     permissions:
       contents: read
+      pull-requests: write
       id-token: write
 
     steps:
@@ -56,3 +57,11 @@ jobs:
             -h "Cache-Control: no-cache" \
             rsync -d -r apps/client/dist/main \
             gs://repro-deployments/workspace/builds/pull/${{ github.event.number }}
+
+      - name: Post deployment URL to PR comment
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            :rocket: Preview deployment
+            https://app-preview.repro.dev/pull/${{ github.event.number }}
+          comment_tag: deployment
