@@ -3,7 +3,7 @@ import { resolve } from 'fluture'
 import { UserService } from '~/services/user'
 import { respondWith } from '~/utils/response'
 
-export function createUserRouter(_userService: UserService) {
+export function createUserRouter(_userService: UserService): express.Router {
   const UserRouter = express.Router()
 
   UserRouter.get('/me', (req, res) => {

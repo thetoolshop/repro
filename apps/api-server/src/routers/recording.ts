@@ -23,7 +23,7 @@ export function createRecordingRouter(
   authMiddleware: AuthMiddleware,
   s3Utils: S3Utils,
   config: Config
-) {
+): express.Router {
   const RecordingRouter = express.Router()
 
   RecordingRouter.get('/', authMiddleware.requireSession, (req, res) => {

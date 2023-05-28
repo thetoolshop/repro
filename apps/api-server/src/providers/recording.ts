@@ -12,7 +12,6 @@ import { chain, FutureInstance, map as fMap, mapRej } from 'fluture'
 import { QueryResultRow } from 'pg'
 import { Observable, map as rxMap } from 'rxjs'
 import { Readable, Transform } from 'stream'
-import { TextDecoder } from 'util'
 import { permissionDenied } from '~/utils/errors'
 import { DatabaseClient } from './database'
 
