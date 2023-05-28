@@ -15,7 +15,7 @@ export function createAuthRouter(
   teamService: TeamService,
   projectService: ProjectService,
   userService: UserService
-) {
+): express.Router {
   const AuthRouter = express.Router()
 
   const loginBodySchema = z.object({

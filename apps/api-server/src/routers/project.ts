@@ -7,7 +7,9 @@ import { ProjectService } from '~/services/project'
 import { badRequest } from '~/utils/errors'
 import { respondWith } from '~/utils/response'
 
-export function createProjectRouter(projectService: ProjectService) {
+export function createProjectRouter(
+  projectService: ProjectService
+): express.Router {
   const ProjectRouter = express.Router()
 
   ProjectRouter.get('/', (req, res) => {

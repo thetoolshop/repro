@@ -11,11 +11,11 @@ import { createUserProvider } from '~/providers/user'
 import { createCryptoUtils } from '~/utils/crypto'
 import { createEmailUtils } from '~/utils/email'
 
-import { createAuthService } from './auth'
-import { createProjectService } from './project'
-import { createRecordingService } from './recording'
-import { createTeamService } from './team'
-import { createUserService } from './user'
+import { AuthService, createAuthService } from './auth'
+import { createProjectService, ProjectService } from './project'
+import { createRecordingService, RecordingService } from './recording'
+import { createTeamService, TeamService } from './team'
+import { createUserService, UserService } from './user'
 
 interface Config {
   database: {
@@ -36,7 +36,15 @@ interface Config {
   }
 }
 
-export function createServices(config: Config) {
+interface Services {
+  authService: AuthService
+  projectService: ProjectService
+  recordingService: RecordingService
+  teamService: TeamService
+  userService: UserService
+}
+
+export function createServices(config: Config): Services {
   const dbClient = createDatabaseClient(config.database)
 
   const emailTransport = createEmailTransport(

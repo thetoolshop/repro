@@ -1,5 +1,6 @@
 import { fork, go } from 'fluture'
-import { ProjectRole } from '~/../../../packages/domain/dist'
+import { createTransport as createEmailTransport } from 'nodemailer'
+import { ProjectRole } from '@repro/domain'
 import { env } from '~/config/env'
 import { createDatabaseClient } from '~/providers/database'
 import { createProjectProvider } from '~/providers/project'
@@ -16,13 +17,27 @@ import { createEmailUtils } from '~/utils/email'
 import * as data from './data'
 
 const dbClient = createDatabaseClient({
-  connectionString: env.DATABASE_URL,
+  host: env.DB_HOST,
+  port: env.DB_PORT,
+  user: env.DB_USER,
+  password: env.DB_PASSWORD,
+  database: env.DB_DATABASE,
+  ssl: env.DB_USE_SSL ? true : false,
 })
 
 const cryptoUtils = createCryptoUtils()
-const emailUtils = createEmailUtils({
+
+const emailTransport = createEmailTransport({
+  host: env.EMAIL_SMTP_HOST,
+  port: env.EMAIL_SMTP_PORT,
+  auth: {
+    user: env.EMAIL_SMTP_USER,
+    pass: env.EMAIL_SMTP_PASS,
+  },
+})
+
+const emailUtils = createEmailUtils(emailTransport, {
   fromEmail: env.EMAIL_FROM_ADDRESS,
-  sendGridApiKey: env.EMAIL_SENDGRID_API_KEY,
   templateDirectory: env.EMAIL_TEMPLATE_DIRECTORY,
 })
 

@@ -1,7 +1,6 @@
-import { FreePlanView, TeamPlanView } from '@repro/domain'
-import { FutureInstance, map, resolve } from 'fluture'
+import { FreePlan, FreePlanView, TeamPlan, TeamPlanView } from '@repro/domain'
+import { fork, FutureInstance, map, resolve } from 'fluture'
 import { PaddleAdapter } from '~/adapters/paddle'
-import { env } from '~/config/env'
 
 function indexBy<V extends object>(
   key: keyof V,
@@ -14,10 +13,15 @@ function indexBy<V extends object>(
 }
 
 export function createBillingService(paddleAdapter: PaddleAdapter) {
-  function getSubscriptionPlans() {
+  function getSubscriptionPlans(): FutureInstance<
+    Error,
+    { free: FreePlan; team: TeamPlan }
+  > {
     const vendorPlans = paddleAdapter
       .getProductPlans()
       .pipe(map(plans => indexBy('id', plans)))
+
+    vendorPlans.pipe(fork(console.error)(console.log))
 
     return resolve({
       free: FreePlanView.validate({
