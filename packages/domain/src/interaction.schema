@@ -1,0 +1,115 @@
+import point.Point
+import vdom.{NodeId, VElement}
+
+type InteractionType: enum {
+  0: ViewportResize
+  1: Scroll
+  2: PointerMove
+  3: PointerDown
+  4: PointerUp
+  5: KeyDown
+  6: KeyUp
+  7: Click
+  8: DoubleClick
+  9: PageTransition
+}
+
+type ViewportResize: struct {
+  type: InteractionType.ViewportResize
+  from: Point
+  to: Point
+  duration: uint16
+}
+
+type ScrollMap: map<NodeId, Point>
+
+type Scroll: struct {
+  type: InteractionType.Scroll
+  target: NodeId
+  from: Point
+  to: Point
+  duration: uint16
+}
+
+type PointerMove: struct {
+  type: InteractionType.PointerMove
+  from: Point
+  to: Point
+  duration: uint16
+}
+
+type PointerState: enum {
+  0: Up
+  1: Down
+}
+
+type PointerDown: struct {
+  type: InteractionType.PointerDown
+  targets: vector<NodeId>
+  at: Point
+}
+
+type PointerUp: struct {
+  type: InteractionType.PointerUp
+  targets: vector<NodeId>
+  at: Point
+}
+
+type KeyDown: struct {
+  type: InteractionType.KeyDown
+  key: string
+}
+
+type KeyUp: struct {
+  type: Interaction.KeyUp
+  key: string
+}
+
+type MouseButton: enum {
+  0: Primary
+  1: Auxiliary
+  2: Secondary
+  3: Fourth
+  4: Fifth
+}
+
+type Click: struct {
+  type: InteractionType.Click
+  button: MouseButton
+  targets: vector<NodeId>
+  at: Point
+  meta: struct {
+    node: VElement
+    humanReadableLabel: ?string
+  }
+}
+
+type DoubleClick: struct {
+  type: InteractionType.DoubleClick
+  button: MouseButton
+  targets: vector<NodeId>
+  at: Point
+  meta: struct {
+    node: VElement
+    humanReadableLabel: ?string
+  }
+}
+
+type PageTransition: struct {
+  type: InteractionType.PageTransition
+  from: ?string
+  to: string
+}
+
+type Interaction: union(type) {
+  ViewportResize
+  Scroll
+  PointerMove
+  PointerDown
+  PointerUp
+  KeyDown
+  KeyUp
+  Click
+  DoubleClick
+  PageTransition
+}

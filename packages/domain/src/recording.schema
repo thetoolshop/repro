@@ -1,0 +1,30 @@
+builtin timestamp {
+  type char[25]
+  pattern \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z
+}
+
+type RecordingMode: enum {
+  0: None
+  1: Snapshot
+  2: Live
+  3: Replay
+}
+
+type RecordingMetadata: struct {
+  id: uuid
+  title: string
+  url: string
+  description: string
+  mode: RecordingMode
+  duration: uint32
+  createdAt: timestamp
+  projectId: uuid
+  projectName: string
+  authorId: uuid
+  authorName: string
+  browserName: ?string
+  browserVersion: ?string
+  operatingSystem: ?string
+  public: bool
+  codecVersion: string
+}

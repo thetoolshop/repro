@@ -1,0 +1,26 @@
+type PerformanceEntryType: enum {
+  0: ResourceTiming
+}
+
+type ResourceTiming: struct {
+  type: PerformanceEntryType.ResourceTiming
+  id: char[4]
+  initiatorType: string
+  url: string
+  startTime: uint32
+  domainLookupStart: uint32
+  domainLookupEnd: uint32
+  connectStart: uint32
+  secureConnectionStart: uint32
+  connectEnd: uint32
+  requestStart: uint32
+  responseStart: uint32
+  responseEnd: uint32
+  encodedBodySize: uint32
+  decodedBodySize: uint32
+  transferSize: uint32
+}
+
+type PerformanceEntry: union(type) {
+  ResourceTiming
+}
