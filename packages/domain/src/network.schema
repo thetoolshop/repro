@@ -1,0 +1,72 @@
+type NetworkMessageType: enum {
+  0: FetchRequest
+  1: FetchResponse
+  2: WebSocketOutbound
+  3: WebSocketInbound
+  4: WebSocketOpen
+  5: WebSocketClose
+}
+
+type RequestType: enum {
+  0: Fetch
+  1: XHR
+}
+
+type CorrelationId: char[4]
+
+type FetchRequest: struct {
+  type: NetworkMessageType.FetchRequest
+  correlationId: CorrelationId
+  requestType: RequestType
+  url: string
+  method: string
+  headers: map<string, string>
+  body: buffer
+}
+
+type FetchResponse: struct {
+  type: NetworkMessageType.FetchResponse
+  correlationId: CorrelationId
+  status: uint16
+  headers: map<string, string>
+  body: buffer
+}
+
+type WebSocketMessageType: enum {
+  0: Text
+  1: Binary
+}
+
+type WebSocketOpen: struct {
+  type: NetworkMessageType.WebSocketOpen
+  correlationId: CorrelationId
+  url: string
+}
+
+type WebSocketClose: struct {
+  type: NetworkMessageType.WebSocketClose
+  correlationId: CorrelationId
+}
+
+type WebSocketInbound: struct {
+  type: NetworkMessageType.WebSocketInbound
+  correlationId: CorrelationId
+  messageType: WebSocketMessageType
+  data: buffer
+}
+
+type WebSocketOutbound: struct {
+  type: NetworkMessageType.WebSocketOutbound
+  correlationId: CorrelationId
+  messageType: WebSocketMessageType
+  data: buffer
+}
+
+type NetworkMessage: union(type) {
+  FetchRequest
+  FetchResponse
+  WebSocketOpen
+  WebSocketClose
+  WebSocketOutbound
+  WebSocketInbound
+}

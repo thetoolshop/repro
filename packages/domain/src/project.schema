@@ -1,0 +1,15 @@
+builtin uuid {
+  type char[36]
+  pattern "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+}
+
+type Project: struct {
+  id: uuid
+  name: string
+  active: bool
+}
+
+type ProjectRole: enum {
+  0: Admin
+  1: Member
+}

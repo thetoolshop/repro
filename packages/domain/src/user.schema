@@ -1,0 +1,5 @@
+type User: struct {
+  id: uuid
+  email: string
+  name: string
+}
