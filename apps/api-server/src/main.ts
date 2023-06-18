@@ -2,6 +2,8 @@ import { S3 } from '@aws-sdk/client-s3'
 import compression from 'compression'
 import cors from 'cors'
 import express, { ErrorRequestHandler } from 'express'
+import expressWinston from 'express-winston'
+import winston from 'winston'
 
 import { env } from '~/config/env'
 
@@ -89,9 +91,21 @@ function bootstrap(routers: Record<string, RouterConfig>) {
   app.use(express.json({ limit: '16mb' }))
   app.use(compression())
 
+  app.use(
+    expressWinston.logger({
+      transports: [new winston.transports.Console()],
+    })
+  )
+
   for (const [path, config] of Object.entries(routers)) {
     app.use(path, ...(config.middleware ?? []), config.router)
   }
+
+  app.use(
+    expressWinston.errorLogger({
+      transports: [new winston.transports.Console()],
+    })
+  )
 
   const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
     res.status(500).send(serverError(err.message))

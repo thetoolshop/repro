@@ -52,7 +52,8 @@ export function respondWithValue<T>(res: Response, value: T) {
     if (isReadableStream(value)) {
       pipeline(value, res, error => {
         if (error) {
-          respondWithError(res, error)
+          res.statusCode = 500
+          res.end()
         }
       })
     } else if (isObservable(value)) {
