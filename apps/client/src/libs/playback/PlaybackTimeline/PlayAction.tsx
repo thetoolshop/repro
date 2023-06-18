@@ -6,7 +6,7 @@ import { colors } from '@repro/design'
 import { usePlayback } from '../hooks'
 import { PlaybackState } from '../types'
 import { usePlaybackState } from '..'
-import { Analytics } from '~/libs/analytics'
+import { Analytics } from '@repro/analytics'
 
 export const PlayAction: React.FC = () => {
   const playback = usePlayback()

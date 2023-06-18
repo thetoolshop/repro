@@ -1,7 +1,7 @@
 import { node } from 'fluture'
 import mixpanel from 'mixpanel-browser'
 import { Agent } from '@repro/messaging'
-import { TrackedEvent } from './types'
+import { TrackedEvent } from '@repro/analytics'
 
 export function register(agent: Agent, identityId: string | null = null) {
   mixpanel.init(process.env.MIXPANEL_TOKEN || '', {

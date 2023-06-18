@@ -4,9 +4,9 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { ApiProvider } from '@repro/api-client'
 import { createPortalRoot } from '@repro/design'
 import { applyResetStyles } from '~/config/theme'
-import { Analytics } from '~/libs/analytics'
+import { Analytics } from '@repro/analytics'
 import { BillingProvider } from '~/libs/billing'
-import { register as browserConsumer } from '~/libs/analytics/browser'
+import { mixpanelBrowser } from '@repro/analytics-provider-mixpanel'
 import { Stats } from '~/libs/diagnostics'
 import { DEFAULT_AGENT } from '@repro/messaging'
 
@@ -36,7 +36,7 @@ if (process.env.BUILD_ENV === 'development') {
 }
 
 Analytics.setAgent(DEFAULT_AGENT)
-Analytics.registerConsumer(browserConsumer)
+Analytics.registerConsumer(mixpanelBrowser)
 
 const rootSelector = '#root'
 const rootElem = document.querySelector(rootSelector)

@@ -1,6 +1,6 @@
 import { resolve } from 'fluture'
 import { applyResetStyles } from '~/config/theme'
-import { Analytics } from '~/libs/analytics'
+import { Analytics } from '@repro/analytics'
 import { ApiProvider, createApiClientBridge } from '@repro/api-client'
 import { Stats, Trace } from '~/libs/diagnostics'
 import { createPTPAgent, MessagingProvider } from '@repro/messaging'

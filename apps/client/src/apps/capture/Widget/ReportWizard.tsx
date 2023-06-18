@@ -13,7 +13,7 @@ import {
   XCircle as ErrorIcon,
 } from 'lucide-react'
 import React, { PropsWithChildren, useEffect, useState } from 'react'
-import { Analytics } from '~/libs/analytics'
+import { Analytics } from '@repro/analytics'
 import { LoginForm } from '~/libs/auth'
 import { logger } from '@repro/logger'
 import { useMessaging } from '@repro/messaging'

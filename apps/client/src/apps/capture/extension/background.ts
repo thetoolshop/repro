@@ -13,8 +13,8 @@ import {
   reject,
   resolve,
 } from 'fluture'
-import { Analytics } from '~/libs/analytics'
-import { register as httpApiConsumer } from '~/libs/analytics/http-api'
+import { Analytics } from '@repro/analytics'
+import { mixpanelHttp } from '@repro/analytics-provider-mixpanel'
 import { createRuntimeAgent } from './createRuntimeAgent'
 
 function run<L, R>(source: FutureInstance<L, R>, resolve = console.log) {
@@ -51,7 +51,7 @@ function setUpAnalytics() {
   return run(getInstallerId(), installerId => {
     Analytics.setIdentity(installerId)
     Analytics.setAgent(agent)
-    Analytics.registerConsumer(httpApiConsumer)
+    Analytics.registerConsumer(mixpanelHttp)
   })
 }
 
