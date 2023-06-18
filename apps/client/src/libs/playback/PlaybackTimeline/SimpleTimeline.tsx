@@ -10,7 +10,7 @@ import {
   takeUntil,
 } from 'rxjs/operators'
 import { colors } from '@repro/design'
-import { Analytics } from '~/libs/analytics'
+import { Analytics } from '@repro/analytics'
 import { formatTime } from '~/utils/date'
 import { usePlayback } from '../hooks'
 import { PlaybackState } from '../types'

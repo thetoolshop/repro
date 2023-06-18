@@ -21,7 +21,7 @@ import { NetworkPanel } from './NetworkPanel'
 import { ConsolePanel } from './ConsolePanel'
 import { DragHandle } from './DragHandle'
 import { ReferenceStyleProvider } from '~/libs/styles'
-import { Analytics } from '~/libs/analytics'
+import { Analytics } from '@repro/analytics'
 
 interface Props {
   disableExport?: boolean
