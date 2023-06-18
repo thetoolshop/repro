@@ -18,7 +18,6 @@ import { from as copyFrom } from 'pg-copy-streams'
 import QueryStream from 'pg-query-stream'
 import { Observable } from 'rxjs'
 import { Readable } from 'stream'
-import { env } from '~/config/env'
 
 export interface DatabaseClient {
   query<R extends QueryResultRow>(
@@ -77,10 +76,6 @@ export function createDatabaseClient(config: PoolConfig): DatabaseClient {
     queryText: string,
     values: Array<any>
   ): FutureInstance<Error, QueryResult<R>> {
-    if (env.DEBUG) {
-      console.debug(queryText, values)
-    }
-
     return node<Error, QueryResult<R>>(done =>
       pool.query(queryText, values, done)
     )
