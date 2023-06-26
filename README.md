@@ -1,4 +1,4 @@
-![Repro](screenshots/repro-logo-full.png)
+![Repro](assets/repro-logo-full.png)
 
 The open-source developer tool and browser extension to make bug reporting in the browser more collaborative and reproducible. Repro shortens the debugging cycle in web development and empowers teams to painlessly ship defect-free software to users. Built for high-performing product teams.
 
@@ -6,16 +6,16 @@ Get started here: https://repro.dev
 
 ---
 
-![](screenshots/repro-promo-image.png)
+![](assets/repro-promo-image.png)
 
 ## Why Use Repro?
 
 Repro brings together powerful features that make reproducing and fixing bugs simple:
 
-* **Session recording**: Rewind and replay bugs easily with instant session recording. Capture every click and key press.
-* **Console logs & errors**: Replay logs, warnings and errors, with stack traces to understand when and why errors are thrown.
-* **Network requests & responses**: Capture and review network requests, responses and headers.
-* **DOM, styling & layout**: View changes to the DOM and styling over time, using a replayable element inspector.
+- **Session recording**: Rewind and replay bugs easily with instant session recording. Capture every click and key press.
+- **Console logs & errors**: Replay logs, warnings and errors, with stack traces to understand when and why errors are thrown.
+- **Network requests & responses**: Capture and review network requests, responses and headers.
+- **DOM, styling & layout**: View changes to the DOM and styling over time, using a replayable element inspector.
 
 Use Repro for faster debugging, better software and happier users!
 
@@ -45,7 +45,7 @@ Repro is committed to building the best possible debugging and software quality 
 
 1. Navigate to client app: `cd apps/client`
 1. Set up build environment (if not completed above): `cp .env.example .env` (edit as required)
-1. Run development server: `pnpm serve:main` 
+1. Run development server: `pnpm serve:main`
 
 #### 3. API server
 
