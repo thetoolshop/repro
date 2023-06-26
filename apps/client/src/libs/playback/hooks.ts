@@ -1,5 +1,5 @@
 import { useContext } from 'react'
-import { useAtomValue } from '~/utils/state'
+import { useAtomValue } from '@repro/atom'
 import { PlaybackContext } from './context'
 import { EMPTY_PLAYBACK } from './createSourcePlayback'
 import { PointerState } from '@repro/domain'

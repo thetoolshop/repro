@@ -1,5 +1,5 @@
 import { SyntheticId } from '@repro/domain'
-import { createAtom } from '~/utils/state'
+import { createAtom } from '@repro/atom'
 
 export enum ReadyState {
   Loading,

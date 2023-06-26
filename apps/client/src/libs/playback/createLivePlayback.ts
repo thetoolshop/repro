@@ -7,7 +7,7 @@ import {
 } from '@repro/domain'
 import { copyObject, LazyList } from '@repro/std'
 import { applyEventToSnapshot, createEmptySnapshot } from '~/utils/source'
-import { createAtom } from '~/utils/state'
+import { createAtom } from '@repro/atom'
 import { first, Observable, skipUntil, Subscription } from 'rxjs'
 import { ControlFrame, Playback, PlaybackState } from './types'
 

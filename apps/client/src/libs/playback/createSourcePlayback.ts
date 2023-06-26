@@ -23,7 +23,7 @@ import {
   createEmptySnapshot,
   isSample,
 } from '~/utils/source'
-import { createAtom } from '~/utils/state'
+import { createAtom } from '@repro/atom'
 import { ControlFrame, Playback, PlaybackState } from './types'
 
 const EMPTY_SNAPSHOT = createEmptySnapshot()

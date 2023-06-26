@@ -1,6 +1,6 @@
 import { useRecordingStream } from '~/libs/record'
 import { isElementNode } from '~/utils/dom'
-import { useAtomState, useAtomValue } from '~/utils/state'
+import { useAtomState, useAtomValue } from '@repro/atom'
 import { useContext } from 'react'
 import { NavigationContext, StateContext } from './context'
 

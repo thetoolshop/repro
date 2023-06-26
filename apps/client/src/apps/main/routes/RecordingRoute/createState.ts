@@ -1,5 +1,5 @@
 import { SyntheticId } from '@repro/domain'
-import { Atom, createAtom, Setter } from '~/utils/state'
+import { Atom, createAtom, Setter } from '@repro/atom'
 import { INITIAL_SIZE } from './constants'
 import { MutableNodeMap, Snap, View } from './types'
 

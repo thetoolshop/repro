@@ -1,5 +1,5 @@
 import { SourceEvent, SourceEventView } from '@repro/domain'
-import { createAtom } from '~/utils/state'
+import { createAtom } from '@repro/atom'
 import { LazyList } from '@repro/std'
 import { ReadyState, Source } from './types'
 
