@@ -1,4 +1,4 @@
-import { useAtomValue } from '~/utils/state'
+import { useAtomValue } from '@repro/atom'
 import { $session } from './state'
 
 export function useSession() {

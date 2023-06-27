@@ -1,5 +1,5 @@
 import React, { PropsWithChildren, useEffect, useState } from 'react'
-import { useAtomValue } from '~/utils/state'
+import { useAtomValue } from '@repro/atom'
 import { createSourcePlayback, EMPTY_PLAYBACK } from './createSourcePlayback'
 import { Playback, Source } from './types'
 
