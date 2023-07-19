@@ -21,7 +21,7 @@ import {
   VNode,
 } from '@repro/domain'
 import { copyObjectDeep, LazyList } from '@repro/std'
-import { copy as copyDataView } from '@repro/typed-binary-encoder'
+import { copy as copyDataView } from '@repro/tdl'
 import { applyVTreePatch, getNodeId } from '@repro/vdom-utils'
 import {
   concat,

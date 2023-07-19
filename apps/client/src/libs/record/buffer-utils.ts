@@ -1,5 +1,5 @@
 import { copyArray } from '@repro/std'
-import { approxByteLength } from '@repro/typed-binary-encoder'
+import { approxByteLength } from '@repro/tdl'
 import { Subscriber } from './types'
 
 export type Unsubscribe = () => void

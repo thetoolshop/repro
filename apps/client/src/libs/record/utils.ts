@@ -5,7 +5,7 @@ import {
   SourceEventView,
 } from '@repro/domain'
 import { LazyList } from '@repro/std'
-import { copy as copyDataView } from '@repro/typed-binary-encoder'
+import { copy as copyDataView } from '@repro/tdl'
 import { Stats } from '~/libs/diagnostics'
 import { applyEventToSnapshot } from '~/utils/source'
 

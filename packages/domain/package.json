@@ -6,10 +6,11 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "bench": "./scripts/bench",
-    "build": "npm run clean && concurrently npm:build:source npm:build:declarations",
+    "build": "npm run clean && npm run build:generated && concurrently npm:build:source npm:build:declarations",
     "build:declarations": "tsc --project tsconfig-build.json --emitDeclarationOnly",
+    "build:generated": "tdlc src --outdir src/generated",
     "build:source": "./scripts/build",
-    "clean": "rimraf dist",
+    "clean": "rimraf dist src/generated",
     "test": "jest",
     "fmt": "prettier --write src"
   },
@@ -24,9 +25,8 @@
   "homepage": "https://github.com/reprohq/repro#readme",
   "dependencies": {
     "@repro/random-string": "workspace:*",
-    "@repro/typed-binary-encoder": "workspace:*",
-    "uuid": "^9.0.0",
-    "zod": "^3.17.10"
+    "@repro/tdl": "workspace:*",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@types/jest": "^28.1.8",

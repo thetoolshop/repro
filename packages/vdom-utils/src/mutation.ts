@@ -1,5 +1,5 @@
 import {
-  Patch,
+  DOMPatch,
   PatchType,
   SyntheticId,
   VElement,
@@ -110,7 +110,7 @@ export function removeSubTreesAtNode(
 // TODO: benchmark performance of mutable data structure
 export function applyVTreePatch(
   vtree: VTree,
-  patch: Patch,
+  patch: DOMPatch,
   revert: boolean = false
 ): void {
   // const start = performance.now()

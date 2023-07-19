@@ -1,4 +1,10 @@
-import { FreePlan, FreePlanView, TeamPlan, TeamPlanView } from '@repro/domain'
+import {
+  FreePlan,
+  FreePlanView,
+  PlanType,
+  TeamPlan,
+  TeamPlanView,
+} from '@repro/domain'
 import { fork, FutureInstance, map, resolve } from 'fluture'
 import { PaddleAdapter } from '~/adapters/paddle'
 
@@ -28,13 +34,13 @@ export function createBillingService(paddleAdapter: PaddleAdapter) {
 
     return resolve({
       free: FreePlanView.validate({
-        type: 'free',
+        type: PlanType.Free,
         includedSeats: 3,
         uploadLimit: 25,
       }),
 
       team: TeamPlanView.validate({
-        type: 'team',
+        type: PlanType.Team,
         includedSeats: 5,
         trialLengthDays: 0,
         billingPeriods: {
