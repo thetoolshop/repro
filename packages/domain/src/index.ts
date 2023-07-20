@@ -5,14 +5,12 @@ import { CodecVersion } from './migrations/types'
 import pkg from '../package.json'
 
 export const CODEC_VERSION = pkg.version as CodecVersion
-export type { CodecVersion }
-export { migrate } from './migrations'
-
 export * from './billing'
 export * from './common'
 export * from './console'
 export * from './event'
 export * from './interaction'
+export { migrate } from './migrations'
 export * from './network'
 export * from './performance'
 export * from './point'
@@ -23,3 +21,4 @@ export * from './snapshot'
 export * from './team'
 export * from './user'
 export * from './vdom'
+export type { CodecVersion }

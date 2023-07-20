@@ -1,5 +1,5 @@
 export * from './hooks'
-export { getSession, setSession } from './state'
 export { IfSession } from './IfSession'
 export { SessionProvider } from './SessionProvider'
+export { getSession, setSession } from './state'
 export { UnlessSession } from './UnlessSession'

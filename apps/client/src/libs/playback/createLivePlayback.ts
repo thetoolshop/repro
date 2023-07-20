@@ -1,3 +1,4 @@
+import { createAtom } from '@repro/atom'
 import {
   Snapshot,
   SnapshotEvent,
@@ -6,9 +7,8 @@ import {
   SourceEventView,
 } from '@repro/domain'
 import { copyObject, LazyList } from '@repro/std'
-import { applyEventToSnapshot, createEmptySnapshot } from '~/utils/source'
-import { createAtom } from '@repro/atom'
 import { first, Observable, skipUntil, Subscription } from 'rxjs'
+import { applyEventToSnapshot, createEmptySnapshot } from '~/utils/source'
 import { ControlFrame, Playback, PlaybackState } from './types'
 
 export function createLivePlayback(event$: Observable<SourceEvent>): Playback {

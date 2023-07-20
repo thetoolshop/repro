@@ -1,11 +1,11 @@
-import { isErrorLike, serializeError } from 'serialize-error'
-import StackTrace, { StackTraceOptions } from 'stacktrace-js'
 import {
   ConsoleMessage,
   LogLevel,
   MessagePartType,
   StackEntry,
 } from '@repro/domain'
+import { isErrorLike, serializeError } from 'serialize-error'
+import StackTrace, { StackTraceOptions } from 'stacktrace-js'
 import { ObserverLike } from '~/utils/observer'
 import { createVNode } from '../dom/factory'
 

@@ -169,10 +169,13 @@ export function createProjectProvider(dbClient: DatabaseClient) {
 
     return result.pipe(
       map(rows =>
-        rows.reduce((acc, [projectId, role]) => {
-          acc[projectId] = role
-          return acc
-        }, {} as Record<string, ProjectRole>)
+        rows.reduce(
+          (acc, [projectId, role]) => {
+            acc[projectId] = role
+            return acc
+          },
+          {} as Record<string, ProjectRole>
+        )
       )
     )
   }

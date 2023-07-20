@@ -1,5 +1,4 @@
 import { deepmerge } from 'deepmerge-ts'
-import nativeFetch from 'isomorphic-unfetch'
 import {
   attemptP,
   bichain,
@@ -9,6 +8,7 @@ import {
   reject,
   resolve,
 } from 'fluture'
+import nativeFetch from 'isomorphic-unfetch'
 import localForage from 'localforage'
 
 export interface ApiConfiguration {
@@ -93,7 +93,7 @@ export function createDefaultRequestOptions(
                 : {}),
             },
             method: 'GET',
-          } as const)
+          }) as const
       )
     )
 }

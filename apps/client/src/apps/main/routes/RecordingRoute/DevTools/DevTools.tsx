@@ -1,8 +1,10 @@
+import { Analytics } from '@repro/analytics'
+import { colors } from '@repro/design'
 import { Block, Grid } from 'jsxstyle'
 import React, { PropsWithChildren, useEffect } from 'react'
 import { useParams } from 'react-router'
-import { colors } from '@repro/design'
 import { PlaybackCanvas } from '~/libs/playback'
+import { ReferenceStyleProvider } from '~/libs/styles'
 import { MAX_INT32 } from '../constants'
 import {
   useCurrentDocument,
@@ -14,14 +16,12 @@ import {
   useView,
 } from '../hooks'
 import { View } from '../types'
-import { Toolbar } from './Toolbar'
-import { PickerOverlay } from './PickerOverlay'
-import { ElementsPanel } from './ElementsPanel'
-import { NetworkPanel } from './NetworkPanel'
 import { ConsolePanel } from './ConsolePanel'
 import { DragHandle } from './DragHandle'
-import { ReferenceStyleProvider } from '~/libs/styles'
-import { Analytics } from '@repro/analytics'
+import { ElementsPanel } from './ElementsPanel'
+import { NetworkPanel } from './NetworkPanel'
+import { PickerOverlay } from './PickerOverlay'
+import { Toolbar } from './Toolbar'
 
 interface Props {
   disableExport?: boolean

@@ -1,10 +1,10 @@
+import { Point } from '@repro/domain'
 import React, {
   MutableRefObject,
   PropsWithChildren,
   useEffect,
   useRef,
 } from 'react'
-import { Point } from '@repro/domain'
 import { PlaybackState, usePlaybackState } from '~/libs/playback'
 
 type Props = PropsWithChildren<{

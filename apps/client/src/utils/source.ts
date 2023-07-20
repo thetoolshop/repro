@@ -1,9 +1,9 @@
 import {
+  DOMPatchEvent,
+  InteractionEvent,
   InteractionType,
   Point,
   PointerState,
-  DOMPatchEvent,
-  InteractionEvent,
   Sample,
   Snapshot,
   SourceEvent,

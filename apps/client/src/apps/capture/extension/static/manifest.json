@@ -17,27 +17,16 @@
   },
   "content_scripts": [
     {
-      "js": [
-        "content.js"
-      ],
-      "matches": [
-        "<all_urls>"
-      ],
+      "js": ["content.js"],
+      "matches": ["<all_urls>"],
       "run_at": "document_start"
     }
   ],
-  "permissions": [
-    "storage",
-    "tabs"
-  ],
+  "permissions": ["storage", "tabs"],
   "web_accessible_resources": [
     {
-      "resources": [
-        "capture.js"
-      ],
-      "matches": [
-        "<all_urls>"
-      ]
+      "resources": ["capture.js"],
+      "matches": ["<all_urls>"]
     }
   ]
 }

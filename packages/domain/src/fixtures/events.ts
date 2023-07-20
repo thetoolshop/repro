@@ -1,8 +1,8 @@
 import { randomString } from '@repro/random-string'
 import {
-  SnapshotEvent,
-  InteractionEvent,
   DOMPatchEvent,
+  InteractionEvent,
+  SnapshotEvent,
   SourceEventType,
 } from '../event'
 import { InteractionType, PointerState } from '../interaction'

@@ -7,9 +7,9 @@ import React, {
   useRef,
   useState,
 } from 'react'
-import { colors } from '../theme'
 import { fromEvent, Subscription } from 'rxjs'
 import { Portal } from '../Portal'
+import { colors } from '../theme'
 
 type Props = PropsWithChildren<{
   position?: 'top' | 'bottom'

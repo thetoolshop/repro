@@ -7,6 +7,7 @@ import {
   VTree,
 } from '@repro/domain'
 import { Immutable } from '@repro/ts-utils'
+import { createSyntheticId, getNodeId, isElementVNode } from '@repro/vdom-utils'
 import {
   isInputElement,
   isSelectElement,
@@ -14,7 +15,6 @@ import {
   maskValue,
 } from '~/utils/dom'
 import { createEventObserver, ObserverLike } from '~/utils/observer'
-import { createSyntheticId, getNodeId, isElementVNode } from '@repro/vdom-utils'
 import { RecordingOptions } from '../types'
 import { DOMTreeWalker, isIgnoredByNode, isIgnoredBySelector } from './utils'
 

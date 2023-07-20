@@ -1,14 +1,14 @@
-import React from 'react'
-import { createRoot } from 'react-dom/client'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { Analytics } from '@repro/analytics'
+import { mixpanelBrowser } from '@repro/analytics-provider-mixpanel'
 import { ApiProvider } from '@repro/api-client'
 import { createPortalRoot } from '@repro/design'
-import { applyResetStyles } from '~/config/theme'
-import { Analytics } from '@repro/analytics'
-import { BillingProvider } from '~/libs/billing'
-import { mixpanelBrowser } from '@repro/analytics-provider-mixpanel'
-import { Stats } from '~/libs/diagnostics'
 import { DEFAULT_AGENT } from '@repro/messaging'
+import React from 'react'
+import { createRoot } from 'react-dom/client'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { applyResetStyles } from '~/config/theme'
+import { BillingProvider } from '~/libs/billing'
+import { Stats } from '~/libs/diagnostics'
 
 import { Layout } from './Layout'
 
@@ -19,9 +19,9 @@ import { RecordingRoute } from './routes/RecordingRoute'
 import { SignUpRoute } from './routes/SignUpRoute'
 // import { ResetPasswordRoute } from './routes/ResetPasswordRoute'
 
-import { AuthLayout } from './AuthLayout'
 import { SessionProvider } from '~/libs/auth/Session'
 import { RequireSession } from '~/libs/auth/Session/RequireSession'
+import { AuthLayout } from './AuthLayout'
 
 declare global {
   interface Window {

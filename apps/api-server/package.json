@@ -11,7 +11,8 @@
     "dev-resources:start": "s3rver -p 9000 -d ./s3_data --no-vhost-buckets --configure-bucket resources",
     "migrate": "ts-eager src/migrate.ts",
     "start": "ts-eager src/main.ts",
-    "watch": "nodemon"
+    "watch": "nodemon",
+    "fmt": "prettier --write src"
   },
   "license": "UNLICENSED",
   "dependencies": {
@@ -54,6 +55,8 @@
     "concurrently": "^7.3.0",
     "node-pg-migrate": "^6.2.2",
     "nodemon": "^2.0.19",
+    "prettier": "^3.0.0",
+    "prettier-plugin-organize-imports": "^3.2.3",
     "rimraf": "^3.0.2",
     "s3rver": "^3.7.1",
     "ts-eager": "^2.0.2",

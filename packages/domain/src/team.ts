@@ -1,4 +1,4 @@
-import { StructDescriptor, createView } from '@repro/typed-binary-encoder'
+import { createView, StructDescriptor } from '@repro/typed-binary-encoder'
 import z from 'zod'
 
 // type Team: struct {

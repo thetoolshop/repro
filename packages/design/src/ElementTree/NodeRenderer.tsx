@@ -1,4 +1,4 @@
-import { SyntheticId, NodeType } from '@repro/domain'
+import { NodeType, SyntheticId } from '@repro/domain'
 import React, { useContext } from 'react'
 import { VTreeContext } from './context'
 import { DocTypeNodeRenderer } from './DocTypeRender'

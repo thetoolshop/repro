@@ -3,22 +3,20 @@ import { approxByteLength } from '@repro/typed-binary-encoder'
 import { LogLevel, MessagePartType } from './console'
 import {
   ConsoleEvent,
+  ConsoleEventView,
   DOMPatchEvent,
+  DOMPatchEventView,
   InteractionEvent,
+  InteractionEventView,
   NetworkEvent,
+  NetworkEventView,
   SnapshotEvent,
+  SnapshotEventView,
   SourceEventType,
 } from './event'
+import { addNodesPatch, elementNode, vtree } from './fixtures/vdom'
 import { InteractionType, PointerState } from './interaction'
 import { NetworkMessageType, RequestType } from './network'
-import {
-  ConsoleEventView,
-  DOMPatchEventView,
-  InteractionEventView,
-  NetworkEventView,
-  SnapshotEventView,
-} from './event'
-import { addNodesPatch, elementNode, vtree } from './fixtures/vdom'
 
 describe('Event codecs', () => {
   it('should create a binary view for a snapshot event', () => {

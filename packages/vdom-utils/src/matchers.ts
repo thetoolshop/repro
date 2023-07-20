@@ -1,7 +1,7 @@
 import {
   NodeType,
-  VDocument,
   VDocType,
+  VDocument,
   VElement,
   VNode,
   VText,

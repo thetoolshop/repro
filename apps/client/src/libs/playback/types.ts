@@ -1,6 +1,6 @@
+import { Atom } from '@repro/atom'
 import { Snapshot, SourceEvent, SourceEventType } from '@repro/domain'
 import { LazyList } from '@repro/std'
-import { Atom } from '@repro/atom'
 
 export enum PlaybackState {
   Playing,

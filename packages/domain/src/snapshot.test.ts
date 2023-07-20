@@ -1,6 +1,6 @@
 import { approxByteLength } from '@repro/typed-binary-encoder'
-import { PointerState } from './interaction'
 import { elementNode, vtree } from './fixtures/vdom'
+import { PointerState } from './interaction'
 import { Snapshot, SnapshotView } from './snapshot'
 
 describe('Snapshot codecs', () => {

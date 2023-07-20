@@ -1,6 +1,9 @@
+import { Analytics } from '@repro/analytics'
 import { useApiClient } from '@repro/api-client'
-import { Button, Card, FX, ToggleGroup, colors } from '@repro/design'
+import { Button, Card, colors, FX, ToggleGroup } from '@repro/design'
 import { Project, RecordingMode, User } from '@repro/domain'
+import { logger } from '@repro/logger'
+import { useMessaging } from '@repro/messaging'
 import { toByteString } from '@repro/wire-formats'
 import { detect } from 'detect-browser'
 import { fork } from 'fluture'
@@ -13,10 +16,7 @@ import {
   XCircle as ErrorIcon,
 } from 'lucide-react'
 import React, { PropsWithChildren, useEffect, useState } from 'react'
-import { Analytics } from '@repro/analytics'
 import { LoginForm } from '~/libs/auth'
-import { logger } from '@repro/logger'
-import { useMessaging } from '@repro/messaging'
 import {
   PlaybackCanvas,
   PlaybackProvider,

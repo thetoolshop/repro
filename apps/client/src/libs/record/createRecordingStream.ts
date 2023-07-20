@@ -1,11 +1,13 @@
 import {
   ConsoleEvent,
+  ConsoleMessage,
   DOMPatchEvent,
   Interaction,
   InteractionEvent,
   InteractionSnapshot,
   InteractionType,
   NetworkEvent,
+  NetworkMessage,
   Patch,
   PerformanceEntry,
   PerformanceEvent,
@@ -18,25 +20,9 @@ import {
   SyntheticId,
   VNode,
 } from '@repro/domain'
+import { copyObjectDeep, LazyList } from '@repro/std'
 import { copy as copyDataView } from '@repro/typed-binary-encoder'
-import { isZeroPoint } from '~/utils/interaction'
-import { LazyList, copyObjectDeep } from '@repro/std'
-import { ObserverLike } from '~/utils/observer'
-import { applyEventToSnapshot, createEmptySnapshot } from '~/utils/source'
 import { applyVTreePatch, getNodeId } from '@repro/vdom-utils'
-import { Stats } from '../diagnostics'
-import { createBuffer, Unsubscribe } from './buffer-utils'
-import { createConsoleObserver } from './console'
-import {
-  createDOMObserver,
-  createDOMTreeWalker,
-  createDOMVisitor,
-  createIFrameVisitor,
-} from './dom'
-import { createInteractionObserver, createScrollVisitor } from './interaction'
-import { createNetworkObserver } from './network'
-import { observePeriodic } from './periodic'
-import { RecordingOptions } from './types'
 import {
   concat,
   defer,
@@ -47,9 +33,24 @@ import {
   switchMap,
   takeUntil,
 } from 'rxjs'
+import { isZeroPoint } from '~/utils/interaction'
+import { ObserverLike } from '~/utils/observer'
+import { applyEventToSnapshot, createEmptySnapshot } from '~/utils/source'
+import { Stats } from '../diagnostics'
+import { createBuffer, Unsubscribe } from './buffer-utils'
+import { createConsoleObserver } from './console'
+import {
+  createDOMObserver,
+  createDOMTreeWalker,
+  createDOMVisitor,
+  createIFrameVisitor,
+} from './dom'
+import { createInteractionObserver, createScrollVisitor } from './interaction'
 import { createViewportVisitor } from './interaction/visitor'
-import { NetworkMessage, ConsoleMessage } from '@repro/domain'
+import { createNetworkObserver } from './network'
 import { createPerformanceObserver } from './performance'
+import { observePeriodic } from './periodic'
+import { RecordingOptions } from './types'
 
 const defaultOptions: RecordingOptions = {
   types: new Set(['dom', 'interaction']),

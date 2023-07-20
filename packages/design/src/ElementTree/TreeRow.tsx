@@ -1,8 +1,8 @@
+import { SyntheticId } from '@repro/domain'
 import { Block } from 'jsxstyle'
 import React, { PropsWithChildren } from 'react'
 import { colors } from '../theme'
-import { INDENT, FONT_SIZE } from './constants'
-import { SyntheticId } from '@repro/domain'
+import { FONT_SIZE, INDENT } from './constants'
 import { Tag, useNodeState } from './context'
 
 type Props = PropsWithChildren<{

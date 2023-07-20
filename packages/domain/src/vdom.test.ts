@@ -1,16 +1,16 @@
 import { approxByteLength } from '@repro/typed-binary-encoder'
 import {
-  documentNode,
-  docTypeNode,
-  elementNode,
-  textNode,
-  attributePatch,
-  textPatch,
   addNodesPatch,
-  removeNodesPatch,
-  numberPropertyPatch,
-  textPropertyPatch,
+  attributePatch,
   booleanPropertyPatch,
+  docTypeNode,
+  documentNode,
+  elementNode,
+  numberPropertyPatch,
+  removeNodesPatch,
+  textNode,
+  textPatch,
+  textPropertyPatch,
   vtree,
 } from './fixtures/vdom'
 import {

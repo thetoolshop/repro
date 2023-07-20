@@ -1,5 +1,5 @@
-import z from 'zod'
 import { ArrayDescriptor, createView } from '@repro/typed-binary-encoder'
+import z from 'zod'
 
 export const POINT_BYTE_LENGTH = 4
 

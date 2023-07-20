@@ -1,5 +1,5 @@
-import { colors } from '../theme'
 import React from 'react'
+import { colors } from '../theme'
 
 interface Props {
   color?: string

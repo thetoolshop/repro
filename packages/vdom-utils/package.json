@@ -8,14 +8,15 @@
     "build:declarations": "tsc --project tsconfig-build.json --emitDeclarationOnly",
     "build:source": "./scripts/build",
     "clean": "rimraf dist",
-    "test": "jest"
+    "test": "jest",
+    "fmt": "prettier --write src"
   },
   "license": "UNLICENSED",
   "dependencies": {
     "@repro/domain": "workspace:*",
     "@repro/logger": "workspace:*",
-    "@repro/std": "workspace:*",
     "@repro/random-string": "workspace:*",
+    "@repro/std": "workspace:*",
     "@repro/ts-utils": "workspace:*"
   },
   "devDependencies": {
@@ -25,6 +26,8 @@
     "esbuild": "^0.15.7",
     "jest": "^29",
     "jest-environment-jsdom": "^29.4.2",
+    "prettier": "^3.0.0",
+    "prettier-plugin-organize-imports": "^3.2.3",
     "rimraf": "^3.0.2",
     "ts-eager": "^2.0.2",
     "ts-jest": "^29",

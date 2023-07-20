@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
 import { DragHandle as BaseDragHandle } from '@repro/design'
-import { MIN_HEIGHT, MAX_HEIGHT } from '../constants'
+import React, { useState } from 'react'
+import { MAX_HEIGHT, MIN_HEIGHT } from '../constants'
 import { useMask, useSize } from '../hooks'
 
 export const DragHandle: React.FC = () => {

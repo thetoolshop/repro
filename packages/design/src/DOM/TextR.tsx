@@ -1,5 +1,5 @@
-import { Inline } from 'jsxstyle'
 import { VText } from '@repro/domain'
+import { Inline } from 'jsxstyle'
 import React from 'react'
 import { colors } from '../theme'
 import { Container } from './Container'

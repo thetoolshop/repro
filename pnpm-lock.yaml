@@ -122,6 +122,12 @@ importers:
       nodemon:
         specifier: ^2.0.19
         version: 2.0.19
+      prettier:
+        specifier: ^3.0.0
+        version: 3.0.0
+      prettier-plugin-organize-imports:
+        specifier: ^3.2.3
+        version: 3.2.3(prettier@3.0.0)(typescript@4.9.4)
       rimraf:
         specifier: ^3.0.2
         version: 3.0.2
@@ -343,8 +349,11 @@ importers:
         specifier: ^6.4.7
         version: 6.4.7
       prettier:
-        specifier: ^2.8.1
-        version: 2.8.1
+        specifier: ^3.0.0
+        version: 3.0.0
+      prettier-plugin-organize-imports:
+        specifier: ^3.2.3
+        version: 3.2.3(prettier@3.0.0)(typescript@4.9.4)
       style-loader:
         specifier: ^3.3.1
         version: 3.3.1(webpack@5.75.0)
@@ -400,6 +409,12 @@ importers:
       jest:
         specifier: ^28.1.3
         version: 28.1.3(@types/node@18.7.13)(ts-node@10.9.1)
+      prettier:
+        specifier: ^3.0.0
+        version: 3.0.0
+      prettier-plugin-organize-imports:
+        specifier: ^3.2.3
+        version: 3.2.3(prettier@3.0.0)(typescript@4.9.4)
       rimraf:
         specifier: ^3.0.2
         version: 3.0.2
@@ -446,6 +461,12 @@ importers:
       jest:
         specifier: ^28.1.3
         version: 28.1.3(@types/node@18.7.13)(ts-node@10.9.1)
+      prettier:
+        specifier: ^3.0.0
+        version: 3.0.0
+      prettier-plugin-organize-imports:
+        specifier: ^3.2.3
+        version: 3.2.3(prettier@3.0.0)(typescript@4.9.4)
       rimraf:
         specifier: ^3.0.2
         version: 3.0.2
@@ -510,6 +531,12 @@ importers:
       esbuild:
         specifier: ^0.15.7
         version: 0.15.11
+      prettier:
+        specifier: ^3.0.0
+        version: 3.0.0
+      prettier-plugin-organize-imports:
+        specifier: ^3.2.3
+        version: 3.2.3(prettier@3.0.0)(typescript@4.9.4)
       rimraf:
         specifier: ^3.0.2
         version: 3.0.2
@@ -547,6 +574,12 @@ importers:
       jest:
         specifier: ^28.1.3
         version: 28.1.3(@types/node@18.7.13)(ts-node@10.9.1)
+      prettier:
+        specifier: ^3.0.0
+        version: 3.0.0
+      prettier-plugin-organize-imports:
+        specifier: ^3.2.3
+        version: 3.2.3(prettier@3.0.0)(typescript@4.9.4)
       rimraf:
         specifier: ^3.0.2
         version: 3.0.2
@@ -632,6 +665,12 @@ importers:
       jest:
         specifier: ^28.1.3
         version: 28.1.3(@types/node@18.7.13)(ts-node@10.9.1)
+      prettier:
+        specifier: ^3.0.0
+        version: 3.0.0
+      prettier-plugin-organize-imports:
+        specifier: ^3.2.3
+        version: 3.2.3(prettier@3.0.0)(typescript@4.9.4)
       rimraf:
         specifier: ^3.0.2
         version: 3.0.2
@@ -678,6 +717,12 @@ importers:
       jest:
         specifier: ^28.1.3
         version: 28.1.3(@types/node@18.7.13)(ts-node@10.9.1)
+      prettier:
+        specifier: ^3.0.0
+        version: 3.0.0
+      prettier-plugin-organize-imports:
+        specifier: ^3.2.3
+        version: 3.2.3(prettier@3.0.0)(typescript@4.9.4)
       rimraf:
         specifier: ^3.0.2
         version: 3.0.2
@@ -702,6 +747,12 @@ importers:
       esbuild:
         specifier: ^0.15.7
         version: 0.15.11
+      prettier:
+        specifier: ^3.0.0
+        version: 3.0.0
+      prettier-plugin-organize-imports:
+        specifier: ^3.2.3
+        version: 3.2.3(prettier@3.0.0)(typescript@4.9.4)
       rimraf:
         specifier: ^3.0.2
         version: 3.0.2
@@ -748,6 +799,12 @@ importers:
       jest:
         specifier: ^28.1.3
         version: 28.1.3(@types/node@18.7.13)(ts-node@10.9.1)
+      prettier:
+        specifier: ^3.0.0
+        version: 3.0.0
+      prettier-plugin-organize-imports:
+        specifier: ^3.2.3
+        version: 3.2.3(prettier@3.0.0)(typescript@4.9.4)
       rimraf:
         specifier: ^3.0.2
         version: 3.0.2
@@ -772,6 +829,12 @@ importers:
       esbuild:
         specifier: ^0.15.7
         version: 0.15.11
+      prettier:
+        specifier: ^3.0.0
+        version: 3.0.0
+      prettier-plugin-organize-imports:
+        specifier: ^3.2.3
+        version: 3.2.3(prettier@3.0.0)(typescript@4.9.4)
       rimraf:
         specifier: ^3.0.2
         version: 3.0.2
@@ -793,6 +856,12 @@ importers:
       esbuild:
         specifier: ^0.15.7
         version: 0.15.11
+      prettier:
+        specifier: ^3.0.0
+        version: 3.0.0
+      prettier-plugin-organize-imports:
+        specifier: ^3.2.3
+        version: 3.2.3(prettier@3.0.0)(typescript@4.9.4)
       rimraf:
         specifier: ^3.0.2
         version: 3.0.2
@@ -814,6 +883,12 @@ importers:
       esbuild:
         specifier: ^0.15.7
         version: 0.15.11
+      prettier:
+        specifier: ^3.0.0
+        version: 3.0.0
+      prettier-plugin-organize-imports:
+        specifier: ^3.2.3
+        version: 3.2.3(prettier@3.0.0)(typescript@4.9.4)
       rimraf:
         specifier: ^3.0.2
         version: 3.0.2
@@ -848,6 +923,12 @@ importers:
       jest:
         specifier: ^28.1.3
         version: 28.1.3(@types/node@18.7.13)(ts-node@10.9.1)
+      prettier:
+        specifier: ^3.0.0
+        version: 3.0.0
+      prettier-plugin-organize-imports:
+        specifier: ^3.2.3
+        version: 3.2.3(prettier@3.0.0)(typescript@4.9.4)
       ts-eager:
         specifier: ^2.0.2
         version: 2.0.2
@@ -879,6 +960,12 @@ importers:
       esbuild:
         specifier: ^0.15.11
         version: 0.15.11
+      prettier:
+        specifier: ^3.0.0
+        version: 3.0.0
+      prettier-plugin-organize-imports:
+        specifier: ^3.2.3
+        version: 3.2.3(prettier@3.0.0)(typescript@4.9.4)
       rimraf:
         specifier: ^3.0.2
         version: 3.0.2
@@ -922,6 +1009,12 @@ importers:
       jest-environment-jsdom:
         specifier: ^29.4.2
         version: 29.4.2
+      prettier:
+        specifier: ^3.0.0
+        version: 3.0.0
+      prettier-plugin-organize-imports:
+        specifier: ^3.2.3
+        version: 3.2.3(prettier@3.0.0)(typescript@4.9.4)
       rimraf:
         specifier: ^3.0.2
         version: 3.0.2
@@ -952,6 +1045,12 @@ importers:
       jest:
         specifier: ^28.1.3
         version: 28.1.3(@types/node@18.7.13)(ts-node@10.9.1)
+      prettier:
+        specifier: ^3.0.0
+        version: 3.0.0
+      prettier-plugin-organize-imports:
+        specifier: ^3.2.3
+        version: 3.2.3(prettier@3.0.0)(typescript@4.9.4)
       rimraf:
         specifier: ^3.0.2
         version: 3.0.2
@@ -9076,9 +9175,26 @@ packages:
     engines: {node: '>= 0.8.0'}
     dev: true
 
-  /prettier@2.8.1:
-    resolution: {integrity: sha512-lqGoSJBQNJidqCHE80vqZJHWHRFoNYsSpP9AjFhlhi9ODCJA541svILes/+/1GM3VaL/abZi7cpFzOpdR9UPKg==}
-    engines: {node: '>=10.13.0'}
+  /prettier-plugin-organize-imports@3.2.3(prettier@3.0.0)(typescript@4.9.4):
+    resolution: {integrity: sha512-KFvk8C/zGyvUaE3RvxN2MhCLwzV6OBbFSkwZ2OamCrs9ZY4i5L77jQ/w4UmUr+lqX8qbaqVq6bZZkApn+IgJSg==}
+    peerDependencies:
+      '@volar/vue-language-plugin-pug': ^1.0.4
+      '@volar/vue-typescript': ^1.0.4
+      prettier: '>=2.0'
+      typescript: '>=2.9'
+    peerDependenciesMeta:
+      '@volar/vue-language-plugin-pug':
+        optional: true
+      '@volar/vue-typescript':
+        optional: true
+    dependencies:
+      prettier: 3.0.0
+      typescript: 4.9.4
+    dev: true
+
+  /prettier@3.0.0:
+    resolution: {integrity: sha512-zBf5eHpwHOGPC47h0zrPyNn+eAEIdEzfywMoYn2XPi0P44Zp0tSq64rq0xAREh4auw2cJZHo9QUob+NqCQky4g==}
+    engines: {node: '>=14'}
     hasBin: true
     dev: true
 

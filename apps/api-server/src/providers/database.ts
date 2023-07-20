@@ -1,4 +1,3 @@
-import { createError, notFound } from '~/utils/errors'
 import Future, {
   attempt,
   chain,
@@ -18,6 +17,7 @@ import { from as copyFrom } from 'pg-copy-streams'
 import QueryStream from 'pg-query-stream'
 import { Observable } from 'rxjs'
 import { Readable } from 'stream'
+import { createError, notFound } from '~/utils/errors'
 
 export interface DatabaseClient {
   query<R extends QueryResultRow>(

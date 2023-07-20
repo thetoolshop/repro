@@ -1,8 +1,8 @@
 import {
   NodeType,
   SyntheticId,
-  VDocument,
   VDocType,
+  VDocument,
   VElement,
   VText,
   VTree,

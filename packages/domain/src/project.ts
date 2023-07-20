@@ -1,7 +1,7 @@
 import {
-  StructDescriptor,
   createView,
   IntegerDescriptor,
+  StructDescriptor,
 } from '@repro/typed-binary-encoder'
 import z from 'zod'
 

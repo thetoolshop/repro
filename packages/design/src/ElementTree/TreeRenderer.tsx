@@ -1,7 +1,7 @@
-import React from 'react'
 import { VTree } from '@repro/domain'
-import { NodeRenderer } from './NodeRenderer'
+import React from 'react'
 import { VTreeContext } from './context'
+import { NodeRenderer } from './NodeRenderer'
 
 interface Props {
   vtree: VTree

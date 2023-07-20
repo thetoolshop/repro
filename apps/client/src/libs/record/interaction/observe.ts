@@ -1,12 +1,12 @@
 import { Interaction, InteractionType, Point } from '@repro/domain'
+import { getNodeId } from '@repro/vdom-utils'
 import {
   isElementNode,
   isInputElement,
   isSelectElement,
   isTextAreaElement,
 } from '~/utils/dom'
-import { ObserverLike, createEventObserver } from '~/utils/observer'
-import { getNodeId } from '@repro/vdom-utils'
+import { createEventObserver, ObserverLike } from '~/utils/observer'
 import { createVElement } from '../dom/factory'
 import { isIgnoredByNode, isIgnoredBySelector } from '../dom/utils'
 import { RecordingOptions } from '../types'

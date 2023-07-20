@@ -5,15 +5,15 @@ import {
   BooleanDescriptor,
   BufferDescriptor,
   CharDescriptor,
+  createView,
   DictDescriptor,
+  encodeProperty,
+  getProperty,
   IntegerDescriptor,
   StringDescriptor,
   StructDescriptor,
   UnionDescriptor,
   VectorDescriptor,
-  createView,
-  encodeProperty,
-  getProperty,
 } from '.'
 
 describe('utils: buffer descriptors', () => {

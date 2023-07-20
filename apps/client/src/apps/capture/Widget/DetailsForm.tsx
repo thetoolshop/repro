@@ -1,4 +1,4 @@
-import { Button, Input, Label, colors } from '@repro/design'
+import { Button, colors, Input, Label } from '@repro/design'
 import { Block, Col, Row } from 'jsxstyle'
 import { Eye as PublicVisibilityIcon } from 'lucide-react'
 import React, { PropsWithChildren } from 'react'

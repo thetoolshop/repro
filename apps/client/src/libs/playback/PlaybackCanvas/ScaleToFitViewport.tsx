@@ -1,3 +1,5 @@
+import { colors } from '@repro/design'
+import { Point } from '@repro/domain'
 import { Block } from 'jsxstyle'
 import React, {
   MutableRefObject,
@@ -7,9 +9,7 @@ import React, {
   useRef,
   useState,
 } from 'react'
-import { colors } from '@repro/design'
 import { useViewport } from '~/libs/playback'
-import { Point } from '@repro/domain'
 
 export const ScaleToFitViewport: React.FC<PropsWithChildren> = ({
   children,

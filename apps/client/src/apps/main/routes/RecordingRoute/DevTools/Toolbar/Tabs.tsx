@@ -1,13 +1,13 @@
+import { colors } from '@repro/design'
 import { Inline, Row } from 'jsxstyle'
-import React, { PropsWithChildren } from 'react'
 import {
+  AlertTriangle as ConsoleIcon,
   Code as ElementsIcon,
   Globe as NetworkIcon,
-  AlertTriangle as ConsoleIcon,
 } from 'lucide-react'
-import { colors } from '@repro/design'
-import { View } from '../../types'
+import React, { PropsWithChildren } from 'react'
 import { useView } from '../../hooks'
+import { View } from '../../types'
 
 export const Tabs: React.FC = () => {
   return (

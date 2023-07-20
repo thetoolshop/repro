@@ -1,6 +1,6 @@
 import { Block, Row } from 'jsxstyle'
-import React from 'react'
 import { CheckCircle, Circle } from 'lucide-react'
+import React from 'react'
 import { colors } from '../theme'
 
 interface Props {

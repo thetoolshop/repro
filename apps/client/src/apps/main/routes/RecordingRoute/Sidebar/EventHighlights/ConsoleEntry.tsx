@@ -1,7 +1,7 @@
+import { colors } from '@repro/design'
 import { ConsoleEvent, LogLevel, MessagePartType } from '@repro/domain'
 import { AlertCircle, AlertTriangle } from 'lucide-react'
 import React from 'react'
-import { colors } from '@repro/design'
 import { useView } from '../../hooks'
 import { View } from '../../types'
 import { BaseEntry } from './BaseEntry'

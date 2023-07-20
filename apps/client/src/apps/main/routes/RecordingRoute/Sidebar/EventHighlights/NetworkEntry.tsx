@@ -1,3 +1,4 @@
+import { colors } from '@repro/design'
 import { NetworkEvent, NetworkMessageType } from '@repro/domain'
 import { Block, Row } from 'jsxstyle'
 import {
@@ -5,7 +6,6 @@ import {
   ArrowUpDown as WebSocketIcon,
 } from 'lucide-react'
 import React from 'react'
-import { colors } from '@repro/design'
 import { useView } from '../../hooks'
 import { View } from '../../types'
 import { BaseEntry } from './BaseEntry'

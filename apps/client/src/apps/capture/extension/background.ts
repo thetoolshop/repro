@@ -1,3 +1,5 @@
+import { Analytics } from '@repro/analytics'
+import { mixpanelHttp } from '@repro/analytics-provider-mixpanel'
 import { ApiClient, createApiClient } from '@repro/api-client'
 import { SourceEventView } from '@repro/domain'
 import { randomString } from '@repro/random-string'
@@ -13,8 +15,6 @@ import {
   reject,
   resolve,
 } from 'fluture'
-import { Analytics } from '@repro/analytics'
-import { mixpanelHttp } from '@repro/analytics-provider-mixpanel'
 import { createRuntimeAgent } from './createRuntimeAgent'
 
 function run<L, R>(source: FutureInstance<L, R>, resolve = console.log) {

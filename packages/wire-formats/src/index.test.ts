@@ -1,4 +1,4 @@
-import { toJSON, fromJSON, toWireFormat, fromWireFormat } from './index'
+import { fromJSON, fromWireFormat, toJSON, toWireFormat } from './index'
 
 describe('wire-formats', () => {
   it('should convert an object to and from JSON', () => {

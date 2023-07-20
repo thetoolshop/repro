@@ -1,5 +1,5 @@
 import { Session } from '@repro/domain'
-import { chain, map, FutureInstance } from 'fluture'
+import { chain, FutureInstance, map } from 'fluture'
 import { always } from 'ramda'
 import { SessionProvider } from '~/providers/session'
 import { CryptoUtils } from '~/utils/crypto'

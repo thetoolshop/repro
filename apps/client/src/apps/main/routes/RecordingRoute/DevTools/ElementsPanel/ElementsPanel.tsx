@@ -1,10 +1,10 @@
-import { ElementTree, colors } from '@repro/design'
+import { colors, ElementTree } from '@repro/design'
+import { VElement, VTree } from '@repro/domain'
+import { isDocumentVNode, isElementVNode } from '@repro/vdom-utils'
 import { Block, Grid } from 'jsxstyle'
 import React, { PropsWithChildren, useEffect, useState } from 'react'
 import { useSnapshot } from '~/libs/playback'
-import { VElement, VTree } from '@repro/domain'
-import { isDocumentVNode, isElementVNode } from '@repro/vdom-utils'
-import { useSelectedNode, useFocusedNode, usePicker } from '../../hooks'
+import { useFocusedNode, usePicker, useSelectedNode } from '../../hooks'
 import { SelectedNodeComputedStyle } from './SelectedNodeComputedStyle'
 
 export const ElementsPanel: React.FC = () => {

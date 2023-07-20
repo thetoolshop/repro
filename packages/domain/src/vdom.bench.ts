@@ -1,6 +1,17 @@
 import { approxByteLength } from '@repro/typed-binary-encoder'
 import { stress } from './bench-utils'
 import {
+  addNodesPatch,
+  attributePatch,
+  docTypeNode,
+  documentNode,
+  elementNode,
+  removeNodesPatch,
+  textNode,
+  textPatch,
+  vtree,
+} from './fixtures/vdom'
+import {
   AddNodesPatchView,
   AttributePatchView,
   RemoveNodesPatchView,
@@ -11,17 +22,6 @@ import {
   VTextView,
   VTreeView,
 } from './vdom'
-import {
-  documentNode,
-  docTypeNode,
-  elementNode,
-  textNode,
-  vtree,
-  attributePatch,
-  textPatch,
-  addNodesPatch,
-  removeNodesPatch,
-} from './fixtures/vdom'
 
 const documentBuffer = VDocumentView.encode(documentNode)
 const docTypeBuffer = VDocTypeView.encode(docTypeNode)

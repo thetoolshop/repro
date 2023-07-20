@@ -159,13 +159,16 @@ export function filterResourceMap(
   resourceMap: Record<string, string>,
   resourceIds: Array<string>
 ): Record<string, string> {
-  return resourceIds.reduce((filteredResourceMap, resourceId) => {
-    const resource = resourceMap[resourceId]
+  return resourceIds.reduce(
+    (filteredResourceMap, resourceId) => {
+      const resource = resourceMap[resourceId]
 
-    if (resource) {
-      filteredResourceMap[resourceId] = resource
-    }
+      if (resource) {
+        filteredResourceMap[resourceId] = resource
+      }
 
-    return filteredResourceMap
-  }, {} as Record<string, string>)
+      return filteredResourceMap
+    },
+    {} as Record<string, string>
+  )
 }

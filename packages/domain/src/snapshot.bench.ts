@@ -1,8 +1,8 @@
 import { approxByteLength } from '@repro/typed-binary-encoder'
 import { stress } from './bench-utils'
 import {
-  documentNode,
   docTypeNode,
+  documentNode,
   elementNode,
   textNode,
 } from './fixtures/vdom'
