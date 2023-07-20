@@ -1,13 +1,9 @@
-import {
-  RecordingMetadata,
-  RecordingMode,
-  SourceEventType,
-} from '@repro/domain'
-import { Block, Col, Grid, InlineRow, Row } from 'jsxstyle'
-import { Camera as CameraIcon, Video as VideoIcon } from 'lucide-react'
-import React, { Fragment, useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
 import { colors } from '@repro/design'
+import { RecordingMetadata, RecordingMode } from '@repro/domain'
+import { Block, Col, InlineRow, Row } from 'jsxstyle'
+import { Camera as CameraIcon, Video as VideoIcon } from 'lucide-react'
+import React from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { formatDate, formatTime } from '~/utils/date'
 
 interface Props {

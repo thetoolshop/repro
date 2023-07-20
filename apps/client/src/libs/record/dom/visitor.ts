@@ -1,22 +1,22 @@
 import { SyntheticId, VNode, VTree } from '@repro/domain'
 import {
-  isExternalResource,
-  isExternalStyleSheet,
-  isIFrameElement,
-  isLocalStylesheet,
-} from '~/utils/dom'
-import {
   addVNode,
   createVTreeWithRoot,
   getNodeId,
   insertSubTreesAtNode,
   isElementVNode,
 } from '@repro/vdom-utils'
-import { Visitor, Subscribable, Subscriber } from '../types'
+import {
+  isExternalResource,
+  isExternalStyleSheet,
+  isIFrameElement,
+  isLocalStylesheet,
+} from '~/utils/dom'
+import { Subscribable, Subscriber, Visitor } from '../types'
 import {
   createStyleSheetVTree,
-  createVDocument,
   createVDocType,
+  createVDocument,
   createVElement,
   createVText,
 } from './factory'

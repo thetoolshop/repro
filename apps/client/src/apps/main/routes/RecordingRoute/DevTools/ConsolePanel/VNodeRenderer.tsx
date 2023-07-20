@@ -1,12 +1,12 @@
 import { DocTypeR, DocumentR, ElementR, TextR } from '@repro/design'
 import { VNode } from '@repro/domain'
-import React from 'react'
 import {
   isDocTypeVNode,
   isDocumentVNode,
   isElementVNode,
   isTextVNode,
 } from '@repro/vdom-utils'
+import React from 'react'
 
 interface Props {
   node: VNode

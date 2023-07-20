@@ -8,12 +8,12 @@ import {
 } from '@repro/typed-binary-encoder'
 import z, { ZodType, ZodTypeDef } from 'zod'
 import { uint32 } from './common'
+import { ConsoleMessageSchema, ConsoleMessageView } from './console'
 import { InteractionSchema, InteractionView } from './interaction'
+import { NetworkMessageSchema, NetworkMessageView } from './network'
+import { PerformanceEntrySchema, PerformanceEntryView } from './performance'
 import { SnapshotSchema, SnapshotView } from './snapshot'
 import { DOMPatchSchema, DOMPatchView } from './vdom'
-import { NetworkMessageSchema, NetworkMessageView } from './network'
-import { ConsoleMessageSchema, ConsoleMessageView } from './console'
-import { PerformanceEntrySchema, PerformanceEntryView } from './performance'
 
 // type SourceEventType: enum {
 //   Snapshot = 0

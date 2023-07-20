@@ -1,9 +1,9 @@
 export * from './context'
-export type { RecordingStream } from './createRecordingStream'
 export {
-  InterruptSignal,
   createRecordingStream,
   interrupt,
+  InterruptSignal,
 } from './createRecordingStream'
+export type { RecordingStream } from './createRecordingStream'
 export * from './hooks'
 export * from './utils'

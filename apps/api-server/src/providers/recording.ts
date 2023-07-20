@@ -1,7 +1,7 @@
 import {
+  CodecVersion,
   CODEC_VERSION,
   migrate,
-  CodecVersion,
   RecordingMetadata,
   RecordingMetadataView,
   RecordingMode,
@@ -10,7 +10,7 @@ import {
 import { fromJSON, fromWireFormat, toJSON } from '@repro/wire-formats'
 import { chain, FutureInstance, map as fMap, mapRej } from 'fluture'
 import { QueryResultRow } from 'pg'
-import { Observable, map as rxMap } from 'rxjs'
+import { map as rxMap, Observable } from 'rxjs'
 import { Readable, Transform } from 'stream'
 import { permissionDenied } from '~/utils/errors'
 import { DatabaseClient } from './database'

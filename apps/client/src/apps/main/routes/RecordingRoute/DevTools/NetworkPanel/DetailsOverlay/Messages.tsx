@@ -1,4 +1,4 @@
-import { JSONView, colors } from '@repro/design'
+import { colors, JSONView } from '@repro/design'
 import {
   NetworkMessageType,
   WebSocketInbound,
@@ -8,8 +8,8 @@ import {
 import { Block, Grid, Inline, Row } from 'jsxstyle'
 import { JsxstyleProps } from 'jsxstyle/lib/types'
 import {
-  ChevronsUp as OutboundIcon,
   ChevronsDown as InboundIcon,
+  ChevronsUp as OutboundIcon,
   X as CloseIcon,
 } from 'lucide-react'
 import prettyBytes from 'pretty-bytes'

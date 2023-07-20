@@ -1,4 +1,4 @@
-import { FutureInstance, fork } from 'fluture'
+import { fork, FutureInstance } from 'fluture'
 import { useEffect, useRef, useState } from 'react'
 
 interface ResolvedFuture<R> {

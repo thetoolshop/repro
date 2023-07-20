@@ -1,12 +1,12 @@
+import { colors } from '@repro/design'
 import { Block, InlineBlock } from 'jsxstyle'
 import React, { useEffect, useState } from 'react'
-import { colors } from '@repro/design'
 import { useElapsed, useLatestControlFrame } from '~/libs/playback'
 import {
-  CSSPropertyMap,
-  GroupedCSSPropertyMap,
   createCSSPropertyMap,
   createGroupedCSSPropertyMap,
+  CSSPropertyMap,
+  GroupedCSSPropertyMap,
   useReferenceStyle,
 } from '~/libs/styles'
 import { isElementNode } from '~/utils/dom'

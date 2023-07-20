@@ -1,7 +1,7 @@
+import { colors } from '@repro/design'
 import { Block, Row } from 'jsxstyle'
 import { SkipForward } from 'lucide-react'
 import React, { useCallback } from 'react'
-import { colors } from '@repro/design'
 import { usePlayback } from '~/libs/playback'
 
 interface Props {

@@ -1,7 +1,7 @@
-import { Button, Logo, colors } from '@repro/design'
+import { Button, colors, Logo } from '@repro/design'
 import { Block, Grid, InlineCol, Row } from 'jsxstyle'
-import React from 'react'
 import { X as CloseIcon } from 'lucide-react'
+import React from 'react'
 import { MAX_INT32 } from '../constants'
 import { useActive } from '../hooks'
 

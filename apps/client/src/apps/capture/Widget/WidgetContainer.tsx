@@ -1,4 +1,4 @@
-import { Logo, colors } from '@repro/design'
+import { colors, Logo } from '@repro/design'
 import { Block, InlineBlock, Row } from 'jsxstyle'
 import React, { PropsWithChildren } from 'react'
 import { useActive } from '../hooks'

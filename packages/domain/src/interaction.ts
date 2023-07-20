@@ -8,7 +8,7 @@ import {
 } from '@repro/typed-binary-encoder'
 import z from 'zod'
 
-import { PointView, PointSchema } from './point'
+import { PointSchema, PointView } from './point'
 import { NodeIdSchema, NodeIdView, VElementSchema, VElementView } from './vdom'
 
 // type ScrollMap: map<NodeId, Point>

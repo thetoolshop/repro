@@ -1,6 +1,6 @@
 import { createView } from '@repro/typed-binary-encoder'
 import z from 'zod'
-import { uint8, uint16, uint32 } from './common'
+import { uint16, uint32, uint8 } from './common'
 
 // type FreePlan: struct {
 //   type: 'free'

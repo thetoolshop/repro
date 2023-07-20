@@ -1,5 +1,5 @@
-import React, { PropsWithChildren } from 'react'
 import { Block, Row } from 'jsxstyle'
+import React, { PropsWithChildren } from 'react'
 import { colors } from '../theme'
 
 type AlertType = 'info' | 'success' | 'warning' | 'danger'

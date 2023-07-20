@@ -1,17 +1,17 @@
-import { FutureInstance, fork, promise, Cancel } from 'fluture'
+import { Cancel, fork, FutureInstance, promise } from 'fluture'
 import {
   ApiConfiguration,
-  createLocalStorageAuthStore,
-  createInMemoryAuthStore,
   createDataLoader,
+  createInMemoryAuthStore,
+  createLocalStorageAuthStore,
 } from './common'
 
 import { AuthApi, createAuthApi } from './auth'
-import { HealthApi, createHealthApi } from './health'
-import { ProjectApi, createProjectApi } from './project'
-import { RecordingApi, createRecordingApi } from './recording'
-import { TeamApi, createTeamApi } from './team'
-import { UserApi, createUserApi } from './user'
+import { createHealthApi, HealthApi } from './health'
+import { createProjectApi, ProjectApi } from './project'
+import { createRecordingApi, RecordingApi } from './recording'
+import { createTeamApi, TeamApi } from './team'
+import { createUserApi, UserApi } from './user'
 
 export interface ApiClient {
   auth: AuthApi

@@ -1,9 +1,9 @@
-import { useContext } from 'react'
 import { useAtomValue } from '@repro/atom'
+import { PointerState } from '@repro/domain'
+import { useContext } from 'react'
+import { OUT_OF_BOUNDS_POINT, ZERO_POINT } from './constants'
 import { PlaybackContext } from './context'
 import { EMPTY_PLAYBACK } from './createSourcePlayback'
-import { PointerState } from '@repro/domain'
-import { OUT_OF_BOUNDS_POINT, ZERO_POINT } from './constants'
 
 export function usePlayback() {
   return useContext(PlaybackContext) || EMPTY_PLAYBACK

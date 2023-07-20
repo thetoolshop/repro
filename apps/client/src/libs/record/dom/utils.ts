@@ -2,13 +2,13 @@ import { VTree } from '@repro/domain'
 
 import {
   isDocTypeNode,
-  isDocumentNode,
   isDocumentFragmentNode,
+  isDocumentNode,
   isElementNode,
   isIFrameElement,
+  isLocalStylesheet,
   isScriptElement,
   isTextNode,
-  isLocalStylesheet,
 } from '~/utils/dom'
 
 import { DOMOptions, Visitor } from '../types'

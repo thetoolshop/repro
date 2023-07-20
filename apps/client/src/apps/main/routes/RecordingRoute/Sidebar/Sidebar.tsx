@@ -1,4 +1,4 @@
-import { Card, DefinitionList, colors } from '@repro/design'
+import { Card, colors, DefinitionList } from '@repro/design'
 import { RecordingMetadata } from '@repro/domain'
 import { Block, Grid } from 'jsxstyle'
 import React from 'react'

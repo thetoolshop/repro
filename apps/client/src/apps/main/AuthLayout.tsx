@@ -1,4 +1,4 @@
-import { Logo, colors } from '@repro/design'
+import { colors, Logo } from '@repro/design'
 import { Block, Col, Grid, Row } from 'jsxstyle'
 import React from 'react'
 import { Outlet } from 'react-router'

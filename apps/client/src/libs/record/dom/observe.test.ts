@@ -3,12 +3,12 @@
  */
 
 import { NodeType, Patch, PatchType } from '@repro/domain'
-import { MockNodeList } from '~/utils/testing'
 import { getNodeId } from '@repro/vdom-utils'
-import { createDOMTreeWalker } from './utils'
-import { createDOMVisitor } from './visitor'
+import { MockNodeList } from '~/utils/testing'
 import { RecordingOptions } from '../types'
 import { internal__processMutationRecords } from './observe'
+import { createDOMTreeWalker } from './utils'
+import { createDOMVisitor } from './visitor'
 
 describe('libs/record: dom observers', () => {
   it('should correctly process an attribute mutation record', () => {

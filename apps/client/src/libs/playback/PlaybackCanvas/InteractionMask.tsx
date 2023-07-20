@@ -1,5 +1,5 @@
-import React from 'react'
 import { Block } from 'jsxstyle'
+import React from 'react'
 
 export const InteractionMask: React.FC = () => (
   <Block

@@ -1,6 +1,6 @@
 import { Point, SyntheticId } from '@repro/domain'
 import { getNodeId } from '@repro/vdom-utils'
-import { Visitor, Subscribable, Subscriber } from '../types'
+import { Subscribable, Subscriber, Visitor } from '../types'
 
 type ScrollMap = Record<SyntheticId, Point>
 

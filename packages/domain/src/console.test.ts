@@ -1,11 +1,11 @@
 import { approxByteLength } from '@repro/typed-binary-encoder'
-import { elementNode } from './fixtures/vdom'
 import {
   ConsoleMessage,
   ConsoleMessageView,
   LogLevel,
   MessagePartType,
 } from './console'
+import { elementNode } from './fixtures/vdom'
 
 describe('Console codecs', () => {
   it('should create a binary view for a console message', () => {

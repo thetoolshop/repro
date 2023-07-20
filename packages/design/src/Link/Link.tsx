@@ -1,5 +1,5 @@
-import React, { PropsWithChildren } from 'react'
 import { Inline } from 'jsxstyle'
+import React, { PropsWithChildren } from 'react'
 import { colors } from '../theme'
 
 export const Link: React.FC<PropsWithChildren> = ({ children }) => (

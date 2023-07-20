@@ -6,7 +6,7 @@ import React, {
   useContext,
   useRef,
 } from 'react'
-import { CSSPropertyMap, createCSSPropertyMap } from './utils'
+import { createCSSPropertyMap, CSSPropertyMap } from './utils'
 
 const ReferenceStyleContext = React.createContext<
   (tagName: string) => CSSPropertyMap | null

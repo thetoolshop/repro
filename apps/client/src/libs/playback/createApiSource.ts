@@ -1,8 +1,8 @@
 import { ApiClient } from '@repro/api-client'
-import { SourceEvent, SourceEventView } from '@repro/domain'
-import { both, chainRej, fork, resolve } from 'fluture'
-import { LazyList } from '@repro/std'
 import { createAtom } from '@repro/atom'
+import { SourceEvent, SourceEventView } from '@repro/domain'
+import { LazyList } from '@repro/std'
+import { both, chainRej, fork, resolve } from 'fluture'
 import { ReadyState, Source } from './types'
 
 const EMPTY_RESOURCE_MAP = {}

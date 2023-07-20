@@ -1,7 +1,7 @@
-import { Row } from 'jsxstyle'
-import React, { useCallback } from 'react'
-import { Inspect as PickerIcon } from 'lucide-react'
 import { colors } from '@repro/design'
+import { Row } from 'jsxstyle'
+import { Inspect as PickerIcon } from 'lucide-react'
+import React, { useCallback } from 'react'
 import { usePicker } from '../../hooks'
 
 export const Picker: React.FC = () => {

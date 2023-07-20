@@ -1,5 +1,13 @@
 import { compare, hash } from 'bcrypt'
 import {
+  createPrivateKey,
+  createPublicKey,
+  KeyObject,
+  privateEncrypt,
+  publicDecrypt,
+  randomBytes,
+} from 'crypto'
+import {
   attempt,
   attemptP,
   chain,
@@ -11,14 +19,6 @@ import {
 } from 'fluture'
 import fs from 'fs'
 import { createError } from '~/utils/errors'
-import {
-  createPrivateKey,
-  createPublicKey,
-  KeyObject,
-  privateEncrypt,
-  publicDecrypt,
-  randomBytes,
-} from 'crypto'
 
 export interface CryptoUtils {
   createHash(data: string): FutureInstance<Error, string>

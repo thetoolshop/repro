@@ -1,6 +1,6 @@
+import { ProjectRole } from '@repro/domain'
 import { fork, go } from 'fluture'
 import { createTransport as createEmailTransport } from 'nodemailer'
-import { ProjectRole } from '@repro/domain'
 import { env } from '~/config/env'
 import { createDatabaseClient } from '~/providers/database'
 import { createProjectProvider } from '~/providers/project'

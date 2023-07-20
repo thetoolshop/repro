@@ -1,19 +1,19 @@
 import {
   AddNodesPatch,
   AttributePatch,
-  NodeType,
-  PatchType,
-  TextPropertyPatch,
-  NumberPropertyPatch,
   BooleanPropertyPatch,
+  createNodeId,
+  NodeType,
+  NumberPropertyPatch,
+  PatchType,
   RemoveNodesPatch,
   TextPatch,
+  TextPropertyPatch,
   VDocType,
   VDocument,
   VElement,
   VText,
   VTree,
-  createNodeId,
 } from '../vdom'
 
 export const documentNode: VDocument = {

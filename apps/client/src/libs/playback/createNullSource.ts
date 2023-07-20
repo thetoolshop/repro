@@ -1,8 +1,8 @@
-import { Source } from './types'
 import { createAtom } from '@repro/atom'
 import { SourceEvent } from '@repro/domain'
-import { ReadyState } from '.'
 import { LazyList } from '@repro/std'
+import { ReadyState } from '.'
+import { Source } from './types'
 
 export function createNullSource(): Source {
   const [$events] = createAtom(LazyList.Empty<SourceEvent>())

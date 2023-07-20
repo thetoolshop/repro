@@ -1,3 +1,4 @@
+import { colors } from '@repro/design'
 import {
   ConsoleEvent,
   MessagePartType,
@@ -14,7 +15,6 @@ import React, {
   useRef,
 } from 'react'
 import { filter } from 'rxjs'
-import { colors } from '@repro/design'
 import { Stats } from '~/libs/diagnostics'
 import { ControlFrame, ElapsedMarker, usePlayback } from '~/libs/playback'
 import { useConsoleLevelFilter, useConsoleSearch } from '../../hooks'

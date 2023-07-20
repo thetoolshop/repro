@@ -1,6 +1,3 @@
-import { Stats } from '~/libs/diagnostics'
-import { logger } from '@repro/logger'
-import { usePlayback } from '~/libs/playback'
 import {
   DOMPatchEvent,
   InteractionEvent,
@@ -12,15 +9,7 @@ import {
   SyntheticId,
   VTree,
 } from '@repro/domain'
-import {
-  isBodyElement,
-  isCustomElement,
-  isElementNode,
-  isHTMLElement,
-  isTextNode,
-  isValidAttributeName,
-} from '~/utils/dom'
-import { interpolatePointFromSample } from '~/utils/source'
+import { logger } from '@repro/logger'
 import {
   extractCSSEmbeddedURLs,
   isDocTypeVNode,
@@ -38,6 +27,17 @@ import {
   observeOn,
   switchMap,
 } from 'rxjs/operators'
+import { Stats } from '~/libs/diagnostics'
+import { usePlayback } from '~/libs/playback'
+import {
+  isBodyElement,
+  isCustomElement,
+  isElementNode,
+  isHTMLElement,
+  isTextNode,
+  isValidAttributeName,
+} from '~/utils/dom'
+import { interpolatePointFromSample } from '~/utils/source'
 import { OUT_OF_BOUNDS_POINT } from '../constants'
 import { ControlFrame } from '../types'
 import { MutableNodeMap } from './types'

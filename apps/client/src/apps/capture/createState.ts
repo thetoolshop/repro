@@ -1,5 +1,5 @@
-import { RecordingMode, User } from '@repro/domain'
 import { Atom, createAtom, Setter } from '@repro/atom'
+import { RecordingMode, User } from '@repro/domain'
 import { ReadyState } from './types'
 
 export interface State {

@@ -1,4 +1,4 @@
-import { DefinitionList, colors } from '@repro/design'
+import { colors, DefinitionList } from '@repro/design'
 import { getReasonPhrase } from 'http-status-codes'
 import { Block, Grid, Row } from 'jsxstyle'
 import React from 'react'

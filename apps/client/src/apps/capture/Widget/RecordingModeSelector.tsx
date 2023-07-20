@@ -1,13 +1,13 @@
+import { colors } from '@repro/design'
+import { RecordingMode } from '@repro/domain'
 import { Block, Col, Row } from 'jsxstyle'
-import React, { PropsWithChildren } from 'react'
 import {
   // Camera as ScreenshotIcon,
   ChevronRight as ForwardIcon,
   History as ReplayIcon,
   Video as VideoIcon,
 } from 'lucide-react'
-import { colors } from '@repro/design'
-import { RecordingMode } from '@repro/domain'
+import React, { PropsWithChildren } from 'react'
 import { useReadyState, useRecordingMode } from '../hooks'
 import { ReadyState } from '../types'
 import { WidgetContainer } from './WidgetContainer'

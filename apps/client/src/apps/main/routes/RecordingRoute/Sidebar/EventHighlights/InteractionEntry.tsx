@@ -1,9 +1,9 @@
-import { ElementR, colors } from '@repro/design'
+import { colors, ElementR } from '@repro/design'
 import { Click, InteractionEvent, InteractionType } from '@repro/domain'
 import { Block, Row } from 'jsxstyle'
 import {
-  MousePointerClick as ClickIcon,
   Link2 as LinkIcon,
+  MousePointerClick as ClickIcon,
   Scaling as ViewportResizeIcon,
 } from 'lucide-react'
 import React from 'react'

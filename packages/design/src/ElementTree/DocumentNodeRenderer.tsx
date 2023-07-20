@@ -1,12 +1,11 @@
-import { Block } from 'jsxstyle'
-import React from 'react'
 import { SyntheticId, VDocument } from '@repro/domain'
-import { useContext } from 'react'
+import { Block } from 'jsxstyle'
+import React, { useContext } from 'react'
 import { DocumentR } from '../DOM'
-import { VTreeContext, useNode, useNodeVisibility } from './context'
+import { useNode, useNodeVisibility, VTreeContext } from './context'
+import { NodeRenderer } from './NodeRenderer'
 import { Toggle } from './Toggle'
 import { TreeRow } from './TreeRow'
-import { NodeRenderer } from './NodeRenderer'
 
 interface Props {
   nodeId: SyntheticId

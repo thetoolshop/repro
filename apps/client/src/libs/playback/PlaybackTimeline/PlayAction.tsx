@@ -1,12 +1,12 @@
-import { Row } from 'jsxstyle'
-import React, { useCallback, useEffect } from 'react'
-import { Play as PlayIcon, Pause as PauseIcon } from 'lucide-react'
-import { Shortcuts } from 'shortcuts'
+import { Analytics } from '@repro/analytics'
 import { colors } from '@repro/design'
+import { Row } from 'jsxstyle'
+import { Pause as PauseIcon, Play as PlayIcon } from 'lucide-react'
+import React, { useCallback, useEffect } from 'react'
+import { Shortcuts } from 'shortcuts'
+import { usePlaybackState } from '..'
 import { usePlayback } from '../hooks'
 import { PlaybackState } from '../types'
-import { usePlaybackState } from '..'
-import { Analytics } from '@repro/analytics'
 
 export const PlayAction: React.FC = () => {
   const playback = usePlayback()

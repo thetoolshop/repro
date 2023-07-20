@@ -7,7 +7,7 @@ export interface ObserverLike<T extends any = any> {
 }
 
 export function createEventObserver<
-  K extends keyof GlobalEventHandlersEventMap
+  K extends keyof GlobalEventHandlersEventMap,
 >(
   type: K,
   listener: (
@@ -17,7 +17,7 @@ export function createEventObserver<
 ): ObserverLike<GlobalEventHandlers>
 
 export function createEventObserver<
-  K extends keyof WindowEventHandlersEventMap
+  K extends keyof WindowEventHandlersEventMap,
 >(
   type: K,
   listener: (

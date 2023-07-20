@@ -1,6 +1,6 @@
-import { attemptP, map } from 'fluture'
 import { TrackedEvent } from '@repro/analytics'
 import { Agent } from '@repro/messaging'
+import { attemptP, map } from 'fluture'
 
 const apiUrl = (process.env.MIXPANEL_API_URL || '').replace(/\/$/, '')
 

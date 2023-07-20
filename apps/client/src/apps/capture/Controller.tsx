@@ -1,4 +1,5 @@
 import { RecordingMode, SourceEventType, SourceEventView } from '@repro/domain'
+import { LazyList } from '@repro/std'
 import { Block } from 'jsxstyle'
 import React, { useEffect, useState } from 'react'
 import {
@@ -11,16 +12,15 @@ import {
   Subscription,
   toArray,
 } from 'rxjs'
-import { useRecordingStream, InterruptSignal } from '~/libs/record'
 import {
   createSourcePlayback,
   Playback,
   PlaybackProvider,
 } from '~/libs/playback'
-import { LazyList } from '@repro/std'
+import { InterruptSignal, useRecordingStream } from '~/libs/record'
 import { MAX_INT32 } from './constants'
-import { Widget } from './Widget'
 import { useActive, useRecordingMode } from './hooks'
+import { Widget } from './Widget'
 
 export const Controller: React.FC = () => {
   const stream = useRecordingStream()

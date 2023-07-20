@@ -6,10 +6,13 @@ function indexBy<V extends object>(
   key: keyof V,
   objs: Array<V>
 ): Record<any, V> {
-  return objs.reduce((acc, obj) => {
-    acc[obj[key] as string | number] = obj
-    return acc
-  }, {} as Record<any, V>)
+  return objs.reduce(
+    (acc, obj) => {
+      acc[obj[key] as string | number] = obj
+      return acc
+    },
+    {} as Record<any, V>
+  )
 }
 
 export function createBillingService(paddleAdapter: PaddleAdapter) {

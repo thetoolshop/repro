@@ -1,4 +1,4 @@
-import { Drawer, colors } from '@repro/design'
+import { colors, Drawer } from '@repro/design'
 import { RecordingMetadata } from '@repro/domain'
 import { Block, InlineBlock } from 'jsxstyle'
 import React, { Fragment, useState } from 'react'
