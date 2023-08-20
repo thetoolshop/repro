@@ -91,11 +91,11 @@ function bootstrap(routers: Record<string, RouterConfig>) {
   app.use(express.json({ limit: '16mb' }))
   app.use(compression())
 
-  // app.use(
-  //   expressWinston.logger({
-  //     transports: [new winston.transports.Console()],
-  //   })
-  // )
+  app.use(
+    expressWinston.logger({
+      transports: [new winston.transports.Console()],
+    })
+  )
 
   for (const [path, config] of Object.entries(routers)) {
     app.use(path, ...(config.middleware ?? []), config.router)
