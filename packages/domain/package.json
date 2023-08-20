@@ -8,7 +8,7 @@
     "bench": "./scripts/bench",
     "build": "npm run clean && npm run build:generated && concurrently npm:build:source npm:build:declarations",
     "build:declarations": "tsc --project tsconfig-build.json --emitDeclarationOnly",
-    "build:generated": "tdlc src --outdir src/generated",
+    "build:generated": "./node_modules/@repro/tdl/cli.js src --outdir src/generated",
     "build:source": "./scripts/build",
     "clean": "rimraf dist src/generated",
     "test": "jest",

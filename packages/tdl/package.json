@@ -14,7 +14,7 @@
     "prepare": "npm run build"
   },
   "bin": {
-    "tdlc": "./dist/cli/index.js"
+    "tdlc": "./cli.js"
   },
   "repository": {
     "type": "git",
