@@ -1,4 +1,4 @@
-import { isLens, unwrapLens } from '@repro/typed-binary-encoder'
+import { isLens, unwrapLens } from '@repro/tdl'
 import { Response } from 'express'
 import { fork, FutureInstance } from 'fluture'
 import { isObservable } from 'rxjs'

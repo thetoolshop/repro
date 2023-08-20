@@ -1,0 +1,53 @@
+{
+  "name": "@repro/tdl",
+  "version": "1.0.0",
+  "description": "TypeScript Definition Language: TypeScript-compatible binary encodings",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "npm run build:generated && concurrently npm:build:source npm:build:declarations",
+    "build:generated": "ohm generateBundles --withTypes src/cli/grammar.ohm",
+    "build:declarations": "tsc --emitDeclarationOnly",
+    "build:source": "./scripts/build",
+    "test": "jest",
+    "fmt": "prettier --write src",
+    "prepare": "npm run build"
+  },
+  "bin": {
+    "tdlc": "./cli.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/reprohq/repro.git"
+  },
+  "author": "Gary Chambers <gary@repro.dev>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/reprohq/repro/issues"
+  },
+  "homepage": "https://github.com/reprohq/repro#readme",
+  "devDependencies": {
+    "@ohm-js/cli": "^2.0.0",
+    "@types/glob": "^8.1.0",
+    "@types/jest": "^28.1.8",
+    "@types/node": "^18.6.2",
+    "@types/yargs": "^17.0.24",
+    "concurrently": "^7.3.0",
+    "esbuild": "^0.15.5",
+    "jest": "^28.1.3",
+    "prettier": "^3.0.0",
+    "prettier-plugin-organize-imports": "^3.2.3",
+    "ts-eager": "^2.0.2",
+    "ts-jest": "^28.0.8",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.4"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "glob": "^10.3.3",
+    "ohm-js": "^17.1.0",
+    "prettier": "^2.8.1",
+    "yargs": "^17.7.2",
+    "zod": "^3.22.1"
+  }
+}

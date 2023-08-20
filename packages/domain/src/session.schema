@@ -1,3 +1,0 @@
-type Session: struct {
-  userId: uuid
-}

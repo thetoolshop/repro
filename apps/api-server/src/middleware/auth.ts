@@ -45,7 +45,12 @@ export function createAuthMiddleware(
     const user = cache(
       resolve(token)
         .pipe(chain(token => authService.loadSession(token)))
-        .pipe(chain(session => userService.getUserById(session.userId)))
+        .pipe(
+          chain(session => {
+            console.log(session, session.userId)
+            return userService.getUserById(session.userId)
+          })
+        )
         .pipe(
           mapRej(err => {
             if (isNotFound(err)) {

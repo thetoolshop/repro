@@ -1,0 +1,10 @@
+type Project: struct {
+  0) id: uuid
+  1) name: string
+  2) active: bool
+}
+
+type ProjectRole: enum<uint8> {
+  Admin: 0
+  Member: 1
+}
