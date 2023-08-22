@@ -1,3 +1,4 @@
+import { Stats } from '@repro/diagnostics'
 import {
   DOMPatchEvent,
   InteractionEvent,
@@ -27,7 +28,6 @@ import {
   observeOn,
   switchMap,
 } from 'rxjs/operators'
-import { Stats } from '~/libs/diagnostics'
 import { usePlayback } from '~/libs/playback'
 import {
   isBodyElement,

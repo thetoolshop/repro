@@ -1,3 +1,4 @@
+import { Stats } from '@repro/diagnostics'
 import {
   ConsoleEvent,
   ConsoleMessage,
@@ -36,7 +37,6 @@ import {
 import { isZeroPoint } from '~/utils/interaction'
 import { ObserverLike } from '~/utils/observer'
 import { applyEventToSnapshot, createEmptySnapshot } from '~/utils/source'
-import { Stats } from '../diagnostics'
 import { createBuffer, Unsubscribe } from './buffer-utils'
 import { createConsoleObserver } from './console'
 import {

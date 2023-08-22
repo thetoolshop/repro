@@ -1,4 +1,5 @@
 import { createAtom } from '@repro/atom'
+import { Stats } from '@repro/diagnostics'
 import {
   Sample,
   Snapshot,
@@ -17,7 +18,6 @@ import {
   Subscription,
 } from 'rxjs'
 import { map, observeOn, pairwise, switchMap } from 'rxjs/operators'
-import { Stats } from '~/libs/diagnostics'
 import {
   applyEventToSnapshot,
   createEmptySnapshot,

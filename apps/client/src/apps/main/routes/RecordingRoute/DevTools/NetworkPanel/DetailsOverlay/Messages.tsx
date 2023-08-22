@@ -1,4 +1,5 @@
 import { colors, JSONView } from '@repro/design'
+import { Stats } from '@repro/diagnostics'
 import {
   NetworkMessageType,
   WebSocketInbound,
@@ -16,7 +17,6 @@ import prettyBytes from 'pretty-bytes'
 import React, { PropsWithChildren, useState } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList, ListChildComponentProps } from 'react-window'
-import { Stats } from '~/libs/diagnostics'
 import { ElapsedMarker } from '~/libs/playback'
 import { formatTime } from '~/utils/date'
 import { SeekAction } from '../../../SeekAction'

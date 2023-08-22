@@ -1,3 +1,4 @@
+import { Stats } from '@repro/diagnostics'
 import {
   SnapshotEvent,
   SourceEvent,
@@ -6,7 +7,6 @@ import {
 } from '@repro/domain'
 import { LazyList } from '@repro/std'
 import { copy as copyDataView } from '@repro/tdl'
-import { Stats } from '~/libs/diagnostics'
 import { applyEventToSnapshot } from '~/utils/source'
 
 export function sliceEventsAtRange(

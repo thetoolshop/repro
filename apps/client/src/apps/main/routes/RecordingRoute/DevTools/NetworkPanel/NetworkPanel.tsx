@@ -1,4 +1,5 @@
 import { colors } from '@repro/design'
+import { Stats } from '@repro/diagnostics'
 import {
   NetworkEvent,
   NetworkMessageType,
@@ -9,7 +10,6 @@ import {
 import { Block, Grid, Row } from 'jsxstyle'
 import React, { Fragment, useEffect, useMemo, useState } from 'react'
 import { filter } from 'rxjs'
-import { Stats } from '~/libs/diagnostics'
 import { ControlFrame, ElapsedMarker, usePlayback } from '~/libs/playback'
 import { pairwise } from '../../utils'
 import { DetailsOverlay } from './DetailsOverlay'
