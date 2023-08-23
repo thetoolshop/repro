@@ -85,6 +85,7 @@ jobs:
           username: ${{ secrets.PROD_DB_USER }}
           database: ${{ secrets.PROD_DB_DATABASE }}
           api_key: ${{ secrets.NEON_API_KEY }}
+          suspend_timeout: 300
 
   migrate:
     needs:
