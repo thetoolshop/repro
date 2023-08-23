@@ -26,6 +26,7 @@
     "@repro/logger": "workspace:*",
     "@repro/messaging": "workspace:*",
     "@repro/random-string": "workspace:*",
+    "@repro/source-utils": "workspace:*",
     "@repro/std": "workspace:*",
     "@repro/ts-utils": "workspace:*",
     "@repro/tdl": "workspace:*",

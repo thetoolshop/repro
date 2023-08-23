@@ -5,9 +5,9 @@ import {
   SourceEventType,
   SourceEventView,
 } from '@repro/domain'
+import { applyEventToSnapshot } from '@repro/source-utils'
 import { LazyList } from '@repro/std'
 import { copy as copyDataView } from '@repro/tdl'
-import { applyEventToSnapshot } from '~/utils/source'
 
 export function sliceEventsAtRange(
   sourceEvents: LazyList<SourceEvent>,

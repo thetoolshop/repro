@@ -4,7 +4,6 @@ import {
   InteractionType,
   Point,
   PointerState,
-  Sample,
   Snapshot,
   SourceEvent,
   SourceEventType,
@@ -27,6 +26,12 @@ export function createEmptySnapshot(): Snapshot {
 
 export function isSample(data: object): data is Sample<any> {
   return 'from' in data && 'to' in data && 'duration' in data
+}
+
+export interface Sample<T> {
+  from: T
+  to: T
+  duration: number
 }
 
 export function interpolatePointFromSample(
