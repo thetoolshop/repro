@@ -11,6 +11,7 @@ import {
   VTree,
 } from '@repro/domain'
 import { logger } from '@repro/logger'
+import { interpolatePointFromSample } from '@repro/source-utils'
 import {
   extractCSSEmbeddedURLs,
   isDocTypeVNode,
@@ -37,7 +38,6 @@ import {
   isTextNode,
   isValidAttributeName,
 } from '~/utils/dom'
-import { interpolatePointFromSample } from '~/utils/source'
 import { OUT_OF_BOUNDS_POINT } from '../constants'
 import { ControlFrame } from '../types'
 import { MutableNodeMap } from './types'

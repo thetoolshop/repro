@@ -6,9 +6,9 @@ import {
   SourceEventType,
   SourceEventView,
 } from '@repro/domain'
+import { applyEventToSnapshot, createEmptySnapshot } from '@repro/source-utils'
 import { copyObject, LazyList } from '@repro/std'
 import { first, Observable, skipUntil, Subscription } from 'rxjs'
-import { applyEventToSnapshot, createEmptySnapshot } from '~/utils/source'
 import { ControlFrame, Playback, PlaybackState } from './types'
 
 export function createLivePlayback(event$: Observable<SourceEvent>): Playback {

@@ -1,7 +1,6 @@
 import { createAtom } from '@repro/atom'
 import { Stats } from '@repro/diagnostics'
 import {
-  Sample,
   Snapshot,
   SnapshotEvent,
   SnapshotView,
@@ -9,6 +8,12 @@ import {
   SourceEventType,
   SourceEventView,
 } from '@repro/domain'
+import {
+  applyEventToSnapshot,
+  createEmptySnapshot,
+  isSample,
+  Sample,
+} from '@repro/source-utils'
 import { copyObject, LazyList } from '@repro/std'
 import {
   animationFrames,
@@ -18,11 +23,6 @@ import {
   Subscription,
 } from 'rxjs'
 import { map, observeOn, pairwise, switchMap } from 'rxjs/operators'
-import {
-  applyEventToSnapshot,
-  createEmptySnapshot,
-  isSample,
-} from '~/utils/source'
 import { ControlFrame, Playback, PlaybackState } from './types'
 
 const EMPTY_SNAPSHOT = createEmptySnapshot()

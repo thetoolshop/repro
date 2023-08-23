@@ -21,6 +21,7 @@ import {
   SyntheticId,
   VNode,
 } from '@repro/domain'
+import { applyEventToSnapshot, createEmptySnapshot } from '@repro/source-utils'
 import { copyObjectDeep, LazyList } from '@repro/std'
 import { copy as copyDataView } from '@repro/tdl'
 import { applyVTreePatch, getNodeId } from '@repro/vdom-utils'
@@ -36,7 +37,6 @@ import {
 } from 'rxjs'
 import { isZeroPoint } from '~/utils/interaction'
 import { ObserverLike } from '~/utils/observer'
-import { applyEventToSnapshot, createEmptySnapshot } from '~/utils/source'
 import { createBuffer, Unsubscribe } from './buffer-utils'
 import { createConsoleObserver } from './console'
 import {
