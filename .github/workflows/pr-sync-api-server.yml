@@ -81,6 +81,8 @@ jobs:
           project_id: ${{ secrets.NEON_PROJECT_ID }}
           parent: ${{ steps.timestamp.outputs.value }}
           branch_name: pull-${{ github.event.number }}
+          username: ${{ secrets.PROD_DB_USER }}
+          database: ${{ secrets.PROD_DB_DATABASE }}
           api_key: ${{ secrets.NEON_API_KEY }}
 
   migrate:
