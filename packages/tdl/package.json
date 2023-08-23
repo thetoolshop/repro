@@ -10,8 +10,7 @@
     "build:declarations": "tsc --emitDeclarationOnly",
     "build:source": "./scripts/build",
     "test": "jest",
-    "fmt": "prettier --write src",
-    "prepare": "npm run build"
+    "fmt": "prettier --write src"
   },
   "bin": {
     "tdlc": "./cli.js"
