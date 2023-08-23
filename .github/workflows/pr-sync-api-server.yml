@@ -80,7 +80,8 @@ jobs:
         with:
           project_id: ${{ secrets.NEON_PROJECT_ID }}
           branch_name: pull-${{ github.event.number }}
-          parent_timestamp: ${{ steps.timestamp.outputs.value }}
+          # TODO: ensure timestamp is less than the last updated timestamp on the parent branch
+          # parent_timestamp: ${{ steps.timestamp.outputs.value }}
           api_key: ${{ secrets.NEON_API_KEY }}
           pg_user: ${{ secrets.PROD_DB_USER }}
           pg_password: ${{ secrets.PROD_DB_PASSWORD }}
@@ -142,7 +143,7 @@ jobs:
           service: pull-${{ github.event.number }}-api
           image: us-docker.pkg.dev/repro-383518/repro/api-server:pull-${{ github.event.number }}
           region: us-east1
-          flags: '--allow-unauthenticated'
+          flags: "--allow-unauthenticated"
           env_vars: |
             NODE_ENV=production
             DB_HOST=${{ needs.database.outputs.host }}
