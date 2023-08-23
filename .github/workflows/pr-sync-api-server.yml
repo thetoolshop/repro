@@ -79,7 +79,8 @@ jobs:
         uses: neondatabase/create-branch-action@v4
         with:
           project_id: ${{ secrets.NEON_PROJECT_ID }}
-          parent: ${{ steps.timestamp.outputs.value }}
+          # TODO: ensure target timestamp is in created_at <> updated_at range for parent branch
+          # parent: ${{ steps.timestamp.outputs.value }}
           branch_name: pull-${{ github.event.number }}
           username: ${{ secrets.PROD_DB_USER }}
           database: ${{ secrets.PROD_DB_DATABASE }}
