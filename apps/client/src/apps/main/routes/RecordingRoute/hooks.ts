@@ -1,7 +1,7 @@
 import { useAtomState, useAtomValue } from '@repro/atom'
+import { isElementNode } from '@repro/dom-utils'
 import { useContext } from 'react'
 import { useRecordingStream } from '~/libs/record'
-import { isElementNode } from '~/utils/dom'
 import { NavigationContext, StateContext } from './context'
 
 export function useDevtoolsState() {

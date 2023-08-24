@@ -1,4 +1,15 @@
 import {
+  isDocTypeNode,
+  isDocumentNode,
+  isElementNode,
+  isInlineEventAttribute,
+  isInputElement,
+  isSelectElement,
+  isTextAreaElement,
+  isTextNode,
+  maskValue,
+} from '@repro/dom-utils'
+import {
   NodeType,
   SyntheticId,
   VDocType,
@@ -9,17 +20,6 @@ import {
   VTree,
 } from '@repro/domain'
 import { createSyntheticId, getNodeId } from '@repro/vdom-utils'
-import {
-  isDocTypeNode,
-  isDocumentNode,
-  isElementNode,
-  isInlineEventAttribute,
-  isInputElement,
-  isSelectElement,
-  isTextAreaElement,
-  isTextNode,
-  maskValue,
-} from '~/utils/dom'
 
 export function createVNode(node: Node): VNode | null {
   if (isDocumentNode(node)) {

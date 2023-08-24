@@ -23,6 +23,7 @@
     "@repro/design": "workspace:*",
     "@repro/diagnostics": "workspace:*",
     "@repro/domain": "workspace:*",
+    "@repro/dom-utils": "workspace:*",
     "@repro/logger": "workspace:*",
     "@repro/messaging": "workspace:*",
     "@repro/random-string": "workspace:*",
