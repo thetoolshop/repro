@@ -1,6 +1,12 @@
 import {
+  isInputElement,
+  isSelectElement,
+  isTextAreaElement,
+  maskValue,
+} from '@repro/dom-utils'
+import {
+  DOMPatch,
   NodeType,
-  Patch,
   PatchType,
   SyntheticId,
   VText,
@@ -8,12 +14,6 @@ import {
 } from '@repro/domain'
 import { Immutable } from '@repro/ts-utils'
 import { createSyntheticId, getNodeId, isElementVNode } from '@repro/vdom-utils'
-import {
-  isInputElement,
-  isSelectElement,
-  isTextAreaElement,
-  maskValue,
-} from '~/utils/dom'
 import { createEventObserver, ObserverLike } from '~/utils/observer'
 import { RecordingOptions } from '../types'
 import { DOMTreeWalker, isIgnoredByNode, isIgnoredBySelector } from './utils'
@@ -43,7 +43,7 @@ export function createDOMObserver(
 }
 
 function createInputObserver(
-  subscriber: (patch: Patch) => void
+  subscriber: (patch: DOMPatch) => void
 ): ObserverLike<Document> {
   let prevChangeMap = new WeakMap<EventTarget, string>()
   let prevCheckedMap = new WeakMap<EventTarget, boolean>()
@@ -211,9 +211,9 @@ export function internal__processMutationRecords(
   records: Array<MutationRecord>,
   walkDOMTree: DOMTreeWalker,
   options: RecordingOptions,
-  subscriber: (patch: Patch) => void
+  subscriber: (patch: DOMPatch) => void
 ) {
-  const patches: Array<Patch> = []
+  const patches: Array<DOMPatch> = []
   const addedNodes = new Set<SyntheticId>()
 
   for (const record of records) {
@@ -341,7 +341,7 @@ export function internal__processMutationRecords(
 function createMutationObserver(
   walkDOMTree: DOMTreeWalker,
   options: RecordingOptions,
-  subscriber: (patch: Patch) => void
+  subscriber: (patch: DOMPatch) => void
 ): ObserverLike<Document> {
   const domObserver = new MutationObserver(records => {
     internal__processMutationRecords(records, walkDOMTree, options, subscriber)
@@ -363,7 +363,7 @@ function createMutationObserver(
 }
 
 function createStyleSheetObserver(
-  subscriber: (patch: Patch) => void
+  subscriber: (patch: DOMPatch) => void
 ): ObserverLike<Document> {
   function insertRuleEffect(
     vtree: Immutable<VTree>,

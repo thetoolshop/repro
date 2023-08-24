@@ -1,5 +1,13 @@
 import { Stats } from '@repro/diagnostics'
 import {
+  isBodyElement,
+  isCustomElement,
+  isElementNode,
+  isHTMLElement,
+  isTextNode,
+  isValidAttributeName,
+} from '@repro/dom-utils'
+import {
   DOMPatchEvent,
   InteractionEvent,
   InteractionType,
@@ -30,14 +38,6 @@ import {
   switchMap,
 } from 'rxjs/operators'
 import { usePlayback } from '~/libs/playback'
-import {
-  isBodyElement,
-  isCustomElement,
-  isElementNode,
-  isHTMLElement,
-  isTextNode,
-  isValidAttributeName,
-} from '~/utils/dom'
 import { OUT_OF_BOUNDS_POINT } from '../constants'
 import { ControlFrame } from '../types'
 import { MutableNodeMap } from './types'

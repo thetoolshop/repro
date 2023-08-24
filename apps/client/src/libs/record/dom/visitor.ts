@@ -1,3 +1,9 @@
+import {
+  isExternalResource,
+  isExternalStyleSheet,
+  isIFrameElement,
+  isLocalStylesheet,
+} from '@repro/dom-utils'
 import { SyntheticId, VNode, VTree } from '@repro/domain'
 import {
   addVNode,
@@ -6,12 +12,6 @@ import {
   insertSubTreesAtNode,
   isElementVNode,
 } from '@repro/vdom-utils'
-import {
-  isExternalResource,
-  isExternalStyleSheet,
-  isIFrameElement,
-  isLocalStylesheet,
-} from '~/utils/dom'
 import { Subscribable, Subscriber, Visitor } from '../types'
 import {
   createStyleSheetVTree,
