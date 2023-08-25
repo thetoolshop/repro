@@ -1,3 +1,4 @@
+import { formatTime } from '@repro/date-utils'
 import { colors, JSONView } from '@repro/design'
 import { Stats } from '@repro/diagnostics'
 import {
@@ -18,7 +19,6 @@ import React, { PropsWithChildren, useState } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList, ListChildComponentProps } from 'react-window'
 import { ElapsedMarker } from '~/libs/playback'
-import { formatTime } from '~/utils/date'
 import { SeekAction } from '../../../SeekAction'
 import { WebSocketGroup } from '../types'
 

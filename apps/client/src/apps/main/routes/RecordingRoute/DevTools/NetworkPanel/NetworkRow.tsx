@@ -1,3 +1,4 @@
+import { formatTime } from '@repro/date-utils'
 import { colors } from '@repro/design'
 import { RequestType } from '@repro/domain'
 import { Block, Row } from 'jsxstyle'
@@ -5,7 +6,6 @@ import { JsxstyleProps } from 'jsxstyle/lib/types'
 import prettyBytes from 'pretty-bytes'
 import prettyMilliseconds from 'pretty-ms'
 import React, { PropsWithChildren, useState } from 'react'
-import { formatTime } from '~/utils/date'
 import { SeekAction } from '../../SeekAction'
 import { FetchGroup, WebSocketGroup } from './types'
 
