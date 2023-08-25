@@ -1,4 +1,5 @@
 import { Analytics } from '@repro/analytics'
+import { formatTime } from '@repro/date-utils'
 import { colors } from '@repro/design'
 import { Block, Row } from 'jsxstyle'
 import React, { MutableRefObject, useEffect, useRef } from 'react'
@@ -11,7 +12,6 @@ import {
   take,
   takeUntil,
 } from 'rxjs/operators'
-import { formatTime } from '~/utils/date'
 import { usePlayback } from '../hooks'
 import { PlaybackState } from '../types'
 import { PlayAction } from './PlayAction'

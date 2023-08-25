@@ -20,6 +20,7 @@
     "@repro/analytics-provider-mixpanel": "workspace:*",
     "@repro/api-client": "workspace:*",
     "@repro/atom": "workspace:*",
+    "@repro/date-utils": "workspace:*",
     "@repro/design": "workspace:*",
     "@repro/diagnostics": "workspace:*",
     "@repro/domain": "workspace:*",

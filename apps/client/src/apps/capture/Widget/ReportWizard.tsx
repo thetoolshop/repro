@@ -1,5 +1,6 @@
 import { Analytics } from '@repro/analytics'
 import { useApiClient } from '@repro/api-client'
+import { formatTime } from '@repro/date-utils'
 import { Button, Card, colors, FX, ToggleGroup } from '@repro/design'
 import { Project, RecordingMode, User } from '@repro/domain'
 import { logger } from '@repro/logger'
@@ -25,7 +26,6 @@ import {
   usePlayback,
 } from '~/libs/playback'
 import { sliceEventsAtRange } from '~/libs/record'
-import { formatTime } from '~/utils/date'
 import { scheduleIdleCallback } from '~/utils/schedule'
 import { MAX_INT32 } from '../constants'
 import { useCurrentUser, useRecordingMode } from '../hooks'
