@@ -27,6 +27,7 @@
     "@repro/dom-utils": "workspace:*",
     "@repro/logger": "workspace:*",
     "@repro/messaging": "workspace:*",
+    "@repro/playback": "workspace:*",
     "@repro/random-string": "workspace:*",
     "@repro/source-utils": "workspace:*",
     "@repro/std": "workspace:*",

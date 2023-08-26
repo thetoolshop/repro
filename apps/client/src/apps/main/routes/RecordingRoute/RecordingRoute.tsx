@@ -1,14 +1,14 @@
 import { useApiClient } from '@repro/api-client'
 import { Card } from '@repro/design'
 import { RecordingMetadata } from '@repro/domain'
-import { Block, Grid } from 'jsxstyle'
-import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
 import {
   createApiSource,
   createNullSource,
   PlaybackFromSourceProvider,
-} from '~/libs/playback'
+} from '@repro/playback'
+import { Block, Grid } from 'jsxstyle'
+import React, { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
 import { useFuture } from '~/utils/future'
 import { DevTools } from './DevTools'
 import { Loading } from './Loading'

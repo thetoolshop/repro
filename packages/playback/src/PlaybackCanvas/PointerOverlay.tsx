@@ -2,7 +2,7 @@ import { colors, Cursor } from '@repro/design'
 import { PointerState } from '@repro/domain'
 import { Block } from 'jsxstyle'
 import React from 'react'
-import { usePointer, usePointerState } from '~/libs/playback'
+import { usePointer, usePointerState } from '../hooks'
 
 export const PointerOverlay: React.FC = () => {
   const [x, y] = usePointer()

@@ -1,9 +1,9 @@
 import { colors, ElementTree } from '@repro/design'
 import { VElement, VTree } from '@repro/domain'
+import { useSnapshot } from '@repro/playback'
 import { isDocumentVNode, isElementVNode } from '@repro/vdom-utils'
 import { Block, Grid } from 'jsxstyle'
 import React, { PropsWithChildren, useEffect, useState } from 'react'
-import { useSnapshot } from '~/libs/playback'
 import { useFocusedNode, usePicker, useSelectedNode } from '../../hooks'
 import { SelectedNodeComputedStyle } from './SelectedNodeComputedStyle'
 

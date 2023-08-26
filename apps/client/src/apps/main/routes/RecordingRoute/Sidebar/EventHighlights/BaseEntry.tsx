@@ -1,9 +1,9 @@
 import { formatTime } from '@repro/date-utils'
 import { colors } from '@repro/design'
 import { SourceEvent } from '@repro/domain'
+import { usePlayback } from '@repro/playback'
 import { Block, Row } from 'jsxstyle'
 import React, { PropsWithChildren } from 'react'
-import { usePlayback } from '~/libs/playback'
 
 interface Props {
   eventIndex: number

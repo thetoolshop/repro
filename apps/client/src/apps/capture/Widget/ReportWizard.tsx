@@ -5,6 +5,12 @@ import { Button, Card, colors, FX, ToggleGroup } from '@repro/design'
 import { Project, RecordingMode, User } from '@repro/domain'
 import { logger } from '@repro/logger'
 import { useMessaging } from '@repro/messaging'
+import {
+  PlaybackCanvas,
+  PlaybackProvider,
+  PlaybackTimeline,
+  usePlayback,
+} from '@repro/playback'
 import { createRecordingId } from '@repro/source-utils'
 import { toByteString } from '@repro/wire-formats'
 import { detect } from 'detect-browser'
@@ -19,12 +25,6 @@ import {
 } from 'lucide-react'
 import React, { PropsWithChildren, useEffect, useState } from 'react'
 import { LoginForm } from '~/libs/auth'
-import {
-  PlaybackCanvas,
-  PlaybackProvider,
-  PlaybackTimeline,
-  usePlayback,
-} from '~/libs/playback'
 import { sliceEventsAtRange } from '~/libs/record'
 import { scheduleIdleCallback } from '~/utils/schedule'
 import { MAX_INT32 } from '../constants'

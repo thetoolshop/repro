@@ -6,11 +6,11 @@ import {
   SourceEventType,
   SourceEventView,
 } from '@repro/domain'
+import { ElapsedMarker, usePlayback } from '@repro/playback'
 import { Grid } from 'jsxstyle'
 import React, { Fragment, useEffect, useState } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList, ListChildComponentProps } from 'react-window'
-import { ElapsedMarker, usePlayback } from '~/libs/playback'
 import { ConsoleEntry } from './ConsoleEntry'
 import { InteractionEntry } from './InteractionEntry'
 import { NetworkEntry } from './NetworkEntry'

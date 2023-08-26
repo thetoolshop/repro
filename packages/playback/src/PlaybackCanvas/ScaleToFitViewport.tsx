@@ -9,7 +9,7 @@ import React, {
   useRef,
   useState,
 } from 'react'
-import { useViewport } from '~/libs/playback'
+import { useViewport } from '../hooks'
 
 export const ScaleToFitViewport: React.FC<PropsWithChildren> = ({
   children,

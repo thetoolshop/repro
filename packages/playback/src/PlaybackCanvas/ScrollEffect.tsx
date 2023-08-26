@@ -5,7 +5,8 @@ import React, {
   useEffect,
   useRef,
 } from 'react'
-import { PlaybackState, usePlaybackState } from '~/libs/playback'
+import { usePlaybackState } from '../hooks'
+import { PlaybackState } from '../types'
 
 type Props = PropsWithChildren<{
   state: Point | null

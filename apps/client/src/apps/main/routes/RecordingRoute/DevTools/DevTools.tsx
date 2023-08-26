@@ -1,9 +1,9 @@
 import { Analytics } from '@repro/analytics'
 import { colors } from '@repro/design'
+import { PlaybackCanvas } from '@repro/playback'
 import { Block, Grid } from 'jsxstyle'
 import React, { PropsWithChildren, useEffect } from 'react'
 import { useParams } from 'react-router'
-import { PlaybackCanvas } from '~/libs/playback'
 import { ReferenceStyleProvider } from '~/libs/styles'
 import { MAX_INT32 } from '../constants'
 import {

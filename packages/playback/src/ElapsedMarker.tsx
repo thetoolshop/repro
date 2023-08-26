@@ -2,7 +2,7 @@ import { colors } from '@repro/design'
 import { Block } from 'jsxstyle'
 import React, { useEffect, useState } from 'react'
 import { Subscription } from 'rxjs'
-import { usePlayback } from '~/libs/playback'
+import { usePlayback } from './hooks'
 
 interface Props {
   prevIndex: number

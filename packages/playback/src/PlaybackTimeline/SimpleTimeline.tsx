@@ -16,7 +16,7 @@ import { usePlayback } from '../hooks'
 import { PlaybackState } from '../types'
 import { PlayAction } from './PlayAction'
 
-interface Props {
+export interface Props {
   min?: number
   max?: number
 }
