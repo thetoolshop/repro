@@ -1,7 +1,7 @@
 import { useApiClient } from '@repro/api-client'
 import { Avatar } from '@repro/design'
+import { useFuture } from '@repro/future-utils'
 import React from 'react'
-import { useFuture } from '~/utils/future'
 
 export const MyAvatar: React.FC = () => {
   const apiClient = useApiClient()

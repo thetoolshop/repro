@@ -1,0 +1,33 @@
+{
+  "name": "@repro/future-utils",
+  "version": "1.0.0",
+  "main": "dist/index",
+  "types": "dist/index",
+  "scripts": {
+    "build": "npm run clean && concurrently npm:build:source npm:build:declarations",
+    "build:declarations": "tsc --project tsconfig-build.json --emitDeclarationOnly",
+    "build:source": "./scripts/build",
+    "clean": "rimraf dist",
+    "test": "jest",
+    "fmt": "prettier --write src"
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "fluture": "^14.0.0",
+    "react": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^28.1.7",
+    "@types/node": "^18.6.2",
+    "@types/react": "^18.2.21",
+    "concurrently": "^7.3.0",
+    "esbuild": "^0.15.7",
+    "jest": "^28.1.3",
+    "prettier": "^3.0.0",
+    "prettier-plugin-organize-imports": "^3.2.3",
+    "rimraf": "^3.0.2",
+    "ts-eager": "^2.0.2",
+    "ts-jest": "^28.0.8",
+    "typescript": "^4.8.3"
+  }
+}

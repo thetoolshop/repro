@@ -1,11 +1,11 @@
 import { useApiClient } from '@repro/api-client'
 import { Button, Card, colors, FX } from '@repro/design'
 import { RecordingMetadata } from '@repro/domain'
+import { useFuture } from '@repro/future-utils'
 import { map } from 'fluture'
 import { Block, Col, Row } from 'jsxstyle'
 import { Chrome as ChromeIcon, Loader as LoaderIcon } from 'lucide-react'
 import React from 'react'
-import { useFuture } from '~/utils/future'
 import { RecordingTile } from './RecordingTile'
 
 function sortByCreated(recordings: Array<RecordingMetadata>) {
