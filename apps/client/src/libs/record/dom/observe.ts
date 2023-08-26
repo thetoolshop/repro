@@ -12,9 +12,9 @@ import {
   VText,
   VTree,
 } from '@repro/domain'
+import { createEventObserver, ObserverLike } from '@repro/observer-utils'
 import { Immutable } from '@repro/ts-utils'
 import { createSyntheticId, getNodeId, isElementVNode } from '@repro/vdom-utils'
-import { createEventObserver, ObserverLike } from '~/utils/observer'
 import { RecordingOptions } from '../types'
 import { DOMTreeWalker, isIgnoredByNode, isIgnoredBySelector } from './utils'
 
