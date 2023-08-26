@@ -33,6 +33,7 @@
     "@repro/random-string": "workspace:*",
     "@repro/source-utils": "workspace:*",
     "@repro/std": "workspace:*",
+    "@repro/theme": "workspace:*",
     "@repro/ts-utils": "workspace:*",
     "@repro/tdl": "workspace:*",
     "@repro/validation": "workspace:*",
