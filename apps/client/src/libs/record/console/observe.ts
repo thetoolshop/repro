@@ -4,9 +4,9 @@ import {
   MessagePartType,
   StackEntry,
 } from '@repro/domain'
+import { ObserverLike } from '@repro/observer-utils'
 import { isErrorLike, serializeError } from 'serialize-error'
 import StackTrace, { StackTraceOptions } from 'stacktrace-js'
-import { ObserverLike } from '~/utils/observer'
 import { createVNode } from '../dom/factory'
 
 export function createConsoleObserver(

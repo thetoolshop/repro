@@ -5,8 +5,8 @@ import {
   SyntheticId,
   WebSocketMessageType,
 } from '@repro/domain'
+import { ObserverLike } from '@repro/observer-utils'
 import { randomString } from '@repro/random-string'
-import { ObserverLike } from '~/utils/observer'
 
 type Subscriber = (message: NetworkMessage) => void
 

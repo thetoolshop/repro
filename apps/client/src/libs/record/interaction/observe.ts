@@ -5,8 +5,8 @@ import {
   isTextAreaElement,
 } from '@repro/dom-utils'
 import { Interaction, InteractionType, Point } from '@repro/domain'
+import { createEventObserver, ObserverLike } from '@repro/observer-utils'
 import { getNodeId } from '@repro/vdom-utils'
-import { createEventObserver, ObserverLike } from '~/utils/observer'
 import { createVElement } from '../dom/factory'
 import { isIgnoredByNode, isIgnoredBySelector } from '../dom/utils'
 import { RecordingOptions } from '../types'

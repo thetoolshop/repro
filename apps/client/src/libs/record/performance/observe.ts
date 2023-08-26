@@ -2,8 +2,8 @@ import {
   PerformanceEntry as PerformanceEntryData,
   PerformanceEntryType,
 } from '@repro/domain'
+import { ObserverLike } from '@repro/observer-utils'
 import { randomString } from '@repro/random-string'
-import { ObserverLike } from '~/utils/observer'
 
 function isResourceTimingEntry(
   entry: PerformanceEntry

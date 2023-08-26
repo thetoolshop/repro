@@ -13,7 +13,7 @@ import {
 import nativeFetch from 'isomorphic-fetch'
 import { newMockXhr } from 'mock-xmlhttprequest'
 // import fetch, { Request } from 'node-fetch'
-import { ObserverLike } from '~/utils/observer'
+import { ObserverLike } from '@repro/observer-utils'
 import { createNetworkObserver } from './observe'
 
 describe('libs/record: network observers', () => {
