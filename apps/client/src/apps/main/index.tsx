@@ -1,6 +1,7 @@
 import { Analytics } from '@repro/analytics'
 import { mixpanelBrowser } from '@repro/analytics-provider-mixpanel'
 import { ApiProvider } from '@repro/api-client'
+import { BillingProvider } from '@repro/billing'
 import { createPortalRoot } from '@repro/design'
 import { Stats } from '@repro/diagnostics'
 import { DEFAULT_AGENT } from '@repro/messaging'
@@ -8,7 +9,6 @@ import { applyResetStyles } from '@repro/theme'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import { BillingProvider } from '~/libs/billing'
 
 import { Layout } from './Layout'
 
