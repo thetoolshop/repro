@@ -1,4 +1,5 @@
 import { useApiClient } from '@repro/api-client'
+import { useBillingClient } from '@repro/billing'
 import { Card, colors } from '@repro/design'
 import { User } from '@repro/domain'
 import { logger } from '@repro/logger'
@@ -7,7 +8,6 @@ import { Block, Grid } from 'jsxstyle'
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { setSession } from '~/libs/auth/Session'
-import { useBillingClient } from '~/libs/billing'
 import { PlanSelector } from './PlanSelector'
 import { SignUpForm } from './SignUpForm'
 
