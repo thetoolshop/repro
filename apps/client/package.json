@@ -25,6 +25,7 @@
     "@repro/diagnostics": "workspace:*",
     "@repro/domain": "workspace:*",
     "@repro/dom-utils": "workspace:*",
+    "@repro/future-utils": "workspace:*",
     "@repro/logger": "workspace:*",
     "@repro/messaging": "workspace:*",
     "@repro/observer-utils": "workspace:*",
