@@ -7,6 +7,7 @@ import {
   WebSocketMessageType,
   WebSocketOutbound,
 } from '@repro/domain'
+import { ElapsedMarker } from '@repro/playback'
 import { Block, Grid, Inline, Row } from 'jsxstyle'
 import { JsxstyleProps } from 'jsxstyle/lib/types'
 import {
@@ -18,7 +19,6 @@ import prettyBytes from 'pretty-bytes'
 import React, { PropsWithChildren, useState } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList, ListChildComponentProps } from 'react-window'
-import { ElapsedMarker } from '~/libs/playback'
 import { SeekAction } from '../../../SeekAction'
 import { WebSocketGroup } from '../types'
 

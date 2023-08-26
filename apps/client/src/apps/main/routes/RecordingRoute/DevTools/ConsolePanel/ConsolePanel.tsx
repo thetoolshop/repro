@@ -7,6 +7,7 @@ import {
   SourceEventType,
   SourceEventView,
 } from '@repro/domain'
+import { ControlFrame, ElapsedMarker, usePlayback } from '@repro/playback'
 import { Block, Grid } from 'jsxstyle'
 import React, {
   Fragment,
@@ -16,7 +17,6 @@ import React, {
   useRef,
 } from 'react'
 import { filter } from 'rxjs'
-import { ControlFrame, ElapsedMarker, usePlayback } from '~/libs/playback'
 import { useConsoleLevelFilter, useConsoleSearch } from '../../hooks'
 import { pairwise } from '../../utils'
 import { ConsoleRow } from './ConsoleRow'

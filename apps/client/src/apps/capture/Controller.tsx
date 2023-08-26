@@ -1,4 +1,9 @@
 import { RecordingMode, SourceEventType, SourceEventView } from '@repro/domain'
+import {
+  createSourcePlayback,
+  Playback,
+  PlaybackProvider,
+} from '@repro/playback'
 import { LazyList } from '@repro/std'
 import { Block } from 'jsxstyle'
 import React, { useEffect, useState } from 'react'
@@ -12,11 +17,6 @@ import {
   Subscription,
   toArray,
 } from 'rxjs'
-import {
-  createSourcePlayback,
-  Playback,
-  PlaybackProvider,
-} from '~/libs/playback'
 import { InterruptSignal, useRecordingStream } from '~/libs/record'
 import { MAX_INT32 } from './constants'
 import { useActive, useRecordingMode } from './hooks'

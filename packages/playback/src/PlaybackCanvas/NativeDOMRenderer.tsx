@@ -37,8 +37,8 @@ import {
   observeOn,
   switchMap,
 } from 'rxjs/operators'
-import { usePlayback } from '~/libs/playback'
 import { OUT_OF_BOUNDS_POINT } from '../constants'
+import { usePlayback } from '../hooks'
 import { ControlFrame } from '../types'
 import { MutableNodeMap } from './types'
 
