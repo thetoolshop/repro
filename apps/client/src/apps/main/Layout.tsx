@@ -1,4 +1,5 @@
 import { useApiClient } from '@repro/api-client'
+import { IfSession, UnlessSession } from '@repro/auth'
 import { colors, Logo } from '@repro/design'
 import { logger } from '@repro/logger'
 import { fork } from 'fluture'
@@ -6,7 +7,6 @@ import { Block, Grid, Row } from 'jsxstyle'
 import React from 'react'
 import { Outlet, useNavigate } from 'react-router'
 import { NavLink } from 'react-router-dom'
-import { IfSession, UnlessSession } from '~/libs/auth/Session'
 import { MyAvatar } from '~/libs/profile'
 
 const navLinkStyle = {

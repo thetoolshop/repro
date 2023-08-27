@@ -83,8 +83,8 @@ importers:
         specifier: ^3.8.2
         version: 3.8.2
       zod:
-        specifier: ^3.17.10
-        version: 3.17.10
+        specifier: ^3.22.2
+        version: 3.22.2
     devDependencies:
       '@types/bcrypt':
         specifier: ^5.0.0
@@ -164,6 +164,9 @@ importers:
       '@repro/atom':
         specifier: workspace:*
         version: link:../../packages/atom
+      '@repro/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
       '@repro/billing':
         specifier: workspace:*
         version: link:../../packages/billing
@@ -306,8 +309,8 @@ importers:
         specifier: ^9.0.0
         version: 9.0.0
       zod:
-        specifier: ^3.17.10
-        version: 3.17.10
+        specifier: ^3.22.2
+        version: 3.22.2
     devDependencies:
       '@types/chrome':
         specifier: ^0.0.176
@@ -543,8 +546,8 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0
       zod:
-        specifier: ^3.17.10
-        version: 3.17.10
+        specifier: ^3.22.2
+        version: 3.22.2
     devDependencies:
       '@types/node':
         specifier: ^18.7.13
@@ -592,6 +595,85 @@ importers:
       '@types/react':
         specifier: ^18
         version: 18.0.14
+      concurrently:
+        specifier: ^7.3.0
+        version: 7.3.0
+      esbuild:
+        specifier: ^0.15.7
+        version: 0.15.11
+      jest:
+        specifier: ^28.1.3
+        version: 28.1.3(@types/node@18.7.13)(ts-node@10.9.1)
+      prettier:
+        specifier: ^3.0.0
+        version: 3.0.0
+      prettier-plugin-organize-imports:
+        specifier: ^3.2.3
+        version: 3.2.3(prettier@3.0.0)(typescript@4.9.4)
+      rimraf:
+        specifier: ^3.0.2
+        version: 3.0.2
+      ts-eager:
+        specifier: ^2.0.2
+        version: 2.0.2
+      ts-jest:
+        specifier: ^28.0.8
+        version: 28.0.8(@babel/core@7.21.8)(esbuild@0.15.11)(jest@28.1.3)(typescript@4.9.4)
+      typescript:
+        specifier: ^4.8.3
+        version: 4.9.4
+
+  packages/auth:
+    dependencies:
+      '@hookform/resolvers':
+        specifier: ^2.9.10
+        version: 2.9.10(react-hook-form@7.38.0)
+      '@repro/api-client':
+        specifier: workspace:*
+        version: link:../api-client
+      '@repro/atom':
+        specifier: workspace:*
+        version: link:../atom
+      '@repro/design':
+        specifier: workspace:*
+        version: link:../design
+      '@repro/domain':
+        specifier: workspace:*
+        version: link:../domain
+      '@repro/validation':
+        specifier: workspace:*
+        version: link:../validation
+      fluture:
+        specifier: ^14.0.0
+        version: 14.0.0
+      jsxstyle:
+        specifier: ^2.5.1
+        version: 2.5.1
+      lucide-react:
+        specifier: ^0.91.0
+        version: 0.91.0(prop-types@15.8.1)(react@18.2.0)
+      react:
+        specifier: ^18.2.0
+        version: 18.2.0
+      react-hook-form:
+        specifier: ^7.38.0
+        version: 7.38.0(react@18.2.0)
+      react-router:
+        specifier: ^6.4.3
+        version: 6.4.3(react@18.2.0)
+      zod:
+        specifier: ^3.22.2
+        version: 3.22.2
+    devDependencies:
+      '@types/jest':
+        specifier: ^28.1.7
+        version: 28.1.8
+      '@types/node':
+        specifier: ^18.6.2
+        version: 18.7.13
+      '@types/react':
+        specifier: ^18.2.21
+        version: 18.2.21
       concurrently:
         specifier: ^7.3.0
         version: 7.3.0
@@ -1430,8 +1512,8 @@ importers:
         specifier: ^14.0.0
         version: 14.0.0
       zod:
-        specifier: ^3.17.10
-        version: 3.17.10
+        specifier: ^3.22.2
+        version: 3.22.2
     devDependencies:
       '@types/node':
         specifier: ^18.6.2
@@ -11901,10 +11983,10 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  /zod@3.17.10:
-    resolution: {integrity: sha512-IHXnQYQuOOOL/XgHhgl8YjNxBHi3xX0mVcHmqsvJgcxKkEczPshoWdxqyFwsARpf41E0v9U95WUROqsHHxt0UQ==}
-    dev: false
-
   /zod@3.22.1:
     resolution: {integrity: sha512-+qUhAMl414+Elh+fRNtpU+byrwjDFOS1N7NioLY+tSlcADTx4TkCUua/hxJvxwDXcV4397/nZ420jy4n4+3WUg==}
+    dev: false
+
+  /zod@3.22.2:
+    resolution: {integrity: sha512-wvWkphh5WQsJbVk1tbx1l1Ly4yg+XecD+Mq280uBGt9wa5BKSWf4Mhp6GmrkPixhMxmabYY7RbzlwVP32pbGCg==}
     dev: false

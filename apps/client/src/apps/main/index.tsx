@@ -1,6 +1,7 @@
 import { Analytics } from '@repro/analytics'
 import { mixpanelBrowser } from '@repro/analytics-provider-mixpanel'
 import { ApiProvider } from '@repro/api-client'
+import { RequireSession, SessionProvider } from '@repro/auth'
 import { BillingProvider } from '@repro/billing'
 import { createPortalRoot } from '@repro/design'
 import { Stats } from '@repro/diagnostics'
@@ -19,8 +20,6 @@ import { RecordingRoute } from './routes/RecordingRoute'
 import { SignUpRoute } from './routes/SignUpRoute'
 // import { ResetPasswordRoute } from './routes/ResetPasswordRoute'
 
-import { SessionProvider } from '~/libs/auth/Session'
-import { RequireSession } from '~/libs/auth/Session/RequireSession'
 import { AuthLayout } from './AuthLayout'
 
 declare global {
