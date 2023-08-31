@@ -2,9 +2,9 @@
  * @jest-environment jsdom
  */
 
-import { NodeType, Patch, PatchType } from '@repro/domain'
+import { DOMPatch, NodeType, PatchType } from '@repro/domain'
+import { MockNodeList } from '@repro/testing-utils'
 import { getNodeId } from '@repro/vdom-utils'
-import { MockNodeList } from '~/utils/testing'
 import { RecordingOptions } from '../types'
 import { internal__processMutationRecords } from './observe'
 import { createDOMTreeWalker } from './utils'
@@ -12,7 +12,7 @@ import { createDOMVisitor } from './visitor'
 
 describe('libs/record: dom observers', () => {
   it('should correctly process an attribute mutation record', () => {
-    const patches: Array<Patch> = []
+    const patches: Array<DOMPatch> = []
 
     const target = document.createElement('div')
     target.setAttribute('class', 'foo')
@@ -45,7 +45,7 @@ describe('libs/record: dom observers', () => {
 
     const walkDOMTree = createDOMTreeWalker(options)
 
-    const subscriber = (patch: Patch) => {
+    const subscriber = (patch: DOMPatch) => {
       patches.push(patch)
     }
 
@@ -63,7 +63,7 @@ describe('libs/record: dom observers', () => {
   })
 
   it('should correctly process a characterData mutation', () => {
-    const patches: Array<Patch> = []
+    const patches: Array<DOMPatch> = []
 
     const target = document.createTextNode('bar')
 
@@ -95,7 +95,7 @@ describe('libs/record: dom observers', () => {
 
     const walkDOMTree = createDOMTreeWalker(options)
 
-    const subscriber = (patch: Patch) => {
+    const subscriber = (patch: DOMPatch) => {
       patches.push(patch)
     }
 
@@ -112,7 +112,7 @@ describe('libs/record: dom observers', () => {
   })
 
   it('should correctly process childList mutation records', () => {
-    const patches: Array<Patch> = []
+    const patches: Array<DOMPatch> = []
 
     const target = document.createElement('div')
     const added = document.createElement('div')
@@ -158,13 +158,13 @@ describe('libs/record: dom observers', () => {
     const walkDOMTree = createDOMTreeWalker(options)
     walkDOMTree.acceptDOMVisitor(createDOMVisitor())
 
-    const subscriber = (patch: Patch) => {
+    const subscriber = (patch: DOMPatch) => {
       patches.push(patch)
     }
 
     internal__processMutationRecords(records, walkDOMTree, options, subscriber)
 
-    expect(patches).toEqual<Array<Patch>>([
+    expect(patches).toEqual<Array<DOMPatch>>([
       {
         type: PatchType.RemoveNodes,
         parentId: getNodeId(target),

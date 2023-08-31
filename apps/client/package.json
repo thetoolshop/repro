@@ -71,6 +71,7 @@
     "zod": "^3.22.2"
   },
   "devDependencies": {
+    "@repro/testing-utils": "workspace:*",
     "@types/chrome": "^0.0.176",
     "@types/jest": "^27.4.0",
     "@types/md5": "^2.3.2",
