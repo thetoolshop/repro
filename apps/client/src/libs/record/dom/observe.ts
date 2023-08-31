@@ -21,7 +21,7 @@ import { DOMTreeWalker, isIgnoredByNode, isIgnoredBySelector } from './utils'
 export function createDOMObserver(
   walkDOMTree: DOMTreeWalker,
   options: RecordingOptions,
-  subscriber: (patch: Patch) => void
+  subscriber: (patch: DOMPatch) => void
 ): ObserverLike {
   const domObserver = createMutationObserver(walkDOMTree, options, subscriber)
   const styleSheetObserver = createStyleSheetObserver(subscriber)
