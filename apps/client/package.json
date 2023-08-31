@@ -33,6 +33,7 @@
     "@repro/observer-utils": "workspace:*",
     "@repro/playback": "workspace:*",
     "@repro/random-string": "workspace:*",
+    "@repro/recording": "workspace:*",
     "@repro/source-utils": "workspace:*",
     "@repro/std": "workspace:*",
     "@repro/tdl": "workspace:*",

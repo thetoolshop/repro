@@ -2,6 +2,7 @@ import { Stats } from '@repro/diagnostics'
 import {
   ConsoleEvent,
   ConsoleMessage,
+  DOMPatch,
   DOMPatchEvent,
   Interaction,
   InteractionEvent,
@@ -9,9 +10,9 @@ import {
   InteractionType,
   NetworkEvent,
   NetworkMessage,
-  Patch,
   PerformanceEntry,
   PerformanceEvent,
+  Point,
   PointerState,
   Snapshot,
   SnapshotEvent,
@@ -36,7 +37,6 @@ import {
   switchMap,
   takeUntil,
 } from 'rxjs'
-import { isZeroPoint } from '~/utils/interaction'
 import { createBuffer, Unsubscribe } from './buffer-utils'
 import { createConsoleObserver } from './console'
 import {
@@ -51,6 +51,10 @@ import { createNetworkObserver } from './network'
 import { createPerformanceObserver } from './performance'
 import { observePeriodic } from './periodic'
 import { RecordingOptions } from './types'
+
+function isZeroPoint(point: Point) {
+  return point[0] === 0 && point[1] === 0
+}
 
 const defaultOptions: RecordingOptions = {
   types: new Set(['dom', 'interaction']),
@@ -72,6 +76,7 @@ export function createEmptyInteractionSnapshot(): InteractionSnapshot {
     pointerState: PointerState.Up,
     scroll: {},
     viewport: [0, 0],
+    pageURL: '',
   }
 }
 
@@ -325,7 +330,7 @@ export function createRecordingStream(
     )
   }
 
-  function createPatchEvent(patch: Patch): DOMPatchEvent {
+  function createPatchEvent(patch: DOMPatch): DOMPatchEvent {
     return {
       time: performance.now(),
       type: SourceEventType.DOMPatch,

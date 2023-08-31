@@ -2,12 +2,15 @@ import { Analytics } from '@repro/analytics'
 import { ApiProvider, createApiClientBridge } from '@repro/api-client'
 import { Stats, Trace } from '@repro/diagnostics'
 import { createPTPAgent, MessagingProvider } from '@repro/messaging'
+import {
+  createRecordingStream,
+  RecordingStreamProvider,
+} from '@repro/recording'
 import { applyResetStyles } from '@repro/theme'
 import { resolve } from 'fluture'
 import { cache as styleCache } from 'jsxstyle'
 import React from 'react'
 import { createRoot, Root } from 'react-dom/client'
-import { createRecordingStream, RecordingStreamProvider } from '~/libs/record'
 import { REPRO_ROOT_ID } from './constants'
 import { StateProvider } from './context'
 import { Controller } from './Controller'

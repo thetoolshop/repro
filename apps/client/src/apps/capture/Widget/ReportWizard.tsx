@@ -12,6 +12,7 @@ import {
   PlaybackTimeline,
   usePlayback,
 } from '@repro/playback'
+import { sliceEventsAtRange } from '@repro/recording'
 import { createRecordingId } from '@repro/source-utils'
 import { toByteString } from '@repro/wire-formats'
 import { detect } from 'detect-browser'
@@ -25,7 +26,6 @@ import {
   XCircle as ErrorIcon,
 } from 'lucide-react'
 import React, { PropsWithChildren, useEffect, useState } from 'react'
-import { sliceEventsAtRange } from '~/libs/record'
 import { scheduleIdleCallback } from '~/utils/schedule'
 import { MAX_INT32 } from '../constants'
 import { useCurrentUser, useRecordingMode } from '../hooks'
