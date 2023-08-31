@@ -1,9 +1,9 @@
+import { IfSession, UnlessSession } from '@repro/auth'
 import { Card, colors } from '@repro/design'
 import { Block, Col, Grid, Row } from 'jsxstyle'
 import { AlertTriangle as AlertIcon } from 'lucide-react'
 import React from 'react'
 import { NavLink } from 'react-router-dom'
-import { IfSession, UnlessSession } from '~/libs/auth/Session'
 
 interface Props {
   error: Error

@@ -1,11 +1,10 @@
+import { LoginForm, setSession } from '@repro/auth'
 import { Button, Card, colors } from '@repro/design'
 import { User } from '@repro/domain'
 import { logger } from '@repro/logger'
 import { Col, Row } from 'jsxstyle'
 import React from 'react'
 import { useNavigate } from 'react-router'
-import { LoginForm } from '~/libs/auth'
-import { setSession } from '~/libs/auth/Session'
 
 export const LoginRoute: React.FC = () => {
   const navigate = useNavigate()

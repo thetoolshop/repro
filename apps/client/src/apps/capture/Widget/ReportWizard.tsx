@@ -1,5 +1,6 @@
 import { Analytics } from '@repro/analytics'
 import { useApiClient } from '@repro/api-client'
+import { LoginForm } from '@repro/auth'
 import { formatTime } from '@repro/date-utils'
 import { Button, Card, colors, FX, ToggleGroup } from '@repro/design'
 import { Project, RecordingMode, User } from '@repro/domain'
@@ -24,7 +25,6 @@ import {
   XCircle as ErrorIcon,
 } from 'lucide-react'
 import React, { PropsWithChildren, useEffect, useState } from 'react'
-import { LoginForm } from '~/libs/auth'
 import { sliceEventsAtRange } from '~/libs/record'
 import { scheduleIdleCallback } from '~/utils/schedule'
 import { MAX_INT32 } from '../constants'
