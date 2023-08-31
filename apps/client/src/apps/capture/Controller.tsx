@@ -4,6 +4,7 @@ import {
   Playback,
   PlaybackProvider,
 } from '@repro/playback'
+import { InterruptSignal, useRecordingStream } from '@repro/recording'
 import { LazyList } from '@repro/std'
 import { Block } from 'jsxstyle'
 import React, { useEffect, useState } from 'react'
@@ -17,7 +18,6 @@ import {
   Subscription,
   toArray,
 } from 'rxjs'
-import { InterruptSignal, useRecordingStream } from '~/libs/record'
 import { MAX_INT32 } from './constants'
 import { useActive, useRecordingMode } from './hooks'
 import { Widget } from './Widget'
