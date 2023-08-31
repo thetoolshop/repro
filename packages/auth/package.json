@@ -18,6 +18,7 @@
     "@repro/atom": "workspace:*",
     "@repro/design": "workspace:*",
     "@repro/domain": "workspace:*",
+    "@repro/future-utils": "workspace:*",
     "@repro/validation": "workspace:*",
     "fluture": "^14.0.0",
     "jsxstyle": "^2.5.1",
