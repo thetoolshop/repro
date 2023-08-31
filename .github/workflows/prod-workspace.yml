@@ -11,8 +11,10 @@ on:
 
 jobs:
   build:
+    name: Build Repro workspace client
+
     runs-on: ubuntu-20.04
-    
+
     permissions:
       contents: read
       id-token: write

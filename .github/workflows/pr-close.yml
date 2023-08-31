@@ -13,6 +13,8 @@ permissions:
 
 jobs:
   teardown-api-server:
+    name: Teardown Repro PR API server
+
     runs-on: ubuntu-20.04
 
     steps:

@@ -11,6 +11,8 @@ permissions:
 
 jobs:
   build:
+    name: Build Repro PR API server
+
     runs-on: ubuntu-20.04
 
     steps:
@@ -53,6 +55,8 @@ jobs:
             us-docker.pkg.dev/repro-383518/repro/api-server:pull-${{ github.event.number }}
 
   database:
+    name: Branch Repro PR database
+
     runs-on: ubuntu-20.04
 
     outputs:
@@ -87,6 +91,8 @@ jobs:
           pg_password: ${{ secrets.PROD_DB_PASSWORD }}
 
   migrate:
+    name: Migrate Repro PR database
+
     needs:
       - build
       - database
@@ -120,6 +126,8 @@ jobs:
           DB_USE_SSL: true
 
   deploy:
+    name: Deploy Repro PR API server
+
     needs:
       - build
       - migrate
