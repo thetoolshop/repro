@@ -7,6 +7,8 @@ on:
 
 jobs:
   build:
+    name: Build Repro PR workspace
+
     runs-on: ubuntu-20.04
 
     permissions:

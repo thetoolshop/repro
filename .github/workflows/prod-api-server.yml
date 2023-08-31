@@ -15,6 +15,8 @@ permissions:
 
 jobs:
   build:
+    name: Build Repro API server
+
     runs-on: ubuntu-20.04
 
     steps:
@@ -62,6 +64,8 @@ jobs:
             us-docker.pkg.dev/repro-383518/repro/api-server:${{ steps.vars.outputs.branch }}
 
   migrate:
+    name: Migrate Repro database
+
     needs: build
 
     runs-on: ubuntu-20.04
@@ -93,6 +97,8 @@ jobs:
           DB_USE_SSL: true
 
   deploy:
+    name: Deploy Repro API server
+
     needs: migrate
 
     runs-on: ubuntu-20.04
@@ -110,7 +116,7 @@ jobs:
           service: production-api
           image: us-docker.pkg.dev/repro-383518/repro/api-server:${{ github.sha }}
           region: us-east1
-          flags: '--allow-unauthenticated'
+          flags: "--allow-unauthenticated"
           env_vars: |
             NODE_ENV=production
             DB_HOST=${{ secrets.PROD_DB_HOST }}
