@@ -26,7 +26,6 @@ import {
   XCircle as ErrorIcon,
 } from 'lucide-react'
 import React, { PropsWithChildren, useEffect, useState } from 'react'
-import { scheduleIdleCallback } from '~/utils/schedule'
 import { MAX_INT32 } from '../constants'
 import { useCurrentUser, useRecordingMode } from '../hooks'
 import { DetailsForm } from './DetailsForm'
@@ -114,64 +113,71 @@ export const ReportWizard: React.FC<Props> = ({ onClose }) => {
     setUploading('uploading')
 
     // Schedule async callback to flush pending UI changes
-    scheduleIdleCallback(() => {
-      let events = playback.getSourceEvents()
+    requestIdleCallback(
+      () => {
+        let events = playback.getSourceEvents()
 
-      if (recordingMode === RecordingMode.Replay) {
-        events = sliceEventsAtRange(events, [minTime, maxTime])
-      }
+        if (recordingMode === RecordingMode.Replay) {
+          events = sliceEventsAtRange(events, [minTime, maxTime])
+        }
 
-      const recordingId = createRecordingId()
+        const recordingId = createRecordingId()
 
-      Analytics.track('capture:save-start', {
-        recordingSize: events
-          .toSource()
-          .map(event => event.byteLength)
-          .reduce((a, b) => a + b, 0)
-          .toString(),
-      })
-
-      fork(onError)(onSuccess)(
-        agent.raiseIntent({
-          type: 'upload',
-          payload: {
-            recordingId,
-            title: data.title,
-            url: location.href,
-            description: data.description,
-            projectId: selectedProject && selectedProject.id,
-            duration: maxTime - minTime,
-            mode: recordingMode,
-            events: events
-              .toSource()
-              .map(view =>
-                toByteString(
-                  new Uint8Array(view.buffer, view.byteOffset, view.byteLength)
-                )
-              ),
-            public: data.isPublic,
-            context: {
-              browserName: browser && browser.name,
-              browserVersion: browser && browser.version,
-              operatingSystem: browser && browser.os,
-            },
-          },
+        Analytics.track('capture:save-start', {
+          recordingSize: events
+            .toSource()
+            .map(event => event.byteLength)
+            .reduce((a, b) => a + b, 0)
+            .toString(),
         })
-      )
 
-      function onSuccess() {
-        Analytics.track('capture:save-success')
-        setUploading('done')
-        setRecordingId(recordingId)
-      }
+        fork(onError)(onSuccess)(
+          agent.raiseIntent({
+            type: 'upload',
+            payload: {
+              recordingId,
+              title: data.title,
+              url: location.href,
+              description: data.description,
+              projectId: selectedProject && selectedProject.id,
+              duration: maxTime - minTime,
+              mode: recordingMode,
+              events: events
+                .toSource()
+                .map(view =>
+                  toByteString(
+                    new Uint8Array(
+                      view.buffer,
+                      view.byteOffset,
+                      view.byteLength
+                    )
+                  )
+                ),
+              public: data.isPublic,
+              context: {
+                browserName: browser && browser.name,
+                browserVersion: browser && browser.version,
+                operatingSystem: browser && browser.os,
+              },
+            },
+          })
+        )
 
-      function onError(error: Error) {
-        logger.error(error)
-        Analytics.track('capture:save-failure')
-        setUploading('failed')
-        setUploadError(error.message)
-      }
-    })
+        function onSuccess() {
+          Analytics.track('capture:save-success')
+          setUploading('done')
+          setRecordingId(recordingId)
+        }
+
+        function onError(error: Error) {
+          logger.error(error)
+          Analytics.track('capture:save-failure')
+          setUploading('failed')
+          setUploadError(error.message)
+        }
+      },
+      { timeout: 1000 }
+    )
   }
 
   return (
