@@ -1,8 +1,8 @@
 import { Card, colors, DefinitionList } from '@repro/design'
 import { RecordingMetadata } from '@repro/domain'
+import { ucfirst } from '@repro/string-utils'
 import { Block, Grid } from 'jsxstyle'
 import React from 'react'
-import { ucfirst } from '~/utils/string'
 import { EventHighlights } from './EventHighlights'
 import { Summary } from './Summary'
 

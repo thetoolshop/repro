@@ -35,6 +35,7 @@
     "@repro/recording": "workspace:*",
     "@repro/source-utils": "workspace:*",
     "@repro/std": "workspace:*",
+    "@repro/string-utils": "workspace:*",
     "@repro/theme": "workspace:*",
     "@repro/vdom-utils": "workspace:*",
     "@repro/wire-formats": "workspace:*",
