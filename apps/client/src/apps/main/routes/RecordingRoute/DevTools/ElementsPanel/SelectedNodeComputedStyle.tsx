@@ -1,15 +1,15 @@
-import { colors } from '@repro/design'
-import { isElementNode } from '@repro/dom-utils'
-import { useElapsed, useLatestControlFrame } from '@repro/playback'
-import { Block, InlineBlock } from 'jsxstyle'
-import React, { useEffect, useState } from 'react'
 import {
   createCSSPropertyMap,
   createGroupedCSSPropertyMap,
   CSSPropertyMap,
   GroupedCSSPropertyMap,
   useReferenceStyle,
-} from '~/libs/styles'
+} from '@repro/css-utils'
+import { colors } from '@repro/design'
+import { isElementNode } from '@repro/dom-utils'
+import { useElapsed, useLatestControlFrame } from '@repro/playback'
+import { Block, InlineBlock } from 'jsxstyle'
+import React, { useEffect, useState } from 'react'
 import { useSelectedElement } from '../../hooks'
 
 export const SelectedNodeComputedStyle: React.FC = () => {
