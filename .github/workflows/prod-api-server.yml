@@ -57,7 +57,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          file: apps/api-server/Dockerfile
+          file: apps/repro/api-server/Dockerfile
           push: true
           tags: |
             us-docker.pkg.dev/repro-383518/repro/api-server:${{ github.sha }}
