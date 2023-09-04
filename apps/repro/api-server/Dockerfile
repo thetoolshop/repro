@@ -7,6 +7,6 @@ COPY . .
 RUN pnpm install
 RUN pnpm nx run @repro/api-server:build
 
-WORKDIR /project/apps/api-server
+WORKDIR /project/apps/repro/api-server
 
 CMD ["pnpm", "start"]

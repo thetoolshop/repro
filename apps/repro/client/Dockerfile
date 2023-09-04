@@ -32,5 +32,5 @@ RUN pnpm -r install --offline --ignore-scripts
 RUN pnpm nx @repro/client:build:main
 
 FROM caddy:2.6.4-alpine
-COPY ./apps/client/Caddyfile /etc/caddy/Caddyfile
-COPY --from=builder /project/apps/client/dist/main /srv
+COPY ./apps/repro/client/Caddyfile /etc/caddy/Caddyfile
+COPY --from=builder /project/apps/repro/client/dist/main /srv
