@@ -8,23 +8,23 @@ importers:
         specifier: 15.9.2
         version: 15.9.2
 
-  apps/api-server:
+  apps/repro/api-server:
     dependencies:
       '@aws-sdk/client-s3':
         specifier: ^3.295.0
         version: 3.295.0
       '@repro/domain':
         specifier: workspace:*
-        version: link:../../packages/domain
+        version: link:../../../packages/domain
       '@repro/tdl':
         specifier: workspace:*
-        version: link:../../packages/tdl
+        version: link:../../../packages/tdl
       '@repro/validation':
         specifier: workspace:*
-        version: link:../../packages/validation
+        version: link:../../../packages/validation
       '@repro/wire-formats':
         specifier: workspace:*
-        version: link:../../packages/wire-formats
+        version: link:../../../packages/wire-formats
       bcrypt:
         specifier: ^5.0.1
         version: 5.0.1
@@ -147,83 +147,83 @@ importers:
         specifier: ^4.9.4
         version: 4.9.4
 
-  apps/client:
+  apps/repro/client:
     dependencies:
       '@hookform/resolvers':
         specifier: ^2.9.10
         version: 2.9.10(react-hook-form@7.38.0)
       '@repro/analytics':
         specifier: workspace:*
-        version: link:../../packages/analytics
+        version: link:../../../packages/analytics
       '@repro/analytics-provider-mixpanel':
         specifier: workspace:*
-        version: link:../../packages/analytics-provider-mixpanel
+        version: link:../../../packages/analytics-provider-mixpanel
       '@repro/api-client':
         specifier: workspace:*
-        version: link:../../packages/api-client
+        version: link:../../../packages/api-client
       '@repro/atom':
         specifier: workspace:*
-        version: link:../../packages/atom
+        version: link:../../../packages/atom
       '@repro/auth':
         specifier: workspace:*
-        version: link:../../packages/auth
+        version: link:../../../packages/auth
       '@repro/billing':
         specifier: workspace:*
-        version: link:../../packages/billing
+        version: link:../../../packages/billing
       '@repro/css-utils':
         specifier: workspace:*
-        version: link:../../packages/css-utils
+        version: link:../../../packages/css-utils
       '@repro/date-utils':
         specifier: workspace:*
-        version: link:../../packages/date-utils
+        version: link:../../../packages/date-utils
       '@repro/design':
         specifier: workspace:*
-        version: link:../../packages/design
+        version: link:../../../packages/design
       '@repro/diagnostics':
         specifier: workspace:*
-        version: link:../../packages/diagnostics
+        version: link:../../../packages/diagnostics
       '@repro/dom-utils':
         specifier: workspace:*
-        version: link:../../packages/dom-utils
+        version: link:../../../packages/dom-utils
       '@repro/domain':
         specifier: workspace:*
-        version: link:../../packages/domain
+        version: link:../../../packages/domain
       '@repro/future-utils':
         specifier: workspace:*
-        version: link:../../packages/future-utils
+        version: link:../../../packages/future-utils
       '@repro/logger':
         specifier: workspace:*
-        version: link:../../packages/logger
+        version: link:../../../packages/logger
       '@repro/messaging':
         specifier: workspace:*
-        version: link:../../packages/messaging
+        version: link:../../../packages/messaging
       '@repro/playback':
         specifier: workspace:*
-        version: link:../../packages/playback
+        version: link:../../../packages/playback
       '@repro/random-string':
         specifier: workspace:*
-        version: link:../../packages/random-string
+        version: link:../../../packages/random-string
       '@repro/recording':
         specifier: workspace:*
-        version: link:../../packages/recording
+        version: link:../../../packages/recording
       '@repro/source-utils':
         specifier: workspace:*
-        version: link:../../packages/source-utils
+        version: link:../../../packages/source-utils
       '@repro/std':
         specifier: workspace:*
-        version: link:../../packages/std
+        version: link:../../../packages/std
       '@repro/string-utils':
         specifier: workspace:*
-        version: link:../../packages/string-utils
+        version: link:../../../packages/string-utils
       '@repro/theme':
         specifier: workspace:*
-        version: link:../../packages/theme
+        version: link:../../../packages/theme
       '@repro/vdom-utils':
         specifier: workspace:*
-        version: link:../../packages/vdom-utils
+        version: link:../../../packages/vdom-utils
       '@repro/wire-formats':
         specifier: workspace:*
-        version: link:../../packages/wire-formats
+        version: link:../../../packages/wire-formats
       detect-browser:
         specifier: ^5.3.0
         version: 5.3.0
@@ -284,7 +284,7 @@ importers:
     devDependencies:
       '@repro/testing-utils':
         specifier: workspace:*
-        version: link:../../packages/testing-utils
+        version: link:../../../packages/testing-utils
       '@types/chrome':
         specifier: ^0.0.176
         version: 0.0.176
@@ -296,7 +296,7 @@ importers:
         version: 18.7.13
       '@types/react':
         specifier: ^18.0.14
-        version: 18.0.14
+        version: 18.2.21
       '@types/react-dom':
         specifier: ^18.0.5
         version: 18.0.5
