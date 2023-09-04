@@ -57,7 +57,7 @@ jobs:
         run: |
           gsutil -m \
             -h "Cache-Control: no-cache" \
-            rsync -d -r apps/client/dist/main \
+            rsync -d -r apps/repro/client/dist/main \
             gs://repro-deployments/workspace/builds/pull/${{ github.event.number }}
 
       - name: Post deployment URL to PR comment
