@@ -304,7 +304,7 @@ importers:
         specifier: ^4.11.1
         version: 4.11.1(webpack-cli@4.10.0)(webpack@5.75.0)
 
-  apps/repro/client:
+  apps/repro/workspace:
     dependencies:
       '@hookform/resolvers':
         specifier: ^2.9.10

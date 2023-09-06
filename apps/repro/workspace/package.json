@@ -1,15 +1,12 @@
 {
-  "name": "@repro/client",
+  "name": "@repro/workspace",
   "version": "1.0.0",
   "description": "Bug reporting that captures every detail",
   "main": "index.js",
   "scripts": {
     "postinstall": "patch-package",
-    "build:capture": "BUILD_ENV=production ./scripts/capture",
-    "watch:capture": "./scripts/capture -w",
-    "build:main": "./scripts/main",
-    "serve:main": "./scripts/main -s",
-    "bench:codecs": "./scripts/bench-codecs",
+    "build": "./scripts/build",
+    "serve": "./scripts/build -s",
     "fmt": "prettier --write src",
     "test": "jest"
   },
@@ -91,22 +88,12 @@
   },
   "nx": {
     "targets": {
-      "build:capture": {
+      "build": {
         "dependsOn": [
           "^build"
         ]
       },
-      "watch:capture": {
-        "dependsOn": [
-          "^build"
-        ]
-      },
-      "build:main": {
-        "dependsOn": [
-          "^build"
-        ]
-      },
-      "serve:main": {
+      "serve": {
         "dependsOn": [
           "^build"
         ]
