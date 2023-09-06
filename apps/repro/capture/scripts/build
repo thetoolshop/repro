@@ -3,10 +3,10 @@
 set -euo pipefail
 
 project_dir=$(realpath "$(dirname $0)/..")
-source_dir="$project_dir/src/apps/capture"
-build_dir="$project_dir/dist/capture"
+source_dir="$project_dir/src"
+build_dir="$project_dir/dist"
 
-flags="--config webpack.capture.config.js"
+flags="--config webpack.config.js"
 watch=false
 
 while getopts "w" param; do

@@ -36,7 +36,7 @@ jobs:
         run: pnpm install
 
       - name: Build workspace client
-        run: pnpm nx run @repro/client:build:main
+        run: pnpm nx run @repro/workspace:build
         env:
           BUILD_ENV: production
           PADDLE_VENDOR_ID: ${{ secrets.PADDLE_VENDOR_ID }}
@@ -60,5 +60,5 @@ jobs:
         run: |
           gsutil -m \
             -h "Cache-Control: no-cache" \
-            rsync -d -r apps/client/dist/main \
+            rsync -d -r apps/repro/workspace/dist \
             gs://repro-deployments/workspace/builds/production
