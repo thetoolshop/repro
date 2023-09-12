@@ -1,0 +1,42 @@
+import point.Point
+
+type ContentType: enum<uint8> {
+  Thread: 0
+}
+
+type CommentType: enum<uint8> {
+  Text: 0
+}
+
+type TextComment: struct {
+  0) type: CommentType.Text
+  1) id: uuid
+  2) parentId: ?uuid
+  3) authorId: uuid
+  4) body: string
+  5) createdAt: timestamp
+  6) updatedAt: timestamp
+}
+
+type Comment: union(type) {
+  TextComment
+}
+
+type Thread: struct {
+  0) type: ContentType.Thread
+  1) id: uuid
+  2) comments: vector<Comment>
+  3) at: Point
+}
+
+type Content: union(type) {
+  Thread
+}
+
+type Annotation: struct {
+  0) id: uuid
+  1) time: uint32
+  2) content: Content
+  3) createdAt: timestamp
+  4) authorId: uuid
+}

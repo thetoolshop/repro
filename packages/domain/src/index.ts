@@ -5,6 +5,7 @@ import { CodecVersion } from './migrations/types'
 import pkg from '../package.json'
 
 export const CODEC_VERSION = pkg.version as CodecVersion
+export * from './generated/annotation'
 export * from './generated/billing'
 export * from './generated/common'
 export * from './generated/console'

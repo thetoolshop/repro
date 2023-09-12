@@ -6,6 +6,15 @@
   "scripts": {},
   "license": "Apache-2.0",
   "devDependencies": {
-    "nx": "15.9.2"
+    "@nx/storybook": "^16.8.1",
+    "nx": "16.8.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "@types/react": "18.0.14",
+      "@types/react-dom": "18.0.5",
+      "react": "18.2.0",
+      "react-dom": "18.2.0"
+    }
   }
 }
