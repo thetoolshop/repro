@@ -9,7 +9,9 @@ export interface Lens {
 }
 
 export function isLens(data: any): data is Lens {
-  return data !== null && data.__repro_IS_VIEW_LENS === true
+  return (
+    data !== undefined && data !== null && data.__repro_IS_VIEW_LENS === true
+  )
 }
 
 export function unwrapLens(data: Lens) {

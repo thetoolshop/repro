@@ -16,6 +16,7 @@
     "@repro/analytics": "workspace:*",
     "@repro/api-client": "workspace:*",
     "@repro/atom": "workspace:*",
+    "@repro/buffer-utils": "workspace:*",
     "@repro/date-utils": "workspace:*",
     "@repro/design": "workspace:*",
     "@repro/diagnostics": "workspace:*",
@@ -27,7 +28,7 @@
     "@repro/vdom-utils": "workspace:*",
     "fluture": "^14.0.0",
     "jsxstyle": "^2.5.1",
-    "lucide-react": "^0.91.0",
+    "lucide-react": "^0.277.0",
     "react": "^18.2.0",
     "rxjs": "^7.8.0",
     "shortcuts": "^1.8.1"

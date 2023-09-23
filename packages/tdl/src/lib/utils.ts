@@ -1,5 +1,6 @@
 import { ByteLengths } from './constants'
 import { AnyDescriptor, StructDescriptor } from './descriptors'
+import { isLens, unwrapLens } from './view'
 
 export function copy(view: DataView): DataView {
   const buffer = new ArrayBuffer(view.byteLength)
@@ -15,6 +16,10 @@ export function copy(view: DataView): DataView {
 export function approxByteLength(obj: any): number {
   if (obj && obj.byteLength !== undefined) {
     return obj.byteLength
+  }
+
+  if (isLens(obj)) {
+    return unwrapLens(obj).byteLength
   }
 
   if (typeof obj === 'string') {

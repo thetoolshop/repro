@@ -1,6 +1,7 @@
 import { copyArray } from '@repro/std'
 import { approxByteLength } from '@repro/tdl'
-import { Subscriber } from './types'
+
+export type Subscriber<T> = (value: T) => void
 
 export type Unsubscribe = () => void
 
@@ -8,12 +9,11 @@ export interface Buffer<T> {
   clear(): void
   copy(): Array<T>
   peek(): T | null
+  peekLast(): T | null
   push(entry: T): void
   onEvict(subscriber: Subscriber<Array<T>>): Unsubscribe
   onPush(subscriber: Subscriber<T>): Unsubscribe
 }
-
-export { approxByteLength }
 
 export function createBuffer<T>(maxSizeInBytes: number): Buffer<T> {
   const buffer: Array<T> = []
@@ -75,6 +75,13 @@ export function createBuffer<T>(maxSizeInBytes: number): Buffer<T> {
      */
     peek() {
       return buffer[0] || null
+    },
+
+    /**
+     * Read newest entry from buffer, or null if empty.
+     */
+    peekLast() {
+      return buffer[buffer.length - 1] || null
     },
 
     /**

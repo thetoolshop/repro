@@ -1,4 +1,5 @@
 import { createAtom } from '@repro/atom'
+import { createBuffer } from '@repro/buffer-utils'
 import {
   Snapshot,
   SnapshotEvent,
@@ -6,10 +7,16 @@ import {
   SourceEventType,
   SourceEventView,
 } from '@repro/domain'
-import { applyEventToSnapshot, createEmptySnapshot } from '@repro/source-utils'
+import {
+  applyEventToSnapshot,
+  createEmptySnapshot,
+  isSample,
+} from '@repro/source-utils'
 import { copyObject, LazyList } from '@repro/std'
 import { first, Observable, skipUntil, Subscription } from 'rxjs'
 import { ControlFrame, Playback, PlaybackState } from './types'
+
+const MAX_EVENT_BUFFER_SIZE_BYTES = 32_000_000
 
 export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
   const [$activeIndex, _setActiveIndex, getActiveIndex] = createAtom(-1)
@@ -17,13 +24,17 @@ export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
     LazyList.Empty(SourceEventView.decode, SourceEventView.encode)
   )
   const [$elapsed, setElapsed, getElapsed] = createAtom(0)
-  const [$latestControlFrame, _setLatestControlFrame, getLatestControlFrame] =
+  const [$latestControlFrame, setLatestControlFrame, getLatestControlFrame] =
     createAtom(ControlFrame.Idle)
   const [$playbackState, _setPlaybackState, getPlaybackState] = createAtom(
     PlaybackState.Playing
   )
   const [$snapshot, setSnapshot, getSnapshot] = createAtom<Snapshot>(
     createEmptySnapshot()
+  )
+
+  const sourceEventBuffer = createBuffer<SourceEvent>(
+    MAX_EVENT_BUFFER_SIZE_BYTES
   )
 
   function getDuration() {
@@ -39,7 +50,11 @@ export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
   }
 
   function getSourceEvents() {
-    return LazyList.Empty<SourceEvent>()
+    return new LazyList(
+      sourceEventBuffer.copy(),
+      SourceEventView.over,
+      SourceEventView.encode
+    )
   }
 
   function getResourceMap() {
@@ -48,8 +63,14 @@ export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
 
   function play() {}
   function pause() {}
-  function seekToEvent() {}
-  function seekToTime() {}
+
+  function seekToEvent() {
+    setLatestControlFrame(ControlFrame.SeekToEvent)
+  }
+
+  function seekToTime() {
+    setLatestControlFrame(ControlFrame.SeekToTime)
+  }
 
   const subscription = new Subscription()
 
@@ -62,7 +83,8 @@ export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
 
     subscription.add(
       initialSnapshot$.subscribe(event => {
-        setSnapshot(event.data)
+        const decoded = SourceEventView.decode(event) as SnapshotEvent
+        setSnapshot(decoded.data)
       })
     )
 
@@ -73,10 +95,21 @@ export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
         applyEventToSnapshot(trailingSnapshot, event, event.time)
 
         setSnapshot(trailingSnapshot)
-        setElapsed(event.time)
+
+        // Sampled events are offset by their duration to ensure correct
+        // interpolation during recorded playback. For live playback, we
+        // should shift elapsed time to the end of the interpolation window
+        // to avoid missed frames.
+        const elapsed = isSample(event.data)
+          ? event.time + event.data.duration
+          : event.time
+
+        setElapsed(elapsed)
         setBuffer(
           new LazyList([event], SourceEventView.decode, SourceEventView.encode)
         )
+
+        sourceEventBuffer.push(event)
       })
     )
   }
