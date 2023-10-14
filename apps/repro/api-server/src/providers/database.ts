@@ -96,7 +96,7 @@ export function createDatabaseClient(config: PoolConfig): DatabaseClient {
               return
             }
 
-            client.query(stream)
+            client?.query(stream)
 
             stream.on('data', row => {
               observer.next(row)
@@ -135,7 +135,7 @@ export function createDatabaseClient(config: PoolConfig): DatabaseClient {
           return
         }
 
-        const stream = client.query(
+        const stream = client?.query(
           copyFrom(`
             COPY ${table} ${columns ? `(${columns.join(', ')})` : ''}
             FROM STDIN
@@ -148,17 +148,19 @@ export function createDatabaseClient(config: PoolConfig): DatabaseClient {
           done()
         })
 
-        stream.on('error', err => {
-          reject(err)
-          done()
-        })
+        if (stream) {
+          stream.on('error', err => {
+            reject(err)
+            done()
+          })
 
-        stream.on('finish', () => {
-          resolve()
-          done()
-        })
+          stream.on('finish', () => {
+            resolve()
+            done()
+          })
 
-        inputStream.pipe(stream)
+          inputStream.pipe(stream)
+        }
       })
 
       return () => {
