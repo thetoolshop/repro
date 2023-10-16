@@ -1,3 +1,5 @@
+import { Atom, createAtom } from '@repro/atom'
+import { createBuffer, Unsubscribe } from '@repro/buffer-utils'
 import { Stats } from '@repro/diagnostics'
 import {
   ConsoleEvent,
@@ -37,7 +39,6 @@ import {
   switchMap,
   takeUntil,
 } from 'rxjs'
-import { createBuffer, Unsubscribe } from './buffer-utils'
 import { createConsoleObserver } from './console'
 import {
   createDOMObserver,
@@ -83,6 +84,7 @@ export function createEmptyInteractionSnapshot(): InteractionSnapshot {
 export interface RecordingStream {
   start(): void
   stop(): void
+  $started: Atom<boolean>
   isStarted(): boolean
   peek(nodeId: SyntheticId): VNode | null
   slice(): Promise<LazyList<SourceEvent>>
@@ -98,6 +100,7 @@ interface BufferSubscriptions {
 export const EMPTY_RECORDING_STREAM: RecordingStream = {
   start: () => undefined,
   stop: () => undefined,
+  $started: createAtom(false)[0],
   isStarted: () => false,
   peek: () => null,
   slice: () => Promise.resolve(LazyList.Empty<SourceEvent>()),
@@ -119,7 +122,7 @@ export function createRecordingStream(
     ...customOptions,
   }
 
-  let started = false
+  const [$started, setStarted, isStarted] = createAtom(false)
 
   const observers: Array<ObserverLike> = []
   const eventBuffer = createBuffer<DataView>(MAX_EVENT_BUFFER_SIZE_BYTES)
@@ -166,43 +169,48 @@ export function createRecordingStream(
   }
 
   function start() {
-    if (started) {
+    if (isStarted()) {
       return
     }
 
-    started = true
+    Stats.time('RecordingStream#start: total', () => {
+      setStarted(true)
 
-    sourceDocuments = [rootDocument]
-    trailingSnapshot = createEmptySnapshot()
+      sourceDocuments = [rootDocument]
+      trailingSnapshot = createEmptySnapshot()
 
-    if (options.types.has('interaction')) {
-      trailingSnapshot.interaction = createEmptyInteractionSnapshot()
-    }
-
-    Stats.time('RecordingStream#start: build VTree snapshot', () => {
-      // TODO: collect iframes to observe nested documents
-      domTreeWalker(rootDocument)
-    })
-
-    const trailingVTree = trailingSnapshot.dom
-
-    if (!trailingVTree) {
-      throw new Error('RecordingStream#start: VTree is not initialized')
-    }
-
-    leadingSnapshot = copyObjectDeep(trailingSnapshot)
-    subscribeToBuffer()
-    addEvent(createSnapshotEvent())
-
-    for (const observer of observers) {
-      for (const doc of sourceDocuments) {
-        observer.observe(doc, trailingVTree)
+      if (options.types.has('interaction')) {
+        trailingSnapshot.interaction = createEmptyInteractionSnapshot()
       }
-    }
+
+      Stats.time('RecordingStream#start: build VTree snapshot', () => {
+        // TODO: collect iframes to observe nested documents
+        domTreeWalker(rootDocument)
+      })
+
+      const trailingVTree = trailingSnapshot.dom
+
+      if (!trailingVTree) {
+        throw new Error('RecordingStream#start: VTree is not initialized')
+      }
+
+      Stats.time('RecordingStream#start: copy leading snapshot', () => {
+        leadingSnapshot = copyObjectDeep(trailingSnapshot)
+      })
+
+      subscribeToBuffer()
+      addEvent(createSnapshotEvent())
+
+      for (const observer of observers) {
+        for (const doc of sourceDocuments) {
+          observer.observe(doc, trailingVTree)
+        }
+      }
+    })
   }
 
   function stop() {
-    if (!started) {
+    if (!isStarted()) {
       return
     }
 
@@ -213,11 +221,7 @@ export function createRecordingStream(
     unsubscribeFromBuffer()
     eventBuffer.clear()
 
-    started = false
-  }
-
-  function isStarted() {
-    return started
+    setStarted(false)
   }
 
   async function slice(): Promise<LazyList<SourceEvent>> {
@@ -311,7 +315,8 @@ export function createRecordingStream(
   }
 
   function addEvent(event: SourceEvent) {
-    eventBuffer.push(SourceEventView.encode(event))
+    const data = SourceEventView.encode(event)
+    eventBuffer.push(data)
   }
 
   function createSnapshotEvent(): SnapshotEvent {
@@ -325,7 +330,12 @@ export function createRecordingStream(
   function registerSnapshotObserver() {
     observers.push(
       observePeriodic(options.snapshotInterval, () => {
-        addEvent(createSnapshotEvent())
+        const view = eventBuffer.peekLast()
+        const lastEvent = view ? SourceEventView.over(view) : null
+
+        if (!lastEvent || lastEvent.type !== SourceEventType.Snapshot) {
+          addEvent(createSnapshotEvent())
+        }
       })
     )
   }
@@ -374,7 +384,7 @@ export function createRecordingStream(
     iframeVisitor.subscribe(contentDocuments => {
       sourceDocuments.push(...contentDocuments)
 
-      if (started && trailingSnapshot.dom) {
+      if (isStarted() && trailingSnapshot.dom) {
         for (const observer of observers) {
           for (const doc of contentDocuments) {
             observer.observe(doc, trailingSnapshot.dom)
@@ -555,6 +565,7 @@ export function createRecordingStream(
   return {
     start,
     stop,
+    $started,
     isStarted,
     peek,
     slice,

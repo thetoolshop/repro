@@ -7,15 +7,16 @@ export const PlaybackContext = React.createContext<Playback | null>(null)
 
 interface PlaybackProviderProps {
   playback: Playback | null
+  startTime?: number
 }
 
 export const PlaybackProvider: React.FC<
   PropsWithChildren<PlaybackProviderProps>
-> = ({ children, playback }) => {
+> = ({ children, playback, startTime = 0 }) => {
   useEffect(() => {
     if (playback) {
       playback.open()
-      playback.seekToTime(0)
+      playback.seekToTime(startTime)
     }
 
     return () => {
@@ -23,7 +24,7 @@ export const PlaybackProvider: React.FC<
         playback.close()
       }
     }
-  }, [playback])
+  }, [playback, startTime])
 
   return (
     <PlaybackContext.Provider value={playback}>

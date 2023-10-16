@@ -10,6 +10,7 @@ export function observePeriodic(
     disconnect() {
       if (handle !== null) {
         clearInterval(handle)
+        handle = null
       }
     },
 

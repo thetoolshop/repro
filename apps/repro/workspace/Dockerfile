@@ -18,7 +18,7 @@ ENV BUILD_ENV=${BUILD_ENV} \
   AUTH_STORAGE=${AUTH_STORAGE} \
   STATS_LEVEL=${STATS_LEVEL}
 
-RUN yarn global add pnpm@7.18.1
+RUN yarn global add pnpm@8.3.1
 
 WORKDIR /project
 

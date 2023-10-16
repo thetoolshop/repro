@@ -466,17 +466,7 @@ function applyInteractionEvent(
         elapsed
       )
 
-      let element = node
-
-      if (isBodyElement(element)) {
-        element = node.ownerDocument.documentElement
-      }
-
-      element.scrollTo({
-        left,
-        top,
-        behavior: 'smooth',
-      })
+      updateScroll(node, left, top)
     }
   }
 }

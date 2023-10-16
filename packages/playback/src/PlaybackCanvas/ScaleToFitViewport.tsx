@@ -14,7 +14,7 @@ import { useViewport } from '../hooks'
 export const ScaleToFitViewport: React.FC<PropsWithChildren> = ({
   children,
 }) => {
-  const viewport = useViewport()
+  const [vWidth, vHeight] = useViewport()
 
   const ref = useRef() as MutableRefObject<HTMLDivElement>
   const [scale, setScale] = useState(1)
@@ -22,15 +22,15 @@ export const ScaleToFitViewport: React.FC<PropsWithChildren> = ({
 
   const onScale = useCallback(
     (width: number, height: number) => {
-      const widthScale = width / viewport[0]
-      const heightScale = height / viewport[1]
+      const widthScale = width / vWidth
+      const heightScale = height / vHeight
       setScale(Math.min(1, widthScale, heightScale))
 
-      const x = (width - viewport[0]) / 2
-      const y = (height - viewport[1]) / 2
+      const x = (width - vWidth) / 2
+      const y = (height - vHeight) / 2
       setOffset([x, y])
     },
-    [viewport, setScale, setOffset]
+    [vWidth, vHeight, setScale, setOffset]
   )
 
   useEffect(() => {
@@ -63,8 +63,8 @@ export const ScaleToFitViewport: React.FC<PropsWithChildren> = ({
   return (
     <Block position="relative" height="100%" props={{ ref }}>
       <Block
-        width={viewport[0]}
-        height={viewport[1]}
+        width={vWidth}
+        height={vHeight}
         transform={`translate(${offset[0]}px, ${offset[1]}px) scale(${scale})`}
         transformOrigin="center"
         background={colors.white}

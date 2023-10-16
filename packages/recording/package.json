@@ -13,6 +13,8 @@
   },
   "license": "UNLICENSED",
   "dependencies": {
+    "@repro/atom": "workspace:*",
+    "@repro/buffer-utils": "workspace:*",
     "@repro/diagnostics": "workspace:*",
     "@repro/dom-utils": "workspace:*",
     "@repro/domain": "workspace:*",

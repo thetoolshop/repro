@@ -42,7 +42,7 @@
     "http-status-codes": "^2.2.0",
     "jsxstyle": "^2.5.1",
     "jsxstyle-utils": "^2.5.0",
-    "lucide-react": "^0.91.0",
+    "lucide-react": "^0.277.0",
     "pretty-bytes": "^6.0.0",
     "pretty-ms": "^8.0.0",
     "prop-types": "^15.8.1",

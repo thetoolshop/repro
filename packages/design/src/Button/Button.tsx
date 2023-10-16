@@ -7,6 +7,7 @@ type Props = PropsWithChildren<{
   size?: 'small' | 'medium' | 'large'
   variant?: 'contained' | 'outlined' | 'text'
   context?: 'info' | 'success' | 'warning' | 'danger' | 'neutral' | 'inverted'
+  rounded?: boolean
   disabled?: boolean
   onClick?: () => void
 }>
@@ -34,6 +35,7 @@ export const Button: React.FC<Props> = ({
   size = 'medium',
   variant = 'contained',
   context = 'info',
+  rounded = true,
   disabled = false,
   onClick,
 }) => {
@@ -68,7 +70,7 @@ export const Button: React.FC<Props> = ({
       borderColor={variant === 'outlined' ? colorGroup['300'] : 'transparent'}
       borderStyle="solid"
       borderWidth={1}
-      borderRadius={base / 2}
+      borderRadius={rounded ? base / 2 : 0}
       color={
         variant === 'contained'
           ? context === 'inverted'
@@ -84,7 +86,7 @@ export const Button: React.FC<Props> = ({
           : 'none'
       }
       opacity={disabled ? 0.5 : 1}
-      cursor="pointer"
+      cursor={disabled ? 'default' : 'pointer'}
       fontSize={fontSize}
       lineHeight="1em"
       outline="none"
