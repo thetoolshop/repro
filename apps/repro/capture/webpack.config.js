@@ -28,7 +28,6 @@ module.exports = {
         test: /\.tsx?$/,
         loader: 'esbuild-loader',
         options: {
-          loader: 'tsx',
           minify: true,
           target: 'es2015',
         },

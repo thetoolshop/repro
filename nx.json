@@ -8,11 +8,5 @@
       }
     }
   },
-  "targetDefaults": {
-    "build": {
-      "dependsOn": ["^build"],
-      "outputs": ["{projectRoot}/dist"]
-    }
-  },
   "defaultBase": "main"
 }
