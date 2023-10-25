@@ -2,15 +2,10 @@
   "name": "@repro/domain",
   "version": "1.1.0",
   "description": "Domain types and codecs for Repro recordings",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "src/index.ts",
   "scripts": {
     "bench": "./scripts/bench",
-    "build": "npm run clean && npm run build:generated && concurrently npm:build:source npm:build:declarations",
-    "build:declarations": "tsc --project tsconfig-build.json --emitDeclarationOnly",
-    "build:generated": "./node_modules/@repro/tdl/cli.js src --outdir src/generated",
-    "build:source": "./scripts/build",
-    "clean": "rimraf dist src/generated",
+    "build": "tdlc src --outdir src/generated",
     "test": "jest",
     "fmt": "prettier --write src"
   },
@@ -31,13 +26,10 @@
   "devDependencies": {
     "@types/jest": "^28.1.8",
     "@types/uuid": "^8.3.4",
-    "concurrently": "^7.3.0",
-    "esbuild": "^0.15.5",
     "fflate": "^0.7.3",
     "jest": "^28.1.3",
     "prettier": "^3.0.0",
     "prettier-plugin-organize-imports": "^3.2.3",
-    "rimraf": "^3.0.2",
     "ts-eager": "^2.0.2",
     "ts-jest": "^28.0.8",
     "typescript": "^4.9.4"

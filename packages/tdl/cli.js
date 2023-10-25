@@ -1,3 +1,4 @@
 #!/usr/bin/env node
 
-require('./dist/cli')
+require('ts-eager/register')
+require('./src/cli')

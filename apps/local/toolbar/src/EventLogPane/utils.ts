@@ -1,5 +1,5 @@
 import { InteractionEvent, SourceEvent, SourceEventType } from '@repro/domain'
-import { isSample } from '../../../../../packages/source-utils/dist'
+import { isSample } from '@repro/source-utils'
 import { LogItem, SourceEventGroup } from './types'
 
 export function isGroup(item: LogItem): item is SourceEventGroup {
