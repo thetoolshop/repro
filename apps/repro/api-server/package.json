@@ -4,6 +4,7 @@
   "description": "",
   "main": "src/index.ts",
   "scripts": {
+    "build": "./scripts/build",
     "dev-resources:start": "s3rver -p 9000 -d ./s3_data --no-vhost-buckets --configure-bucket resources",
     "migrate": "ts-eager src/migrate.ts",
     "start": "ts-eager src/main.ts",

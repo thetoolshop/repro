@@ -1,6 +1,15 @@
 {
   "name": "@repro/api-server",
   "targets": {
+    "build": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "build"
+      },
+      "dependsOn": ["^build"],
+      "cache": true
+    },
+
     "start": {
       "executor": "nx:run-script",
       "options": {
