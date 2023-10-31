@@ -11,7 +11,7 @@ const playback = createSourcePlayback(
 
 const annotations: Array<Annotation> = []
 
-export default (
+const Fixture: React.FC = () => (
   <PlaybackProvider playback={playback}>
     <AnnotationCanvas
       time={0}
@@ -25,3 +25,5 @@ export default (
     />
   </PlaybackProvider>
 )
+
+export default Fixture
