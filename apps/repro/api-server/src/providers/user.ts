@@ -47,7 +47,7 @@ export function createUserProvider(
           `
           INSERT INTO users (team_id, name, email, password, active)
           VALUES ($1, $2, LOWER($3), $4, true)
-          RETURNING id, name, LOWER(email)
+          RETURNING id, name, LOWER(email) AS email
           `,
           [teamId, name, email, hash],
           UserView.validate
