@@ -1,4 +1,6 @@
-require('dotenv').config()
+require('dotenv').config({
+  path: path.resolve(__dirname, '.env'),
+})
 
 const DotenvPlugin = require('dotenv-webpack')
 const { EsbuildPlugin } = require('esbuild-loader')
@@ -56,6 +58,7 @@ module.exports = {
 
   plugins: [
     new DotenvPlugin({
+      path: path.resolve(__dirname, './.env'),
       systemvars: true,
     }),
 
