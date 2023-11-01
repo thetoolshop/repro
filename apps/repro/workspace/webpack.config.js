@@ -5,6 +5,8 @@ const { EsbuildPlugin } = require('esbuild-loader')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const path = require('path')
 
+console.debug('Building with env:', process.env)
+
 let baseURL = process.env.REPRO_APP_URL || '/'
 
 if (!baseURL.endsWith('/')) {
