@@ -6,7 +6,7 @@ export function createHealthcheckRouter(): express.Router {
   const HealthcheckRouter = express.Router()
 
   HealthcheckRouter.get('/', (_, res) => {
-    respondWith(res, resolve(undefined))
+    respondWith(res, resolve({ status: 'ok' }))
   })
 
   return HealthcheckRouter
