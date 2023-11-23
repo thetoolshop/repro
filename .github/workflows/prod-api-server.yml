@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - apps/api-server/**
+      - apps/repro/api-server/**
       - packages/**
       - .github/workflows/prod-api-server.yml
 
