@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - apps/client/**
+      - apps/repro/workspace/**
       - packages/**
       - .github/workflows/prod-workspace.yml
 
