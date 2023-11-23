@@ -47,7 +47,6 @@ export function createAuthMiddleware(
         .pipe(chain(token => authService.loadSession(token)))
         .pipe(
           chain(session => {
-            console.log(session, session.userId)
             return userService.getUserById(session.userId)
           })
         )
