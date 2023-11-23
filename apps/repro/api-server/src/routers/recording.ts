@@ -188,7 +188,6 @@ export function createRecordingRouter(
           ContentLength: ContentLength
             ? parseInt(ContentLength, 10)
             : undefined,
-          ACL: 'public-read',
         }
       )
 
