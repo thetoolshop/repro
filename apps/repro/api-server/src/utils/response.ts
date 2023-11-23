@@ -31,12 +31,9 @@ export function respondWithError(res: Response, error: Error) {
     message = error.message || 'Bad request'
     res.status(400)
   } else {
+    console.error(error)
     message = env.DEBUG ? error.message : 'Server error'
     res.status(500)
-
-    if (env.DEBUG) {
-      console.debug(error)
-    }
   }
 
   res.json({ name: error.name, message })
@@ -52,6 +49,7 @@ export function respondWithValue<T>(res: Response, value: T) {
     if (isReadableStream(value)) {
       pipeline(value, res, error => {
         if (error) {
+          console.error(error)
           res.statusCode = 500
           res.end()
         }
@@ -63,10 +61,8 @@ export function respondWithValue<T>(res: Response, value: T) {
         complete: () => res.end(),
 
         // TODO
-        error: err => {
-          if (env.DEBUG) {
-            console.trace(err)
-          }
+        error: error => {
+          console.error(error)
         },
       })
     } else if (isLens(value)) {
