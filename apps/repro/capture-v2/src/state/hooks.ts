@@ -1,6 +1,6 @@
 import { useAtomState } from '@repro/atom'
 import { useContext } from 'react'
-import { StateContext } from './context'
+import { StateContext } from './StateProvider'
 
 export function useAppState() {
   return useContext(StateContext)

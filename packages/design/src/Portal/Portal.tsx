@@ -1,23 +1,13 @@
-import React, { PropsWithChildren, useEffect, useMemo } from 'react'
+import React, { PropsWithChildren } from 'react'
 import { createPortal } from 'react-dom'
-import { PORTAL_ROOT_ID } from './constants'
+import { usePortalRoot } from './PortalRootProvider'
 
 export const Portal: React.FC<PropsWithChildren> = ({ children }) => {
-  const container = useMemo(() => document.createElement('div'), [])
+  const root = usePortalRoot()
 
-  useEffect(() => {
-    const root = document.getElementById(PORTAL_ROOT_ID)
+  if (!root) {
+    throw new Error('Portal: cannot find portal root element')
+  }
 
-    if (root) {
-      root.appendChild(container)
-    }
-
-    return () => {
-      if (root) {
-        root.removeChild(container)
-      }
-    }
-  }, [container])
-
-  return createPortal(children, container)
+  return createPortal(children, root)
 }

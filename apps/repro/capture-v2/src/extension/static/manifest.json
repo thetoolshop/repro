@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Repro - Personal Edition",
-  "description": "Local session recording",
-  "version": "1.0",
+  "name": "Repro",
+  "description": "The developer tool for replayable bug reports. Debug faster and ship defect-free software to your users.",
+  "version": "2.0",
   "icons": {
     "128": "logo-128.png",
     "48": "logo-48.png",
@@ -10,7 +10,7 @@
     "16": "logo-16.png"
   },
   "action": {
-    "default_title": "Repro Local Capture"
+    "default_title": "Repro"
   },
   "background": {
     "service_worker": "background.js"
@@ -25,7 +25,7 @@
   "permissions": ["storage", "tabs"],
   "web_accessible_resources": [
     {
-      "resources": ["page.js"],
+      "resources": ["capture.js"],
       "matches": ["<all_urls>"]
     }
   ]

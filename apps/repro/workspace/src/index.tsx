@@ -3,7 +3,6 @@ import { mixpanelBrowser } from '@repro/analytics-provider-mixpanel'
 import { ApiProvider } from '@repro/api-client'
 import { RequireSession, SessionProvider } from '@repro/auth'
 import { BillingProvider } from '@repro/billing'
-import { createPortalRoot } from '@repro/design'
 import { Stats } from '@repro/diagnostics'
 import { DEFAULT_AGENT } from '@repro/messaging'
 import { applyResetStyles } from '@repro/theme'
@@ -20,6 +19,7 @@ import { RecordingRoute } from './routes/RecordingRoute'
 import { SignUpRoute } from './routes/SignUpRoute'
 // import { ResetPasswordRoute } from './routes/ResetPasswordRoute'
 
+import { PortalRootProvider } from '@repro/design'
 import { AuthLayout } from './AuthLayout'
 
 declare global {
@@ -45,8 +45,6 @@ if (rootStyleSheet) {
   applyResetStyles(rootSelector, rootStyleSheet)
 }
 
-createPortalRoot()
-
 if (rootElem) {
   const root = createRoot(rootElem)
 
@@ -59,33 +57,35 @@ if (rootElem) {
       <BillingProvider>
         <SessionProvider>
           <BrowserRouter basename={basename}>
-            <Routes>
-              <Route path="/" element={<MainRoute />}>
-                <Route element={<AuthLayout />}>
-                  <Route path="account/login" element={<LoginRoute />} />
-                  <Route path="account/signup" element={<SignUpRoute />} />
-                  {/* <Route */}
-                  {/*   path="account/reset-password" */}
-                  {/*   element={<ResetPasswordRoute />} */}
-                  {/* /> */}
-                </Route>
+            <PortalRootProvider>
+              <Routes>
+                <Route path="/" element={<MainRoute />}>
+                  <Route element={<AuthLayout />}>
+                    <Route path="account/login" element={<LoginRoute />} />
+                    <Route path="account/signup" element={<SignUpRoute />} />
+                    {/* <Route */}
+                    {/*   path="account/reset-password" */}
+                    {/*   element={<ResetPasswordRoute />} */}
+                    {/* /> */}
+                  </Route>
 
-                <Route element={<Layout />}>
-                  <Route
-                    index
-                    element={
-                      <RequireSession>
-                        <HomeRoute />
-                      </RequireSession>
-                    }
-                  />
-                  <Route
-                    path="recordings/:recordingId"
-                    element={<RecordingRoute />}
-                  />
+                  <Route element={<Layout />}>
+                    <Route
+                      index
+                      element={
+                        <RequireSession>
+                          <HomeRoute />
+                        </RequireSession>
+                      }
+                    />
+                    <Route
+                      path="recordings/:recordingId"
+                      element={<RecordingRoute />}
+                    />
+                  </Route>
                 </Route>
-              </Route>
-            </Routes>
+              </Routes>
+            </PortalRootProvider>
           </BrowserRouter>
         </SessionProvider>
       </BillingProvider>

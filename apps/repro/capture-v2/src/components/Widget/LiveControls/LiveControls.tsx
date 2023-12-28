@@ -5,8 +5,7 @@ import { Block, Grid, Inline, Row } from 'jsxstyle'
 import { Check as CheckIcon, Video as VideoIcon } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { interval } from 'rxjs'
-import { useReadyState, useRecordingMode } from '../hooks'
-import { ReadyState } from '../types'
+import { ReadyState, useReadyState, useRecordingMode } from '~/state'
 
 export const LiveControls: React.FC = () => {
   const [, setReadyState] = useReadyState()
@@ -38,12 +37,25 @@ export const LiveControls: React.FC = () => {
 
   return (
     <Grid
-      width={240}
+      position="absolute"
+      top={0}
+      right={0}
+      height={60}
+      transform="translate(calc(100% + 15px), -20px)"
       alignItems="center"
       gridTemplateColumns="1fr auto auto"
-      gap={5}
+      gap={10}
+      backgroundColor={colors.white}
+      borderColor={colors.blue['900']}
+      borderStyle="solid"
+      borderWidth="1px 1px 1px 0"
+      borderRadius="0 2px 2px 0"
     >
-      <Row alignItems="center" gap={10}>
+      <Button onClick={onDone}>
+        <CheckIcon size={16} />
+      </Button>
+
+      <Row alignItems="center" gap={8} lineHeight={1}>
         <Row
           alignItems="center"
           justifyContent="center"
@@ -55,26 +67,12 @@ export const LiveControls: React.FC = () => {
           <VideoIcon color={colors.blue['700']} size={16} />
         </Row>
 
-        <Block fontSize={16} color={colors.slate['800']}>
+        <Block fontFamily="monospace" fontSize={14} color={colors.slate['800']}>
           <Inline>{minutes.toString().padStart(2, '0')}</Inline>
           <Inline color={colors.blue['500']}>:</Inline>
           <Inline>{seconds.toString().padStart(2, '0')}</Inline>
         </Block>
       </Row>
-
-      <Button size="small" onClick={onDone}>
-        <CheckIcon size={16} />
-        Done
-      </Button>
-
-      <Button
-        size="small"
-        context="neutral"
-        variant="outlined"
-        onClick={onCancel}
-      >
-        Cancel
-      </Button>
     </Grid>
   )
 }

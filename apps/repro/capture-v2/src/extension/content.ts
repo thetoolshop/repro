@@ -13,7 +13,7 @@ function addPageScript() {
       resolve(null)
     } else {
       scriptElement = document.createElement('script')
-      scriptElement.src = chrome.runtime.getURL('page.js')
+      scriptElement.src = chrome.runtime.getURL('capture.js')
       scriptElement.onerror = reject
       scriptElement.onload = resolve
 

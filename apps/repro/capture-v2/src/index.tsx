@@ -1,3 +1,4 @@
+import { PortalRootProvider } from '@repro/design'
 import { Stats, Trace } from '@repro/diagnostics'
 import { createPTPAgent, MessagingProvider } from '@repro/messaging'
 import {
@@ -9,24 +10,23 @@ import { resolve } from 'fluture'
 import { cache as styleCache } from 'jsxstyle'
 import React from 'react'
 import { createRoot, Root } from 'react-dom/client'
+import { Controller } from './components/Controller'
 import { REPRO_ROOT_ID } from './constants'
-import { StateProvider } from './context'
-import { Controller } from './Controller'
-import { createState } from './createState'
+import { createState, StateProvider } from './state'
 
 if (process.env.NODE_ENV === 'development') {
   Stats.enable()
   Trace.enable()
 }
 
-const NODE_NAME = 'repro-local-capture'
+const NODE_NAME = 'repro-capture'
 
-// jsxstyle prevents multiple invocations of `cache.injectOptions`,
-// so we cannot register a new style root per custom element.
-// We must keep track of the active style root in global context instead.
-// NB: if we need to support multiple instances, this could hold
-// WeakMap<ReproDevTools, HTMLStyleElement>
 interface Refs {
+  // jsxstyle prevents multiple invocations of `cache.injectOptions`,
+  // so we cannot register a new style root per custom element.
+  // We must keep track of the active style root in global context instead.
+  // NB: if we need to support multiple instances, this could hold
+  // WeakMap<ReproDevTools, HTMLStyleElement>
   activeStyleRoot: HTMLStyleElement | null
 }
 
@@ -39,7 +39,7 @@ const _initialInjectOptions = styleCache.injectOptions
 // Should PTP agent replace Broadcast agent?
 const agent = createPTPAgent()
 
-class ToolshopDevToolbar extends HTMLElement {
+class ReproCapture extends HTMLElement {
   private renderRoot: Root
   private state = createState()
 
@@ -106,7 +106,9 @@ class ToolshopDevToolbar extends HTMLElement {
       <RecordingStreamProvider stream={stream}>
         <StateProvider state={this.state}>
           <MessagingProvider agent={agent}>
-            <Controller />
+            <PortalRootProvider>
+              <Controller />
+            </PortalRootProvider>
           </MessagingProvider>
         </StateProvider>
       </RecordingStreamProvider>
@@ -120,11 +122,11 @@ class ToolshopDevToolbar extends HTMLElement {
 
 agent.subscribeToIntent('enable', () => {
   if (!window.customElements.get(NODE_NAME)) {
-    window.customElements.define(NODE_NAME, ToolshopDevToolbar)
+    window.customElements.define(NODE_NAME, ReproCapture)
   }
 
   if (!document.querySelector(NODE_NAME)) {
-    const root = new ToolshopDevToolbar()
+    const root = new ReproCapture()
     document.body.appendChild(root)
   }
 

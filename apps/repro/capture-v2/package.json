@@ -1,6 +1,6 @@
 {
-  "name": "@repro/local-capture",
-  "version": "1.0.0",
+  "name": "@repro/capture",
+  "version": "2.0.0",
   "description": "Bug reporting that captures every detail",
   "main": "index.js",
   "scripts": {

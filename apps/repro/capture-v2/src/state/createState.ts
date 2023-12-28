@@ -10,7 +10,6 @@ export interface State {
 }
 
 const defaultValues = {
-  currentUser: null,
   readyState: ReadyState.Idle,
   recordingMode: RecordingMode.None,
 }
