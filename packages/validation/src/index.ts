@@ -15,7 +15,7 @@ export function isValidationError(error: Error) {
 export function parseSchema<S extends ZodSchema<any>>(
   schema: S,
   data: z.infer<S>,
-  errorFactory: (reason: string) => Error
+  errorFactory: (reason: string) => Error = invalid
 ) {
   return attemptP<ZodError, z.infer<S>>(() => schema.parseAsync(data)).pipe(
     mapRej(err => errorFactory(err.toString()))

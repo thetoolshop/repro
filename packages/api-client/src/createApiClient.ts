@@ -1,9 +1,11 @@
 import { Cancel, fork, FutureInstance, promise } from 'fluture'
 import {
   ApiConfiguration,
-  createDataLoader,
+  AuthStore,
+  createFetch,
   createInMemoryAuthStore,
   createLocalStorageAuthStore,
+  Fetch,
 } from './common'
 
 import { AuthApi, createAuthApi } from './auth'
@@ -21,6 +23,8 @@ export interface ApiClient {
   team: TeamApi
   user: UserApi
 
+  authStore: AuthStore
+  fetch: Fetch
   debug: <R>(method: FutureInstance<unknown, R>) => Cancel
   wrapP: <R>(method: FutureInstance<unknown, R>) => Promise<R>
 }
@@ -30,14 +34,14 @@ export function createApiClient(config: ApiConfiguration): ApiClient {
     config.authStorage === 'local-storage'
       ? createLocalStorageAuthStore()
       : createInMemoryAuthStore()
-  const dataLoader = createDataLoader(authStore, config)
+  const fetch = createFetch(authStore, config)
 
-  const auth = createAuthApi(authStore, dataLoader)
-  const health = createHealthApi(dataLoader)
-  const project = createProjectApi(dataLoader)
-  const recording = createRecordingApi(dataLoader)
-  const team = createTeamApi(dataLoader)
-  const user = createUserApi(dataLoader)
+  const auth = createAuthApi(authStore, fetch)
+  const health = createHealthApi(fetch)
+  const project = createProjectApi(fetch)
+  const recording = createRecordingApi(fetch)
+  const team = createTeamApi(fetch)
+  const user = createUserApi(fetch)
 
   function debug<R>(method: FutureInstance<unknown, R>) {
     return method.pipe(fork<unknown>(console.error)<R>(console.log))
@@ -55,6 +59,8 @@ export function createApiClient(config: ApiConfiguration): ApiClient {
     team,
     user,
 
+    authStore,
+    fetch,
     debug,
     wrapP,
   }

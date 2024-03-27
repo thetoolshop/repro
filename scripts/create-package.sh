@@ -12,6 +12,7 @@ fi
 
 if [ -d "$BASE_PATH/packages/$PACKAGE_NAME" ]; then
   echo "Package already exists: $PACKAGE_NAME"
+  exit 1
 fi
 
 cp -rn $BASE_PATH/scripts/package_template $BASE_PATH/packages/$PACKAGE_NAME

@@ -1,6 +1,6 @@
 import { Project, ProjectRole, User } from '@repro/domain'
 import { FutureInstance } from 'fluture'
-import { DataLoader } from './common'
+import { Fetch } from './common'
 
 export interface ProjectApi {
   getAllProjects(): FutureInstance<Error, Array<Project>>
@@ -25,26 +25,26 @@ export interface ProjectApi {
   ): FutureInstance<Error, void>
 }
 
-export function createProjectApi(dataLoader: DataLoader): ProjectApi {
+export function createProjectApi(fetch: Fetch): ProjectApi {
   function getAllProjects(): FutureInstance<Error, Array<Project>> {
-    return dataLoader('/projects')
+    return fetch('/projects')
   }
 
   function getAllProjectRoles(): FutureInstance<
     unknown,
     Record<string, ProjectRole>
   > {
-    return dataLoader('/projects/roles')
+    return fetch('/projects/roles')
   }
 
   function getProject(projectId: string): FutureInstance<Error, Project> {
-    return dataLoader(`/projects/${projectId}`)
+    return fetch(`/projects/${projectId}`)
   }
 
   function getProjectMembers(
     projectId: string
   ): FutureInstance<Error, Array<[User, ProjectRole]>> {
-    return dataLoader(`/projects/${projectId}/members`)
+    return fetch(`/projects/${projectId}/members`)
   }
 
   function addUserToProject(
@@ -52,7 +52,7 @@ export function createProjectApi(dataLoader: DataLoader): ProjectApi {
     userId: string,
     role: ProjectRole
   ): FutureInstance<Error, void> {
-    return dataLoader(`/projects/${projectId}/members`, {
+    return fetch(`/projects/${projectId}/members`, {
       method: 'POST',
       body: JSON.stringify({
         userId,
@@ -66,7 +66,7 @@ export function createProjectApi(dataLoader: DataLoader): ProjectApi {
     userId: string,
     role: ProjectRole
   ): FutureInstance<Error, void> {
-    return dataLoader(`/projects/${projectId}/members/${userId}/role`, {
+    return fetch(`/projects/${projectId}/members/${userId}/role`, {
       method: 'PUT',
       body: JSON.stringify({
         role,
@@ -78,7 +78,7 @@ export function createProjectApi(dataLoader: DataLoader): ProjectApi {
     projectId: string,
     userId: string
   ): FutureInstance<Error, void> {
-    return dataLoader(`/projects/${projectId}/members/${userId}`, {
+    return fetch(`/projects/${projectId}/members/${userId}`, {
       method: 'DELETE',
     })
   }

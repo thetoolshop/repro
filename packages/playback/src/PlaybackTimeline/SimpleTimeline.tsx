@@ -3,7 +3,7 @@ import { formatTime } from '@repro/date-utils'
 import { colors } from '@repro/design'
 import { Block, Row } from 'jsxstyle'
 import React, { MutableRefObject, useEffect, useRef } from 'react'
-import { combineLatest, fromEvent, NEVER, Observable, Subscription } from 'rxjs'
+import { NEVER, Observable, Subscription, combineLatest, fromEvent } from 'rxjs'
 import {
   distinctUntilChanged,
   map,
@@ -274,7 +274,13 @@ function createAnimationObservable(
     observer.next(animation)
 
     return () => {
-      const completed = (animation.currentTime ?? 0) / duration
+      let currentTime = animation.currentTime ?? 0
+
+      if (typeof currentTime !== 'number') {
+        currentTime = currentTime.to('ms').value
+      }
+
+      const completed = currentTime / duration
       const finalOffset = initialOffset + (1 - initialOffset) * completed
       updateBarOffset(target, finalOffset)
       animation.cancel()

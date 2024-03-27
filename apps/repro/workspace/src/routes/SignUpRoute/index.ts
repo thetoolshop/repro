@@ -1,1 +1,0 @@
-export { SignUpRoute } from './SignUpRoute'

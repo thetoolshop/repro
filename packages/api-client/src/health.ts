@@ -1,13 +1,13 @@
 import { FutureInstance } from 'fluture'
-import { DataLoader } from './common'
+import { Fetch } from './common'
 
 export interface HealthApi {
   check(): FutureInstance<Error, void>
 }
 
-export function createHealthApi(dataLoader: DataLoader) {
+export function createHealthApi(fetch: Fetch) {
   function check(): FutureInstance<Error, void> {
-    return dataLoader('/health')
+    return fetch('/health')
   }
 
   return {

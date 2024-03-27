@@ -5,21 +5,16 @@ type RecordingMode: enum<uint8> {
   Replay: 3
 }
 
-type RecordingMetadata: struct {
-   0) id: uuid
-   1) title: string
-   2) url: string
-   3) description: string
-   4) mode: RecordingMode
-   5) duration: uint32
-   6) createdAt: timestamp
-   7) projectId: uuid
-   8) projectName: string
-   9) authorId: uuid
-  10) authorName: string
-  11) browserName: ?string
-  12) browserVersion: ?string
-  13) operatingSystem: ?string
-  14) public: bool
-  15) codecVersion: string
+type RecordingInfo: struct {
+  0) id: string
+  1) title: string
+  2) url: string
+  3) description: string
+  4) mode: RecordingMode
+  5) duration: uint32
+  6) createdAt: timestamp
+  7) browserName: ?string
+  8) browserVersion: ?string
+  9) operatingSystem: ?string
+  10) codecVersion: string
 }

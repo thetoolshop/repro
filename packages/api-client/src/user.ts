@@ -1,14 +1,14 @@
 import { User } from '@repro/domain'
 import { FutureInstance } from 'fluture'
-import { DataLoader } from './common'
+import { Fetch } from './common'
 
 export interface UserApi {
   getMyUser(): FutureInstance<Error, User>
 }
 
-export function createUserApi(dataLoader: DataLoader): UserApi {
+export function createUserApi(fetch: Fetch): UserApi {
   function getMyUser(): FutureInstance<Error, User> {
-    return dataLoader('/users/me')
+    return fetch('/users/me')
   }
 
   return {

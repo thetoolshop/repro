@@ -1,5 +1,5 @@
 import {
-  RecordingMetadata,
+  RecordingInfo,
   RecordingMode,
   SourceEvent,
   SourceEventView,
@@ -8,22 +8,22 @@ import { createResourceMap, filterResourceMap } from '@repro/vdom-utils'
 import { fromWireFormat, toWireFormat } from '@repro/wire-formats'
 import { gzipSync } from 'fflate'
 import {
+  FutureInstance,
   and,
   cache,
   chain,
   chainRej,
-  FutureInstance,
   map,
   parallel,
   resolve,
 } from 'fluture'
-import { DataLoader } from './common'
+import { Fetch } from './common'
 
 // Resources bigger than 1MiB should either load from origin or be replaced by placeholder (TBD)
 const MAX_RESOURCE_SIZE = 1_000_000
 
 export interface RecordingApi {
-  getAllRecordings(): FutureInstance<Error, Array<RecordingMetadata>>
+  getAllRecordings(): FutureInstance<Error, Array<RecordingInfo>>
   saveRecording(
     recordingId: string,
     title: string,
@@ -43,17 +43,15 @@ export interface RecordingApi {
   getRecordingEvents(
     recordingId: string
   ): FutureInstance<Error, Array<SourceEvent>>
-  getRecordingMetadata(
-    recordingId: string
-  ): FutureInstance<Error, RecordingMetadata>
+  getRecordingInfo(recordingId: string): FutureInstance<Error, RecordingInfo>
   getResourceMap(
     recordingId: string
   ): FutureInstance<Error, Record<string, string>>
 }
 
-export function createRecordingApi(dataLoader: DataLoader): RecordingApi {
-  function getAllRecordings(): FutureInstance<Error, Array<RecordingMetadata>> {
-    return dataLoader('/recordings')
+export function createRecordingApi(fetch: Fetch): RecordingApi {
+  function getAllRecordings(): FutureInstance<Error, Array<RecordingInfo>> {
+    return fetch('/recordings')
   }
 
   function saveRecording(
@@ -72,7 +70,7 @@ export function createRecordingApi(dataLoader: DataLoader): RecordingApi {
       operatingSystem: string | null
     }
   ): FutureInstance<Error, void> {
-    const saveMetadata = dataLoader(`/recordings/${recordingId}/metadata`, {
+    const saveInfo = fetch(`/recordings/${recordingId}/info`, {
       method: 'PUT',
       body: JSON.stringify({
         title,
@@ -96,7 +94,7 @@ export function createRecordingApi(dataLoader: DataLoader): RecordingApi {
     const readResources = cache(
       parallel(6)(
         resourceEntries.map(([resourceId, url]) =>
-          dataLoader<DataView>(url, {}, 'binary', 'binary')
+          fetch<DataView>(url, {}, 'binary', 'binary')
             .pipe(map(resource => [resourceId, resource] as const))
             .pipe(chainRej(() => resolve([resourceId, null] as const)))
         )
@@ -115,14 +113,11 @@ export function createRecordingApi(dataLoader: DataLoader): RecordingApi {
       chain(resources =>
         parallel(6)(
           resources.map(([resourceId, resource]) =>
-            dataLoader<void>(
-              `/recordings/${recordingId}/resources/${resourceId}`,
-              {
-                method: 'PUT',
-                body: resource,
-                headers: { 'Content-Type': 'application/octet-stream' },
-              }
-            )
+            fetch<void>(`/recordings/${recordingId}/resources/${resourceId}`, {
+              method: 'PUT',
+              body: resource,
+              headers: { 'Content-Type': 'application/octet-stream' },
+            })
           )
         )
       )
@@ -133,7 +128,7 @@ export function createRecordingApi(dataLoader: DataLoader): RecordingApi {
       .pipe(map(resourceIds => filterResourceMap(resourceMap, resourceIds)))
       .pipe(
         chain(filteredResourceMap =>
-          dataLoader(`/recordings/${recordingId}/resource-map`, {
+          fetch(`/recordings/${recordingId}/resource-map`, {
             method: 'PUT',
             body: JSON.stringify(filteredResourceMap),
           })
@@ -150,7 +145,7 @@ export function createRecordingApi(dataLoader: DataLoader): RecordingApi {
       i += 1
     }
 
-    const saveData = dataLoader(`/recordings/${recordingId}/events`, {
+    const saveData = fetch(`/recordings/${recordingId}/events`, {
       method: 'PUT',
       body: gzipSync(buffer),
       headers: {
@@ -159,7 +154,7 @@ export function createRecordingApi(dataLoader: DataLoader): RecordingApi {
       },
     })
 
-    return saveMetadata
+    return saveInfo
       .pipe(and(saveData))
       .pipe(and(saveResources))
       .pipe(and(saveResourceMap))
@@ -168,7 +163,7 @@ export function createRecordingApi(dataLoader: DataLoader): RecordingApi {
   function getRecordingEvents(
     recordingId: string
   ): FutureInstance<Error, Array<SourceEvent>> {
-    return dataLoader<string>(`/recordings/${recordingId}/events`).pipe(
+    return fetch<string>(`/recordings/${recordingId}/events`).pipe(
       map(data => {
         const lines = data.split('\n')
         const events: Array<SourceEvent> = []
@@ -184,23 +179,23 @@ export function createRecordingApi(dataLoader: DataLoader): RecordingApi {
     )
   }
 
-  function getRecordingMetadata(
+  function getRecordingInfo(
     recordingId: string
-  ): FutureInstance<Error, RecordingMetadata> {
-    return dataLoader(`/recordings/${recordingId}/metadata`)
+  ): FutureInstance<Error, RecordingInfo> {
+    return fetch(`/recordings/${recordingId}/info`)
   }
 
   function getResourceMap(
     recordingId: string
   ): FutureInstance<Error, Record<string, string>> {
-    return dataLoader(`/recordings/${recordingId}/resource-map`)
+    return fetch(`/recordings/${recordingId}/resource-map`)
   }
 
   return {
     getAllRecordings,
     saveRecording,
     getRecordingEvents,
-    getRecordingMetadata,
+    getRecordingInfo,
     getResourceMap,
   }
 }

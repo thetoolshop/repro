@@ -1,5 +1,5 @@
 import { chain, FutureInstance, map } from 'fluture'
-import { AuthStore, DataLoader } from './common'
+import { AuthStore, Fetch } from './common'
 
 export interface AuthApi {
   forgotPassword(email: string): FutureInstance<Error, void>
@@ -13,19 +13,16 @@ export interface AuthApi {
   ): FutureInstance<Error, void>
 }
 
-export function createAuthApi(
-  authStore: AuthStore,
-  dataLoader: DataLoader
-): AuthApi {
+export function createAuthApi(authStore: AuthStore, fetch: Fetch): AuthApi {
   function forgotPassword(email: string): FutureInstance<Error, void> {
-    return dataLoader('/auth/forgot', {
+    return fetch('/auth/forgot', {
       method: 'POST',
       body: JSON.stringify({ email }),
     })
   }
 
   function login(email: string, password: string): FutureInstance<Error, void> {
-    const token = dataLoader<string>('/auth/login', {
+    const token = fetch<string>('/auth/login', {
       method: 'POST',
       body: JSON.stringify({
         email,
@@ -39,7 +36,7 @@ export function createAuthApi(
   }
 
   function logout(): FutureInstance<Error, void> {
-    return dataLoader('/auth/logout', { method: 'POST' }).pipe(
+    return fetch('/auth/logout', { method: 'POST' }).pipe(
       chain(() => authStore.clearSessionToken())
     )
   }
@@ -50,7 +47,7 @@ export function createAuthApi(
     email: string,
     password: string
   ): FutureInstance<Error, void> {
-    const token = dataLoader<string>('/auth/register', {
+    const token = fetch<string>('/auth/register', {
       method: 'POST',
       body: JSON.stringify({ name, company, email, password }),
     })

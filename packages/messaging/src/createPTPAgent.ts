@@ -111,6 +111,11 @@ export function createPTPAgent(): Agent {
       detail: message,
     })
 
+    if (event.detail == null) {
+      console.error('PTP Agent: unable to serialize message.', message)
+      return
+    }
+
     window.dispatchEvent(event)
   }
 
@@ -132,7 +137,7 @@ export function createPTPAgent(): Agent {
       })
 
       return () => {
-        throw new Error('Intent is not cancellable')
+        console.warn('Intent is not cancellable', intent)
       }
     })
   }

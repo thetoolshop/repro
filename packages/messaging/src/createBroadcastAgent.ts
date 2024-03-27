@@ -126,7 +126,7 @@ export function createBroadcastAgent(): Agent {
       channel.postMessage(message)
 
       return () => {
-        throw new Error('Intent is not cancellable')
+        console.warn('Intent is not cancellable')
       }
     })
   }

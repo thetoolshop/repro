@@ -8,6 +8,7 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
+    "jsx": "react",
     "lib": ["es2021", "dom"],
     "module": "commonjs",
     "moduleResolution": "node",
@@ -21,12 +22,10 @@
     "rootDir": "./src",
     "skipLibCheck": true,
     "strict": true,
-    "target": "es2021",
+    "target": "es2021"
   },
 
-  "include": [
-    "src/**/*.ts"
-  ],
+  "include": ["src/**/*.ts"],
 
   "ts-node": {
     "files": true

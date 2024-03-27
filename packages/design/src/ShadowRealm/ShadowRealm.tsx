@@ -26,6 +26,6 @@ export function ShadowRealm<T extends Keys>({
   return React.createElement(
     component,
     { ...props, ref },
-    root && createPortal(children, root)
+    <>{root && createPortal(children, root)}</>
   )
 }

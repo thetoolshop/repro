@@ -98,11 +98,8 @@ export function createDefaultRequestOptions(
     )
 }
 
-export function createDataLoader(
-  authStore: AuthStore,
-  config: ApiConfiguration
-) {
-  return function dataLoader<R = any>(
+export function createFetch(authStore: AuthStore, config: ApiConfiguration) {
+  return function fetch<R = any>(
     url: string,
     init: RequestInit = {},
     requestType: 'json' | 'binary' = 'json',
@@ -148,7 +145,7 @@ export function createDataLoader(
             } else if (responseType === 'text') {
               body = await res.text()
             } else {
-              body = await res.arrayBuffer()
+              body = new DataView(await res.arrayBuffer())
             }
           }
 
@@ -163,4 +160,4 @@ export function createDataLoader(
   }
 }
 
-export type DataLoader = ReturnType<typeof createDataLoader>
+export type Fetch = ReturnType<typeof createFetch>
