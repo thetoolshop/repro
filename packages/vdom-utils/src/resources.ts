@@ -16,6 +16,10 @@ export function extractCSSEmbeddedURLs(line: string) {
   ) as Array<string>
 }
 
+function isDataURI(uri: string) {
+  return uri.startsWith('data:')
+}
+
 export function createResourceMap(events: Array<SourceEvent>) {
   const visitedURLs = new Set<string>()
   const resourceMap: Record<string, string> = {}
@@ -24,12 +28,16 @@ export function createResourceMap(events: Array<SourceEvent>) {
   let currentPageURL = ''
 
   function addResource(url: string) {
-    const absoluteURL = new URL(url, currentPageURL || undefined).href
+    try {
+      const absoluteURL = new URL(url, currentPageURL || undefined).href
 
-    if (!visitedURLs.has(absoluteURL)) {
-      const resourceId = randomString(4)
-      resourceMap[resourceId] = absoluteURL
-      visitedURLs.add(absoluteURL)
+      if (!visitedURLs.has(absoluteURL)) {
+        const resourceId = randomString(4)
+        resourceMap[resourceId] = absoluteURL
+        visitedURLs.add(absoluteURL)
+      }
+    } catch (error) {
+      console.error(`Unable to add resource to map: ${url}`, error)
     }
   }
 
@@ -51,6 +59,10 @@ export function createResourceMap(events: Array<SourceEvent>) {
         const urls = extractCSSEmbeddedURLs(node.attributes.style)
 
         for (const url of urls) {
+          if (isDataURI(url)) {
+            continue
+          }
+
           addResource(url)
         }
       }

@@ -1,10 +1,14 @@
-import { fork, FutureInstance } from 'fluture'
+import { fork, FutureInstance, map, mapRej } from 'fluture'
 import { useEffect, useRef, useState } from 'react'
+import { Observable } from 'rxjs'
 
 interface ResolvedFuture<R> {
   success: true
   loading: false
   error: null
+  data: R
+
+  /* @deprecated */
   result: R
 }
 
@@ -12,6 +16,9 @@ interface RejectedFuture<L> {
   success: false
   loading: false
   error: L
+  data: null
+
+  /* @deprecated */
   result: null
 }
 
@@ -19,6 +26,9 @@ interface PendingFuture {
   success: false
   loading: true
   error: null
+  data: null
+
+  /* @deprecated */
   result: null
 }
 
@@ -32,7 +42,7 @@ export function useFuture<L, R>(
   const [future, setFuture] = useState(factory)
 
   const [loading, setLoading] = useState(true)
-  const [result, setResult] = useState<R | null>(null)
+  const [data, setData] = useState<R | null>(null)
   const [error, setError] = useState<L | null>(null)
 
   useEffect(() => {
@@ -45,7 +55,7 @@ export function useFuture<L, R>(
     initialized.current = true
 
     setError(null)
-    setResult(null)
+    setData(null)
     setLoading(true)
 
     return future.pipe(
@@ -53,16 +63,51 @@ export function useFuture<L, R>(
         setError(err)
         setLoading(false)
       })<R>(res => {
-        setResult(res)
+        setData(res)
         setLoading(false)
       })
     )
-  }, [future, setError, setLoading, setResult])
+  }, [future, setError, setLoading, setData])
 
   return {
-    success: !loading && !!result,
+    success: !loading && !!data,
     loading,
     error,
-    result,
+    data,
+    result: data,
   } as FutureResult<L, R>
+}
+
+export function observeFuture<L, R>(fut: FutureInstance<L, R>): Observable<R> {
+  return new Observable(observer => {
+    return fork(observer.error.bind(observer))(observer.next.bind(observer))(
+      fut
+    )
+  })
+}
+
+export function tap<L, R>(
+  fn: (value: R) => void
+): (source: FutureInstance<L, R>) => FutureInstance<L, R> {
+  return function (source) {
+    return source.pipe(
+      map(value => {
+        fn(value)
+        return value
+      })
+    )
+  }
+}
+
+export function tapRej<L, R>(
+  fn: (reason: L) => void
+): (source: FutureInstance<L, R>) => FutureInstance<L, R> {
+  return function (source) {
+    return source.pipe(
+      mapRej(reason => {
+        fn(reason)
+        return reason
+      })
+    )
+  }
 }

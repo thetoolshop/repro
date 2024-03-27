@@ -39,7 +39,7 @@ describe('TDL: parser', () => {
 
     const result = parse({
       directory: 'test',
-      sourceLoader: () => [['input', input]],
+      sourceLoader: () => [['test/input.tdls', input]],
     })
 
     const expected: Program = [
@@ -167,7 +167,7 @@ describe('TDL: parser', () => {
 
     const result = parse({
       directory: 'test',
-      sourceLoader: () => [['input', input]],
+      sourceLoader: () => [['test/input.tdls', input]],
     })
 
     expect(result).toEqual(expected)

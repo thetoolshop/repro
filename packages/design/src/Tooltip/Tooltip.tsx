@@ -65,7 +65,7 @@ export const Tooltip: React.FC<Props> = ({ children, position = 'top' }) => {
             position="absolute"
             top={y}
             left={x}
-            transform={`translate(-50%, -25%)`}
+            transform={`translate(-50%, -125%)`}
             backgroundColor={colors.slate['700']}
             color={colors.white}
             fontSize={11}
