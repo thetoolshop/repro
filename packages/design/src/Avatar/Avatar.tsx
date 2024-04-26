@@ -1,17 +1,18 @@
-import { User } from '@repro/domain'
 import { Block, Row } from 'jsxstyle'
 import md5 from 'md5'
 import React, { useMemo } from 'react'
 
 interface Props {
-  user: User
+  email: string
+  name?: string
   mode?: 'full' | 'image-only' | 'text-only'
   size?: number
   color?: string
 }
 
 export const Avatar: React.FC<Props> = ({
-  user,
+  email,
+  name = email,
   mode = 'full',
   size = 30,
   color = 'inherit',
@@ -20,8 +21,8 @@ export const Avatar: React.FC<Props> = ({
   const showText = mode === 'full' || mode === 'text-only'
 
   const hash = useMemo(() => {
-    return md5(user.email.trim())
-  }, [user])
+    return md5(email.trim())
+  }, [email])
 
   return (
     <Row alignItems="center" gap={10}>
@@ -34,14 +35,14 @@ export const Avatar: React.FC<Props> = ({
         >
           <img
             src={`https://www.gravatar.com/avatar/${hash}?s=${size}&d=mp`}
-            alt={user.name}
+            alt={name}
           />
         </Block>
       )}
 
       {showText && (
         <Block fontSize={size / 2} color={color}>
-          {user.name}
+          {name}
         </Block>
       )}
     </Row>

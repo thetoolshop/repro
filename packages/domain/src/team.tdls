@@ -1,4 +1,0 @@
-type Team: struct {
-  0) id: uuid
-  1) name: string
-}

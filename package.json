@@ -4,8 +4,19 @@
   "description": "",
   "main": "index.js",
   "scripts": {},
-  "license": "Apache-2.0",
+  "license": "UNLICENSED",
   "devDependencies": {
-    "nx": "15.9.2"
+    "@types/trusted-types": "^2.0.2",
+    "nx": "15.9.2",
+    "pm2": "^5.3.1"
+  },
+  "pnpm": {
+    "overrides": {
+      "@types/react": "18.2.63",
+      "@types/react-dom": "18.2.20",
+      "react": "18.2.0",
+      "react-dom": "18.2.0",
+      "typescript": "5.3.3"
+    }
   }
 }

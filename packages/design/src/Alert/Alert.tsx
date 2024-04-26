@@ -26,10 +26,11 @@ type Props = PropsWithChildren<{
 export const Alert: React.FC<Props> = ({ children, icon, type }) => (
   <Row
     alignItems="center"
-    padding={32}
+    padding={16}
     background={backgroundColorMap[type]}
+    border={`1px solid ${colorMap[type]}`}
     color={colorMap[type]}
-    fontSize={16}
+    fontSize={12}
     lineHeight={1}
     borderRadius={4}
   >

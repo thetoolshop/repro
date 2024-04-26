@@ -282,7 +282,7 @@ export function validate(program: Program): Program {
         if (hasDistinctEnumRefs) {
           throw new ValidationError(
             `Structs are not tagged with the same enum: ${structRefToEnumRef
-              .map(([structRef, [enumRef]]) => `\n${structRef} -> ${enumRef}`)
+              .map(([structRef, [enumRef]]) => `${structRef} -> ${enumRef}`)
               .join(', ')}`,
             node.interval
           )
@@ -293,7 +293,7 @@ export function validate(program: Program): Program {
             `Structs are tagged with the same enum value: ${structRefToEnumRef
               .map(
                 ([structRef, [enumRef, enumProperty]]) =>
-                  `\n${structRef} -> ${enumRef}.${enumProperty}`
+                  `${structRef} -> ${enumRef}.${enumProperty}`
               )
               .join(', ')}`,
             node.interval
