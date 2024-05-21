@@ -1,16 +1,31 @@
 import compress from '@fastify/compress'
 import cors from '@fastify/cors'
 import fastify, { FastifyInstance, FastifyPluginCallback } from 'fastify'
+import {
+  serializerCompiler,
+  validatorCompiler,
+} from 'fastify-type-provider-zod'
 import Future, { FutureInstance, resolve } from 'fluture'
+import { Http2SecureServer } from 'node:http2'
 import { Readable } from 'node:stream'
 
-export function fromRouter(router: FastifyPluginCallback): FastifyInstance {
-  const app = fastify()
+export function fromRouter(
+  router: FastifyPluginCallback,
+  decorators: Array<(fastify: FastifyInstance<Http2SecureServer>) => void> = []
+): FastifyInstance<Http2SecureServer> {
+  const app = fastify() as unknown as FastifyInstance<Http2SecureServer>
 
   app.addContentTypeParser('*', async () => {})
 
   app.register(cors)
   app.register(compress)
+
+  app.setValidatorCompiler(validatorCompiler)
+  app.setSerializerCompiler(serializerCompiler)
+
+  for (const decorator of decorators) {
+    decorator(app)
+  }
 
   return app.register(router)
 }

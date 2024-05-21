@@ -1,8 +1,25 @@
+type ErrorCtor = {
+  new (message?: string | undefined): Error
+}
+
+const registry = new Map<string, ErrorCtor>()
+
 export function createError(name: string, message: string = ''): Error {
-  return new (class extends Error {
-    name = name
-    message = message
-  })()
+  let Ctor = registry.get(name)
+
+  if (Ctor == null) {
+    Ctor = class extends Error {
+      name = name
+    }
+
+    registry.set(name, Ctor)
+  }
+
+  return new Ctor(message)
+}
+
+export function errorType(instance: Error): ErrorCtor {
+  return registry.get(instance.name)!
 }
 
 export function notAuthenticated(message: string = '') {
@@ -51,6 +68,14 @@ export function serverError(message: string = '') {
 
 export function isServerError(error: Error) {
   return error.name === 'ServerError'
+}
+
+export function notImplemented(message: string = '') {
+  return createError('NotImplemented', message)
+}
+
+export function isNotImplemented(error: Error) {
+  return error.name === 'NotImplemented'
 }
 
 export function serviceUnavailable(message: string = '') {

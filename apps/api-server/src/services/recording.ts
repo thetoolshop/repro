@@ -1,22 +1,16 @@
 import { CODEC_VERSION, RecordingInfo, RecordingMode } from '@repro/domain'
-import { FutureInstance, chain, map, reject, resolve } from 'fluture'
-import { Selectable } from 'kysely'
+import { FutureInstance, chain, go, map, reject, resolve } from 'fluture'
 import { Readable } from 'node:stream'
-import Sqids from 'sqids'
-import { Database, RecordingTable, attemptQuery } from '~/modules/database'
+import {
+  Database,
+  attemptQuery,
+  decodeId,
+  withEncodedId,
+} from '~/modules/database'
 import { Storage } from '~/modules/storage'
-import { notFound, resourceConflict } from '~/utils/errors'
+import { badRequest, notFound, resourceConflict } from '~/utils/errors'
 
 export function createRecordingService(database: Database, storage: Storage) {
-  const sqids = new Sqids({
-    minLength: 7,
-  })
-
-  function transformInfoRow(row: Selectable<RecordingTable>): RecordingInfo {
-    const id = sqids.encode([row.id])
-    return { ...row, id }
-  }
-
   function readDataAsStream(
     recordingId: string
   ): FutureInstance<Error, Readable> {
@@ -64,26 +58,38 @@ export function createRecordingService(database: Database, storage: Storage) {
     resourceId: string,
     data: Readable
   ): FutureInstance<Error, void> {
-    return storage.write(`${recordingId}/resources/${resourceId}`, data)
+    return readInfo(recordingId).pipe(
+      chain(() => {
+        return storage.exists(`${recordingId}/resources/${resourceId}`).pipe(
+          chain(exists => {
+            return exists
+              ? reject(
+                  resourceConflict(
+                    `Resource "${resourceId}" for recording "${recordingId}" already exists`
+                  )
+                )
+              : storage.write(`${recordingId}/resources/${resourceId}`, data)
+          })
+        )
+      })
+    )
   }
 
   function readResourceMap(
     recordingId: string
   ): FutureInstance<Error, Record<string, string>> {
-    const id = sqids.decode(recordingId)[0]
-
-    if (id === undefined) {
-      return reject(notFound(`Cannot find recording with ID "${recordingId}"`))
-    }
-
-    return attemptQuery(() =>
-      database
-        .selectFrom('recording_resources')
-        .where('recordingId', '=', id)
-        .select(['key', 'value'])
-        .execute()
-    ).pipe(
-      map(rows => Object.fromEntries(rows.map(row => [row.key, row.value])))
+    return readInfo(recordingId).pipe(
+      chain(() => {
+        return attemptQuery(() =>
+          database
+            .selectFrom('recording_resources')
+            .where('recordingId', '=', decodeId(recordingId))
+            .select(['key', 'value'])
+            .execute()
+        ).pipe(
+          map(rows => Object.fromEntries(rows.map(row => [row.key, row.value])))
+        )
+      })
     )
   }
 
@@ -91,25 +97,29 @@ export function createRecordingService(database: Database, storage: Storage) {
     recordingId: string,
     resourceMap: Record<string, string>
   ): FutureInstance<Error, void> {
-    const id = sqids.decode(recordingId)[0]
+    const decodedRecordingId = decodeId(recordingId)
 
-    if (id === undefined) {
-      return reject(notFound(`Cannot find recording with ID "${recordingId}"`))
+    if (decodedRecordingId == null) {
+      return reject(badRequest(`Invalid recording ID "${recordingId}"`))
     }
 
-    const rows = Object.entries(resourceMap).map(([key, value]) => ({
-      key,
-      value,
-      recordingId: id,
-    }))
+    return go(function* () {
+      yield readInfo(recordingId)
 
-    if (!rows.length) {
-      return resolve(undefined)
-    }
+      const rows = Object.entries(resourceMap).map(([key, value]) => ({
+        key,
+        value,
+        recordingId: decodedRecordingId,
+      }))
 
-    return attemptQuery(() =>
-      database.insertInto('recording_resources').values(rows).execute()
-    ).pipe(map(() => undefined))
+      if (!rows.length) {
+        return yield resolve(undefined)
+      }
+
+      return yield attemptQuery(() =>
+        database.insertInto('recording_resources').values(rows).execute()
+      ).pipe(map(() => undefined))
+    })
   }
 
   function listInfo(
@@ -123,23 +133,33 @@ export function createRecordingService(database: Database, storage: Storage) {
         .offset(offset)
         .limit(limit)
         .execute()
-    }).pipe(map(rows => rows.map(transformInfoRow)))
+    }).pipe(map(rows => rows.map(withEncodedId)))
   }
 
   function readInfo(recordingId: string): FutureInstance<Error, RecordingInfo> {
-    const id = sqids.decode(recordingId)[0]
-
-    if (id === undefined) {
-      return reject(notFound())
-    }
-
     return attemptQuery(() => {
       return database
         .selectFrom('recordings')
         .selectAll()
-        .where('id', '=', id)
-        .executeTakeFirstOrThrow()
-    }).pipe(map(transformInfoRow))
+        .where('id', '=', decodeId(recordingId))
+        .executeTakeFirstOrThrow(() => notFound())
+    }).pipe(map(withEncodedId))
+  }
+
+  function readInfoMany(
+    recordingIds: Array<string>,
+    offset = 0,
+    limit = 50
+  ): FutureInstance<Error, Array<RecordingInfo>> {
+    return attemptQuery(() => {
+      return database
+        .selectFrom('recordings')
+        .selectAll()
+        .where('id', 'in', recordingIds.map(decodeId))
+        .offset(offset)
+        .limit(limit)
+        .execute()
+    }).pipe(map(rows => rows.map(withEncodedId)))
   }
 
   function writeInfo(
@@ -168,7 +188,7 @@ export function createRecordingService(database: Database, storage: Storage) {
         })
         .returningAll()
         .executeTakeFirstOrThrow()
-    }).pipe(map(transformInfoRow))
+    }).pipe(map(withEncodedId))
   }
 
   return {
@@ -180,6 +200,7 @@ export function createRecordingService(database: Database, storage: Storage) {
     writeResourceMap,
     listInfo,
     readInfo,
+    readInfoMany,
     writeInfo,
   }
 }

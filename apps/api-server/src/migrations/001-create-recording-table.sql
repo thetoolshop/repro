@@ -3,7 +3,7 @@
 --
 
 CREATE TABLE recordings (
-  id INTEGER PRIMARY KEY,
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
   title TEXT NOT NULL,
   url TEXT NOT NULL,
   description TEXT NOT NULL,
