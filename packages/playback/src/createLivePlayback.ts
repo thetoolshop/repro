@@ -12,8 +12,8 @@ import {
   createEmptySnapshot,
   isSample,
 } from '@repro/source-utils'
-import { copyObject, LazyList } from '@repro/std'
-import { first, Observable, skipUntil, Subscription } from 'rxjs'
+import { LazyList, copyObject } from '@repro/std'
+import { Observable, Subscription, first, skipUntil } from 'rxjs'
 import { ControlFrame, Playback, PlaybackState } from './types'
 
 const MAX_EVENT_BUFFER_SIZE_BYTES = 32_000_000
@@ -29,6 +29,8 @@ export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
   const [$playbackState, _setPlaybackState, getPlaybackState] = createAtom(
     PlaybackState.Playing
   )
+
+  let leadingSnapshot = createEmptySnapshot()
   const [$snapshot, setSnapshot, getSnapshot] = createAtom<Snapshot>(
     createEmptySnapshot()
   )
@@ -50,11 +52,17 @@ export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
   }
 
   function getSourceEvents() {
-    return new LazyList(
-      sourceEventBuffer.copy(),
-      SourceEventView.over,
-      SourceEventView.encode
-    )
+    const events = sourceEventBuffer.copy()
+
+    if (events[0]?.type !== SourceEventType.Snapshot) {
+      events.unshift({
+        type: SourceEventType.Snapshot,
+        time: events[0]?.time ?? 0,
+        data: leadingSnapshot,
+      })
+    }
+
+    return new LazyList(events, SourceEventView.over, SourceEventView.encode)
   }
 
   function getResourceMap() {
@@ -85,6 +93,7 @@ export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
       initialSnapshot$.subscribe(event => {
         const decoded = SourceEventView.decode(event) as SnapshotEvent
         setSnapshot(decoded.data)
+        leadingSnapshot = copyObject(decoded.data)
       })
     )
 
@@ -110,6 +119,14 @@ export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
         )
 
         sourceEventBuffer.push(event)
+      })
+    )
+
+    subscription.add(
+      sourceEventBuffer.onEvict(evicted => {
+        for (const event of evicted) {
+          applyEventToSnapshot(leadingSnapshot, event, event.time)
+        }
       })
     )
   }
