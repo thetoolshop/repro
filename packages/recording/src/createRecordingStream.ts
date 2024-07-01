@@ -1,5 +1,5 @@
 import { Atom, createAtom } from '@repro/atom'
-import { createBuffer, Unsubscribe } from '@repro/buffer-utils'
+import { Unsubscribe, createBuffer } from '@repro/buffer-utils'
 import { Stats } from '@repro/diagnostics'
 import {
   ConsoleEvent,
@@ -26,16 +26,16 @@ import {
 } from '@repro/domain'
 import { ObserverLike } from '@repro/observer-utils'
 import { applyEventToSnapshot, createEmptySnapshot } from '@repro/source-utils'
-import { copyObjectDeep, LazyList } from '@repro/std'
+import { LazyList, copyObjectDeep } from '@repro/std'
 import { copy as copyDataView } from '@repro/tdl'
 import { applyVTreePatch, getNodeId } from '@repro/vdom-utils'
 import {
-  concat,
-  defer,
   NEVER,
   Observable,
-  of,
   Subject,
+  concat,
+  defer,
+  of,
   switchMap,
   takeUntil,
 } from 'rxjs'
@@ -87,7 +87,7 @@ export interface RecordingStream {
   $started: Atom<boolean>
   isStarted(): boolean
   peek(nodeId: SyntheticId): VNode | null
-  slice(): Promise<LazyList<SourceEvent>>
+  slice(): LazyList<SourceEvent>
   snapshot(): Snapshot
   tail(signal: Subject<void>): Observable<SourceEvent>
 }
@@ -103,7 +103,7 @@ export const EMPTY_RECORDING_STREAM: RecordingStream = {
   $started: createAtom(false)[0],
   isStarted: () => false,
   peek: () => null,
-  slice: () => Promise.resolve(LazyList.Empty<SourceEvent>()),
+  slice: () => LazyList.Empty<SourceEvent>(),
   snapshot: () => createEmptySnapshot(),
   tail: () => NEVER,
 }
@@ -224,7 +224,7 @@ export function createRecordingStream(
     setStarted(false)
   }
 
-  async function slice(): Promise<LazyList<SourceEvent>> {
+  function slice(): LazyList<SourceEvent> {
     let events: Array<DataView> = []
 
     Stats.time('RecordingStream#slice: total', () => {
