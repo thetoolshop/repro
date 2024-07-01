@@ -4,6 +4,7 @@ import { CodecVersion } from './migrations/types'
 // @ts-ignore
 import pkg from '../package.json'
 
+// Recording codec types
 export const CODEC_VERSION = pkg.version as CodecVersion
 export * from './generated/common'
 export * from './generated/console'
@@ -17,3 +18,7 @@ export * from './generated/snapshot'
 export * from './generated/vdom'
 export { migrate } from './migrations'
 export type { CodecVersion }
+
+// Interface types
+export * from './account'
+export * from './project'

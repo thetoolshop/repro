@@ -1,4 +1,4 @@
-import { fork, FutureInstance, map, mapRej } from 'fluture'
+import { chain, fork, FutureInstance, map, mapRej } from 'fluture'
 import { useEffect, useRef, useState } from 'react'
 import { Observable } from 'rxjs'
 
@@ -96,6 +96,14 @@ export function tap<L, R>(
         return value
       })
     )
+  }
+}
+
+export function tapF<L, R>(
+  fn: (value: R) => FutureInstance<L, unknown>
+): (source: FutureInstance<L, R>) => FutureInstance<L, R> {
+  return function (source) {
+    return source.pipe(chain(value => fn(value).pipe(map(() => value))))
   }
 }
 

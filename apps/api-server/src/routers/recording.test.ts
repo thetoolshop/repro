@@ -7,9 +7,9 @@ import {
 } from '@repro/domain'
 import { toWireFormat } from '@repro/wire-formats'
 import { chain, promise } from 'fluture'
-import { createMiddleware } from '~/middleware'
-import { Database } from '~/modules/database'
+import { Database, encodeId } from '~/modules/database'
 import { Storage } from '~/modules/storage'
+import { createAccountService } from '~/services/account'
 import { createRecordingService } from '~/services/recording'
 import { setUpTestDatabase } from '~/testing/database'
 import { setUpTestStorage } from '~/testing/storage'
@@ -44,10 +44,11 @@ describe('Routers > Recording', () => {
   })
 
   it('should create a new recording', async () => {
+    const accountService = createAccountService(db)
     const recordingService = createRecordingService(db, storage)
     const recordingRouter = createRecordingRouter(
       recordingService,
-      createMiddleware()
+      accountService
     )
 
     const app = fromRouter(recordingRouter)
@@ -84,10 +85,11 @@ describe('Routers > Recording', () => {
   })
 
   it('should get info for a recording', async () => {
+    const accountService = createAccountService(db)
     const recordingService = createRecordingService(db, storage)
     const recordingRouter = createRecordingRouter(
       recordingService,
-      createMiddleware()
+      accountService
     )
 
     const { id } = await promise(
@@ -127,10 +129,11 @@ describe('Routers > Recording', () => {
   })
 
   it('should save a resource for a recording', async () => {
+    const accountService = createAccountService(db)
     const recordingService = createRecordingService(db, storage)
     const recordingRouter = createRecordingRouter(
       recordingService,
-      createMiddleware()
+      accountService
     )
 
     const { id } = await promise(
@@ -166,10 +169,11 @@ describe('Routers > Recording', () => {
   })
 
   it('should save the resource map for a recording', async () => {
+    const accountService = createAccountService(db)
     const recordingService = createRecordingService(db, storage)
     const recordingRouter = createRecordingRouter(
       recordingService,
-      createMiddleware()
+      accountService
     )
 
     const { id } = await promise(
@@ -209,10 +213,11 @@ describe('Routers > Recording', () => {
   })
 
   it('should save event data for a recording', async () => {
+    const accountService = createAccountService(db)
     const recordingService = createRecordingService(db, storage)
     const recordingRouter = createRecordingRouter(
       recordingService,
-      createMiddleware()
+      accountService
     )
 
     const { id } = await promise(
@@ -263,10 +268,11 @@ describe('Routers > Recording', () => {
   })
 
   it('should fail to overwrite an existing recording', async () => {
+    const accountService = createAccountService(db)
     const recordingService = createRecordingService(db, storage)
     const recordingRouter = createRecordingRouter(
       recordingService,
-      createMiddleware()
+      accountService
     )
 
     const { id } = await promise(
@@ -326,10 +332,11 @@ describe('Routers > Recording', () => {
   })
 
   it('should fail to write data for a recording that does not exist', async () => {
+    const accountService = createAccountService(db)
     const recordingService = createRecordingService(db, storage)
     const recordingRouter = createRecordingRouter(
       recordingService,
-      createMiddleware()
+      accountService
     )
     const app = fromRouter(recordingRouter)
 
@@ -348,7 +355,7 @@ describe('Routers > Recording', () => {
 
     const res = await app.inject({
       method: 'PUT',
-      url: `/does-not-exist/data`,
+      url: `/${encodeId(999)}/data`,
       body: events.map(toWireFormat).join('\n'),
     })
 
@@ -357,10 +364,11 @@ describe('Routers > Recording', () => {
 
   // TODO: investigate - validating via a transform stream might add too much overhead
   it.skip('should fail to write invalid recording data', async () => {
+    const accountService = createAccountService(db)
     const recordingService = createRecordingService(db, storage)
     const recordingRouter = createRecordingRouter(
       recordingService,
-      createMiddleware()
+      accountService
     )
     const app = fromRouter(recordingRouter)
 

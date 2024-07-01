@@ -1,31 +1,44 @@
 import { RecordingMode } from '@repro/domain'
 import { parseSchema } from '@repro/validation'
 import { FastifyPluginAsync } from 'fastify'
+import { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { chain } from 'fluture'
 import z from 'zod'
 import { defaultSystemConfig } from '~/config/system'
-import { Middleware } from '~/middleware'
+import { AccountService } from '~/services/account'
 import type { RecordingService } from '~/services/recording'
-import { badRequest } from '~/utils/errors'
 import { createResponseUtils } from '~/utils/response'
 
 export function createRecordingRouter(
   recordingService: RecordingService,
-  { auth }: Middleware,
+  accountService: AccountService,
   config = defaultSystemConfig
 ): FastifyPluginAsync {
   const { respondWith } = createResponseUtils(config)
 
   return async function (fastify) {
-    fastify.get('/', (req, res) => {
+    const app = fastify.withTypeProvider<ZodTypeProvider>()
+
+    app.get('/', (req, res) => {
       respondWith(
         res,
-        auth.ensureStaffUser(req).pipe(chain(() => recordingService.listInfo()))
+        accountService
+          .ensureStaffUser(req.user)
+          .pipe(chain(() => recordingService.listInfo()))
       )
     })
 
-    fastify.get<{ Params: { recordingId: string } }>(
+    app.get(
       '/:recordingId/data',
+
+      {
+        schema: {
+          params: z.object({
+            recordingId: z.string(),
+          }),
+        },
+      },
+
       (req, res) => {
         const recordingId = req.params.recordingId
         res.header('Content-Encoding', 'gzip')
@@ -33,8 +46,17 @@ export function createRecordingRouter(
       }
     )
 
-    fastify.put<{ Params: { recordingId: string } }>(
+    app.put(
       '/:recordingId/data',
+
+      {
+        schema: {
+          params: z.object({
+            recordingId: z.string(),
+          }),
+        },
+      },
+
       (req, res) => {
         const recordingId = req.params.recordingId
         respondWith(
@@ -45,8 +67,18 @@ export function createRecordingRouter(
       }
     )
 
-    fastify.get<{ Params: { recordingId: string; resourceId: string } }>(
+    app.get(
       '/:recordingId/resources/:resourceId',
+
+      {
+        schema: {
+          params: z.object({
+            recordingId: z.string(),
+            resourceId: z.string(),
+          }),
+        },
+      },
+
       (req, res) => {
         const recordingId = req.params.recordingId
         const resourceId = req.params.resourceId
@@ -57,8 +89,18 @@ export function createRecordingRouter(
       }
     )
 
-    fastify.put<{ Params: { recordingId: string; resourceId: string } }>(
+    app.put(
       '/:recordingId/resources/:resourceId',
+
+      {
+        schema: {
+          params: z.object({
+            recordingId: z.string(),
+            resourceId: z.string(),
+          }),
+        },
+      },
+
       (req, res) => {
         const recordingId = req.params.recordingId
         const resourceId = req.params.resourceId
@@ -74,67 +116,94 @@ export function createRecordingRouter(
       }
     )
 
-    fastify.get<{ Params: { recordingId: string } }>(
+    app.get(
       '/:recordingId/resource-map',
+
+      {
+        schema: {
+          params: z.object({
+            recordingId: z.string(),
+          }),
+        },
+      },
+
       (req, res) => {
-        const recordingId = req.params.recordingId!
+        const recordingId = req.params.recordingId
         respondWith(res, recordingService.readResourceMap(recordingId))
       }
     )
 
     const writeResourceMapRequestBody = z.record(z.string())
 
-    fastify.put<{
-      Params: { recordingId: string }
-      Body: z.infer<typeof writeResourceMapRequestBody>
-    }>('/:recordingId/resource-map', (req, res) => {
-      const recordingId = req.params.recordingId
-      respondWith(
-        res,
-        parseSchema(writeResourceMapRequestBody, req.body).pipe(
-          chain(body => recordingService.writeResourceMap(recordingId, body))
-        ),
-        201
-      )
-    })
+    app.put(
+      '/:recordingId/resource-map',
 
-    fastify.get<{ Params: { recordingId: string } }>(
+      {
+        schema: {
+          params: z.object({ recordingId: z.string() }),
+          body: z.record(z.string()),
+        },
+      },
+
+      (req, res) => {
+        const recordingId = req.params.recordingId
+        respondWith(
+          res,
+          parseSchema(writeResourceMapRequestBody, req.body).pipe(
+            chain(body => recordingService.writeResourceMap(recordingId, body))
+          ),
+          201
+        )
+      }
+    )
+
+    app.get(
       '/:recordingId/info',
+
+      {
+        schema: {
+          params: z.object({
+            recordingId: z.string(),
+          }),
+        },
+      },
+
       (req, res) => {
         const recordingId = req.params.recordingId!
         respondWith(res, recordingService.readInfo(recordingId))
       }
     )
 
-    const writeRecordingInfoRequestBody = z.object({
-      title: z.string(),
-      url: z.string().url(),
-      description: z.string(),
-      mode: z.nativeEnum(RecordingMode),
-      duration: z.number(),
-      browserName: z.string().nullable(),
-      browserVersion: z.string().nullable(),
-      operatingSystem: z.string().nullable(),
-    })
-
-    fastify.post<{ Body: z.infer<typeof writeRecordingInfoRequestBody> }>(
+    app.post(
       '/',
+
+      {
+        schema: {
+          body: z.object({
+            title: z.string(),
+            url: z.string().url(),
+            description: z.string(),
+            mode: z.nativeEnum(RecordingMode),
+            duration: z.number(),
+            browserName: z.string().nullable(),
+            browserVersion: z.string().nullable(),
+            operatingSystem: z.string().nullable(),
+          }),
+        },
+      },
+
       (req, res) => {
         respondWith(
           res,
-          parseSchema(writeRecordingInfoRequestBody, req.body, badRequest).pipe(
-            chain(body =>
-              recordingService.writeInfo(
-                body.title,
-                body.url,
-                body.description,
-                body.mode,
-                body.duration,
-                body.browserName,
-                body.browserVersion,
-                body.operatingSystem
-              )
-            )
+          recordingService.writeInfo(
+            req.body.title,
+            req.body.url,
+            req.body.description,
+            req.body.mode,
+            req.body.duration,
+            req.body.browserName,
+            req.body.browserVersion,
+            req.body.operatingSystem
           ),
           201
         )

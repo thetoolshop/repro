@@ -8,6 +8,7 @@ import {
   isBadRequest,
   isNotAuthenticated,
   isNotFound,
+  isNotImplemented,
   isPermissionDenied,
   isResourceConflict,
   isServiceUnavailable,
@@ -36,6 +37,9 @@ export function createResponseUtils(config: SystemConfig) {
     } else if (isResourceConflict(error)) {
       message = error.message || 'Conflict'
       res.status(409)
+    } else if (isNotImplemented(error)) {
+      message = error.message || 'Not implemented'
+      res.status(501)
     } else if (isServiceUnavailable(error)) {
       // TODO: use Winston to forward logs
       // console.error(error)

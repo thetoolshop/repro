@@ -39,6 +39,12 @@ export function toJSON(data: any): string {
       return toByteString(new Uint8Array(value))
     }
 
+    if (ArrayBuffer.isView(value)) {
+      return toByteString(
+        new Uint8Array(value.buffer, value.byteOffset, value.byteLength)
+      )
+    }
+
     return value
   })
 }

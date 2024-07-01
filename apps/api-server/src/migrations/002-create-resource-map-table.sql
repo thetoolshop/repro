@@ -3,7 +3,7 @@
 --
 
 CREATE TABLE recording_resources (
-  id INTEGER PRIMARY KEY,
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
   recordingId INTEGER NOT NULL,
   key TEXT NOT NULL,
   value TEXT NOT NULL,

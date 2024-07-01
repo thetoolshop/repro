@@ -1,5 +1,4 @@
 import { reject } from 'fluture'
-import { createMiddleware } from '~/middleware'
 import { Database } from '~/modules/database'
 import { Storage } from '~/modules/storage'
 import { createHealthService } from '~/services/health'
@@ -34,7 +33,7 @@ describe('Routers > Health', () => {
 
   it('should return 200 on a valid health check', async () => {
     const healthService = createHealthService(db, storage)
-    const healthRouter = createHealthRouter(healthService, createMiddleware())
+    const healthRouter = createHealthRouter(healthService)
     const app = fromRouter(healthRouter)
 
     const res = await app.inject({
@@ -47,14 +46,11 @@ describe('Routers > Health', () => {
   })
 
   it('should return 503 on an invalid health check', async () => {
-    const healthRouter = createHealthRouter(
-      {
-        check() {
-          return reject(serviceUnavailable('Health check failed'))
-        },
+    const healthRouter = createHealthRouter({
+      check() {
+        return reject(serviceUnavailable('Health check failed'))
       },
-      createMiddleware()
-    )
+    })
 
     const app = fromRouter(healthRouter)
     const res = await app.inject({
