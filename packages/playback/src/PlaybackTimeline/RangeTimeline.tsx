@@ -2,8 +2,8 @@ import { colors } from '@repro/design'
 import { Block } from 'jsxstyle'
 import React, { MutableRefObject, useEffect, useRef } from 'react'
 import { Subscription, fromEvent, map, switchMap, take, takeUntil } from 'rxjs'
-import { PlaybackTimeline } from '.'
 import { usePlayback } from '../hooks'
+import { SimpleTimeline } from './SimpleTimeline'
 
 export interface Props {
   onChange?: (min: number, max: number) => void
@@ -197,7 +197,7 @@ export const RangeTimeline: React.FC<Props> = ({ onChange }) => {
 
   return (
     <Block position="relative">
-      <PlaybackTimeline.Simple>
+      <SimpleTimeline>
         <Block
           position="absolute"
           left={0}
@@ -207,14 +207,14 @@ export const RangeTimeline: React.FC<Props> = ({ onChange }) => {
           pointerEvents="none"
           props={{ ref: containerRef }}
         />
-      </PlaybackTimeline.Simple>
+      </SimpleTimeline>
     </Block>
   )
 }
 
 function createBoundBackgroundElement(anchor: 'left' | 'right') {
   return createElement([
-    ['backgroundColor', colors.blue['50']],
+    ['backgroundColor', colors.slate['400']],
     ['height', '100%'],
     [anchor, '0'],
     ['pointerEvents', 'auto'],

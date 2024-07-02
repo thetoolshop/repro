@@ -9,18 +9,18 @@ import {
   SourceEventView,
 } from '@repro/domain'
 import {
+  Sample,
   applyEventToSnapshot,
   createEmptySnapshot,
   isSample,
-  Sample,
 } from '@repro/source-utils'
-import { copyObject, LazyList } from '@repro/std'
+import { LazyList, copyObject } from '@repro/std'
 import {
+  NEVER,
+  Subscription,
   animationFrames,
   asyncScheduler,
   connectable,
-  NEVER,
-  Subscription,
 } from 'rxjs'
 import { map, observeOn, pairwise, switchMap } from 'rxjs/operators'
 import { ControlFrame, Playback, PlaybackState } from './types'
@@ -224,6 +224,25 @@ export function createSourcePlayback(
     })
   )
 
+  // TODO: optimize this
+  function getEventIndexAtTime(time: number) {
+    const dataViews = events.toSource()
+
+    for (let i = dataViews.length - 1; i >= 0; i--) {
+      const dataView = dataViews[0]
+
+      if (dataView) {
+        const event = SourceEventView.over(dataView)
+
+        if (event.time <= time) {
+          return i
+        }
+      }
+    }
+
+    return null
+  }
+
   function getEventTimeAtIndex(index: number) {
     const event = events.at(index)
     return event ? SourceEventView.over(event).time : null
@@ -406,6 +425,7 @@ export function createSourcePlayback(
     getBuffer,
     getDuration,
     getElapsed,
+    getEventIndexAtTime,
     getEventTimeAtIndex,
     getEventTypeAtIndex,
     getLatestControlFrame,

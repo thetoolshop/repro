@@ -6,7 +6,7 @@ import { useMessaging } from '@repro/messaging'
 import {
   PlaybackCanvas,
   PlaybackProvider,
-  PlaybackTimeline,
+  SimpleTimeline,
   usePlayback,
 } from '@repro/playback'
 import { fork, FutureInstance } from 'fluture'
@@ -172,7 +172,7 @@ export const ReportForm: React.FC<Props> = ({
                   0 -1px 2px rgba(0, 0, 0, 0.1)
                 `}
               >
-                <PlaybackTimeline.Simple min={minTime} max={maxTime} />
+                <SimpleTimeline min={minTime} max={maxTime} />
               </Block>
             )}
           </PlaybackRegion>

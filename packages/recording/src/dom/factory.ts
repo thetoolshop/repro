@@ -107,6 +107,7 @@ export function createVElement(
     attributes,
     properties,
     children: [],
+    shadowRoot: element.shadowRoot != null,
   }
 }
 

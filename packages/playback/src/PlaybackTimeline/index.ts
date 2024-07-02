@@ -1,5 +1,2 @@
-import { SimpleTimeline } from './SimpleTimeline'
-
-export const PlaybackTimeline = {
-  Simple: SimpleTimeline,
-}
+export { RangeTimeline } from './RangeTimeline'
+export { SimpleTimeline } from './SimpleTimeline'

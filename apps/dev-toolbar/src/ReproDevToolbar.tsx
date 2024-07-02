@@ -12,7 +12,7 @@ import { TOOLBAR_ROOT_ID } from './constants'
 import { StateProvider } from './context'
 import { createState } from './createState'
 
-const NODE_NAME = 'toolshop-dev-toolbar'
+const NODE_NAME = 'repro-dev-toolbar'
 
 // jsxstyle prevents multiple invocations of `cache.injectOptions`,
 // so we cannot register a new style root per custom element.
@@ -27,15 +27,13 @@ const refs: Refs = {
   activeStyleRoot: null,
 }
 
-const _initialInjectOptions = styleCache.injectOptions
-
 let agent = createLoopbackAgent()
 
 export function usingAgent(a: Agent) {
   agent = a
 }
 
-class ToolshopDevToolbar extends HTMLElement {
+class ReproDevToolbar extends HTMLElement {
   private renderRoot: Root
   private state = createState()
 
@@ -54,8 +52,6 @@ class ToolshopDevToolbar extends HTMLElement {
     shadowRoot.appendChild(styleRoot)
     shadowRoot.appendChild(rootElem)
 
-    styleCache.reset()
-    styleCache.injectOptions = _initialInjectOptions
     // TODO: build and bundle css for prod
     styleCache.injectOptions({
       onInsertRule(rule) {
@@ -116,11 +112,11 @@ class ToolshopDevToolbar extends HTMLElement {
 
 export function attach() {
   if (!window.customElements.get(NODE_NAME)) {
-    window.customElements.define(NODE_NAME, ToolshopDevToolbar)
+    window.customElements.define(NODE_NAME, ReproDevToolbar)
   }
 
   if (!document.querySelector(NODE_NAME)) {
-    const root = new ToolshopDevToolbar()
+    const root = new ReproDevToolbar()
     document.body.appendChild(root)
   }
 }

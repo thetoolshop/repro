@@ -27,6 +27,7 @@ export interface Playback {
   getBuffer(): LazyList<SourceEvent>
   getDuration(): number
   getElapsed(): number
+  getEventIndexAtTime(time: number): number | null
   getEventTimeAtIndex(index: number): number | null
   getEventTypeAtIndex(index: number): SourceEventType | null
   getLatestControlFrame(): ControlFrame

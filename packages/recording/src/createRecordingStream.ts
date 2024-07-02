@@ -87,7 +87,7 @@ export interface RecordingStream {
   $started: Atom<boolean>
   isStarted(): boolean
   peek(nodeId: SyntheticId): VNode | null
-  slice(): LazyList<SourceEvent>
+  slice(start?: number, end?: number): LazyList<SourceEvent>
   snapshot(): Snapshot
   tail(signal: Subject<void>): Observable<SourceEvent>
 }
@@ -224,12 +224,12 @@ export function createRecordingStream(
     setStarted(false)
   }
 
-  function slice(): LazyList<SourceEvent> {
+  function slice(start?: number, end?: number): LazyList<SourceEvent> {
     let events: Array<DataView> = []
 
     Stats.time('RecordingStream#slice: total', () => {
       Stats.time('RecordingStream#slice: deep copy event buffer', () => {
-        events = eventBuffer.copy().map(copyDataView)
+        events = eventBuffer.copy().map(copyDataView).slice(start, end)
       })
 
       Stats.time('RecordingStream#slice: sort events by time', () => {
@@ -257,12 +257,37 @@ export function createRecordingStream(
       // If first event is not a snapshot event (i.e. leading snapshot has been
       // evicted), prepend rolling leading snapshot.
       if (!firstEvent || firstEvent.type !== SourceEventType.Snapshot) {
+        let adjustedLeadingSnapshot = copyObjectDeep(leadingSnapshot)
+
+        if (start != null && start !== 0) {
+          Stats.time(
+            'RecordingStream#slice: create adjusted leading snapshot',
+            () => {
+              let before = events.slice(0, start ?? 0)
+
+              Stats.value(
+                'RecordingStream#slice: leading events count',
+                before.length
+              )
+
+              for (const event of before) {
+                const decoded = SourceEventView.decode(event)
+                applyEventToSnapshot(
+                  adjustedLeadingSnapshot,
+                  decoded,
+                  decoded.time
+                )
+              }
+            }
+          )
+        }
+
         Stats.time('RecordingStream#slice: prepend leading snapshot', () => {
           events.unshift(
             SourceEventView.encode({
               time: 0,
               type: SourceEventType.Snapshot,
-              data: leadingSnapshot,
+              data: adjustedLeadingSnapshot,
             })
           )
         })

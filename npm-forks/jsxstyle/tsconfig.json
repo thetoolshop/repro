@@ -1,0 +1,17 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "tsconfig.test.json"
+    },
+    {
+      "path": "packages/tsconfig.json"
+    },
+    {
+      "path": "minisite/tsconfig.json"
+    },
+    {
+      "path": "examples/jsxstyle-typescript-example/tsconfig.json"
+    }
+  ]
+}

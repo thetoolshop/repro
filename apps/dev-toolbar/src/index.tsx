@@ -1,7 +1,7 @@
 import { Stats, Trace } from '@repro/diagnostics'
 import { Agent, createLoopbackAgent, createPTPAgent } from '@repro/messaging'
 import { resolve } from 'fluture'
-import { attach, detach, usingAgent } from './ToolshopDevToolbar'
+import { attach, detach, usingAgent } from './ReproDevToolbar'
 
 declare global {
   const __BUILD_VERSION__: string | undefined

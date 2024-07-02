@@ -5,7 +5,7 @@ import { Block, Grid, Row } from 'jsxstyle'
 import { TablePropertiesIcon } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { FixedSizeList, ListChildComponentProps } from 'react-window'
-import { concat, from, scan } from 'rxjs'
+import { asyncScheduler, concat, from, observeOn, scan } from 'rxjs'
 import { BaseRow } from './BaseRow'
 import { ConsoleRow } from './ConsoleRow'
 import { DOMPatchRow } from './DOMPatchRow'
@@ -70,7 +70,9 @@ export const EventLogPane: React.FC = () => {
       }, [])
     )
 
-    const subscription = logItems$.subscribe(setItems)
+    const subscription = logItems$
+      .pipe(observeOn(asyncScheduler))
+      .subscribe(setItems)
 
     return () => {
       subscription.unsubscribe()

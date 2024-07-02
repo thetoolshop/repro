@@ -42,7 +42,8 @@ export const FrameRealm = React.forwardRef<HTMLIFrameElement, Props>(
 
     useEffect(() => {
       if (innerRef && innerRef.current) {
-        const doc = innerRef.current.contentDocument
+        const frame = innerRef.current
+        const doc = frame.contentDocument
 
         if (doc) {
           doc.open()

@@ -1,5 +1,5 @@
 import { colors } from '@repro/design'
-import { PlaybackTimeline } from '@repro/playback'
+import { SimpleTimeline } from '@repro/playback'
 import { Block, Row } from 'jsxstyle'
 import React, { PropsWithChildren } from 'react'
 import { Picker } from './Picker'
@@ -14,7 +14,7 @@ export const Toolbar: React.FC = () => {
       <Separator />
 
       <TimelineRegion>
-        <PlaybackTimeline.Simple />
+        <SimpleTimeline />
       </TimelineRegion>
     </Container>
   )
