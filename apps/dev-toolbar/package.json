@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "BUILD_ENV=production ./scripts/build",
+    "build:standalone": "BUILD_ENV=production MODE=standalone ./scripts/build",
     "watch": "./scripts/build -w",
     "fmt": "prettier --write src",
     "test": "jest --passWithNoTests",
