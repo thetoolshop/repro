@@ -9,6 +9,7 @@ import React, {
   useRef,
   useState,
 } from 'react'
+import { withPlaybackErrorBoundary } from '../PlaybackErrorBoundary'
 import { FullWidthViewport } from './FullWidthViewport'
 import { InteractionMask } from './InteractionMask'
 import { NativeDOMRenderer } from './NativeDOMRenderer'
@@ -26,89 +27,93 @@ interface Props {
   onLoad?: (nodeMap: MutableNodeMap) => void
 }
 
-export const PlaybackCanvas: React.FC<PropsWithChildren<Props>> = ({
-  children,
-  interactive,
-  trackPointer,
-  trackScroll,
-  scaling,
-  resourceBaseURL,
-  onDocumentReady,
-  onLoad,
-}) => {
-  const frameRef = useRef() as MutableRefObject<HTMLIFrameElement>
-  const [ownerDocument, setOwnerDocument] = useState<Document | null>(null)
-  const [loaded, setLoaded] = useState(false)
+export const PlaybackCanvas = withPlaybackErrorBoundary<
+  PropsWithChildren<Props>
+>(
+  ({
+    children,
+    interactive,
+    trackPointer,
+    trackScroll,
+    scaling,
+    resourceBaseURL,
+    onDocumentReady,
+    onLoad,
+  }) => {
+    const frameRef = useRef() as MutableRefObject<HTMLIFrameElement>
+    const [ownerDocument, setOwnerDocument] = useState<Document | null>(null)
+    const [loaded, setLoaded] = useState(false)
 
-  const handleLoad = useCallback(
-    (nodeMap: MutableNodeMap) => {
-      if (onLoad) {
-        onLoad(nodeMap)
+    const handleLoad = useCallback(
+      (nodeMap: MutableNodeMap) => {
+        if (onLoad) {
+          onLoad(nodeMap)
+        }
+
+        setLoaded(true)
+      },
+      [onLoad, setLoaded]
+    )
+
+    useEffect(() => {
+      if (!frameRef.current) {
+        setOwnerDocument(null)
+        return
       }
 
-      setLoaded(true)
-    },
-    [onLoad, setLoaded]
-  )
+      const contentDocument = frameRef.current.contentDocument
+      setOwnerDocument(contentDocument)
 
-  useEffect(() => {
-    if (!frameRef.current) {
-      setOwnerDocument(null)
-      return
-    }
+      if (contentDocument && onDocumentReady) {
+        onDocumentReady(contentDocument)
+      }
+    }, [frameRef, setOwnerDocument, onDocumentReady])
 
-    const contentDocument = frameRef.current.contentDocument
-    setOwnerDocument(contentDocument)
+    const viewportContents = (
+      <React.Fragment>
+        <FrameRealm ref={frameRef}>
+          <NativeDOMRenderer
+            trackScroll={trackScroll}
+            ownerDocument={ownerDocument}
+            resourceBaseURL={resourceBaseURL || undefined}
+            onLoad={handleLoad}
+          />
+        </FrameRealm>
 
-    if (contentDocument && onDocumentReady) {
-      onDocumentReady(contentDocument)
-    }
-  }, [frameRef, setOwnerDocument, onDocumentReady])
+        {trackPointer && <PointerOverlay />}
+        {!interactive && <InteractionMask />}
+        {children}
+      </React.Fragment>
+    )
 
-  const viewportContents = (
-    <React.Fragment>
-      <FrameRealm ref={frameRef}>
-        <NativeDOMRenderer
-          trackScroll={trackScroll}
-          ownerDocument={ownerDocument}
-          resourceBaseURL={resourceBaseURL || undefined}
-          onLoad={handleLoad}
-        />
-      </FrameRealm>
-
-      {trackPointer && <PointerOverlay />}
-      {!interactive && <InteractionMask />}
-      {children}
-    </React.Fragment>
-  )
-
-  return (
-    <Block
-      overflow="hidden"
-      height="100%"
-      background={`repeating-linear-gradient(
+    return (
+      <Block
+        overflow="hidden"
+        height="100%"
+        background={`repeating-linear-gradient(
         45deg,
         ${colors.slate['50']},
         ${colors.slate['50']} 10px,
         ${colors.slate['100']} 10px,
         ${colors.slate['100']} 20px
       )`}
-    >
-      {!loaded && (
-        <Row alignItems="center" justifyContent="center" height="100%">
-          <FX.Spin height={24} color={colors.slate['500']}>
-            <LoaderIcon size={24} />
-          </FX.Spin>
-        </Row>
-      )}
+      >
+        {!loaded && (
+          <Row alignItems="center" justifyContent="center" height="100%">
+            <FX.Spin height={24} color={colors.slate['500']}>
+              <LoaderIcon size={24} />
+            </FX.Spin>
+          </Row>
+        )}
 
-      {scaling === 'full-width' && (
-        <FullWidthViewport>{viewportContents}</FullWidthViewport>
-      )}
+        {scaling === 'full-width' && (
+          <FullWidthViewport>{viewportContents}</FullWidthViewport>
+        )}
 
-      {scaling === 'scale-to-fit' && (
-        <ScaleToFitViewport>{viewportContents}</ScaleToFitViewport>
-      )}
-    </Block>
-  )
-}
+        {scaling === 'scale-to-fit' && (
+          <ScaleToFitViewport>{viewportContents}</ScaleToFitViewport>
+        )}
+      </Block>
+    )
+  }
+)

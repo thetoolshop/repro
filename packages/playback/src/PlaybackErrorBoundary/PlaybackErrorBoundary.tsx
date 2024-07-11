@@ -28,3 +28,19 @@ export class PlaybackErrorBoundary extends React.Component<PropsWithChildren> {
     return this.props.children
   }
 }
+
+export function withPlaybackErrorBoundary<P>(
+  Component: React.ComponentType<P>
+) {
+  const Wrapped: React.FC<P> = props => (
+    <PlaybackErrorBoundary>
+      <Component key="0" {...props} />
+    </PlaybackErrorBoundary>
+  )
+
+  Wrapped.displayName = `WithPlaybackErrorBoundary(${
+    Component.displayName ?? 'Unknown'
+  })`
+
+  return Wrapped
+}

@@ -48,6 +48,12 @@ export function createDOMVisitor() {
       throw new Error('VDOM: cannot add node to tree; missing parentId')
     }
 
+    if (!vtree.nodes[parentId]) {
+      throw new Error(
+        `VDOM: cannot add node to tree; parent node "${parentId}" not found in VTree`
+      )
+    }
+
     addVNode(vtree, node, parentId)
   }
 
