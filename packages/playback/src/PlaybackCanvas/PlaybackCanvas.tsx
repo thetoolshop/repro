@@ -90,13 +90,14 @@ export const PlaybackCanvas = withPlaybackErrorBoundary<
       <Block
         overflow="hidden"
         height="100%"
+        userSelect={interactive ? 'all' : 'none'}
         background={`repeating-linear-gradient(
-        45deg,
-        ${colors.slate['50']},
-        ${colors.slate['50']} 10px,
-        ${colors.slate['100']} 10px,
-        ${colors.slate['100']} 20px
-      )`}
+          45deg,
+          ${colors.slate['50']},
+          ${colors.slate['50']} 10px,
+          ${colors.slate['100']} 10px,
+          ${colors.slate['100']} 20px
+        )`}
       >
         {!loaded && (
           <Row alignItems="center" justifyContent="center" height="100%">

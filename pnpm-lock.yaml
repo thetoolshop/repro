@@ -1525,6 +1525,12 @@ importers:
         specifier: ^1.8.1
         version: 1.8.1
     devDependencies:
+      '@ladle/react':
+        specifier: ^4.0.2
+        version: 4.0.2(@types/node@18.7.13)(@types/react@18.2.63)(react-dom@18.2.0)(react@18.2.0)(typescript@5.3.3)
+      '@repro/testing-utils':
+        specifier: workspace:*
+        version: link:../testing-utils
       '@types/jest':
         specifier: ^28.1.7
         version: 28.1.8
@@ -1803,6 +1809,13 @@ importers:
         version: 5.3.3
 
   packages/testing-utils:
+    dependencies:
+      '@repro/domain':
+        specifier: workspace:*
+        version: link:../domain
+      '@repro/recording':
+        specifier: workspace:*
+        version: link:../recording
     devDependencies:
       '@types/jest':
         specifier: ^28.1.7
@@ -2050,7 +2063,7 @@ packages:
       '@babel/traverse': 7.22.17
       '@babel/types': 7.22.17
       convert-source-map: 1.9.0
-      debug: 4.3.4
+      debug: 4.3.5
       gensync: 1.0.0-beta.2
       json5: 2.2.3
       semver: 6.3.1
@@ -2073,7 +2086,7 @@ packages:
       '@babel/traverse': 7.24.0
       '@babel/types': 7.24.0
       convert-source-map: 2.0.0
-      debug: 4.3.4
+      debug: 4.3.5
       gensync: 1.0.0-beta.2
       json5: 2.2.3
       semver: 6.3.1
@@ -2659,23 +2672,23 @@ packages:
       '@babel/helper-simple-access': 7.22.5
     dev: true
 
-  /@babel/plugin-transform-react-jsx-self@7.23.3(@babel/core@7.24.0):
+  /@babel/plugin-transform-react-jsx-self@7.23.3(@babel/core@7.24.6):
     resolution: {integrity: sha512-qXRvbeKDSfwnlJnanVRp0SfuWE5DQhwQr5xtLBzp56Wabyo+4CMosF6Kfp+eOD/4FYpql64XVJ2W0pVLlJZxOQ==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
       '@babel/core': ^7.0.0-0
     dependencies:
-      '@babel/core': 7.24.0
+      '@babel/core': 7.24.6
       '@babel/helper-plugin-utils': 7.24.0
     dev: true
 
-  /@babel/plugin-transform-react-jsx-source@7.23.3(@babel/core@7.24.0):
+  /@babel/plugin-transform-react-jsx-source@7.23.3(@babel/core@7.24.6):
     resolution: {integrity: sha512-91RS0MDnAWDNvGC6Wio5XYkyWI39FMFO+JK9+4AlgaTH+yWwVTsw7/sn6LK0lH7c5F+TFkpv/3LfCJ1Ydwof/g==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
       '@babel/core': ^7.0.0-0
     dependencies:
-      '@babel/core': 7.24.0
+      '@babel/core': 7.24.6
       '@babel/helper-plugin-utils': 7.24.0
     dev: true
 
@@ -2724,7 +2737,7 @@ packages:
       '@babel/helper-split-export-declaration': 7.22.6
       '@babel/parser': 7.24.0
       '@babel/types': 7.24.0
-      debug: 4.3.4
+      debug: 4.3.5
       globals: 11.12.0
     transitivePeerDependencies:
       - supports-color
@@ -3997,13 +4010,13 @@ packages:
       react: '>=18.0.0'
       react-dom: '>=18.0.0'
     dependencies:
-      '@babel/code-frame': 7.23.5
-      '@babel/core': 7.24.0
-      '@babel/generator': 7.23.6
-      '@babel/parser': 7.24.0
-      '@babel/template': 7.24.0
-      '@babel/traverse': 7.24.0
-      '@babel/types': 7.24.0
+      '@babel/code-frame': 7.24.6
+      '@babel/core': 7.24.6
+      '@babel/generator': 7.24.6
+      '@babel/parser': 7.24.6
+      '@babel/template': 7.24.6
+      '@babel/traverse': 7.24.6
+      '@babel/types': 7.24.6
       '@ladle/react-context': 1.0.1(react-dom@18.2.0)(react@18.2.0)
       '@mdx-js/mdx': 3.0.1
       '@mdx-js/react': 3.0.1(@types/react@18.2.63)(react@18.2.0)
@@ -4015,7 +4028,7 @@ packages:
       classnames: 2.5.1
       commander: 11.1.0
       cross-spawn: 7.0.3
-      debug: 4.3.4
+      debug: 4.3.5
       get-port: 7.0.0
       globby: 14.0.1
       history: 5.3.0
@@ -4525,7 +4538,7 @@ packages:
   /@pm2/pm2-version-check@1.0.4:
     resolution: {integrity: sha512-SXsM27SGH3yTWKc2fKR4SYNxsmnvuBQ9dd6QHtEWmiZ/VqaOYPAIlS8+vMcn27YLtAEBGvNRSh3TPNvtjZgfqA==}
     dependencies:
-      debug: 4.3.4
+      debug: 4.3.5
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -5306,9 +5319,9 @@ packages:
     peerDependencies:
       vite: ^4.2.0 || ^5.0.0
     dependencies:
-      '@babel/core': 7.24.0
-      '@babel/plugin-transform-react-jsx-self': 7.23.3(@babel/core@7.24.0)
-      '@babel/plugin-transform-react-jsx-source': 7.23.3(@babel/core@7.24.0)
+      '@babel/core': 7.24.6
+      '@babel/plugin-transform-react-jsx-self': 7.23.3(@babel/core@7.24.6)
+      '@babel/plugin-transform-react-jsx-source': 7.23.3(@babel/core@7.24.6)
       '@types/babel__core': 7.20.5
       react-refresh: 0.14.0
       vite: 5.1.5(@types/node@18.7.13)
@@ -5553,7 +5566,7 @@ packages:
     resolution: {integrity: sha512-H0TSyFNDMomMNJQBn8wFV5YC/2eJ+VXECwOadZJT554xP6cODZHPX3H9QMQECxvrgiSOP1pHjy1sMWQVYJOUOA==}
     engines: {node: '>= 14'}
     dependencies:
-      debug: 4.3.4
+      debug: 4.3.5
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -5893,8 +5906,8 @@ packages:
     resolution: {integrity: sha512-ESAc/RJvGTFEzRwOTT4+lNDk/GNHMkKbNzsvT0qKRfDyyYTskxB5rnU2njIDYVxXCBHHEI1c0YwHob3WaYujOg==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     dependencies:
-      '@babel/template': 7.24.0
-      '@babel/types': 7.24.0
+      '@babel/template': 7.24.6
+      '@babel/types': 7.24.6
       '@types/babel__core': 7.20.5
       '@types/babel__traverse': 7.18.5
     dev: true
@@ -8274,7 +8287,7 @@ packages:
     dependencies:
       basic-ftp: 5.0.5
       data-uri-to-buffer: 6.0.2
-      debug: 4.3.4
+      debug: 4.3.5
       fs-extra: 11.2.0
     transitivePeerDependencies:
       - supports-color
@@ -8776,7 +8789,7 @@ packages:
     engines: {node: '>= 14'}
     dependencies:
       agent-base: 7.1.1
-      debug: 4.3.4
+      debug: 4.3.5
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -8830,7 +8843,7 @@ packages:
     engines: {node: '>= 14'}
     dependencies:
       agent-base: 7.1.1
-      debug: 4.3.4
+      debug: 4.3.5
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -10383,7 +10396,7 @@ packages:
       content-disposition: 0.5.4
       content-type: 1.0.5
       cookies: 0.9.1
-      debug: 4.3.4
+      debug: 4.3.5
       delegates: 1.0.0
       depd: 2.0.0
       destroy: 1.2.0
@@ -10391,7 +10404,7 @@ packages:
       escape-html: 1.0.3
       fresh: 0.5.2
       http-assert: 1.5.0
-      http-errors: 1.6.3
+      http-errors: 1.8.1
       is-generator-function: 1.0.10
       koa-compose: 4.1.0
       koa-convert: 2.0.0
@@ -11148,7 +11161,7 @@ packages:
     resolution: {integrity: sha512-o/sd0nMof8kYff+TqcDx3VSrgBTcZpSvYcAHIfHhv5VAuNmisCxjhx6YmxS8PFEpb9z5WKWKPdzf0jM23ro3RQ==}
     dependencies:
       '@types/debug': 4.1.12
-      debug: 4.3.4
+      debug: 4.3.5
       decode-named-character-reference: 1.0.2
       devlop: 1.1.0
       micromark-core-commonmark: 2.0.0
@@ -11826,7 +11839,7 @@ packages:
     dependencies:
       '@tootallnate/quickjs-emscripten': 0.23.0
       agent-base: 7.1.1
-      debug: 4.3.4
+      debug: 4.3.5
       get-uri: 6.0.3
       http-proxy-agent: 7.0.2
       https-proxy-agent: 7.0.4
@@ -12469,7 +12482,7 @@ packages:
     engines: {node: '>= 14'}
     dependencies:
       agent-base: 7.1.1
-      debug: 4.3.4
+      debug: 4.3.5
       http-proxy-agent: 7.0.2
       https-proxy-agent: 7.0.4
       lru-cache: 7.18.3
@@ -12881,7 +12894,7 @@ packages:
     resolution: {integrity: sha512-efCx3b+0Z69/LGJmm9Yvi4cqEdxnoGnxYxGxBghkkTTFeXRtTCmmhO0AnAfHz59k957uTSuy8WaHqOs8wbYUWg==}
     engines: {node: '>=6'}
     dependencies:
-      debug: 4.3.4
+      debug: 4.3.5
       module-details-from-path: 1.0.3
       resolve: 1.22.2
     transitivePeerDependencies:
@@ -13399,7 +13412,7 @@ packages:
     engines: {node: '>= 14'}
     dependencies:
       agent-base: 7.1.1
-      debug: 4.3.4
+      debug: 4.3.5
       socks: 2.8.1
     transitivePeerDependencies:
       - supports-color
@@ -14581,7 +14594,7 @@ packages:
       vite:
         optional: true
     dependencies:
-      debug: 4.3.4
+      debug: 4.3.5
       globrex: 0.1.2
       tsconfck: 3.0.3(typescript@5.3.3)
       vite: 5.1.5(@types/node@18.7.13)

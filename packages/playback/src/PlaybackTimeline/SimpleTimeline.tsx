@@ -2,7 +2,12 @@ import { Analytics } from '@repro/analytics'
 import { formatTime } from '@repro/date-utils'
 import { colors } from '@repro/design'
 import { Block, Row } from 'jsxstyle'
-import React, { MutableRefObject, useEffect, useRef } from 'react'
+import React, {
+  MutableRefObject,
+  PropsWithChildren,
+  useEffect,
+  useRef,
+} from 'react'
 import { NEVER, Observable, Subscription, combineLatest, fromEvent } from 'rxjs'
 import {
   distinctUntilChanged,
@@ -21,7 +26,11 @@ export interface Props {
   max?: number
 }
 
-export const SimpleTimeline: React.FC<Props> = ({ min, max }) => {
+export const SimpleTimeline: React.FC<PropsWithChildren<Props>> = ({
+  children,
+  min,
+  max,
+}) => {
   const progressRef = useRef() as MutableRefObject<HTMLDivElement>
   const elapsedTimeRef = useRef() as MutableRefObject<HTMLDivElement>
   const playback = usePlayback()
@@ -222,14 +231,27 @@ export const SimpleTimeline: React.FC<Props> = ({ min, max }) => {
     <Row alignItems="center" height="100%" gap={8}>
       <PlayAction />
 
-      <Block
-        position="relative"
-        width="100%"
-        height={8}
-        hoverHeight={12}
-        transition="height 100ms linear"
-        props={{ ref: progressRef }}
-      />
+      <Row alignItems="center" height="100%" width="100%" position="relative">
+        <Block
+          position="relative"
+          width="100%"
+          height={8}
+          hoverHeight={12}
+          transition="height 100ms linear"
+          props={{ ref: progressRef }}
+        />
+
+        <Block
+          position="absolute"
+          top={0}
+          left={0}
+          right={0}
+          height="100%"
+          pointerEvents="none"
+        >
+          {children}
+        </Block>
+      </Row>
 
       <Row
         gap={3}
@@ -364,6 +386,7 @@ function createTooltipElement() {
     ['position', 'absolute'],
     ['top', '0'],
     ['transform', 'translate(-50%, -125%)'],
+    ['userSelect', 'none'],
     ['zIndex', `${2 ** 32 - 1}`],
   ] as const
 
