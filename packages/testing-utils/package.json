@@ -8,7 +8,10 @@
     "typecheck": "tsc --noEmit"
   },
   "license": "UNLICENSED",
-  "dependencies": {},
+  "dependencies": {
+    "@repro/domain": "workspace:*",
+    "@repro/recording": "workspace:*"
+  },
   "devDependencies": {
     "@types/jest": "^28.1.7",
     "@types/node": "^18.6.2",
