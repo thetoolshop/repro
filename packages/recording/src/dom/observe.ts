@@ -267,17 +267,34 @@ export function internal__processMutationRecords(
 
       case 'childList':
         // TODO: optimization - handle moving nodes without destroying vnode
-        const removedVTrees = Array.from(record.removedNodes)
-          .filter(node => !isIgnoredBySelector(node, options.ignoredSelectors))
-          .filter(node => !isIgnoredByNode(node, options.ignoredNodes))
-          .map(node => walkDOMTree(node))
-          .filter(vtree => vtree !== null) as Array<VTree>
 
-        const addedVTrees = Array.from(record.addedNodes)
-          .filter(node => !isIgnoredBySelector(node, options.ignoredSelectors))
-          .filter(node => !isIgnoredByNode(node, options.ignoredNodes))
-          .map(node => walkDOMTree(node))
-          .filter(vtree => vtree !== null) as Array<VTree>
+        const removedVTrees: Array<VTree> = []
+        record.removedNodes.forEach(node => {
+          if (
+            !isIgnoredBySelector(node, options.ignoredSelectors) &&
+            !isIgnoredByNode(node, options.ignoredNodes)
+          ) {
+            const vtree = walkDOMTree(node)
+
+            if (vtree != null) {
+              removedVTrees.push(vtree)
+            }
+          }
+        })
+
+        const addedVTrees: Array<VTree> = []
+        record.addedNodes.forEach(node => {
+          if (
+            !isIgnoredBySelector(node, options.ignoredSelectors) &&
+            !isIgnoredByNode(node, options.ignoredNodes)
+          ) {
+            const vtree = walkDOMTree(node)
+
+            if (vtree != null) {
+              addedVTrees.push(vtree)
+            }
+          }
+        })
 
         let previousSibling = record.previousSibling
 
