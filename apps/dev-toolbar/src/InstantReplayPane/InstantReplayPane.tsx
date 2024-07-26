@@ -1,18 +1,14 @@
 import { Button, colors } from '@repro/design'
-import {
-  PlaybackCanvas,
-  PlaybackProvider,
-  RangeTimeline,
-  createSourcePlayback,
-} from '@repro/playback'
+import { DevTools } from '@repro/devtools'
+import { PlaybackProvider, createSourcePlayback } from '@repro/playback'
 import { randomString } from '@repro/random-string'
 import { useRecordingStream } from '@repro/recording'
 import { packList } from '@repro/std/src/list-utils'
 import { Block, Row } from 'jsxstyle'
-import { CheckCheckIcon, DownloadIcon } from 'lucide-react'
+import { DownloadIcon, HistoryIcon } from 'lucide-react'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
-export const SaveRecordingPane: React.FC = () => {
+export const InstantReplayPane: React.FC = () => {
   const stream = useRecordingStream()
 
   const playback = useMemo(
@@ -72,10 +68,10 @@ export const SaveRecordingPane: React.FC = () => {
           borderWidth="0 0 1px"
           pointerEvents="auto"
         >
-          <DownloadIcon size={24} color={colors.slate['700']} />
+          <HistoryIcon size={24} color={colors.slate['700']} />
 
           <Block color={colors.slate['700']} fontSize={16}>
-            Save Recording
+            Instant Replay
           </Block>
 
           <Block marginLeft="auto">
@@ -85,7 +81,7 @@ export const SaveRecordingPane: React.FC = () => {
               rounded={false}
               onClick={onSave}
             >
-              <CheckCheckIcon size={16} />
+              <DownloadIcon size={16} />
               <Block>Save</Block>
             </Button>
           </Block>
@@ -93,20 +89,11 @@ export const SaveRecordingPane: React.FC = () => {
 
         <Block
           width="calc(100vw - 40px)"
-          height="80vh"
+          height="85vh"
           borderRadius={4}
           overflow="hidden"
         >
-          <PlaybackCanvas
-            interactive={false}
-            trackPointer={true}
-            trackScroll={true}
-            scaling="scale-to-fit"
-          />
-        </Block>
-
-        <Block padding={10}>
-          <RangeTimeline onChange={onUpdateRange} />
+          <DevTools />
         </Block>
       </Block>
     </PlaybackProvider>

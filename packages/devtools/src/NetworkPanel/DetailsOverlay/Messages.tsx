@@ -11,15 +11,15 @@ import { ElapsedMarker } from '@repro/playback'
 import { Block, Grid, Inline, Row } from 'jsxstyle'
 import { JsxstyleProps } from 'jsxstyle/lib/types'
 import {
+  X as CloseIcon,
   ChevronsDown as InboundIcon,
   ChevronsUp as OutboundIcon,
-  X as CloseIcon,
 } from 'lucide-react'
 import prettyBytes from 'pretty-bytes'
 import React, { PropsWithChildren, useState } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList, ListChildComponentProps } from 'react-window'
-import { SeekAction } from '../../../SeekAction'
+import { SeekAction } from '../../SeekAction'
 import { WebSocketGroup } from '../types'
 
 interface Props {

@@ -4,7 +4,7 @@ import { useSnapshot } from '@repro/playback'
 import { isDocumentVNode, isElementVNode } from '@repro/vdom-utils'
 import { Block, Grid } from 'jsxstyle'
 import React, { PropsWithChildren, useEffect, useState } from 'react'
-import { useFocusedNode, usePicker, useSelectedNode } from '../../hooks'
+import { useElementPicker, useFocusedNode, useSelectedNode } from '../hooks'
 import { SelectedNodeComputedStyle } from './SelectedNodeComputedStyle'
 
 export const ElementsPanel: React.FC = () => {
@@ -25,7 +25,7 @@ const Container: React.FC<PropsWithChildren> = ({ children }) => (
 const MainPane: React.FC = React.memo(() => {
   const [focusedNode, setFocusedNode] = useFocusedNode()
   const [selectedNode, setSelectedNode] = useSelectedNode()
-  const [picker] = usePicker()
+  const [picker] = useElementPicker()
   const snapshot = useSnapshot()
 
   useEffect(() => {

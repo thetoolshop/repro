@@ -1,8 +1,8 @@
 import { colors } from '@repro/design'
+import { useDevToolsView } from '@repro/devtools'
 import { ConsoleEvent, LogLevel, MessagePartType } from '@repro/domain'
 import { AlertCircle, AlertTriangle } from 'lucide-react'
 import React from 'react'
-import { useView } from '../../hooks'
 import { View } from '../../types'
 import { BaseEntry } from './BaseEntry'
 
@@ -26,7 +26,7 @@ const icons = {
 }
 
 export const ConsoleEntry: React.FC<Props> = ({ eventIndex, event }) => {
-  const [, setView] = useView()
+  const [, setView] = useDevToolsView()
   const level = event.data.level
   const firstPart = event.data.parts[0]
 

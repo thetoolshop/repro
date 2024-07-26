@@ -4,42 +4,38 @@ import { colors } from '@repro/design'
 import { PlaybackCanvas } from '@repro/playback'
 import { Block, Grid } from 'jsxstyle'
 import React, { PropsWithChildren, useEffect } from 'react'
-import { useParams } from 'react-router'
-import { MAX_INT32 } from '../constants'
-import {
-  useCurrentDocument,
-  useInspecting,
-  useMask,
-  useNodeMap,
-  usePicker,
-  useSize,
-  useView,
-} from '../hooks'
-import { View } from '../types'
 import { ConsolePanel } from './ConsolePanel'
 import { DragHandle } from './DragHandle'
 import { ElementsPanel } from './ElementsPanel'
 import { NetworkPanel } from './NetworkPanel'
 import { PickerOverlay } from './PickerOverlay'
 import { Toolbar } from './Toolbar'
+import { MAX_INT32 } from './constants'
+import {
+  useCurrentDocument,
+  useDevToolsView,
+  useElementPicker,
+  useInspecting,
+  useMask,
+  useNodeMap,
+  useSize,
+} from './hooks'
+import { View } from './types'
 
 interface Props {
   disableExport?: boolean
   disableToggle?: boolean
   hideLogo?: boolean
+  resourceBaseURL?: string
 }
 
-export const DevTools: React.FC<Props> = React.memo(() => {
+export const DevTools: React.FC<Props> = React.memo(props => {
   const [, setCurrentDocument] = useCurrentDocument()
   const [, setNodeMap] = useNodeMap()
   const [inspecting] = useInspecting()
-  const [picker] = usePicker()
+  const [picker] = useElementPicker()
   const [mask] = useMask()
-  const [view] = useView()
-  const { recordingId } = useParams()
-  const resourceBaseURL = recordingId
-    ? `${process.env.REPRO_API_URL}/recordings/${recordingId}/resources/`
-    : undefined
+  const [view] = useDevToolsView()
 
   useEffect(() => {
     if (inspecting) {
@@ -62,7 +58,7 @@ export const DevTools: React.FC<Props> = React.memo(() => {
             trackPointer={true}
             trackScroll={true}
             scaling="scale-to-fit"
-            resourceBaseURL={resourceBaseURL}
+            resourceBaseURL={props.resourceBaseURL}
             onDocumentReady={setCurrentDocument}
             onLoad={setNodeMap}
           >

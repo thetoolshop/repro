@@ -1,7 +1,7 @@
 import React from 'react'
 import { EventLogPane } from './EventLogPane'
+import { InstantReplayPane } from './InstantReplayPane'
 import { PlaybackPane } from './PlaybackPane'
-import { SaveRecordingPane } from './SaveRecordingPane'
 import { useVisiblePane } from './hooks'
 import { Pane } from './types'
 
@@ -14,7 +14,7 @@ export const VisiblePane: React.FC = () => {
     case Pane.Playback:
       return <PlaybackPane />
     case Pane.SaveRecording:
-      return <SaveRecordingPane />
+      return <InstantReplayPane />
     default:
       return null
   }

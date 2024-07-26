@@ -1,16 +1,26 @@
 import { logger } from '@repro/logger'
 
+export enum StatsLevel {
+  Log = 0,
+  Debug = 1,
+}
+
 let enabled = false
+let statsLevel: StatsLevel = StatsLevel.Log
 
 type FactoryOrValue<T> = T | (() => T)
 
 interface SampleRecord {
+  min: number
+  max: number
   total: number
   entries: number
 }
 
 function createEmptySampleRecord(): SampleRecord {
   return {
+    min: Infinity,
+    max: -Infinity,
     total: 0,
     entries: 0,
   }
@@ -23,10 +33,11 @@ const samples: Record<string, SampleRecord> = {}
 function awaitSample() {
   requestIdleCallback(() => {
     for (const [label, record] of Object.entries(samples)) {
-      emit(
-        `(sample [${record.entries}]) ${label}`,
-        record.total / record.entries
-      )
+      emit(`(sample [${record.entries}]) ${label}`, [
+        record.min,
+        record.total / record.entries,
+        record.max,
+      ])
       delete samples[label]
     }
 
@@ -49,15 +60,19 @@ export const Stats = {
     enabled = false
   },
 
-  value(label: string, value: FactoryOrValue<number>) {
-    if (enabled) {
+  setLevel(level: StatsLevel) {
+    statsLevel = level
+  },
+
+  value(label: string, value: FactoryOrValue<number>, level = StatsLevel.Log) {
+    if (enabled && level <= statsLevel) {
       emit(`(value) ${label}`, typeof value === 'function' ? value() : value)
     }
   },
 
-  mean(label: string, value: FactoryOrValue<number>) {
-    if (enabled) {
-      label = `(mean) ${label}`
+  sample(label: string, value: FactoryOrValue<number>, level = StatsLevel.Log) {
+    if (enabled && level < statsLevel) {
+      label = `(sample) ${label}`
       let record = samples[label]
 
       if (!record) {
@@ -65,7 +80,17 @@ export const Stats = {
         samples[label] = record
       }
 
-      record.total += typeof value === 'function' ? value() : value
+      const entry = typeof value === 'function' ? value() : value
+
+      if (entry < record.min) {
+        record.min = entry
+      }
+
+      if (entry > record.max) {
+        record.max = entry
+      }
+
+      record.total += entry
       record.entries += 1
 
       if (!sampling) {
@@ -75,14 +100,33 @@ export const Stats = {
     }
   },
 
-  time<T extends AnyFunction>(label: string, fn: T): ReturnType<T> {
-    if (!enabled) {
+  time<T extends AnyFunction>(
+    label: string,
+    fn: T,
+    level = StatsLevel.Log
+  ): ReturnType<T> {
+    if (!enabled || level > statsLevel) {
       return fn()
     }
 
     const start = performance.now()
     const result = fn()
     emit(`(time) ${label}`, performance.now() - start)
+    return result
+  },
+
+  timeMean<T extends AnyFunction>(
+    label: string,
+    fn: T,
+    level = StatsLevel.Log
+  ): ReturnType<T> {
+    if (!enabled || level > statsLevel) {
+      return fn()
+    }
+
+    const start = performance.now()
+    const result = fn()
+    this.sample(label, performance.now() - start)
     return result
   },
 }

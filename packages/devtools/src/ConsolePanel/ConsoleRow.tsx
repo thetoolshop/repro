@@ -4,7 +4,7 @@ import { ConsoleEvent, LogLevel, StackEntry } from '@repro/domain'
 import { Block, Grid, InlineBlock, Row } from 'jsxstyle'
 import { AlertCircle, AlertTriangle } from 'lucide-react'
 import React from 'react'
-import { SeekAction } from '../../SeekAction'
+import { SeekAction } from '../SeekAction'
 import { PartRenderer } from './PartRenderer'
 
 const bgColors = {

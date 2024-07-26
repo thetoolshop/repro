@@ -17,7 +17,8 @@ function addPageScript() {
       scriptElement.onerror = reject
       scriptElement.onload = resolve
 
-      document.head.appendChild(scriptElement)
+      const parent = document.documentElement
+      parent.insertBefore(scriptElement, parent.firstChild)
     }
 
     return () => {}

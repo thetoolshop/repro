@@ -1,5 +1,5 @@
 import { createAtom } from '@repro/atom'
-import { Stats } from '@repro/diagnostics'
+import { Stats, StatsLevel } from '@repro/diagnostics'
 import {
   Snapshot,
   SnapshotEvent,
@@ -115,35 +115,39 @@ export function createSourcePlayback(
 
     const eventsAfter = events.slice()
 
-    Stats.time('RecordingPlayback~partitionEvents: total', () => {
-      const unresolvedSampleEvents: Array<SourceEvent> = []
+    Stats.time(
+      'RecordingPlayback~partitionEvents: total',
+      () => {
+        const unresolvedSampleEvents: Array<SourceEvent> = []
 
-      let view: DataView | null
-      let i = 0
+        let view: DataView | null
+        let i = 0
 
-      while ((view = eventsAfter.at(0))) {
-        const lens = SourceEventView.over(view)
+        while ((view = eventsAfter.at(0))) {
+          const lens = SourceEventView.over(view)
 
-        if (shouldPartition(lens, i)) {
-          break
+          if (shouldPartition(lens, i)) {
+            break
+          }
+
+          eventsBefore.append(lens)
+
+          if (
+            'data' in lens &&
+            isSample(lens.data) &&
+            isUnresolvedSample(lens.data, lens.time)
+          ) {
+            unresolvedSampleEvents.push(lens)
+          }
+
+          eventsAfter.delete(0)
+          i++
         }
 
-        eventsBefore.append(lens)
-
-        if (
-          'data' in lens &&
-          isSample(lens.data) &&
-          isUnresolvedSample(lens.data, lens.time)
-        ) {
-          unresolvedSampleEvents.push(lens)
-        }
-
-        eventsAfter.delete(0)
-        i++
-      }
-
-      eventsAfter.prepend(...unresolvedSampleEvents)
-    })
+        eventsAfter.prepend(...unresolvedSampleEvents)
+      },
+      StatsLevel.Debug
+    )
 
     return [eventsBefore, eventsAfter] as const
   }

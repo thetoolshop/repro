@@ -2,10 +2,10 @@ import { colors } from '@repro/design'
 import { Row } from 'jsxstyle'
 import { Inspect as PickerIcon } from 'lucide-react'
 import React, { useCallback } from 'react'
-import { usePicker } from '../../hooks'
+import { useElementPicker } from '../hooks'
 
 export const Picker: React.FC = () => {
-  const [picker, setPicker] = usePicker()
+  const [picker, setPicker] = useElementPicker()
 
   const togglePicker = useCallback(() => {
     setPicker(picker => !picker)

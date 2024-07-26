@@ -1,6 +1,6 @@
 import { Atom, createAtom } from '@repro/atom'
 import { Unsubscribe, createBuffer } from '@repro/buffer-utils'
-import { Stats } from '@repro/diagnostics'
+import { Stats, StatsLevel } from '@repro/diagnostics'
 import {
   ConsoleEvent,
   ConsoleMessage,
@@ -340,7 +340,14 @@ export function createRecordingStream(
   }
 
   function addEvent(event: SourceEvent) {
-    const data = SourceEventView.encode(event)
+    const data = Stats.timeMean(
+      'RecordingStream#addEvent: encode',
+      () => {
+        return SourceEventView.encode(event)
+      },
+      StatsLevel.Debug
+    )
+
     eventBuffer.push(data)
   }
 

@@ -2,17 +2,17 @@ import { colors } from '@repro/design'
 import { isIFrameElement } from '@repro/dom-utils'
 import { Block } from 'jsxstyle'
 import React, { MutableRefObject, useEffect, useRef, useState } from 'react'
-import { fromEvent, Subscription } from 'rxjs'
+import { Subscription, fromEvent } from 'rxjs'
 import { distinctUntilChanged, map, share } from 'rxjs/operators'
-import { MAX_INT32 } from '../../constants'
+import { MAX_INT32 } from '../constants'
 import {
   useCurrentDocument,
+  useDevToolsView,
+  useElementPicker,
   useFocusedNode,
-  usePicker,
   useSelectedNode,
-  useView,
-} from '../../hooks'
-import { View } from '../../types'
+} from '../hooks'
+import { View } from '../types'
 
 function getTargetElementAtPoint(
   boundingBox: DOMRect,
@@ -48,11 +48,11 @@ function getTargetElementAtPoint(
 }
 
 export const PickerOverlay: React.FC = React.memo(() => {
-  const [picker, setPicker] = usePicker()
+  const [picker, setPicker] = useElementPicker()
   const [currentDocument] = useCurrentDocument()
   const [focusedNode, setFocusedNode] = useFocusedNode()
   const [, setSelectedNode] = useSelectedNode()
-  const [, setView] = useView()
+  const [, setView] = useDevToolsView()
   const [targetElement, setTargetElement] = useState<Element | null>(null)
   const [boundingBox, setBoundingBox] = useState<DOMRect | null>(null)
   const ref = useRef() as MutableRefObject<HTMLDivElement>

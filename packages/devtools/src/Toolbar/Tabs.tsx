@@ -6,8 +6,8 @@ import {
   Globe as NetworkIcon,
 } from 'lucide-react'
 import React, { PropsWithChildren } from 'react'
-import { useView } from '../../hooks'
-import { View } from '../../types'
+import { useDevToolsView } from '../hooks'
+import { View } from '../types'
 
 export const Tabs: React.FC = () => {
   return (
@@ -40,7 +40,7 @@ const Item: React.FC<PropsWithChildren<ItemProps>> = ({
   disabled,
   view,
 }) => {
-  const [activeView, setActiveView] = useView()
+  const [activeView, setActiveView] = useDevToolsView()
 
   const handleClick = () => {
     if (!disabled) {

@@ -17,8 +17,8 @@ import React, {
   useRef,
 } from 'react'
 import { filter } from 'rxjs'
-import { useConsoleLevelFilter, useConsoleSearch } from '../../hooks'
-import { pairwise } from '../../utils'
+import { useConsoleLevelFilter, useConsoleSearch } from '../hooks'
+import { pairwise } from '../utils'
 import { ConsoleRow } from './ConsoleRow'
 import { LevelFilter } from './LevelFilter'
 import { SearchForm } from './SearchForm'

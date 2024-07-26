@@ -3,7 +3,7 @@ import { Button, colors, Logo, Toggle } from '@repro/design'
 import { useRecordingStream } from '@repro/recording'
 import { Block, Row } from 'jsxstyle'
 import {
-  DownloadIcon,
+  HistoryIcon,
   PictureInPictureIcon,
   TablePropertiesIcon,
 } from 'lucide-react'
@@ -25,7 +25,7 @@ export const Toolbar: React.FC = () => {
     }
   }
 
-  function openSavePreview() {
+  function openInstantReplay() {
     setVisiblePane(pane =>
       pane !== Pane.SaveRecording ? Pane.SaveRecording : null
     )
@@ -75,11 +75,11 @@ export const Toolbar: React.FC = () => {
           context="neutral"
           size="small"
           rounded={false}
-          onClick={openSavePreview}
+          onClick={openInstantReplay}
           disabled={!isRecording}
         >
-          <DownloadIcon size={16} />
-          <Block>Save Recording</Block>
+          <HistoryIcon size={16} />
+          <Block>Instant Replay</Block>
         </Button>
 
         <Button

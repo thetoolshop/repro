@@ -6,7 +6,7 @@ import { JsxstyleProps } from 'jsxstyle/lib/types'
 import prettyBytes from 'pretty-bytes'
 import prettyMilliseconds from 'pretty-ms'
 import React, { PropsWithChildren, useState } from 'react'
-import { SeekAction } from '../../SeekAction'
+import { SeekAction } from '../SeekAction'
 import { FetchGroup, WebSocketGroup } from './types'
 
 interface Props {

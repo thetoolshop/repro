@@ -62,10 +62,8 @@ chrome.tabs.onActivated.addListener(({ tabId }) => {
 chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
   const actionState = syncActionState()
 
-  const tab = resolve<boolean>(changeInfo.status === 'complete').pipe(
-    chain(isComplete =>
-      isComplete ? syncTab(tabId) : resolve<void>(undefined)
-    )
+  const tab = resolve<boolean>(changeInfo.status === 'loading').pipe(
+    chain(isReady => (isReady ? syncTab(tabId) : resolve<void>(undefined)))
   )
 
   return run(actionState.pipe(and(tab)), () => {
