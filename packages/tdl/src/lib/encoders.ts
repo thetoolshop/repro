@@ -10,17 +10,17 @@ import {
   MapDescriptor,
   StringDescriptor,
   StructDescriptor,
-  UnionDescriptor,
   UUIDDescriptor,
+  UnionDescriptor,
   VectorDescriptor,
 } from './descriptors'
 import {
+  PointerRef,
   createDataView,
   createPointerRef,
   ensureUnreachable,
   getByteLength,
   getDataByteLength,
-  PointerRef,
 } from './utils'
 
 export function encodeInteger(

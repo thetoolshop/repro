@@ -43,6 +43,10 @@ export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
     return Infinity
   }
 
+  function getEventIndexAtTime() {
+    return null
+  }
+
   function getEventTimeAtIndex() {
     return null
   }
@@ -153,6 +157,7 @@ export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
     getBuffer,
     getDuration,
     getElapsed,
+    getEventIndexAtTime,
     getEventTimeAtIndex,
     getEventTypeAtIndex,
     getLatestControlFrame,

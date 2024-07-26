@@ -1,0 +1,58 @@
+name: Run tests
+
+on:
+  workflow_call:
+    secrets:
+      SAUCE_ACCESS_KEY:
+        required: true
+
+  pull_request:
+    paths-ignore:
+      - '.changeset/**'
+
+  schedule:
+    # run every day at midnight UTC
+    - cron: '0 0 * * *'
+
+jobs:
+  run-jest:
+    name: Run jest tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+
+      - name: Use Node 18
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          cache: 'npm'
+
+      - run: npm install
+      - run: npm test
+
+  run-karma:
+    name: Run karma tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+
+      - name: Use Node 18
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          cache: 'npm'
+
+      - run: npm install
+      - run: npm run build
+      - run: npm run karma
+        env:
+          CI: true
+          TZ: 'America/Los_Angeles'
+          SAUCE_USERNAME: jsxstyle
+          SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}

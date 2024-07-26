@@ -1,5 +1,6 @@
 import { useApiClient } from '@repro/api-client'
 import { Card } from '@repro/design'
+import { DevTools } from '@repro/devtools'
 import { RecordingInfo } from '@repro/domain'
 import { useFuture } from '@repro/future-utils'
 import {
@@ -10,7 +11,6 @@ import {
 import { Block, Grid } from 'jsxstyle'
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { DevTools } from './DevTools'
 import { Loading } from './Loading'
 import { RecordingError } from './RecordingError'
 import { Sidebar } from './Sidebar'
@@ -19,6 +19,10 @@ export const RecordingRoute: React.FC = () => {
   const params = useParams<'recordingId'>()
   const recordingId = params.recordingId
   const apiClient = useApiClient()
+
+  const resourceBaseURL = recordingId
+    ? `${process.env.REPRO_API_URL}/recordings/${recordingId}/resources/`
+    : undefined
 
   const {
     loading,
@@ -68,7 +72,7 @@ export const RecordingRoute: React.FC = () => {
 
         <Card fullBleed height="100%">
           <Block height="100%" overflow="hidden" borderRadius={4}>
-            <DevTools />
+            <DevTools resourceBaseURL={resourceBaseURL} />
           </Block>
         </Card>
       </Grid>

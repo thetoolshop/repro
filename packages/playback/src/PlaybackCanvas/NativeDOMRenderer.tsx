@@ -1,7 +1,6 @@
 import { Stats } from '@repro/diagnostics'
 import {
   isBodyElement,
-  isCustomElement,
   isElementNode,
   isHTMLElement,
   isTextNode,
@@ -29,7 +28,7 @@ import {
   isTextVNode,
 } from '@repro/vdom-utils'
 import React, { useEffect, useMemo } from 'react'
-import { asapScheduler, from, Subscription } from 'rxjs'
+import { Subscription, asapScheduler, from } from 'rxjs'
 import {
   distinctUntilChanged,
   filter,
@@ -99,6 +98,7 @@ export const NativeDOMRenderer: React.FC<Props> = ({
                   () => {
                     return createDOMFromVTree(
                       vtree,
+                      ownerDocument,
                       nodeMap,
                       pageURL,
                       resourceBaseURL || '',
@@ -173,13 +173,16 @@ export const NativeDOMRenderer: React.FC<Props> = ({
             case SourceEventType.DOMPatch:
               const snapshot = playback.getSnapshot()
               const pageURL = snapshot.interaction?.pageURL ?? ''
-              applyDOMPatchEvent(
-                event,
-                nodeMap,
-                pageURL,
-                resourceBaseURL || '',
-                invertedResourceMap
-              )
+              if (ownerDocument) {
+                applyDOMPatchEvent(
+                  event,
+                  ownerDocument,
+                  nodeMap,
+                  pageURL,
+                  resourceBaseURL || '',
+                  invertedResourceMap
+                )
+              }
               break
 
             case SourceEventType.Interaction:
@@ -261,6 +264,7 @@ function updateScroll(node: Node, x: number, y: number) {
 
 function applyDOMPatchEvent(
   event: DOMPatchEvent,
+  doc: Document,
   nodeMap: MutableNodeMap,
   currentPageURL: string,
   resourceBaseURL: string,
@@ -363,6 +367,7 @@ function applyDOMPatchEvent(
             .map(vtree =>
               createDOMFromVTree(
                 vtree,
+                doc,
                 nodeMap,
                 currentPageURL,
                 resourceBaseURL,
@@ -378,7 +383,7 @@ function applyDOMPatchEvent(
 
                 return [fragment, nodeMap]
               },
-              [document.createDocumentFragment(), {}]
+              [doc.createDocumentFragment(), {}]
             )
 
           if (!fragment) {
@@ -473,6 +478,7 @@ function applyInteractionEvent(
 
 function createDOMFromVTree(
   vtree: VTree,
+  doc: Document,
   rootNodeMap: MutableNodeMap,
   currentPageURL: string,
   resourceBaseURL: string,
@@ -498,7 +504,7 @@ function createDOMFromVTree(
       )
 
       // TODO: investigate why web component slots have duplicate renders
-      return document.createDocumentFragment()
+      return doc.createDocumentFragment()
     }
 
     if (!vNode) {
@@ -524,11 +530,11 @@ function createDOMFromVTree(
         )
       }
 
-      node = document.createTextNode(value)
+      node = doc.createTextNode(value)
     } else if (isDocTypeVNode(vNode)) {
-      node = document.createDocumentFragment()
+      node = doc.createDocumentFragment()
     } else if (isDocumentVNode(vNode) || vNode.tagName === 'html') {
-      const fragment = document.createDocumentFragment()
+      const fragment = doc.createDocumentFragment()
 
       for (const childId of vNode.children) {
         fragment.appendChild(createNode(childId, nodeId, svgContext))
@@ -536,7 +542,7 @@ function createDOMFromVTree(
 
       node = fragment
     } else if (vNode.tagName === 'iframe') {
-      const frame = document.createElement('iframe')
+      const frame = doc.createElement('iframe')
 
       for (const [name, value] of Object.entries(vNode.attributes)) {
         if (isValidAttributeName(name)) {
@@ -544,7 +550,7 @@ function createDOMFromVTree(
         }
       }
 
-      const fragment = document.createDocumentFragment()
+      const fragment = doc.createDocumentFragment()
 
       for (const childId of vNode.children) {
         fragment.appendChild(createNode(childId, nodeId, svgContext))
@@ -560,7 +566,7 @@ function createDOMFromVTree(
             doc.write('<!doctype html>')
             doc.close()
 
-            const root = document.createElement('html')
+            const root = doc.createElement('html')
             doc.documentElement.remove()
             doc.appendChild(root)
             root.appendChild(fragment)
@@ -575,11 +581,11 @@ function createDOMFromVTree(
         svgContext = true
       }
 
-      let tagName = isCustomElement(vNode.tagName) ? 'div' : vNode.tagName
+      let tagName = vNode.tagName
 
       const element = svgContext
-        ? document.createElementNS('http://www.w3.org/2000/svg', tagName)
-        : document.createElement(tagName)
+        ? doc.createElementNS('http://www.w3.org/2000/svg', tagName)
+        : doc.createElement(tagName)
 
       if (vNode.tagName === 'foreignObject') {
         svgContext = false

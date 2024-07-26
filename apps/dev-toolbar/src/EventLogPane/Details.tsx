@@ -1,14 +1,13 @@
 import { formatTime } from '@repro/date-utils'
 import { Button, colors, JSONView } from '@repro/design'
-import { SourceEventType, SourceEventView } from '@repro/domain'
+import { SourceEventType } from '@repro/domain'
 import {
   createSourcePlayback,
   EMPTY_PLAYBACK,
   PlaybackCanvas,
   PlaybackProvider,
-  usePlayback,
 } from '@repro/playback'
-import { LazyList } from '@repro/std'
+import { useRecordingStream } from '@repro/recording'
 import { approxByteLength } from '@repro/tdl'
 import { Block, Grid, Row } from 'jsxstyle'
 import { CopyIcon } from 'lucide-react'
@@ -17,24 +16,16 @@ import React, { useEffect, useState } from 'react'
 import { useSelectedEvent } from '~/hooks'
 
 export const Details: React.FC = () => {
-  const livePlayback = usePlayback()
+  const stream = useRecordingStream()
   const [playback, setPlayback] = useState(EMPTY_PLAYBACK)
   const [selectedEvent] = useSelectedEvent()
 
   useEffect(() => {
     if (selectedEvent) {
-      const sourcePlayback = createSourcePlayback(
-        new LazyList(
-          livePlayback.getSourceEvents().toSource(),
-          SourceEventView.decode,
-          SourceEventView.encode
-        ),
-        {}
-      )
-
+      const sourcePlayback = createSourcePlayback(stream.slice(), {})
       setPlayback(sourcePlayback)
     }
-  }, [livePlayback, selectedEvent, setPlayback])
+  }, [stream, selectedEvent, setPlayback])
 
   function copySnapshot() {
     navigator.clipboard.writeText(

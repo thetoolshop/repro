@@ -1,3 +1,4 @@
+import { Stats, StatsLevel } from '@repro/diagnostics'
 import {
   isInputElement,
   isSelectElement,
@@ -12,7 +13,7 @@ import {
   VText,
   VTree,
 } from '@repro/domain'
-import { createEventObserver, ObserverLike } from '@repro/observer-utils'
+import { ObserverLike, createEventObserver } from '@repro/observer-utils'
 import { Immutable } from '@repro/ts-utils'
 import { createSyntheticId, getNodeId, isElementVNode } from '@repro/vdom-utils'
 import { RecordingOptions } from '../types'
@@ -227,22 +228,34 @@ export function internal__processMutationRecords(
 
     switch (record.type) {
       case 'attributes':
+        const targetId = getNodeId(record.target)
+
+        if (addedNodes.has(targetId)) {
+          break
+        }
+
         const name = record.attributeName as string
         const attribute = (record.target as Element).attributes.getNamedItem(
           name
         )
 
-        patches.push({
-          type: PatchType.Attribute,
-          targetId: getNodeId(record.target),
-          name,
-          value: attribute ? attribute.value : null,
-          oldValue: record.oldValue,
-        })
+        if (attribute?.value !== record.oldValue) {
+          patches.push({
+            type: PatchType.Attribute,
+            targetId,
+            name,
+            value: attribute ? attribute.value : null,
+            oldValue: record.oldValue,
+          })
+        }
 
         break
 
       case 'characterData':
+        if (addedNodes.has(getNodeId(record.target))) {
+          break
+        }
+
         patches.push({
           type: PatchType.Text,
           targetId: getNodeId(record.target),
@@ -254,17 +267,34 @@ export function internal__processMutationRecords(
 
       case 'childList':
         // TODO: optimization - handle moving nodes without destroying vnode
-        const removedVTrees = Array.from(record.removedNodes)
-          .filter(node => !isIgnoredBySelector(node, options.ignoredSelectors))
-          .filter(node => !isIgnoredByNode(node, options.ignoredNodes))
-          .map(node => walkDOMTree(node))
-          .filter(vtree => vtree !== null) as Array<VTree>
 
-        const addedVTrees = Array.from(record.addedNodes)
-          .filter(node => !isIgnoredBySelector(node, options.ignoredSelectors))
-          .filter(node => !isIgnoredByNode(node, options.ignoredNodes))
-          .map(node => walkDOMTree(node))
-          .filter(vtree => vtree !== null) as Array<VTree>
+        const removedVTrees: Array<VTree> = []
+        record.removedNodes.forEach(node => {
+          if (
+            !isIgnoredBySelector(node, options.ignoredSelectors) &&
+            !isIgnoredByNode(node, options.ignoredNodes)
+          ) {
+            const vtree = walkDOMTree(node)
+
+            if (vtree != null) {
+              removedVTrees.push(vtree)
+            }
+          }
+        })
+
+        const addedVTrees: Array<VTree> = []
+        record.addedNodes.forEach(node => {
+          if (
+            !isIgnoredBySelector(node, options.ignoredSelectors) &&
+            !isIgnoredByNode(node, options.ignoredNodes)
+          ) {
+            const vtree = walkDOMTree(node)
+
+            if (vtree != null) {
+              addedVTrees.push(vtree)
+            }
+          }
+        })
 
         let previousSibling = record.previousSibling
 
@@ -344,7 +374,18 @@ function createMutationObserver(
   subscriber: (patch: DOMPatch) => void
 ): ObserverLike<Document> {
   const domObserver = new MutationObserver(records => {
-    internal__processMutationRecords(records, walkDOMTree, options, subscriber)
+    Stats.time(
+      'DOMObserver~processMutationRecords',
+      () => {
+        internal__processMutationRecords(
+          records,
+          walkDOMTree,
+          options,
+          subscriber
+        )
+      },
+      StatsLevel.Debug
+    )
   })
 
   return {

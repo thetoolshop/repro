@@ -24,6 +24,10 @@ export function isElementNode(node: Node): node is Element {
   return node.nodeType === Node.ELEMENT_NODE
 }
 
+export function isShadowRoot(node: Node) {
+  return isElementNode(node) && node.shadowRoot !== null
+}
+
 export function isHTMLElement(node: Node): node is HTMLElement {
   return node.nodeType === Node.ELEMENT_NODE && 'style' in node
 }

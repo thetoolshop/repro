@@ -2,7 +2,11 @@ import { useAtomValue } from '@repro/atom'
 import { Button, colors, Logo, Toggle } from '@repro/design'
 import { useRecordingStream } from '@repro/recording'
 import { Block, Row } from 'jsxstyle'
-import { PictureInPictureIcon, TablePropertiesIcon } from 'lucide-react'
+import {
+  HistoryIcon,
+  PictureInPictureIcon,
+  TablePropertiesIcon,
+} from 'lucide-react'
 import React from 'react'
 import { useVisiblePane } from '../hooks'
 import { Pane } from '../types'
@@ -19,6 +23,12 @@ export const Toolbar: React.FC = () => {
     } else {
       stream.start()
     }
+  }
+
+  function openInstantReplay() {
+    setVisiblePane(pane =>
+      pane !== Pane.SaveRecording ? Pane.SaveRecording : null
+    )
   }
 
   function openLivePlayback() {
@@ -60,6 +70,17 @@ export const Toolbar: React.FC = () => {
           rounded={false}
           onChange={toggleRecording}
         />
+
+        <Button
+          context="neutral"
+          size="small"
+          rounded={false}
+          onClick={openInstantReplay}
+          disabled={!isRecording}
+        >
+          <HistoryIcon size={16} />
+          <Block>Instant Replay</Block>
+        </Button>
 
         <Button
           context="neutral"

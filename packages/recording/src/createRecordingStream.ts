@@ -1,6 +1,6 @@
 import { Atom, createAtom } from '@repro/atom'
-import { createBuffer, Unsubscribe } from '@repro/buffer-utils'
-import { Stats } from '@repro/diagnostics'
+import { Unsubscribe, createBuffer } from '@repro/buffer-utils'
+import { Stats, StatsLevel } from '@repro/diagnostics'
 import {
   ConsoleEvent,
   ConsoleMessage,
@@ -26,16 +26,16 @@ import {
 } from '@repro/domain'
 import { ObserverLike } from '@repro/observer-utils'
 import { applyEventToSnapshot, createEmptySnapshot } from '@repro/source-utils'
-import { copyObjectDeep, LazyList } from '@repro/std'
+import { LazyList, copyObjectDeep } from '@repro/std'
 import { copy as copyDataView } from '@repro/tdl'
 import { applyVTreePatch, getNodeId } from '@repro/vdom-utils'
 import {
-  concat,
-  defer,
   NEVER,
   Observable,
-  of,
   Subject,
+  concat,
+  defer,
+  of,
   switchMap,
   takeUntil,
 } from 'rxjs'
@@ -87,7 +87,7 @@ export interface RecordingStream {
   $started: Atom<boolean>
   isStarted(): boolean
   peek(nodeId: SyntheticId): VNode | null
-  slice(): Promise<LazyList<SourceEvent>>
+  slice(start?: number, end?: number): LazyList<SourceEvent>
   snapshot(): Snapshot
   tail(signal: Subject<void>): Observable<SourceEvent>
 }
@@ -103,7 +103,7 @@ export const EMPTY_RECORDING_STREAM: RecordingStream = {
   $started: createAtom(false)[0],
   isStarted: () => false,
   peek: () => null,
-  slice: () => Promise.resolve(LazyList.Empty<SourceEvent>()),
+  slice: () => LazyList.Empty<SourceEvent>(),
   snapshot: () => createEmptySnapshot(),
   tail: () => NEVER,
 }
@@ -224,12 +224,12 @@ export function createRecordingStream(
     setStarted(false)
   }
 
-  async function slice(): Promise<LazyList<SourceEvent>> {
+  function slice(start?: number, end?: number): LazyList<SourceEvent> {
     let events: Array<DataView> = []
 
     Stats.time('RecordingStream#slice: total', () => {
       Stats.time('RecordingStream#slice: deep copy event buffer', () => {
-        events = eventBuffer.copy().map(copyDataView)
+        events = eventBuffer.copy().map(copyDataView).slice(start, end)
       })
 
       Stats.time('RecordingStream#slice: sort events by time', () => {
@@ -257,12 +257,37 @@ export function createRecordingStream(
       // If first event is not a snapshot event (i.e. leading snapshot has been
       // evicted), prepend rolling leading snapshot.
       if (!firstEvent || firstEvent.type !== SourceEventType.Snapshot) {
+        let adjustedLeadingSnapshot = copyObjectDeep(leadingSnapshot)
+
+        if (start != null && start !== 0) {
+          Stats.time(
+            'RecordingStream#slice: create adjusted leading snapshot',
+            () => {
+              let before = events.slice(0, start ?? 0)
+
+              Stats.value(
+                'RecordingStream#slice: leading events count',
+                before.length
+              )
+
+              for (const event of before) {
+                const decoded = SourceEventView.decode(event)
+                applyEventToSnapshot(
+                  adjustedLeadingSnapshot,
+                  decoded,
+                  decoded.time
+                )
+              }
+            }
+          )
+        }
+
         Stats.time('RecordingStream#slice: prepend leading snapshot', () => {
           events.unshift(
             SourceEventView.encode({
               time: 0,
               type: SourceEventType.Snapshot,
-              data: leadingSnapshot,
+              data: adjustedLeadingSnapshot,
             })
           )
         })
@@ -315,7 +340,14 @@ export function createRecordingStream(
   }
 
   function addEvent(event: SourceEvent) {
-    const data = SourceEventView.encode(event)
+    const data = Stats.timeMean(
+      'RecordingStream#addEvent: encode',
+      () => {
+        return SourceEventView.encode(event)
+      },
+      StatsLevel.Debug
+    )
+
     eventBuffer.push(data)
   }
 

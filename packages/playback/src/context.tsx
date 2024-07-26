@@ -1,6 +1,6 @@
 import { useAtomValue } from '@repro/atom'
 import React, { PropsWithChildren, useEffect, useState } from 'react'
-import { createSourcePlayback, EMPTY_PLAYBACK } from './createSourcePlayback'
+import { EMPTY_PLAYBACK, createSourcePlayback } from './createSourcePlayback'
 import { Playback, Source } from './types'
 
 export const PlaybackContext = React.createContext<Playback | null>(null)
@@ -8,15 +8,21 @@ export const PlaybackContext = React.createContext<Playback | null>(null)
 interface PlaybackProviderProps {
   playback: Playback | null
   startTime?: number
+  startIndex?: number
 }
 
 export const PlaybackProvider: React.FC<
   PropsWithChildren<PlaybackProviderProps>
-> = ({ children, playback, startTime = 0 }) => {
+> = ({ children, playback, startIndex, startTime = 0 }) => {
   useEffect(() => {
     if (playback) {
       playback.open()
-      playback.seekToTime(startTime)
+
+      if (startIndex != null) {
+        playback.seekToEvent(startIndex)
+      } else {
+        playback.seekToTime(startTime)
+      }
     }
 
     return () => {
@@ -24,7 +30,7 @@ export const PlaybackProvider: React.FC<
         playback.close()
       }
     }
-  }, [playback, startTime])
+  }, [playback, startIndex, startTime])
 
   return (
     <PlaybackContext.Provider value={playback}>

@@ -21,6 +21,10 @@ export const PlayAction: React.FC = () => {
         playback.pause()
         Analytics.track('playback:pause')
       } else {
+        if (playback.getElapsed() === playback.getDuration()) {
+          playback.seekToTime(0)
+        }
+
         playback.play()
         Analytics.track('playback:play')
       }

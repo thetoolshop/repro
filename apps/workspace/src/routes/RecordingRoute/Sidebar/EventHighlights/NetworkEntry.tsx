@@ -1,4 +1,5 @@
 import { colors } from '@repro/design'
+import { useDevToolsView } from '@repro/devtools'
 import { NetworkEvent, NetworkMessageType } from '@repro/domain'
 import { Block, Row } from 'jsxstyle'
 import {
@@ -6,7 +7,6 @@ import {
   ArrowUpDown as WebSocketIcon,
 } from 'lucide-react'
 import React from 'react'
-import { useView } from '../../hooks'
 import { View } from '../../types'
 import { BaseEntry } from './BaseEntry'
 
@@ -32,7 +32,7 @@ const icons = {
 }
 
 export const NetworkEntry: React.FC<Props> = ({ eventIndex, event }) => {
-  const [, setView] = useView()
+  const [, setView] = useDevToolsView()
 
   const icon = icons[event.data.type]
   let content: React.ReactNode = null

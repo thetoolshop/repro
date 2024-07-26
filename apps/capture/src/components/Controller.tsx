@@ -1,21 +1,20 @@
 import { RecordingMode, SourceEventType, SourceEventView } from '@repro/domain'
 import {
-  createSourcePlayback,
   Playback,
   PlaybackProvider,
+  createSourcePlayback,
 } from '@repro/playback'
 import { InterruptSignal, useRecordingStream } from '@repro/recording'
 import { LazyList } from '@repro/std'
 import { Block } from 'jsxstyle'
 import React, { useEffect, useState } from 'react'
 import {
+  Subscription,
   asyncScheduler,
   defer,
-  from,
   map,
   observeOn,
   of,
-  Subscription,
   toArray,
 } from 'rxjs'
 import { MAX_INT32 } from '~/constants'
@@ -81,7 +80,7 @@ export const Controller: React.FC = () => {
 
       case RecordingMode.Replay:
         subscription.add(
-          defer(() => from(stream.slice()))
+          defer(() => of(stream.slice()))
             .pipe(observeOn(asyncScheduler))
             .subscribe(events => {
               setPlayback(createSourcePlayback(events, {}))

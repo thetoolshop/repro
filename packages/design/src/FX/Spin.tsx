@@ -4,17 +4,19 @@ import React, { PropsWithChildren } from 'react'
 
 type Props = PropsWithChildren<JsxstyleProps<'div'>>
 
-export const Spin: React.FC<Props> = ({ children, ...props }) => (
+const animation = {
+  from: { transform: 'rotate(0deg)' },
+  to: { transform: 'rotate(360deg)' },
+}
+
+export const Spin: React.FC<Props> = React.memo(({ children, ...props }) => (
   <InlineBlock
     {...props}
     lineHeight={0}
     animationIterationCount="infinite"
     animationDuration="1s"
-    animation={{
-      from: { transform: 'rotate(0deg)' },
-      to: { transform: 'rotate(360deg)' },
-    }}
+    animation={animation}
   >
     {children}
   </InlineBlock>
-)
+))

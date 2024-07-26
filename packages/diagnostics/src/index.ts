@@ -1,2 +1,2 @@
-export { Stats } from './Stats'
+export { Stats, StatsLevel } from './Stats'
 export { Trace } from './Trace'

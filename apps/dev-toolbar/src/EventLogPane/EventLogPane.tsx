@@ -1,15 +1,15 @@
 import { colors } from '@repro/design'
-import { SourceEvent, SourceEventType, SourceEventView } from '@repro/domain'
-import { useBuffer, usePlayback } from '@repro/playback'
-import { LazyList } from '@repro/std'
+import { SourceEvent, SourceEventType } from '@repro/domain'
+import { InterruptSignal, useRecordingStream } from '@repro/recording'
 import { Block, Grid, Row } from 'jsxstyle'
 import { TablePropertiesIcon } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { FixedSizeList, ListChildComponentProps } from 'react-window'
+import { asyncScheduler, concat, from, observeOn, scan } from 'rxjs'
 import { BaseRow } from './BaseRow'
 import { ConsoleRow } from './ConsoleRow'
-import { Details } from './Details'
 import { DOMPatchRow } from './DOMPatchRow'
+import { Details } from './Details'
 import { InteractionRow } from './InteractionRow'
 import { NetworkRow } from './NetworkRow'
 import { PerformanceRow } from './PerformanceRow'
@@ -55,27 +55,29 @@ const ItemRow: React.FC<ListChildComponentProps<Array<LogItem>>> = ({
 }
 
 export const EventLogPane: React.FC = () => {
-  const buffer = useBuffer() as LazyList<SourceEvent>
-  const playback = usePlayback()
-
-  const [items, setItems] = useState<Array<LogItem>>(() => {
-    const nextItems: Array<LogItem> = []
-
-    for (const event of playback.getSourceEvents()) {
-      nextItems.push(event)
-    }
-
-    return collapseItemsIntoGroups(nextItems)
-  })
+  const recordingStream = useRecordingStream()
+  const [items, setItems] = useState<Array<LogItem>>([])
 
   useEffect(() => {
-    setItems(items => {
-      return collapseItemsIntoGroups([
-        ...items,
-        ...buffer.toSource().map(view => SourceEventView.over(view)),
-      ])
-    })
-  }, [buffer, setItems])
+    const event$ = concat(
+      from(recordingStream.slice()),
+      concat(recordingStream.tail(InterruptSignal))
+    )
+
+    const logItems$ = event$.pipe(
+      scan<SourceEvent, Array<LogItem>>((logItems, event) => {
+        return collapseItemsIntoGroups([...logItems, event])
+      }, [])
+    )
+
+    const subscription = logItems$
+      .pipe(observeOn(asyncScheduler))
+      .subscribe(setItems)
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [recordingStream, setItems])
 
   return (
     <Grid

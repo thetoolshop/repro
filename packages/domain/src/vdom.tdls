@@ -35,6 +35,7 @@ type VElement: struct {
        1) checked: ?bool
        2) selectedIndex: ?int16
      }
+  7) shadowRoot: bool
 }
 
 type VText: struct {

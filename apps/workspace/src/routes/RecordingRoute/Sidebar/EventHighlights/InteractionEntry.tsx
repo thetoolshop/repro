@@ -1,13 +1,13 @@
 import { colors, ElementR } from '@repro/design'
+import { useDevToolsView, useSelectedNode } from '@repro/devtools'
 import { Click, InteractionEvent, InteractionType } from '@repro/domain'
 import { Block, Row } from 'jsxstyle'
 import {
-  Link2 as LinkIcon,
   MousePointerClick as ClickIcon,
+  Link2 as LinkIcon,
   Scaling as ViewportResizeIcon,
 } from 'lucide-react'
 import React from 'react'
-import { useSelectedNode, useView } from '../../hooks'
 import { View } from '../../types'
 import { BaseEntry } from './BaseEntry'
 
@@ -39,7 +39,7 @@ const icons = {
 
 export const InteractionEntry: React.FC<Props> = ({ eventIndex, event }) => {
   const [, setSelectedNode] = useSelectedNode()
-  const [, setView] = useView()
+  const [, setView] = useDevToolsView()
   const icon = icons[event.data.type]
 
   const label =

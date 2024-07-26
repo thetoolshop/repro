@@ -69,6 +69,10 @@ export class LazyList<T> {
     return this.source
   }
 
+  toArray() {
+    return Array.from(this)
+  }
+
   *[Symbol.iterator]() {
     for (const entry of this.source) {
       yield this.decoder(entry)
