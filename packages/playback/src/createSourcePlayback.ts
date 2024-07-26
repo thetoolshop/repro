@@ -233,7 +233,7 @@ export function createSourcePlayback(
     const dataViews = events.toSource()
 
     for (let i = dataViews.length - 1; i >= 0; i--) {
-      const dataView = dataViews[0]
+      const dataView = dataViews[i]
 
       if (dataView) {
         const event = SourceEventView.over(dataView)

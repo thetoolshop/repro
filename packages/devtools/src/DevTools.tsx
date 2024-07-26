@@ -23,9 +23,7 @@ import {
 import { View } from './types'
 
 interface Props {
-  disableExport?: boolean
-  disableToggle?: boolean
-  hideLogo?: boolean
+  timeline?: React.ReactNode
   resourceBaseURL?: string
 }
 
@@ -67,7 +65,7 @@ export const DevTools: React.FC<Props> = React.memo(props => {
         </PlaybackRegion>
 
         <InspectorRegion>
-          <Toolbar />
+          <Toolbar timeline={props.timeline} />
 
           <DragHandle />
 

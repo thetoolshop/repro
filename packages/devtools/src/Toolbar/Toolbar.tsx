@@ -5,7 +5,11 @@ import React, { PropsWithChildren } from 'react'
 import { Picker } from './Picker'
 import { Tabs } from './Tabs'
 
-export const Toolbar: React.FC = () => {
+interface Props {
+  timeline?: React.ReactNode
+}
+
+export const Toolbar: React.FC<Props> = ({ timeline }) => {
   return (
     <Container>
       <Picker />
@@ -13,9 +17,7 @@ export const Toolbar: React.FC = () => {
       <Tabs />
       <Separator />
 
-      <TimelineRegion>
-        <SimpleTimeline />
-      </TimelineRegion>
+      <TimelineRegion>{timeline ?? <SimpleTimeline />}</TimelineRegion>
     </Container>
   )
 }

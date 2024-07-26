@@ -1,6 +1,10 @@
 import { Button, colors } from '@repro/design'
 import { DevTools } from '@repro/devtools'
-import { PlaybackProvider, createSourcePlayback } from '@repro/playback'
+import {
+  PlaybackProvider,
+  RangeTimeline,
+  createSourcePlayback,
+} from '@repro/playback'
 import { randomString } from '@repro/random-string'
 import { useRecordingStream } from '@repro/recording'
 import { packList } from '@repro/std/src/list-utils'
@@ -93,7 +97,7 @@ export const InstantReplayPane: React.FC = () => {
           borderRadius={4}
           overflow="hidden"
         >
-          <DevTools />
+          <DevTools timeline={<RangeTimeline onChange={onUpdateRange} />} />
         </Block>
       </Block>
     </PlaybackProvider>
