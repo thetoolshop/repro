@@ -1,9 +1,9 @@
 import { colors } from '@repro/design'
-import { useDevToolsView } from '@repro/devtools'
 import { ConsoleEvent, LogLevel, MessagePartType } from '@repro/domain'
 import { AlertCircle, AlertTriangle } from 'lucide-react'
 import React from 'react'
-import { View } from '../../types'
+import { useDevToolsView } from '../hooks'
+import { View } from '../types'
 import { BaseEntry } from './BaseEntry'
 
 interface Props {

@@ -14,11 +14,8 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 export const InstantReplayPane: React.FC = () => {
   const stream = useRecordingStream()
-
-  const playback = useMemo(
-    () => createSourcePlayback(stream.slice(), {}),
-    [stream]
-  )
+  const events = useMemo(() => stream.slice(), [stream])
+  const playback = useMemo(() => createSourcePlayback(events, {}), [events])
 
   const [min, setMin] = useState(0)
   const [max, setMax] = useState(playback.getDuration())
@@ -39,8 +36,10 @@ export const InstantReplayPane: React.FC = () => {
     const minIndex = playback.getEventIndexAtTime(min)
     const maxIndex = playback.getEventIndexAtTime(max)
 
+    // TODO: reconstruct leading snapshot event
+
     const eventData = new Blob([
-      packList(stream.slice(minIndex ?? undefined, maxIndex ?? undefined)),
+      packList(events.slice(minIndex ?? undefined, maxIndex ?? undefined)),
     ])
 
     const recordingId = randomString(8)
@@ -49,7 +48,7 @@ export const InstantReplayPane: React.FC = () => {
     anchor.href = URL.createObjectURL(eventData)
     anchor.download = `${recordingId}.repro`
     anchor.click()
-  }, [stream, min, max])
+  }, [events, min, max])
 
   return (
     <PlaybackProvider playback={playback}>

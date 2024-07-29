@@ -1,9 +1,9 @@
 import { Card, colors, DefinitionList } from '@repro/design'
+import { EventHighlights } from '@repro/devtools'
 import { RecordingInfo } from '@repro/domain'
 import { ucfirst } from '@repro/string-utils'
 import { Block, Grid } from 'jsxstyle'
 import React from 'react'
-import { EventHighlights } from './EventHighlights'
 import { Summary } from './Summary'
 
 interface Props {

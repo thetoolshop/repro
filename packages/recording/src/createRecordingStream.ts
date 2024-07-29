@@ -181,10 +181,11 @@ export function createRecordingStream(
 
       if (options.types.has('interaction')) {
         trailingSnapshot.interaction = createEmptyInteractionSnapshot()
+        // TODO: should we "visit" this for consistency?
+        trailingSnapshot.interaction.pageURL = globalThis.location.href
       }
 
       Stats.time('RecordingStream#start: build VTree snapshot', () => {
-        // TODO: collect iframes to observe nested documents
         domTreeWalker(rootDocument)
       })
 
@@ -236,10 +237,6 @@ export function createRecordingStream(
         events.sort((a, b) => {
           return SourceEventView.over(a).time - SourceEventView.over(b).time
         })
-      })
-
-      Stats.time('RecordingStream#slice: append trailing snapshot', () => {
-        events.push(SourceEventView.encode(createSnapshotEvent()))
       })
 
       const firstEvent = events[0] && SourceEventView.over(events[0])

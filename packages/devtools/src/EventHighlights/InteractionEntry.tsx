@@ -1,5 +1,4 @@
 import { colors, ElementR } from '@repro/design'
-import { useDevToolsView, useSelectedNode } from '@repro/devtools'
 import { Click, InteractionEvent, InteractionType } from '@repro/domain'
 import { Block, Row } from 'jsxstyle'
 import {
@@ -8,7 +7,8 @@ import {
   Scaling as ViewportResizeIcon,
 } from 'lucide-react'
 import React from 'react'
-import { View } from '../../types'
+import { useDevToolsView, useSelectedNode } from '../hooks'
+import { View } from '../types'
 import { BaseEntry } from './BaseEntry'
 
 interface Props {
