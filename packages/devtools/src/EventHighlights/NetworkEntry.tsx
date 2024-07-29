@@ -1,5 +1,4 @@
 import { colors } from '@repro/design'
-import { useDevToolsView } from '@repro/devtools'
 import { NetworkEvent, NetworkMessageType } from '@repro/domain'
 import { Block, Row } from 'jsxstyle'
 import {
@@ -7,7 +6,8 @@ import {
   ArrowUpDown as WebSocketIcon,
 } from 'lucide-react'
 import React from 'react'
-import { View } from '../../types'
+import { useDevToolsView } from '../hooks'
+import { View } from '../types'
 import { BaseEntry } from './BaseEntry'
 
 interface Props {
