@@ -1,5 +1,5 @@
 const name = "api-server";
-const cwd = "apps/api-server";
+const cwd = ".";
 
 const baseConfig = {
   name,
@@ -10,7 +10,7 @@ module.exports = {
   dev: {
     ...baseConfig,
     script: "pnpm",
-    args: "dev-watch",
+    args: "nx run @repro/api-server:dev-watch",
     env: {
       NODE_ENV: "development",
       HOST: "localhost",
@@ -25,7 +25,7 @@ module.exports = {
   prod: {
     ...baseConfig,
     script: "pnpm",
-    args: "start",
+    args: "nx run @repro/api-server:start",
     env: {
       NODE_ENV: "production",
       HOST: "localhost",
