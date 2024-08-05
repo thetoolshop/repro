@@ -1,5 +1,8 @@
 module.exports = {
-  apps: [require("../apps/api-server").prod],
+  apps: [
+    require("../apps/api-server").prod,
+    require("../apps/devtools-demo").prod,
+  ],
 
   deploy: {
     production: {

@@ -1,5 +1,5 @@
 const name = "devtools-demo";
-const cwd = "apps/devtools-demo";
+const cwd = ".";
 
 const baseConfig = {
   name,
@@ -10,6 +10,12 @@ module.exports = {
   dev: {
     ...baseConfig,
     script: "pnpm",
-    args: "dev-serve",
+    args: "nx run @repro/devtools-demo:dev-serve",
+  },
+
+  prod: {
+    ...baseConfig,
+    script: "pnpm",
+    args: "nx run @repro/devtools-demo:serve",
   },
 };

@@ -32,8 +32,8 @@ module.exports = {
       PORT: "8181",
       DB_FILE: "tmp/repro-data.db",
       STORAGE_DIR: "tmp/storage",
-      CERT_KEY_FILE: "../../certs/prod/api-server.key",
-      CERT_FILE: "../../certs/prod/api-server.crt",
+      CERT_KEY_FILE: "/etc/letsencrypt/live/repro.dev/privkey.pem",
+      CERT_FILE: "/etc/letsencrypt/live/repro.dev/cert.pem",
     },
   },
 };
