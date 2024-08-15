@@ -11,7 +11,7 @@ module.exports = {
       repo: "git@github.com:thetoolshop/repro.git",
       path: "/home/me/Projects/thetoolshop/repro",
       "post-deploy":
-        "BUILD_ENV=production pnpm install && pnpm nx run-many -t build && pnpm pm2 startOrRestart infra/appsets/production.config.js",
+        "pnpm install && BUILD_ENV=production pnpm nx run-many -t build && pnpm pm2 startOrRestart infra/appsets/production.config.js",
     },
   },
 };
