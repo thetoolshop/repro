@@ -6,7 +6,7 @@ import {
   Globe as NetworkIcon,
 } from 'lucide-react'
 import React, { PropsWithChildren } from 'react'
-import { useDevToolsView } from '../hooks'
+import { useDevToolsView, useInspecting } from '../hooks'
 import { View } from '../types'
 
 export const Tabs: React.FC = () => {
@@ -41,10 +41,12 @@ const Item: React.FC<PropsWithChildren<ItemProps>> = ({
   view,
 }) => {
   const [activeView, setActiveView] = useDevToolsView()
+  const [inspecting, setInspecting] = useInspecting()
 
   const handleClick = () => {
     if (!disabled) {
       setActiveView(view)
+      setInspecting(true)
     }
   }
 
@@ -58,7 +60,7 @@ const Item: React.FC<PropsWithChildren<ItemProps>> = ({
     <Row
       alignItems="center"
       borderBottomColor={
-        activeView === view ? colors.blue['500'] : 'transparent'
+        inspecting && activeView === view ? colors.blue['500'] : 'transparent'
       }
       borderBottomStyle="solid"
       borderBottomWidth={2}

@@ -34,7 +34,7 @@ export interface State {
 }
 
 const defaultValues = {
-  inspecting: false,
+  inspecting: true,
   picker: false,
   currentDocument: null,
   focusedNode: null,

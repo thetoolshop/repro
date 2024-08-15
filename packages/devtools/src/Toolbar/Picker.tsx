@@ -1,15 +1,23 @@
 import { colors } from '@repro/design'
 import { Row } from 'jsxstyle'
 import { Inspect as PickerIcon } from 'lucide-react'
-import React, { useCallback } from 'react'
-import { useElementPicker } from '../hooks'
+import React, { useCallback, useEffect } from 'react'
+import { useElementPicker, useInspecting } from '../hooks'
 
 export const Picker: React.FC = () => {
   const [picker, setPicker] = useElementPicker()
+  const [inspecting, setInspecting] = useInspecting()
 
   const togglePicker = useCallback(() => {
     setPicker(picker => !picker)
+    setInspecting(true)
   }, [setPicker])
+
+  useEffect(() => {
+    if (!inspecting) {
+      setPicker(false)
+    }
+  }, [inspecting, setPicker])
 
   return (
     <Row position="relative" alignItems="center" cursor="pointer" paddingH={10}>

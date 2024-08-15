@@ -4,6 +4,7 @@ import { Block, Row } from 'jsxstyle'
 import React, { PropsWithChildren } from 'react'
 import { Picker } from './Picker'
 import { Tabs } from './Tabs'
+import { Toggle } from './Toggle'
 
 interface Props {
   timeline?: React.ReactNode
@@ -12,6 +13,8 @@ interface Props {
 export const Toolbar: React.FC<Props> = ({ timeline }) => {
   return (
     <Container>
+      <Toggle />
+      <Separator />
       <Picker />
       <Separator />
       <Tabs />

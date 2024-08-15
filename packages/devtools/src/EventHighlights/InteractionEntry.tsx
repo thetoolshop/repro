@@ -7,7 +7,7 @@ import {
   Scaling as ViewportResizeIcon,
 } from 'lucide-react'
 import React from 'react'
-import { useDevToolsView, useSelectedNode } from '../hooks'
+import { useDevToolsView, useInspecting, useSelectedNode } from '../hooks'
 import { View } from '../types'
 import { BaseEntry } from './BaseEntry'
 
@@ -40,6 +40,7 @@ const icons = {
 export const InteractionEntry: React.FC<Props> = ({ eventIndex, event }) => {
   const [, setSelectedNode] = useSelectedNode()
   const [, setView] = useDevToolsView()
+  const [, setInspecting] = useInspecting()
   const icon = icons[event.data.type]
 
   const label =
@@ -54,6 +55,7 @@ export const InteractionEntry: React.FC<Props> = ({ eventIndex, event }) => {
       if (firstTarget) {
         setSelectedNode(firstTarget)
         setView(View.Elements)
+        setInspecting(true)
       }
     }
   }

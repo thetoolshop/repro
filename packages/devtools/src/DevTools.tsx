@@ -3,7 +3,7 @@ import { ReferenceStyleProvider } from '@repro/css-utils'
 import { colors } from '@repro/design'
 import { PlaybackCanvas } from '@repro/playback'
 import { Block, Grid } from 'jsxstyle'
-import React, { PropsWithChildren, useEffect } from 'react'
+import React, { Fragment, PropsWithChildren, useEffect } from 'react'
 import { ConsolePanel } from './ConsolePanel'
 import { DragHandle } from './DragHandle'
 import { ElementsPanel } from './ElementsPanel'
@@ -67,13 +67,16 @@ export const DevTools: React.FC<Props> = React.memo(props => {
         <InspectorRegion>
           <Toolbar timeline={props.timeline} />
 
-          <DragHandle />
-
-          <ContentRegion>
-            {view === View.Elements && <ElementsPanel />}
-            {view === View.Network && <NetworkPanel />}
-            {view === View.Console && <ConsolePanel />}
-          </ContentRegion>
+          {inspecting && (
+            <Fragment>
+              <DragHandle />
+              <ContentRegion>
+                {view === View.Elements && <ElementsPanel />}
+                {view === View.Network && <NetworkPanel />}
+                {view === View.Console && <ConsolePanel />}
+              </ContentRegion>
+            </Fragment>
+          )}
         </InspectorRegion>
       </ReferenceStyleProvider>
     </Container>
