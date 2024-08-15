@@ -12,22 +12,22 @@ export function createFixtureSource(fileName: string): Source {
   const [$readyState, setReadyState] = createAtom<ReadyState>('waiting')
   const [$resourceMap] = createAtom<Record<string, string>>({})
 
-  request.then(buffer => {
-    const list = new LazyList(
-      [],
-      SourceEventView.decode,
-      SourceEventView.encode
-    )
+  request
+    .then(buffer => {
+      const list = new LazyList(
+        [],
+        SourceEventView.decode,
+        SourceEventView.encode
+      )
 
-    unpackListInto(buffer, list)
-    setEvents(list)
+      unpackListInto(buffer, list)
+      setEvents(list)
 
-    setReadyState('ready')
-  })
-
-  request.catch(() => {
-    setReadyState('failed')
-  })
+      setReadyState('ready')
+    })
+    .catch(() => {
+      setReadyState('failed')
+    })
 
   return {
     $readyState,

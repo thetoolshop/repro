@@ -52,6 +52,8 @@ class ReproDevToolbar extends HTMLElement {
     shadowRoot.appendChild(styleRoot)
     shadowRoot.appendChild(rootElem)
 
+    styleCache.reset()
+
     // TODO: build and bundle css for prod
     styleCache.injectOptions({
       onInsertRule(rule) {
