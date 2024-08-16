@@ -3,6 +3,7 @@ import {
   isBodyElement,
   isElementNode,
   isHTMLElement,
+  isLocalStylesheet,
   isTextNode,
   isValidAttributeName,
 } from '@repro/dom-utils'
@@ -92,6 +93,7 @@ export const NativeDOMRenderer: React.FC<Props> = ({
             if (ownerDocument) {
               if (snapshot.dom) {
                 const vtree = snapshot.dom
+                const isUnderStyleRoot = false
 
                 const [rootNode, vtreeNodeMap] = Stats.time(
                   'NativeDOMRenderer (effect): create DOM from VTree',
@@ -102,7 +104,8 @@ export const NativeDOMRenderer: React.FC<Props> = ({
                       nodeMap,
                       pageURL,
                       resourceBaseURL || '',
-                      invertedResourceMap
+                      invertedResourceMap,
+                      isUnderStyleRoot
                     )
                   }
                 )
@@ -355,6 +358,8 @@ function applyDOMPatchEvent(
         const nextSiblingId = event.data.nextSiblingId
 
         const parent = nodeMap[parentId]
+        const parentIsStyleRoot =
+          parent != null && isElementNode(parent) && isLocalStylesheet(parent)
 
         for (const vtree of event.data.nodes) {
           if (nodeMap.hasOwnProperty(vtree.rootId)) {
@@ -371,7 +376,8 @@ function applyDOMPatchEvent(
                 nodeMap,
                 currentPageURL,
                 resourceBaseURL,
-                resourceMap
+                resourceMap,
+                parentIsStyleRoot
               )
             )
             .reduce(
@@ -482,7 +488,8 @@ function createDOMFromVTree(
   rootNodeMap: MutableNodeMap,
   currentPageURL: string,
   resourceBaseURL: string,
-  resourceMap: Record<string, string>
+  resourceMap: Record<string, string>,
+  isUnderStyleRoot: boolean
 ): [Node | null, MutableNodeMap] {
   const nodeMap: MutableNodeMap = {}
 
@@ -492,6 +499,7 @@ function createDOMFromVTree(
     svgContext: boolean = false
   ): Node => {
     const vNode = vtree.nodes[nodeId] || null
+
     const parentVNode = (parentId && vtree.nodes[parentId]) || null
 
     if (rootNodeMap.hasOwnProperty(nodeId)) {
@@ -520,7 +528,10 @@ function createDOMFromVTree(
 
       // CSS hover states cannot be triggered programmatically.
       // Replace hover pseudo-selectors with class selector.
-      if (parentVNode && isStyleElementVNode(parentVNode)) {
+      if (
+        isUnderStyleRoot ||
+        (parentVNode && isStyleElementVNode(parentVNode))
+      ) {
         value = value.replace(':hover', HOVER_SELECTOR)
         value = replaceURLsInCSSText(
           value,
