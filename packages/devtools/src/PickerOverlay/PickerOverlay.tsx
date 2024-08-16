@@ -118,6 +118,7 @@ export const PickerOverlay: React.FC = React.memo(() => {
           )
           .subscribe(nodeId => {
             setSelectedNode(nodeId)
+            setTargetElement(null)
             setFocusedNode(null)
             setPicker(false)
             setView(View.Elements)

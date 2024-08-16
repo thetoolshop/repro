@@ -7,9 +7,9 @@ import React, {
   useRef,
   useState,
 } from 'react'
-import { fromEvent, Subscription } from 'rxjs'
-import { NodeState, NodeStateContext, Tag } from './context'
+import { Subscription, fromEvent } from 'rxjs'
 import { TreeRenderer } from './TreeRenderer'
+import { NodeState, NodeStateContext, Tag } from './context'
 
 interface Props {
   vtree: VTree
@@ -26,7 +26,6 @@ export const ElementTree: React.FC<Props> = ({
   selectedNode,
   onFocusNode,
   onSelectNode,
-  usingPicker,
 }) => {
   const containerRef = useRef() as MutableRefObject<HTMLDivElement>
   const activeRef = useRef(false)
@@ -106,18 +105,28 @@ export const ElementTree: React.FC<Props> = ({
   }, [activeRef, vtree, focusedNode, openNodes, setVisibleNodes])
 
   useEffect(() => {
-    if (usingPicker && !activeRef.current && focusedNode) {
-      const treeRow = containerRef.current.querySelector(
-        `[data-tree-node="${focusedNode ?? selectedNode}~open"]`
-      )
+    let handle = null
 
-      if (treeRow) {
-        treeRow.scrollIntoView({
-          block: 'center',
-        })
+    if (!activeRef.current) {
+      handle = requestIdleCallback(() => {
+        const treeRow = containerRef.current.querySelector(
+          `[data-tree-node="${selectedNode}~open"]`
+        )
+
+        if (treeRow) {
+          treeRow.scrollIntoView({
+            block: 'center',
+          })
+        }
+      })
+    }
+
+    return () => {
+      if (handle != null) {
+        cancelIdleCallback(handle)
       }
     }
-  }, [usingPicker, activeRef, containerRef, focusedNode, selectedNode])
+  }, [containerRef, selectedNode])
 
   const toggleNode = useCallback(
     (nodeId: SyntheticId) =>
