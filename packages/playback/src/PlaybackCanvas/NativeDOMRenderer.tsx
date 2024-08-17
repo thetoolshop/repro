@@ -722,6 +722,11 @@ function resolveURLToResource(
   resourceBaseURL: string,
   resourceMap: Record<string, string>
 ) {
+  // Do not attempt to resolve hash URLs
+  if (url.startsWith('#')) {
+    return url
+  }
+
   try {
     // If the url is relative and we do not have access to the base URL,
     // `new URL` will throw. In this case, we just fall back to the URL
