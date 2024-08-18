@@ -10,6 +10,7 @@
   "license": "UNLICENSED",
   "dependencies": {
     "@repro/domain": "workspace:*",
+    "@repro/logger": "workspace:*",
     "@repro/messaging": "workspace:*",
     "@repro/random-string": "workspace:*",
     "fluture": "^14.0.0"

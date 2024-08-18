@@ -5,7 +5,7 @@ import { attemptP, map } from 'fluture'
 const apiUrl = (process.env.MIXPANEL_API_URL || '').replace(/\/$/, '')
 
 export function register(agent: Agent, identityId: string | null = null) {
-  agent.subscribeToIntent(
+  return agent.subscribeToIntent(
     'analytics:track',
     ({ eventId, name, time, props }: TrackedEvent) => {
       return attemptP<Error, Response>(() =>

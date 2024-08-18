@@ -949,6 +949,9 @@ importers:
       '@repro/domain':
         specifier: workspace:*
         version: link:../domain
+      '@repro/logger':
+        specifier: workspace:*
+        version: link:../logger
       '@repro/messaging':
         specifier: workspace:*
         version: link:../messaging

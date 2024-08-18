@@ -12,7 +12,7 @@ export function register(agent: Agent, identityId: string | null = null) {
     mixpanel.identify(identityId)
   }
 
-  agent.subscribeToIntent(
+  return agent.subscribeToIntent(
     'analytics:track',
     ({ name, time, props }: TrackedEvent) => {
       return node(done =>
