@@ -1,10 +1,14 @@
 import { Card, Logo, colors } from '@repro/design'
 import { DevTools, EventHighlights } from '@repro/devtools'
+import { Stats } from '@repro/diagnostics'
 import { applyResetStyles } from '@repro/theme'
 import { Block, Grid, Row } from 'jsxstyle'
+import { ActivityIcon } from 'lucide-react'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { RecordingLoader } from './RecordingLoader'
+
+Stats.enable()
 
 const rootSelector = '#root'
 const rootElem = document.querySelector(rootSelector)
@@ -56,6 +60,18 @@ if (rootElem) {
                 backgroundColor={colors.white}
                 borderRadius={4}
               >
+                <Row
+                  alignItems="center"
+                  paddingH={10}
+                  paddingBottom={10}
+                  gap={5}
+                  fontSize={20}
+                  lineHeight={1}
+                >
+                  <ActivityIcon color={colors.blue['700']} size={20} />
+                  Session events
+                </Row>
+
                 <EventHighlights />
               </Block>
             </Card>

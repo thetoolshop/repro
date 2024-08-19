@@ -617,6 +617,9 @@ importers:
       '@repro/devtools':
         specifier: workspace:*
         version: link:../../packages/devtools
+      '@repro/diagnostics':
+        specifier: workspace:*
+        version: link:../../packages/diagnostics
       '@repro/domain':
         specifier: workspace:*
         version: link:../../packages/domain

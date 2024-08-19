@@ -278,59 +278,82 @@ export function createSourcePlayback(
   }
 
   function seekToEvent(nextIndex: number) {
-    const start = performance.now()
+    Stats.time('RecordingPlayback#seekToEvent: total', () => {
+      setBuffer(EMPTY_BUFFER)
+      const allEvents = loadEvents()
+      queuedEvents = allEvents
 
-    setBuffer(EMPTY_BUFFER)
-    const allEvents = loadEvents()
-    queuedEvents = allEvents
+      const targetEvent = queuedEvents.decode(nextIndex)
 
-    const targetEvent = queuedEvents.decode(nextIndex)
+      if (!targetEvent) {
+        throw new Error(`Playback: could not find event at index ${nextIndex}`)
+      }
 
-    if (!targetEvent) {
-      throw new Error(`Playback: could not find event at index ${nextIndex}`)
-    }
+      let snapshot: Snapshot | null = null
+      let indexOffset = 0
 
-    let snapshot: Snapshot | null = null
+      Stats.time('RecordingPlayback#seekToEvent: find nearest snapshot', () => {
+        for (let i = snapshotIndex.length - 1; i >= 0; i--) {
+          const index = snapshotIndex[i]
 
-    for (let i = snapshotIndex.length - 1; i >= 0; i--) {
-      const index = snapshotIndex[i]
+          if (typeof index === 'number') {
+            if (index <= nextIndex) {
+              snapshot = (allEvents.decode(index) as SnapshotEvent).data
+              queuedEvents = allEvents.slice(index + 1)
+              indexOffset = index
 
-      if (typeof index === 'number') {
-        if (index <= nextIndex) {
-          snapshot = (allEvents.decode(index) as SnapshotEvent).data
-          queuedEvents = allEvents.slice(index + 1)
-          break
+              Stats.value(
+                'RecordingPlayback#seekToEvent: snapshots read',
+                snapshotIndex.length - i
+              )
+
+              break
+            }
+          }
         }
-      }
-    }
+      })
 
-    const [before, after] = partitionEvents(
-      queuedEvents,
-      (_, index) => index > nextIndex,
-      (sample, time) => time + sample.duration > targetEvent.time
-    )
+      Stats.value(
+        'RecordingPlayback#seekToEvent: queued events before partition',
+        queuedEvents.size()
+      )
 
-    queuedEvents = after
+      const [before, after] = partitionEvents(
+        queuedEvents,
+        (_, index) => index > nextIndex - indexOffset,
+        (sample, time) => time + sample.duration > targetEvent.time
+      )
 
-    if (snapshot && before.size()) {
-      snapshot = copyObject(snapshot)
+      queuedEvents = after
 
-      for (const dataView of before.toSource()) {
-        const event = SourceEventView.over(dataView)
-        applyEventToSnapshot(snapshot, event, targetEvent.time)
-      }
-    }
+      Stats.value(
+        'RecordingPlayback#seekToEvent: events to apply',
+        before.size()
+      )
 
-    setSnapshot(snapshot || EMPTY_SNAPSHOT)
-    setActiveIndex(nextIndex)
+      Stats.time(
+        'RecordingPlayback#seekToEvent: apply events to snapshot',
+        () => {
+          if (snapshot && before.size()) {
+            snapshot = copyObject(snapshot)
 
-    withMutexLock(() => {
-      setElapsed(targetEvent.time)
+            for (const dataView of before.toSource()) {
+              const event = SourceEventView.over(dataView)
+              applyEventToSnapshot(snapshot, event, targetEvent.time)
+            }
+          }
+        }
+      )
+
+      setSnapshot(snapshot || EMPTY_SNAPSHOT)
+      setActiveIndex(nextIndex)
+
+      withMutexLock(() => {
+        setElapsed(targetEvent.time)
+      })
+
+      setLatestControlFrame(ControlFrame.SeekToEvent)
     })
-
-    setLatestControlFrame(ControlFrame.SeekToEvent)
-
-    Stats.value('Playback: seek to event', performance.now() - start)
   }
 
   function seekToTime(elapsed: number) {
@@ -364,6 +387,11 @@ export function createSourcePlayback(
           }
         }
       })
+
+      Stats.value(
+        'RecordingPlayback#seekToTime: queued events before partition',
+        queuedEvents.size()
+      )
 
       const [before, after] = partitionEvents(
         queuedEvents,

@@ -16,6 +16,7 @@
     "@repro/atom": "workspace:*",
     "@repro/design": "workspace:*",
     "@repro/devtools": "workspace:*",
+    "@repro/diagnostics": "workspace:*",
     "@repro/domain": "workspace:*",
     "@repro/logger": "workspace:*",
     "@repro/playback": "workspace:*",
