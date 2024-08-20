@@ -6,7 +6,7 @@ import {
   ArrowUpDown as WebSocketIcon,
 } from 'lucide-react'
 import React from 'react'
-import { useDevToolsView, useInspecting } from '../hooks'
+import { useDevToolsView } from '../hooks'
 import { View } from '../types'
 import { BaseEntry } from './BaseEntry'
 
@@ -33,7 +33,6 @@ const icons = {
 
 export const NetworkEntry: React.FC<Props> = ({ eventIndex, event }) => {
   const [, setView] = useDevToolsView()
-  const [, setInspecting] = useInspecting()
 
   const icon = icons[event.data.type]
   let content: React.ReactNode = null
@@ -81,7 +80,6 @@ export const NetworkEntry: React.FC<Props> = ({ eventIndex, event }) => {
 
   function onClick() {
     setView(View.Network)
-    setInspecting(true)
   }
 
   return (

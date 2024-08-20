@@ -10,6 +10,7 @@ import {
   useDevToolsView,
   useElementPicker,
   useFocusedNode,
+  useInspecting,
   useSelectedNode,
 } from '../hooks'
 import { View } from '../types'
@@ -53,6 +54,7 @@ export const PickerOverlay: React.FC = React.memo(() => {
   const [focusedNode, setFocusedNode] = useFocusedNode()
   const [, setSelectedNode] = useSelectedNode()
   const [, setView] = useDevToolsView()
+  const [, setInspecting] = useInspecting()
   const [targetElement, setTargetElement] = useState<Element | null>(null)
   const [boundingBox, setBoundingBox] = useState<DOMRect | null>(null)
   const ref = useRef() as MutableRefObject<HTMLDivElement>
@@ -121,7 +123,11 @@ export const PickerOverlay: React.FC = React.memo(() => {
             setTargetElement(null)
             setFocusedNode(null)
             setPicker(false)
-            setView(View.Elements)
+
+            if (nodeId !== null) {
+              setView(View.Elements)
+              setInspecting(true)
+            }
           })
       )
     }

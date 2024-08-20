@@ -2,7 +2,7 @@ import { colors } from '@repro/design'
 import { ConsoleEvent, LogLevel, MessagePartType } from '@repro/domain'
 import { AlertCircle, AlertTriangle } from 'lucide-react'
 import React from 'react'
-import { useDevToolsView, useInspecting } from '../hooks'
+import { useDevToolsView } from '../hooks'
 import { View } from '../types'
 import { BaseEntry } from './BaseEntry'
 
@@ -27,7 +27,6 @@ const icons = {
 
 export const ConsoleEntry: React.FC<Props> = ({ eventIndex, event }) => {
   const [, setView] = useDevToolsView()
-  const [, setInspecting] = useInspecting()
   const level = event.data.level
   const firstPart = event.data.parts[0]
 
@@ -39,7 +38,6 @@ export const ConsoleEntry: React.FC<Props> = ({ eventIndex, event }) => {
 
   function onClick() {
     setView(View.Console)
-    setInspecting(true)
   }
 
   return (

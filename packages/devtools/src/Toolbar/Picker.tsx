@@ -6,11 +6,10 @@ import { useElementPicker, useInspecting } from '../hooks'
 
 export const Picker: React.FC = () => {
   const [picker, setPicker] = useElementPicker()
-  const [inspecting, setInspecting] = useInspecting()
+  const [inspecting] = useInspecting()
 
   const togglePicker = useCallback(() => {
     setPicker(picker => !picker)
-    setInspecting(true)
   }, [setPicker])
 
   useEffect(() => {
