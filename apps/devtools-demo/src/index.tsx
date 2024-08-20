@@ -63,7 +63,8 @@ if (rootElem) {
                 <Row
                   alignItems="center"
                   paddingH={10}
-                  paddingBottom={10}
+                  paddingBottom={15}
+                  paddingTop={5}
                   gap={5}
                   fontSize={20}
                   lineHeight={1}
