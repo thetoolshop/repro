@@ -5,7 +5,7 @@ import {
   isTextAreaElement,
 } from '@repro/dom-utils'
 import { Interaction, InteractionType, Point } from '@repro/domain'
-import { createEventObserver, ObserverLike } from '@repro/observer-utils'
+import { ObserverLike, createEventObserver } from '@repro/observer-utils'
 import { getNodeId } from '@repro/vdom-utils'
 import { createVElement } from '../dom/factory'
 import { isIgnoredByNode, isIgnoredBySelector } from '../dom/utils'
@@ -81,7 +81,7 @@ function createViewportResizeObserver(
   const handleViewportResize = sampleEventsByKey<UIEvent, Point>(
     () => 'viewport-resize',
     ev => {
-      const win = ev.target as Window
+      const win = ev.currentTarget as Window
       return [win.innerWidth, win.innerHeight] as Point
     },
     (value, duration) => {
