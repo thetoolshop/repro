@@ -7,6 +7,7 @@
     "postinstall": "patch-package",
     "build": "./scripts/build",
     "dev-serve": "./scripts/build -s",
+    "serve": "serve -s dist",
     "fmt": "prettier --write src",
     "test": "jest --passWithNoTests",
     "typecheck": "tsc --noEmit"
@@ -38,7 +39,6 @@
     "@types/react": "^18.0.14",
     "@types/react-dom": "^18.0.5",
     "css-loader": "^6.6.0",
-    "dotenv-webpack": "^7.1.0",
     "esbuild": "^0.17.19",
     "esbuild-jest": "^0.5.0",
     "esbuild-loader": "^3.0.1",
@@ -48,6 +48,7 @@
     "patch-package": "^6.4.7",
     "prettier": "^3.0.0",
     "prettier-plugin-organize-imports": "^3.2.3",
+    "serve": "^14.2.3",
     "style-loader": "^3.3.1",
     "ts-jest": "^29",
     "ts-node": "^10.8.1",

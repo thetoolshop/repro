@@ -1,12 +1,8 @@
 const path = require('path')
 
-const DotenvPlugin = require('dotenv-webpack')
 const { EsbuildPlugin } = require('esbuild-loader')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-
-require('dotenv').config({
-  path: path.resolve(__dirname, '.env'),
-})
+const { EnvironmentPlugin } = require('webpack')
 
 let baseURL = process.env.REPRO_APP_URL || '/'
 
@@ -58,10 +54,7 @@ module.exports = {
   },
 
   plugins: [
-    new DotenvPlugin({
-      path: path.resolve(__dirname, './.env'),
-      systemvars: true,
-    }),
+    new EnvironmentPlugin(['BUILD_ENV', 'STATS_LEVEL']),
 
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, 'src/templates/index.html'),

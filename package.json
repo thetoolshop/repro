@@ -20,5 +20,8 @@
       "react-dom": "18.2.0",
       "typescript": "5.3.3"
     }
+  },
+  "dependencies": {
+    "@dotenvx/dotenvx": "^1.14.0"
   }
 }

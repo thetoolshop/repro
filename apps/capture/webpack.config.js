@@ -1,12 +1,6 @@
-const DotenvPlugin = require('dotenv-webpack')
 const { EsbuildPlugin } = require('esbuild-loader')
 const path = require('path')
-
-const env = process.env.NODE_ENV || 'development'
-
-require('dotenv').config({
-  path: path.resolve(__dirname, `.env.${env}`),
-})
+const { EnvironmentPlugin } = require('webpack')
 
 module.exports = {
   mode: process.env.BUILD_ENV === 'production' ? 'production' : 'development',
@@ -54,11 +48,15 @@ module.exports = {
   },
 
   plugins: [
-    new DotenvPlugin({
-      path: path.resolve(__dirname, `./.env.${process.env.BUILD_ENV}`),
-      safe: true,
-      systemvars: true,
-    }),
+    new EnvironmentPlugin([
+      'AUTH_STORAGE',
+      'BUILD_ENV',
+      'MIXPANEL_API_URL',
+      'MIXPANEL_TOKEN',
+      'REPRO_APP_URL',
+      'REPRO_API_URL',
+      'STATS_LEVEL',
+    ]),
   ],
 
   devtool: process.env.BUILD_ENV === 'development' ? 'source-map' : false,
