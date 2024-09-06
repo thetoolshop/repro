@@ -1,14 +1,9 @@
-const DotenvPlugin = require('dotenv-webpack')
 const { EsbuildPlugin } = require('esbuild-loader')
 const path = require('path')
 const webpack = require('webpack')
 
-const env = process.env.NODE_ENV || 'development'
+const EnvironmentPlugin = webpack.EnvironmentPlugin
 const mode = process.env.MODE || 'extension'
-
-require('dotenv').config({
-  path: path.resolve(__dirname, `.env.${env}`),
-})
 
 const commitHash = require('child_process')
   .execSync('git rev-parse --short HEAD')
@@ -69,11 +64,7 @@ module.exports = {
       __BUILD_VERSION__: JSON.stringify(commitHash),
     }),
 
-    new DotenvPlugin({
-      path: path.resolve(__dirname, `./.env.${process.env.BUILD_ENV}`),
-      safe: true,
-      systemvars: true,
-    }),
+    new EnvironmentPlugin(['BUILD_ENV', 'STATS_LEVEL']),
   ],
 
   devtool: process.env.BUILD_ENV === 'development' ? 'source-map' : false,
