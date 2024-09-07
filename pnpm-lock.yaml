@@ -1611,6 +1611,9 @@ importers:
       '@repro/domain':
         specifier: workspace:*
         version: link:../domain
+      '@repro/logger':
+        specifier: workspace:*
+        version: link:../logger
       '@repro/random-string':
         specifier: workspace:*
         version: link:../random-string

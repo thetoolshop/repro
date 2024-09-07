@@ -34,12 +34,10 @@ export function usingAgent(a: Agent) {
 }
 
 class ReproDevToolbar extends HTMLElement {
-  private renderRoot: Root
+  private renderRoot: Root | null = null
   private state = createState()
 
-  constructor() {
-    super()
-
+  public connectedCallback() {
     const shadowRoot = this.attachShadow({ mode: 'closed' })
 
     const rootElem = document.createElement('div')
@@ -49,10 +47,10 @@ class ReproDevToolbar extends HTMLElement {
     const styleRoot = document.createElement('style')
     refs.activeStyleRoot = styleRoot
 
+    styleCache.reset()
+
     shadowRoot.appendChild(styleRoot)
     shadowRoot.appendChild(rootElem)
-
-    styleCache.reset()
 
     // TODO: build and bundle css for prod
     styleCache.injectOptions({
@@ -66,9 +64,6 @@ class ReproDevToolbar extends HTMLElement {
         }
       },
     })
-  }
-
-  public connectedCallback() {
     const ignoredSelectors = [NODE_NAME]
     const ignoredNodes: Array<Node> = []
 
@@ -108,7 +103,7 @@ class ReproDevToolbar extends HTMLElement {
   }
 
   public disconnectedCallback() {
-    this.renderRoot.unmount()
+    this.renderRoot?.unmount()
   }
 }
 

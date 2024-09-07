@@ -105,9 +105,6 @@ export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
     subscription.add(
       event$.pipe(skipUntil(initialSnapshot$)).subscribe(event => {
         let trailingSnapshot = copyObject(getSnapshot())
-        applyEventToSnapshot(trailingSnapshot, event, event.time)
-
-        setSnapshot(trailingSnapshot)
 
         // Sampled events are offset by their duration to ensure correct
         // interpolation during recorded playback. For live playback, we
@@ -116,6 +113,10 @@ export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
         const elapsed = isSample(event.data)
           ? event.time + event.data.duration
           : event.time
+
+        applyEventToSnapshot(trailingSnapshot, event, elapsed)
+
+        setSnapshot(trailingSnapshot)
 
         setElapsed(elapsed)
         setBuffer(

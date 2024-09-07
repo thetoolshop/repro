@@ -149,6 +149,7 @@ export function createBroadcastAgent(): Agent {
   }
 
   return {
+    name: 'Broadcast',
     raiseIntent,
     subscribeToIntent,
     subscribeToIntentAndForward,

@@ -10,6 +10,7 @@ export type Unsubscribe = () => void
 export type Resolver<R = any> = (payload: any) => FutureInstance<Error, R>
 
 export interface Agent {
+  name: string
   raiseIntent<R, P = any>(
     intent: Intent<P>,
     options?: any

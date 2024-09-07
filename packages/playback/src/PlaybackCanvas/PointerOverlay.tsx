@@ -20,8 +20,12 @@ export const PointerOverlay: React.FC = () => {
     >
       <Block
         position="absolute"
-        transform={`translate(${x}px, ${y}px)`}
         transformOrigin="0 0"
+        props={{
+          style: {
+            transform: `translate(${x}px, ${y}px)`,
+          },
+        }}
       >
         <Block
           position="absolute"

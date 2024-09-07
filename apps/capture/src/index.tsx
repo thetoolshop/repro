@@ -43,12 +43,10 @@ const agent = createPTPAgent()
 Analytics.setAgent(agent)
 
 class ReproCapture extends HTMLElement {
-  private renderRoot: Root
+  private renderRoot: Root | null = null
   private state = createState()
 
-  constructor() {
-    super()
-
+  public connectedCallback() {
     const shadowRoot = this.attachShadow({ mode: 'closed' })
 
     const rootElem = document.createElement('div')
@@ -75,9 +73,6 @@ class ReproCapture extends HTMLElement {
         }
       },
     })
-  }
-
-  public connectedCallback() {
     const ignoredSelectors = [NODE_NAME]
     const ignoredNodes: Array<Node> = []
 
@@ -119,7 +114,7 @@ class ReproCapture extends HTMLElement {
   }
 
   public disconnectedCallback() {
-    this.renderRoot.unmount()
+    this.renderRoot?.unmount()
   }
 }
 

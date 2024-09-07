@@ -1,5 +1,4 @@
 import { logger } from '@repro/logger'
-import { Block } from 'jsxstyle'
 import React, { MutableRefObject, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import mergeRefs from 'react-merge-refs'
@@ -62,16 +61,19 @@ export const FrameRealm = React.forwardRef<HTMLIFrameElement, Props>(
     // TODO merge <html> attributes into root
 
     return (
-      <Block
-        component="iframe"
-        props={{ ref, ...props }}
-        border={0}
-        width="100%"
-        height="100%"
-        overflow="hidden"
+      <iframe
+        ref={ref}
+        {...props}
+        style={{
+          border: '0',
+          width: '100%',
+          height: '100%',
+          overflow: 'hidden',
+          ...props.style,
+        }}
       >
         {root && createPortal(children, root.documentElement)}
-      </Block>
+      </iframe>
     )
   }
 )

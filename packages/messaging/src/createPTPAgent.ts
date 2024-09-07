@@ -160,6 +160,7 @@ export function createPTPAgent(): Agent {
   }
 
   return {
+    name: 'PTPAgent',
     raiseIntent,
     subscribeToIntent,
     subscribeToIntentAndForward,

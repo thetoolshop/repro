@@ -42,6 +42,7 @@ export function createLoopbackAgent(): Agent {
   }
 
   return {
+    name: 'LoopbackAgent',
     raiseIntent,
     subscribeToIntent,
     subscribeToIntentAndForward,

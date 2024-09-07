@@ -1,6 +1,6 @@
 import { logger } from '@repro/logger'
 import { Agent, Intent, Resolver, Unsubscribe } from '@repro/messaging'
-import Future, { fork, FutureInstance } from 'fluture'
+import Future, { FutureInstance, fork } from 'fluture'
 
 interface RuntimeOptions {
   target?: number
@@ -114,6 +114,7 @@ export function createRuntimeAgent(): Agent {
   }
 
   return {
+    name: 'RuntimeAgent',
     raiseIntent,
     subscribeToIntent,
     subscribeToIntentAndForward,

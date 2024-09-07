@@ -63,11 +63,15 @@ export const ScaleToFitViewport: React.FC<PropsWithChildren> = ({
   return (
     <Block position="relative" height="100%" props={{ ref }}>
       <Block
-        width={vWidth}
-        height={vHeight}
-        transform={`translate(${offset[0]}px, ${offset[1]}px) scale(${scale})`}
         transformOrigin="center"
         background={colors.white}
+        props={{
+          style: {
+            transform: `translate(${offset[0]}px, ${offset[1]}px) scale(${scale})`,
+            width: `${vWidth}px`,
+            height: `${vHeight}px`,
+          },
+        }}
       >
         {children}
       </Block>
