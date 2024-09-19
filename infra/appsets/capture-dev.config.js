@@ -5,5 +5,6 @@ module.exports = {
     require("../apps/workspace").dev,
     require("../apps/admin").dev,
     require("../apps/capture").dev,
+    require("../apps/dev-toolbar").dev,
   ],
 };

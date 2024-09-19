@@ -14,7 +14,11 @@ import { HomeRoute } from './routes/HomeRoute'
 import { MainRoute } from './routes/MainRoute'
 import { RecordingRoute } from './routes/RecordingRoute'
 
+import { AuthProvider, RequireSession } from '@repro/auth'
 import { PortalRootProvider } from '@repro/design'
+import { AuthLayout } from './AuthLayout'
+import { LoginRoute } from './routes/LoginRoute'
+import { RegisterRoute } from './routes/RegisterRoute'
 
 declare global {
   interface Window {
@@ -47,22 +51,39 @@ if (rootElem) {
     : undefined
 
   root.render(
-    <ApiProvider>
-      <BrowserRouter basename={basename}>
-        <PortalRootProvider>
-          <Routes>
-            <Route path="/" element={<MainRoute />}>
-              <Route element={<Layout />}>
-                <Route index element={<HomeRoute />} />
+    <BrowserRouter basename={basename}>
+      <ApiProvider>
+        <AuthProvider>
+          <PortalRootProvider>
+            <Routes>
+              <Route path="/" element={<MainRoute />}>
+                <Route element={<AuthLayout />}>
+                  <Route path="account/login" element={<LoginRoute />} />
+                  <Route path="account/register" element={<RegisterRoute />} />
+                  {/* <Route */}
+                  {/*   path="account/accept-invitation" */}
+                  {/*   element={<AcceptInvitationRoute />} */}
+                  {/* /> */}
+                </Route>
+
                 <Route
-                  path="recordings/:recordingId"
-                  element={<RecordingRoute />}
-                />
+                  element={
+                    <RequireSession>
+                      <Layout />
+                    </RequireSession>
+                  }
+                >
+                  <Route index element={<HomeRoute />} />
+                  <Route
+                    path="recordings/:recordingId"
+                    element={<RecordingRoute />}
+                  />
+                </Route>
               </Route>
-            </Route>
-          </Routes>
-        </PortalRootProvider>
-      </BrowserRouter>
-    </ApiProvider>
+            </Routes>
+          </PortalRootProvider>
+        </AuthProvider>
+      </ApiProvider>
+    </BrowserRouter>
   )
 }

@@ -1,9 +1,10 @@
 import { useApiClient } from '@repro/api-client'
+import { Card } from '@repro/design'
 import { RecordingInfo } from '@repro/domain'
 import { useFuture } from '@repro/future-utils'
 import { Block } from 'jsxstyle'
 import React from 'react'
-import { defaultEnv as env } from '~/config/env'
+import { Link } from 'react-router-dom'
 
 export const HomeRoute: React.FC = () => {
   const apiClient = useApiClient()
@@ -15,18 +16,13 @@ export const HomeRoute: React.FC = () => {
 
   if (result.success) {
     return (
-      <>
+      <Card>
         {result.data.map(recording => (
-          <Block fontSize={15} lineHeight={1.5}>
-            <a
-              href={`${env.REPRO_WORKSPACE_URL}/recordings/${recording.id}`}
-              target="_blank"
-            >
-              {recording.title}
-            </a>
+          <Block key={recording.id} fontSize={15} lineHeight={1.5}>
+            <Link to={`/recordings/${recording.id}`}>{recording.title}</Link>
           </Block>
         ))}
-      </>
+      </Card>
     )
   }
 

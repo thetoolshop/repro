@@ -1,0 +1,38 @@
+{
+  "name": "@repro/auth",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "jest --passWithNoTests",
+    "fmt": "prettier --write src",
+    "typecheck": "tsc --noEmit"
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@hookform/resolvers": "^2.9.10",
+    "@repro/api-client": "workspace:*",
+    "@repro/atom": "workspace:*",
+    "@repro/design": "workspace:*",
+    "@repro/domain": "workspace:*",
+    "@repro/future-utils": "workspace:*",
+    "@repro/validation": "workspace:*",
+    "fluture": "^14.0.0",
+    "jsxstyle": "^2.5.2",
+    "lucide-react": "^0.277.0",
+    "react": "18.2.0",
+    "react-hook-form": "^7.38.0",
+    "react-router": "^6.4.3",
+    "zod": "^3.22.2"
+  },
+  "devDependencies": {
+    "@types/jest": "^28.1.7",
+    "@types/node": "^18.6.2",
+    "@types/react": "18.2.63",
+    "jest": "^28.1.3",
+    "prettier": "^3.0.0",
+    "prettier-plugin-organize-imports": "^3.2.3",
+    "ts-eager": "^2.0.2",
+    "ts-jest": "^28.0.8",
+    "typescript": "overridden"
+  }
+}

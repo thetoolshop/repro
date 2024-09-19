@@ -18,7 +18,9 @@
       "jsxstyle-utils": "link:npm-forks/jsxstyle/packages/jsxstyle-utils",
       "react": "18.2.0",
       "react-dom": "18.2.0",
-      "typescript": "5.3.3"
+      "react-hook-form": "7.53.0",
+      "typescript": "5.3.3",
+      "zod": "3.23.8"
     }
   },
   "dependencies": {

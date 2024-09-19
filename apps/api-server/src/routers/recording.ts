@@ -1,8 +1,8 @@
-import { RecordingMode } from '@repro/domain'
+import { RecordingMode, StaffUser, User } from '@repro/domain'
 import { parseSchema } from '@repro/validation'
 import { FastifyPluginAsync } from 'fastify'
 import { ZodTypeProvider } from 'fastify-type-provider-zod'
-import { chain } from 'fluture'
+import { chain, go } from 'fluture'
 import z from 'zod'
 import { defaultSystemConfig } from '~/config/system'
 import { AccountService } from '~/services/account'
@@ -22,9 +22,11 @@ export function createRecordingRouter(
     app.get('/', (req, res) => {
       respondWith(
         res,
-        accountService
-          .ensureStaffUser(req.user)
-          .pipe(chain(() => recordingService.listInfo()))
+        go(function* () {
+          const user: User | StaffUser = yield req.getCurrentUser()
+          yield accountService.ensureStaffUser(user)
+          return yield recordingService.listInfo()
+        })
       )
     })
 

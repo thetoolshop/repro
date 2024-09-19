@@ -74,7 +74,8 @@ export function createInMemoryAuthStore(): AuthStore {
 
 export function createDefaultRequestOptions(
   authStore: AuthStore,
-  requestType: 'json' | 'binary'
+  requestType: 'json' | 'binary',
+  hasRequestBody: boolean
 ) {
   return authStore
     .getSessionToken()
@@ -83,12 +84,11 @@ export function createDefaultRequestOptions(
       map(
         token =>
           ({
-            mode: 'cors',
             cache: 'no-store',
-            credentials: 'omit',
+            credentials: 'include',
             headers: {
               ...(token ? { Authorization: `Bearer ${token}` } : {}),
-              ...(requestType === 'json'
+              ...(requestType === 'json' && hasRequestBody
                 ? { 'Content-Type': 'application/json' }
                 : {}),
             },
@@ -105,7 +105,11 @@ export function createFetch(authStore: AuthStore, config: ApiConfiguration) {
     requestType: 'json' | 'binary' = 'json',
     responseType: 'auto' | 'json' | 'binary' | 'text' = 'auto'
   ): FutureInstance<Error, R> {
-    const reqOptions = createDefaultRequestOptions(authStore, requestType)
+    const reqOptions = createDefaultRequestOptions(
+      authStore,
+      requestType,
+      init.body != null
+    )
 
     const res = reqOptions.pipe(
       chain(reqOptions => {

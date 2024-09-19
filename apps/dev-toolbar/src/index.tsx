@@ -1,4 +1,5 @@
 import { Stats, Trace } from '@repro/diagnostics'
+import { logger } from '@repro/logger'
 import { Agent, createLoopbackAgent, createPTPAgent } from '@repro/messaging'
 import { resolve } from 'fluture'
 import { attach, detach, usingAgent } from './ReproDevToolbar'
@@ -9,8 +10,8 @@ declare global {
 
 const standalone = process.env.MODE === 'standalone'
 
-console.log('Repro build version:', __BUILD_VERSION__)
-console.log('Repro build mode:', process.env.MODE ?? '(default: extension)')
+logger.debug('Repro build version:', __BUILD_VERSION__)
+logger.debug('Repro build mode:', process.env.MODE ?? '(default: extension)')
 
 if (process.env.NODE_ENV === 'development') {
   Stats.enable()

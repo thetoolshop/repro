@@ -3,7 +3,7 @@ import md5 from 'md5'
 import React, { useMemo } from 'react'
 
 interface Props {
-  email: string
+  email?: string
   name?: string
   mode?: 'full' | 'image-only' | 'text-only'
   size?: number
@@ -17,12 +17,12 @@ export const Avatar: React.FC<Props> = ({
   size = 30,
   color = 'inherit',
 }) => {
+  const hash = useMemo(() => {
+    return email != null ? md5(email.trim()) : null
+  }, [email])
+
   const showImage = mode === 'full' || mode === 'image-only'
   const showText = mode === 'full' || mode === 'text-only'
-
-  const hash = useMemo(() => {
-    return md5(email.trim())
-  }, [email])
 
   return (
     <Row alignItems="center" gap={10}>
@@ -33,10 +33,12 @@ export const Avatar: React.FC<Props> = ({
           width={size}
           height={size}
         >
-          <img
-            src={`https://www.gravatar.com/avatar/${hash}?s=${size}&d=mp`}
-            alt={name}
-          />
+          {hash != null && (
+            <img
+              src={`https://www.gravatar.com/avatar/${hash}?s=${size}&d=mp`}
+              alt={name}
+            />
+          )}
         </Block>
       )}
 

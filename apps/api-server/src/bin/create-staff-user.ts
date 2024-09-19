@@ -1,4 +1,5 @@
 import { input, password } from '@inquirer/prompts'
+import { fork } from 'fluture'
 import path from 'node:path'
 
 import { defaultEnv as env } from '~/config/env'
@@ -26,15 +27,13 @@ async function main() {
     validate: value => value === pw,
   })
 
-  console.log(name, email, pw)
-
-  // return accountService
-  //   .createStaffUser(name, email, pw)
-  //   .pipe(
-  //     fork(error => console.error('Unable to create staff user', error))(user =>
-  //       console.log('Staff user created:', user.id)
-  //     )
-  //   )
+  return accountService
+    .createStaffUser(name, email, pw)
+    .pipe(
+      fork(error => console.error('Unable to create staff user', error))(user =>
+        console.log('Staff user created:', user.id)
+      )
+    )
 }
 
 main()

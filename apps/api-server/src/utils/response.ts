@@ -63,7 +63,7 @@ export function createResponseUtils(config: SystemConfig) {
   function respondWithValue<T>(res: FastifyReply, value: T, status?: number) {
     if (value === null || value === undefined) {
       res.status(status ?? 204)
-      res.raw.end()
+      res.send()
     } else {
       res.status(status ?? 200)
 

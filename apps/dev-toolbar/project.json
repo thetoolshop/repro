@@ -1,5 +1,5 @@
 {
-  "name": "@tshp/toolbar",
+  "name": "@repro/dev-toolbar",
   "targets": {
     "build": {
       "executor": "nx:run-script",

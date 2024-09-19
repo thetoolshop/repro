@@ -12,10 +12,10 @@ import { defaultEnv as env } from '~/config/env'
 import { createSessionDecorator } from '~/decorators/session'
 import { createSQLiteDatabaseClient } from '~/modules/database'
 import { createFileSystemStorageClient } from '~/modules/storage-fs'
-import { createAccountRouter } from '~/routers/account'
 import { createHealthRouter } from '~/routers/health'
 import { createProjectRouter } from '~/routers/project'
 import { createRecordingRouter } from '~/routers/recording'
+import { createStaffRouter } from '~/routers/staff'
 import { createAccountService } from '~/services/account'
 import { createHealthService } from '~/services/health'
 import { createProjectService } from '~/services/project'
@@ -33,7 +33,7 @@ const storage = createFileSystemStorageClient({
 })
 
 const accountService = createAccountService(database)
-const accountRouter = createAccountRouter(accountService)
+const staffAccountRouter = createStaffRouter(accountService)
 
 const healthService = createHealthService(database, storage)
 const healthRouter = createHealthRouter(healthService)
@@ -70,7 +70,13 @@ function bootstrap(routers: Record<string, FastifyPluginAsync>) {
 
   app.addContentTypeParser('*', async () => {})
 
-  app.register(cors)
+  app.register(cors, {
+    origin:
+      process.env.NODE_ENV === 'production' ? 'https://admin.repro.dev' : true,
+    credentials: true,
+    allowedHeaders: ['Authorization', 'Content-Type'],
+  })
+
   app.register(compress)
 
   app.setValidatorCompiler(validatorCompiler)
@@ -103,7 +109,7 @@ function bootstrap(routers: Record<string, FastifyPluginAsync>) {
 }
 
 bootstrap({
-  '/account': accountRouter,
+  '/account': staffAccountRouter,
   '/health': healthRouter,
   '/projects': projectRouter,
   '/recordings': recordingRouter,

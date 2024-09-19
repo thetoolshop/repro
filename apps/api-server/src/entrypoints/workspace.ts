@@ -68,7 +68,12 @@ function bootstrap(routers: Record<string, FastifyPluginAsync>) {
 
   app.addContentTypeParser('*', async () => {})
 
-  app.register(cors)
+  app.register(cors, {
+    origin:
+      process.env.NODE_ENV === 'production' ? 'https://app.repro.dev' : true,
+    credentials: true,
+  })
+
   app.register(compress)
 
   app.setValidatorCompiler(validatorCompiler)

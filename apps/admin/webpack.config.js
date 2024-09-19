@@ -55,6 +55,7 @@ module.exports = {
 
   plugins: [
     new EnvironmentPlugin([
+      'AUTH_STORAGE',
       'BUILD_ENV',
       'REPRO_ADMIN_URL',
       'REPRO_API_URL',
