@@ -36,6 +36,7 @@ export const RegisterForm: React.FC<Props> = ({ onSuccess, onFailure }) => {
   const registerAccount = useRegister()
 
   const methods = useForm<FormState>({
+    mode: 'onChange',
     resolver: zodResolver(formSchema),
     defaultValues: {
       accountName: '',
@@ -109,23 +110,34 @@ export const RegisterForm: React.FC<Props> = ({ onSuccess, onFailure }) => {
           <Input
             autoFocus={true}
             label="Company"
+            context={formState.errors.accountName != null ? 'error' : 'normal'}
             {...register('accountName', { required: true })}
           />
 
           <Input
             label="Your name"
+            context={formState.errors.userName != null ? 'error' : 'normal'}
             {...register('userName', { required: true })}
           />
 
-          <Input label="Email" {...register('email', { required: true })} />
+          <Input
+            label="Email"
+            autoComplete="email"
+            context={formState.errors.email != null ? 'error' : 'normal'}
+            {...register('email', { required: true })}
+          />
 
           <Input
             label="Password"
+            type="password"
+            autoComplete="new-password"
             {...register('password', { required: true })}
           />
 
           <Input
             label="Confirm password"
+            type="password"
+            autoComplete="new-password"
             {...register('confirmedPassword', { required: true })}
           />
 

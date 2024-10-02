@@ -14,6 +14,12 @@
         "script": "start"
       },
       "dependsOn": ["^build"]
+    },
+    "start-mailpit": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "mailpit"
+      }
     }
   }
 }

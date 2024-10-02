@@ -11,6 +11,7 @@ import {
 import { defaultEnv as env } from '~/config/env'
 import { createSessionDecorator } from '~/decorators/session'
 import { createSQLiteDatabaseClient } from '~/modules/database'
+import { createSMTPEmailUtils } from '~/modules/email-utils'
 import { createFileSystemStorageClient } from '~/modules/storage-fs'
 import { createAccountRouter } from '~/routers/account'
 import { createHealthRouter } from '~/routers/health'
@@ -31,14 +32,28 @@ const storage = createFileSystemStorageClient({
   path: path.join(projectRoot, env.STORAGE_DIR),
 })
 
-const accountService = createAccountService(database)
-const accountRouter = createAccountRouter(accountService)
+const emailUtils = createSMTPEmailUtils({
+  smtpOptions: {
+    host: env.EMAIL_SMTP_HOST,
+    port: env.EMAIL_SMTP_PORT,
+    secure: env.EMAIL_SMTP_SECURE,
+    auth: {
+      user: env.EMAIL_SMTP_USER,
+      pass: env.EMAIL_SMTP_PASS,
+    },
+  },
+  addresses: {
+    'no-reply': 'no-reply@repro.dev',
+  },
+})
 
+const accountService = createAccountService(database, emailUtils)
 const healthService = createHealthService(database, storage)
-const healthRouter = createHealthRouter(healthService)
-
 const projectService = createProjectService(database)
 const recordingService = createRecordingService(database, storage)
+
+const accountRouter = createAccountRouter(accountService)
+const healthRouter = createHealthRouter(healthService)
 const projectRouter = createProjectRouter(
   projectService,
   recordingService,

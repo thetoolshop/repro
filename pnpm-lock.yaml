@@ -1,12 +1,12 @@
 lockfileVersion: '6.0'
 
 overrides:
-  '@types/react': 18.2.63
-  '@types/react-dom': 18.2.20
+  '@types/react': 18.3.10
+  '@types/react-dom': 18.3.0
   jsxstyle: link:npm-forks/jsxstyle/packages/jsxstyle
   jsxstyle-utils: link:npm-forks/jsxstyle/packages/jsxstyle-utils
-  react: 18.2.0
-  react-dom: 18.2.0
+  react: 18.3.1
+  react-dom: 18.3.1
   react-hook-form: 7.53.0
   typescript: 5.3.3
   zod: 3.23.8
@@ -78,19 +78,19 @@ importers:
         version: link:../../npm-forks/jsxstyle/packages/jsxstyle
       lucide-react:
         specifier: ^0.277.0
-        version: 0.277.0(react@18.2.0)
+        version: 0.277.0(react@18.3.1)
       react:
-        specifier: 18.2.0
-        version: 18.2.0
+        specifier: 18.3.1
+        version: 18.3.1
       react-dom:
-        specifier: 18.2.0
-        version: 18.2.0(react@18.2.0)
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
       react-router:
         specifier: ^6.4.3
-        version: 6.4.3(react@18.2.0)
+        version: 6.4.3(react@18.3.1)
       react-router-dom:
         specifier: ^6.4.3
-        version: 6.4.3(react-dom@18.2.0)(react@18.2.0)
+        version: 6.4.3(react-dom@18.3.1)(react@18.3.1)
       zod:
         specifier: 3.23.8
         version: 3.23.8
@@ -108,11 +108,11 @@ importers:
         specifier: ^18.6.2
         version: 18.7.13
       '@types/react':
-        specifier: 18.2.63
-        version: 18.2.63
+        specifier: 18.3.10
+        version: 18.3.10
       '@types/react-dom':
-        specifier: 18.2.20
-        version: 18.2.20
+        specifier: 18.3.0
+        version: 18.3.0
       css-loader:
         specifier: ^6.6.0
         version: 6.6.0(webpack@5.75.0)
@@ -230,6 +230,12 @@ importers:
       kysely:
         specifier: ^0.27.2
         version: 0.27.2
+      nodemailer:
+        specifier: ^6.9.15
+        version: 6.9.15
+      nunjucks:
+        specifier: ^3.2.4
+        version: 3.2.4
       rxjs:
         specifier: ^7.8.0
         version: 7.8.0
@@ -264,6 +270,12 @@ importers:
       '@types/node':
         specifier: ^18.6.2
         version: 18.7.13
+      '@types/nodemailer':
+        specifier: ^6.4.16
+        version: 6.4.16
+      '@types/nunjucks':
+        specifier: ^3.2.6
+        version: 3.2.6
       '@types/supertest':
         specifier: ^6.0.2
         version: 6.0.2
@@ -389,16 +401,16 @@ importers:
         version: link:../../npm-forks/jsxstyle/packages/jsxstyle
       lucide-react:
         specifier: ^0.277.0
-        version: 0.277.0(react@18.2.0)
+        version: 0.277.0(react@18.3.1)
       react:
-        specifier: 18.2.0
-        version: 18.2.0
+        specifier: 18.3.1
+        version: 18.3.1
       react-dom:
-        specifier: 18.2.0
-        version: 18.2.0(react@18.2.0)
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
       react-hook-form:
         specifier: 7.53.0
-        version: 7.53.0(react@18.2.0)
+        version: 7.53.0(react@18.3.1)
       rxjs:
         specifier: ^7.8.0
         version: 7.8.0
@@ -408,7 +420,7 @@ importers:
     devDependencies:
       '@ladle/react':
         specifier: ^4.0.2
-        version: 4.0.2(@types/node@18.7.13)(@types/react@18.2.63)(react-dom@18.2.0)(react@18.2.0)(typescript@5.3.3)
+        version: 4.0.2(@types/node@18.7.13)(@types/react@18.3.10)(react-dom@18.3.1)(react@18.3.1)(typescript@5.3.3)
       '@types/chrome':
         specifier: ^0.0.176
         version: 0.0.176
@@ -419,11 +431,11 @@ importers:
         specifier: ^18.6.2
         version: 18.7.13
       '@types/react':
-        specifier: 18.2.63
-        version: 18.2.63
+        specifier: 18.3.10
+        version: 18.3.10
       '@types/react-dom':
-        specifier: 18.2.20
-        version: 18.2.20
+        specifier: 18.3.0
+        version: 18.3.0
       css-loader:
         specifier: ^6.6.0
         version: 6.6.0(webpack@5.75.0)
@@ -540,19 +552,19 @@ importers:
         version: link:../../npm-forks/jsxstyle/packages/jsxstyle
       lucide-react:
         specifier: ^0.277.0
-        version: 0.277.0(react@18.2.0)
+        version: 0.277.0(react@18.3.1)
       pretty-bytes:
         specifier: ^6.0.0
         version: 6.0.0
       react:
-        specifier: 18.2.0
-        version: 18.2.0
+        specifier: 18.3.1
+        version: 18.3.1
       react-dom:
-        specifier: 18.2.0
-        version: 18.2.0(react@18.2.0)
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
       react-window:
         specifier: ^1.8.8
-        version: 1.8.8(react-dom@18.2.0)(react@18.2.0)
+        version: 1.8.8(react-dom@18.3.1)(react@18.3.1)
       rxjs:
         specifier: ^7.8.0
         version: 7.8.0
@@ -567,11 +579,11 @@ importers:
         specifier: ^18.6.2
         version: 18.7.13
       '@types/react':
-        specifier: 18.2.63
-        version: 18.2.63
+        specifier: 18.3.10
+        version: 18.3.10
       '@types/react-dom':
-        specifier: 18.2.20
-        version: 18.2.20
+        specifier: 18.3.0
+        version: 18.3.0
       '@types/react-window':
         specifier: ^1.8.5
         version: 1.8.5
@@ -667,16 +679,16 @@ importers:
         version: link:../../npm-forks/jsxstyle/packages/jsxstyle
       lucide-react:
         specifier: ^0.277.0
-        version: 0.277.0(react@18.2.0)
+        version: 0.277.0(react@18.3.1)
       prop-types:
         specifier: ^15.8.1
         version: 15.8.1
       react:
-        specifier: 18.2.0
-        version: 18.2.0
+        specifier: 18.3.1
+        version: 18.3.1
       react-dom:
-        specifier: 18.2.0
-        version: 18.2.0(react@18.2.0)
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
     devDependencies:
       '@repro/testing-utils':
         specifier: workspace:*
@@ -691,11 +703,11 @@ importers:
         specifier: ^18.6.2
         version: 18.7.13
       '@types/react':
-        specifier: 18.2.63
-        version: 18.2.63
+        specifier: 18.3.10
+        version: 18.3.10
       '@types/react-dom':
-        specifier: 18.2.20
-        version: 18.2.20
+        specifier: 18.3.0
+        version: 18.3.0
       css-loader:
         specifier: ^6.6.0
         version: 6.6.0(webpack@5.75.0)
@@ -848,7 +860,7 @@ importers:
         version: link:../../npm-forks/jsxstyle/packages/jsxstyle
       lucide-react:
         specifier: ^0.277.0
-        version: 0.277.0(react@18.2.0)
+        version: 0.277.0(react@18.3.1)
       pretty-bytes:
         specifier: ^6.0.0
         version: 6.0.0
@@ -859,26 +871,26 @@ importers:
         specifier: ^15.8.1
         version: 15.8.1
       react:
-        specifier: 18.2.0
-        version: 18.2.0
+        specifier: 18.3.1
+        version: 18.3.1
       react-dom:
-        specifier: 18.2.0
-        version: 18.2.0(react@18.2.0)
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
       react-hook-form:
         specifier: 7.53.0
-        version: 7.53.0(react@18.2.0)
+        version: 7.53.0(react@18.3.1)
       react-router:
         specifier: ^6.4.3
-        version: 6.4.3(react@18.2.0)
+        version: 6.4.3(react@18.3.1)
       react-router-dom:
         specifier: ^6.4.3
-        version: 6.4.3(react-dom@18.2.0)(react@18.2.0)
+        version: 6.4.3(react-dom@18.3.1)(react@18.3.1)
       react-virtualized-auto-sizer:
         specifier: ^1.0.7
-        version: 1.0.7(react-dom@18.2.0)(react@18.2.0)
+        version: 1.0.7(react-dom@18.3.1)(react@18.3.1)
       react-window:
         specifier: ^1.8.8
-        version: 1.8.8(react-dom@18.2.0)(react@18.2.0)
+        version: 1.8.8(react-dom@18.3.1)(react@18.3.1)
       rxjs:
         specifier: ^7.8.0
         version: 7.8.0
@@ -902,11 +914,11 @@ importers:
         specifier: ^18.6.2
         version: 18.7.13
       '@types/react':
-        specifier: 18.2.63
-        version: 18.2.63
+        specifier: 18.3.10
+        version: 18.3.10
       '@types/react-dom':
-        specifier: 18.2.20
-        version: 18.2.20
+        specifier: 18.3.0
+        version: 18.3.0
       '@types/react-virtualized-auto-sizer':
         specifier: ^1.0.1
         version: 1.0.1
@@ -1090,8 +1102,8 @@ importers:
         specifier: ^1.10.0
         version: 1.10.0
       react:
-        specifier: 18.2.0
-        version: 18.2.0
+        specifier: 18.3.1
+        version: 18.3.1
       zod:
         specifier: 3.23.8
         version: 3.23.8
@@ -1100,8 +1112,8 @@ importers:
         specifier: ^18.7.13
         version: 18.7.13
       '@types/react':
-        specifier: 18.2.63
-        version: 18.2.63
+        specifier: 18.3.10
+        version: 18.3.10
       prettier:
         specifier: ^3.0.0
         version: 3.0.0
@@ -1118,8 +1130,8 @@ importers:
   packages/atom:
     dependencies:
       react:
-        specifier: 18.2.0
-        version: 18.2.0
+        specifier: 18.3.1
+        version: 18.3.1
       rxjs:
         specifier: ^7.8.0
         version: 7.8.0
@@ -1131,8 +1143,8 @@ importers:
         specifier: ^18.6.2
         version: 18.7.13
       '@types/react':
-        specifier: 18.2.63
-        version: 18.2.63
+        specifier: 18.3.10
+        version: 18.3.10
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@18.7.13)(ts-node@10.9.1)
@@ -1183,16 +1195,16 @@ importers:
         version: link:../../npm-forks/jsxstyle/packages/jsxstyle
       lucide-react:
         specifier: ^0.277.0
-        version: 0.277.0(react@18.2.0)
+        version: 0.277.0(react@18.3.1)
       react:
-        specifier: 18.2.0
-        version: 18.2.0
+        specifier: 18.3.1
+        version: 18.3.1
       react-hook-form:
         specifier: 7.53.0
-        version: 7.53.0(react@18.2.0)
+        version: 7.53.0(react@18.3.1)
       react-router:
         specifier: ^6.4.3
-        version: 6.4.3(react@18.2.0)
+        version: 6.4.3(react@18.3.1)
       zod:
         specifier: 3.23.8
         version: 3.23.8
@@ -1204,8 +1216,8 @@ importers:
         specifier: ^18.6.2
         version: 18.7.13
       '@types/react':
-        specifier: 18.2.63
-        version: 18.2.63
+        specifier: 18.3.10
+        version: 18.3.10
       jest:
         specifier: ^28.1.3
         version: 28.1.3(@types/node@18.7.13)
@@ -1228,8 +1240,8 @@ importers:
   packages/billing:
     dependencies:
       react:
-        specifier: 18.2.0
-        version: 18.2.0
+        specifier: 18.3.1
+        version: 18.3.1
     devDependencies:
       '@types/jest':
         specifier: ^28.1.7
@@ -1238,8 +1250,8 @@ importers:
         specifier: ^18.7.13
         version: 18.7.13
       '@types/react':
-        specifier: 18.2.63
-        version: 18.2.63
+        specifier: 18.3.10
+        version: 18.3.10
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@18.7.13)(ts-node@10.9.1)
@@ -1299,8 +1311,8 @@ importers:
         specifier: workspace:*
         version: link:../design
       react:
-        specifier: 18.2.0
-        version: 18.2.0
+        specifier: 18.3.1
+        version: 18.3.1
     devDependencies:
       '@types/jest':
         specifier: ^28.1.7
@@ -1309,8 +1321,8 @@ importers:
         specifier: ^18.6.2
         version: 18.7.13
       '@types/react':
-        specifier: 18.2.63
-        version: 18.2.63
+        specifier: 18.3.10
+        version: 18.3.10
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@18.7.13)(ts-node@10.9.1)
@@ -1373,7 +1385,7 @@ importers:
         version: link:../../npm-forks/jsxstyle/packages/jsxstyle
       lucide-react:
         specifier: ^0.277.0
-        version: 0.277.0(react@18.2.0)
+        version: 0.277.0(react@18.3.1)
       md5:
         specifier: ^2.3.0
         version: 2.3.0
@@ -1381,14 +1393,14 @@ importers:
         specifier: ^15.8.1
         version: 15.8.1
       react:
-        specifier: 18.2.0
-        version: 18.2.0
+        specifier: 18.3.1
+        version: 18.3.1
       react-dom:
-        specifier: 18.2.0
-        version: 18.2.0(react@18.2.0)
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
       react-hook-form:
         specifier: 7.53.0
-        version: 7.53.0(react@18.2.0)
+        version: 7.53.0(react@18.3.1)
       react-merge-refs:
         specifier: ^1.1.0
         version: 1.1.0
@@ -1401,7 +1413,7 @@ importers:
     devDependencies:
       '@ladle/react':
         specifier: ^4.0.2
-        version: 4.0.2(@types/node@18.7.13)(@types/react@18.2.63)(react-dom@18.2.0)(react@18.2.0)(typescript@5.3.3)
+        version: 4.0.2(@types/node@18.7.13)(@types/react@18.3.10)(react-dom@18.3.1)(react@18.3.1)(typescript@5.3.3)
       '@types/jest':
         specifier: ^28.1.7
         version: 28.1.8
@@ -1412,11 +1424,11 @@ importers:
         specifier: ^18.6.2
         version: 18.7.13
       '@types/react':
-        specifier: 18.2.63
-        version: 18.2.63
+        specifier: 18.3.10
+        version: 18.3.10
       '@types/react-dom':
-        specifier: 18.2.20
-        version: 18.2.20
+        specifier: 18.3.0
+        version: 18.3.0
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@18.7.13)(ts-node@10.9.1)
@@ -1476,7 +1488,7 @@ importers:
         version: link:../../npm-forks/jsxstyle/packages/jsxstyle
       lucide-react:
         specifier: ^0.277.0
-        version: 0.277.0(react@18.2.0)
+        version: 0.277.0(react@18.3.1)
       pretty-bytes:
         specifier: ^6.0.0
         version: 6.0.0
@@ -1484,17 +1496,17 @@ importers:
         specifier: ^8.0.0
         version: 8.0.0
       react:
-        specifier: 18.2.0
-        version: 18.2.0
+        specifier: 18.3.1
+        version: 18.3.1
       react-hook-form:
         specifier: 7.53.0
-        version: 7.53.0(react@18.2.0)
+        version: 7.53.0(react@18.3.1)
       react-virtualized-auto-sizer:
         specifier: ^1.0.7
-        version: 1.0.7(react-dom@18.2.0)(react@18.2.0)
+        version: 1.0.7(react-dom@18.3.1)(react@18.3.1)
       react-window:
         specifier: ^1.8.8
-        version: 1.8.8(react-dom@18.2.0)(react@18.2.0)
+        version: 1.8.8(react-dom@18.3.1)(react@18.3.1)
       rxjs:
         specifier: ^7.8.0
         version: 7.8.0
@@ -1509,8 +1521,8 @@ importers:
         specifier: ^18.6.2
         version: 18.7.13
       '@types/react':
-        specifier: 18.2.63
-        version: 18.2.63
+        specifier: 18.3.10
+        version: 18.3.10
       '@types/react-virtualized-auto-sizer':
         specifier: ^1.0.1
         version: 1.0.1
@@ -1650,8 +1662,8 @@ importers:
         specifier: ^14.0.0
         version: 14.0.0
       react:
-        specifier: 18.2.0
-        version: 18.2.0
+        specifier: 18.3.1
+        version: 18.3.1
       rxjs:
         specifier: ^7.8.0
         version: 7.8.0
@@ -1663,8 +1675,8 @@ importers:
         specifier: ^18.6.2
         version: 18.7.13
       '@types/react':
-        specifier: 18.2.63
-        version: 18.2.63
+        specifier: 18.3.10
+        version: 18.3.10
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@18.7.13)(ts-node@10.9.1)
@@ -1717,8 +1729,8 @@ importers:
         specifier: ^14.0.0
         version: 14.0.0
       react:
-        specifier: 18.2.0
-        version: 18.2.0
+        specifier: 18.3.1
+        version: 18.3.1
       rxjs:
         specifier: ^7.8.0
         version: 7.8.0
@@ -1730,8 +1742,8 @@ importers:
         specifier: ^18.6.2
         version: 18.7.13
       '@types/react':
-        specifier: 18.2.63
-        version: 18.2.63
+        specifier: 18.3.10
+        version: 18.3.10
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@18.7.13)(ts-node@10.9.1)
@@ -1837,10 +1849,10 @@ importers:
         version: link:../../npm-forks/jsxstyle/packages/jsxstyle
       lucide-react:
         specifier: ^0.277.0
-        version: 0.277.0(react@18.2.0)
+        version: 0.277.0(react@18.3.1)
       react:
-        specifier: 18.2.0
-        version: 18.2.0
+        specifier: 18.3.1
+        version: 18.3.1
       rxjs:
         specifier: ^7.8.0
         version: 7.8.0
@@ -1850,7 +1862,7 @@ importers:
     devDependencies:
       '@ladle/react':
         specifier: ^4.0.2
-        version: 4.0.2(@types/node@18.7.13)(@types/react@18.2.63)(react-dom@18.2.0)(react@18.2.0)(typescript@5.3.3)
+        version: 4.0.2(@types/node@18.7.13)(@types/react@18.3.10)(react-dom@18.3.1)(react@18.3.1)(typescript@5.3.3)
       '@repro/testing-utils':
         specifier: workspace:*
         version: link:../testing-utils
@@ -1861,8 +1873,8 @@ importers:
         specifier: ^18.6.2
         version: 18.7.13
       '@types/react':
-        specifier: 18.2.63
-        version: 18.2.63
+        specifier: 18.3.10
+        version: 18.3.10
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@18.7.13)(ts-node@10.9.1)
@@ -1939,8 +1951,8 @@ importers:
         specifier: workspace:*
         version: link:../vdom-utils
       react:
-        specifier: 18.2.0
-        version: 18.2.0
+        specifier: 18.3.1
+        version: 18.3.1
       rxjs:
         specifier: ^7.8.0
         version: 7.8.0
@@ -1961,8 +1973,8 @@ importers:
         specifier: ^18.6.2
         version: 18.7.13
       '@types/react':
-        specifier: 18.2.63
-        version: 18.2.63
+        specifier: 18.3.10
+        version: 18.3.10
       isomorphic-fetch:
         specifier: ^3.0.0
         version: 3.0.0
@@ -3707,7 +3719,7 @@ packages:
     peerDependencies:
       react-hook-form: ^7.0.0
     dependencies:
-      react-hook-form: 7.53.0(react@18.2.0)
+      react-hook-form: 7.53.0(react@18.3.1)
     dev: false
 
   /@inquirer/checkbox@2.5.0:
@@ -4436,17 +4448,17 @@ packages:
       '@jridgewell/sourcemap-codec': 1.4.15
     dev: true
 
-  /@ladle/react-context@1.0.1(react-dom@18.2.0)(react@18.2.0):
+  /@ladle/react-context@1.0.1(react-dom@18.3.1)(react@18.3.1):
     resolution: {integrity: sha512-xVQ8siyOEQG6e4Knibes1uA3PTyXnqiMmfSmd5pIbkzeDty8NCBtYHhTXSlfmcDNEsw/G8OzNWo4VbyQAVDl2A==}
     peerDependencies:
       react: '>=16.14.0'
       react-dom: '>=16.14.0'
     dependencies:
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
     dev: true
 
-  /@ladle/react@4.0.2(@types/node@18.7.13)(@types/react@18.2.63)(react-dom@18.2.0)(react@18.2.0)(typescript@5.3.3):
+  /@ladle/react@4.0.2(@types/node@18.7.13)(@types/react@18.3.10)(react-dom@18.3.1)(react@18.3.1)(typescript@5.3.3):
     resolution: {integrity: sha512-SnYniR/U7kJX1Zh199jhjxqiFa5e5eA8chuX6uYEZYAUtCCY/hQqGr7/7Grr0j6Q4FYu9iQyyV2K1NJKDdUZIw==}
     engines: {node: '>=18.0.0'}
     hasBin: true
@@ -4461,9 +4473,9 @@ packages:
       '@babel/template': 7.24.6
       '@babel/traverse': 7.24.6
       '@babel/types': 7.24.6
-      '@ladle/react-context': 1.0.1(react-dom@18.2.0)(react@18.2.0)
+      '@ladle/react-context': 1.0.1(react-dom@18.3.1)(react@18.3.1)
       '@mdx-js/mdx': 3.0.1
-      '@mdx-js/react': 3.0.1(@types/react@18.2.63)(react@18.2.0)
+      '@mdx-js/react': 3.0.1(@types/react@18.3.10)(react@18.3.1)
       '@vitejs/plugin-react': 4.2.1(vite@5.1.5)
       '@vitejs/plugin-react-swc': 3.6.0(vite@5.1.5)
       axe-core: 4.8.4
@@ -4481,13 +4493,13 @@ packages:
       lodash.merge: 4.6.2
       msw: 2.2.3(typescript@5.3.3)
       open: 9.1.0
-      prism-react-renderer: 2.3.1(react@18.2.0)
+      prism-react-renderer: 2.3.1(react@18.3.1)
       prop-types: 15.8.1
       query-string: 8.2.0
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
-      react-hotkeys-hook: 4.5.0(react-dom@18.2.0)(react@18.2.0)
-      react-inspector: 6.0.2(react@18.2.0)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      react-hotkeys-hook: 4.5.0(react-dom@18.3.1)(react@18.3.1)
+      react-inspector: 6.0.2(react@18.3.1)
       rehype-class-names: 1.0.14
       rehype-raw: 7.0.0
       remark-gfm: 4.0.0
@@ -4548,15 +4560,15 @@ packages:
       - supports-color
     dev: true
 
-  /@mdx-js/react@3.0.1(@types/react@18.2.63)(react@18.2.0):
+  /@mdx-js/react@3.0.1(@types/react@18.3.10)(react@18.3.1):
     resolution: {integrity: sha512-9ZrPIU4MGf6et1m1ov3zKf+q9+deetI51zprKB1D/z3NOb+rUxxtEl3mCjW5wTGh6VhRdwPueh1oRzi6ezkA8A==}
     peerDependencies:
       '@types/react': '>=16'
       react: '>=16'
     dependencies:
       '@types/mdx': 2.0.11
-      '@types/react': 18.2.63
-      react: 18.2.0
+      '@types/react': 18.3.10
+      react: 18.3.1
     dev: true
 
   /@mswjs/cookies@1.1.0:
@@ -5614,6 +5626,16 @@ packages:
     dependencies:
       undici-types: 6.19.8
 
+  /@types/nodemailer@6.4.16:
+    resolution: {integrity: sha512-uz6hN6Pp0upXMcilM61CoKyjT7sskBoOWpptkjjJp8jIMlTdc3xG01U7proKkXzruMS4hS0zqtHNkNPFB20rKQ==}
+    dependencies:
+      '@types/node': 18.7.13
+    dev: true
+
+  /@types/nunjucks@3.2.6:
+    resolution: {integrity: sha512-pHiGtf83na1nCzliuAdq8GowYiXvH5l931xZ0YEHaLMNFgynpEqx+IPStlu7UaDkehfvl01e4x/9Tpwhy7Ue3w==}
+    dev: true
+
   /@types/prettier@2.7.2:
     resolution: {integrity: sha512-KufADq8uQqo1pYKVIYzfKbJfBAc0sOeXqGbFaSpv8MRmC/zXgowNZmFcbngndGk922QDmOASEXUZCaY48gs4cg==}
     dev: true
@@ -5634,38 +5656,33 @@ packages:
     resolution: {integrity: sha512-EEhsLsD6UsDM1yFhAvy0Cjr6VwmpMWqFBCb9w07wVugF7w9nfajxLuVmngTIpgS6svCnm6Vaw+MZhoDCKnOfsw==}
     dev: true
 
-  /@types/react-dom@18.2.20:
-    resolution: {integrity: sha512-HXN/biJY8nv20Cn9ZbCFq3liERd4CozVZmKbaiZ9KiKTrWqsP7eoGDO6OOGvJQwoVFuiXaiJ7nBBjiFFbRmQMQ==}
+  /@types/react-dom@18.3.0:
+    resolution: {integrity: sha512-EhwApuTmMBmXuFOikhQLIBUn6uFg81SwLMOAUgodJF14SOBOCMdU04gDoYi0WOJJHD144TL32z4yDqCW3dnkQg==}
     dependencies:
-      '@types/react': 18.2.63
+      '@types/react': 18.3.10
     dev: true
 
   /@types/react-virtualized-auto-sizer@1.0.1:
     resolution: {integrity: sha512-GH8sAnBEM5GV9LTeiz56r4ZhMOUSrP43tAQNSRVxNexDjcNKLCEtnxusAItg1owFUFE6k0NslV26gqVClVvong==}
     dependencies:
-      '@types/react': 18.2.63
+      '@types/react': 18.3.10
     dev: true
 
   /@types/react-window@1.8.5:
     resolution: {integrity: sha512-V9q3CvhC9Jk9bWBOysPGaWy/Z0lxYcTXLtLipkt2cnRj1JOSFNF7wqGpkScSXMgBwC+fnVRg/7shwgddBG5ICw==}
     dependencies:
-      '@types/react': 18.2.63
+      '@types/react': 18.3.10
     dev: true
 
-  /@types/react@18.2.63:
-    resolution: {integrity: sha512-ppaqODhs15PYL2nGUOaOu2RSCCB4Difu4UFrP4I3NHLloXC/ESQzQMi9nvjfT1+rudd0d2L3fQPJxRSey+rGlQ==}
+  /@types/react@18.3.10:
+    resolution: {integrity: sha512-02sAAlBnP39JgXwkAq3PeU9DVaaGpZyF3MGcC0MKgQVkZor5IiiDAipVaxQHtDJAmO4GIy/rVBy/LzVj76Cyqg==}
     dependencies:
       '@types/prop-types': 15.7.5
-      '@types/scheduler': 0.16.3
       csstype: 3.1.2
     dev: true
 
   /@types/retry@0.12.0:
     resolution: {integrity: sha512-wWKOClTTiizcZhXnPY4wikVAwmdYHp8q6DmC+EJUzAMsycb7HB32Kh9RN4+0gExjmPmZSAQjgURXIGATPegAvA==}
-    dev: true
-
-  /@types/scheduler@0.16.3:
-    resolution: {integrity: sha512-5cJ8CB4yAx7BH1oMvdU0Jh9lrEXyPkar6F9G/ERswkCuvP4KQZfZkSjcMbAICCpQTN4OuZn8tz0HiKv9TGZgrQ==}
     dev: true
 
   /@types/send@0.17.1:
@@ -5965,6 +5982,10 @@ packages:
       argparse: 2.0.1
     dev: true
 
+  /a-sync-waterfall@1.0.1:
+    resolution: {integrity: sha512-RYTOHHdWipFUliRFMCS4X2Yn2X8M87V/OpSqWzKKOGhzqyUxzyVmhHDH9sAvG+ZuQf/TAOFsLCpMw09I1ufUnA==}
+    dev: false
+
   /abab@2.0.6:
     resolution: {integrity: sha512-j2afSsaIENvHZN2B8GOpF566vZ5WVk5opAiMTvWgaQT8DkbOqsTfvNAvHoRGU2zzP8cPoqys+xHTRDWW8L+/BA==}
     dev: true
@@ -6230,7 +6251,6 @@ packages:
 
   /asap@2.0.6:
     resolution: {integrity: sha512-BSHWgDSAiKs50o2Re8ppvp3seVHXSRM44cdSsT9FfNEUUZLOGWVCsiWaRPWM1Znn+mqZ1OfVZ3z3DWEzSp7hRA==}
-    dev: true
 
   /asn1.js@5.4.1:
     resolution: {integrity: sha512-+I//4cYPccV8LdmBLiX8CYvf9Sp3vQsrqu2QNXRcrbiWvcx/UdlFiqUJJzxRQxgsZmvhXhn4cSKeSmoFjVdupA==}
@@ -6309,7 +6329,7 @@ packages:
   /axios@1.4.0:
     resolution: {integrity: sha512-S4XCWMEmzvo64T9GfvQDOXgYRDJ/wsSZc7Jvdgx5u1sd0JwsuPLqb3SYmusag+edF6ziyMensPVqLTSc1PiSEA==}
     dependencies:
-      follow-redirects: 1.15.2(debug@4.3.4)
+      follow-redirects: 1.15.9(debug@4.3.4)
       form-data: 4.0.0
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
@@ -7095,6 +7115,11 @@ packages:
 
   /commander@4.1.1:
     resolution: {integrity: sha512-NOKm8xhkzAjzFx8B2v5OAHT+u5pRQc2UCa2Vq9jYL/31o2wi9mxBA7LIFs3sV5VSC49z6pEhfbMULvShKj26WA==}
+    engines: {node: '>= 6'}
+    dev: false
+
+  /commander@5.1.0:
+    resolution: {integrity: sha512-P0CysNDQ7rtVw4QIQtm+MRxV66vKFSvlsQvGYXZWR3qFU0jlMKHZZZgw8e+8DSah4UDKMqnknRDQz+xuQXQ/Zg==}
     engines: {node: '>= 6'}
     dev: false
 
@@ -8377,7 +8402,7 @@ packages:
   /extrareqp2@1.0.0(debug@4.3.4):
     resolution: {integrity: sha512-Gum0g1QYb6wpPJCVypWP3bbIuaibcFiJcpuPM10YSXp/tzqi84x9PJageob+eN4xVRIOto4wjSGNLyMD54D2xA==}
     dependencies:
-      follow-redirects: 1.15.2(debug@4.3.4)
+      follow-redirects: 1.15.9(debug@4.3.4)
     transitivePeerDependencies:
       - debug
     dev: true
@@ -8677,8 +8702,8 @@ packages:
     resolution: {integrity: sha512-GRnmB5gPyJpAhTQdSZTSp9uaPSvl09KoYcMQtsB9rQoOmzs9dH6ffeccH+Z+cv6P68Hu5bC6JjRh4Ah/mHSNRw==}
     dev: false
 
-  /follow-redirects@1.15.2(debug@4.3.4):
-    resolution: {integrity: sha512-VQLG33o04KaQ8uYi2tVNbdrWp1QWxNNea+nmIB4EVM28v0hmP17z7aG1+wAkNzVq4KeXTq3221ye5qTJP91JwA==}
+  /follow-redirects@1.15.9(debug@4.3.4):
+    resolution: {integrity: sha512-gew4GsXizNgdoRyqmyfMHyAmXsZDk6mHkSxZFCzW9gwlbtOW44CDtYavM+y+72qD/Vq2l550kMF52DT8fOLJqQ==}
     engines: {node: '>=4.0'}
     peerDependencies:
       debug: '*'
@@ -9372,7 +9397,7 @@ packages:
     engines: {node: '>=8.0.0'}
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.15.2(debug@4.3.4)
+      follow-redirects: 1.15.9(debug@4.3.4)
       requires-port: 1.0.0
     transitivePeerDependencies:
       - debug
@@ -9420,6 +9445,7 @@ packages:
   /iconv-lite@0.6.3:
     resolution: {integrity: sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw==}
     engines: {node: '>=0.10.0'}
+    requiresBuild: true
     dependencies:
       safer-buffer: 2.1.2
     dev: true
@@ -11249,12 +11275,12 @@ packages:
     engines: {node: '>=12'}
     dev: true
 
-  /lucide-react@0.277.0(react@18.2.0):
+  /lucide-react@0.277.0(react@18.3.1):
     resolution: {integrity: sha512-9epmznme+vW14V9d2rsMeLr3fMnf59lYDUOVUg6s7oVN22Zq8h4B30+3CIdFFV9UXCjPG5ZNKHfO/hf96cl46A==}
     peerDependencies:
       react: ^16.5.1 || ^17.0.0 || ^18.0.0
     dependencies:
-      react: 18.2.0
+      react: 18.3.1
     dev: false
 
   /make-dir@3.1.0:
@@ -12197,6 +12223,11 @@ packages:
     resolution: {integrity: sha512-Ww6ZlOiEQfPfXM45v17oabk77Z7mg5bOt7AjDyzy7RjK9OrLrLC8dyZQoAPEOtFX9SaNf1Tdvr5gRJWdTJj7GA==}
     dev: true
 
+  /nodemailer@6.9.15:
+    resolution: {integrity: sha512-AHf04ySLC6CIfuRtRiEYtGEXgRfa6INgWGluDhnxTZhHSKvrBu7lc1VVchQ0d8nPc4cFaZoPq8vkyNoZr0TpGQ==}
+    engines: {node: '>=6.0.0'}
+    dev: false
+
   /nodemon@2.0.19:
     resolution: {integrity: sha512-4pv1f2bMDj0Eeg/MhGqxrtveeQ5/G/UVe9iO6uTZzjnRluSA4PVWf8CW99LUPwGB3eNIA7zUFoP77YuI7hOc0A==}
     engines: {node: '>=8.10.0'}
@@ -12270,6 +12301,21 @@ packages:
     dependencies:
       boolbase: 1.0.0
     dev: true
+
+  /nunjucks@3.2.4:
+    resolution: {integrity: sha512-26XRV6BhkgK0VOxfbU5cQI+ICFUtMLixv1noZn1tGU38kQH5A5nmmbk/O45xdyBhD1esk47nKrY0mvQpZIhRjQ==}
+    engines: {node: '>= 6.9.0'}
+    hasBin: true
+    peerDependencies:
+      chokidar: ^3.3.0
+    peerDependenciesMeta:
+      chokidar:
+        optional: true
+    dependencies:
+      a-sync-waterfall: 1.0.1
+      asap: 2.0.6
+      commander: 5.1.0
+    dev: false
 
   /nwsapi@2.2.4:
     resolution: {integrity: sha512-NHj4rzRo0tQdijE9ZqAx6kYDcoRwYwSYzCA8MY3JzfxlrvEU0jhnhJT9BhqhJs7I/dKcrDm6TyulaRqZPIhN5g==}
@@ -13125,14 +13171,14 @@ packages:
       parse-ms: 3.0.0
     dev: false
 
-  /prism-react-renderer@2.3.1(react@18.2.0):
+  /prism-react-renderer@2.3.1(react@18.3.1):
     resolution: {integrity: sha512-Rdf+HzBLR7KYjzpJ1rSoxT9ioO85nZngQEoFIhL07XhtJHlCU3SOz0GJ6+qvMyQe0Se+BV3qpe6Yd/NmQF5Juw==}
     peerDependencies:
       react: '>=16.0.0'
     dependencies:
       '@types/prismjs': 1.26.3
       clsx: 2.1.0
-      react: 18.2.0
+      react: 18.3.1
     dev: true
 
   /process-nextick-args@2.0.1:
@@ -13310,40 +13356,40 @@ packages:
       minimist: 1.2.8
       strip-json-comments: 2.0.1
 
-  /react-dom@18.2.0(react@18.2.0):
-    resolution: {integrity: sha512-6IMTriUmvsjHUjNtEDudZfuDQUoWXVxKHhlEGSk81n4YFS+r/Kl99wXiwlVXtPBtJenozv2P+hxDsw9eA7Xo6g==}
+  /react-dom@18.3.1(react@18.3.1):
+    resolution: {integrity: sha512-5m4nQKp+rZRb09LNH59GM4BxTh9251/ylbKIbpe7TpGxfJ+9kv6BLkLBXIjjspbgbnIBNqlI23tRnTWT0snUIw==}
     peerDependencies:
-      react: ^18.2.0
+      react: ^18.3.1
     dependencies:
       loose-envify: 1.4.0
-      react: 18.2.0
-      scheduler: 0.23.0
+      react: 18.3.1
+      scheduler: 0.23.2
 
-  /react-hook-form@7.53.0(react@18.2.0):
+  /react-hook-form@7.53.0(react@18.3.1):
     resolution: {integrity: sha512-M1n3HhqCww6S2hxLxciEXy2oISPnAzxY7gvwVPrtlczTM/1dDadXgUxDpHMrMTblDOcm/AXtXxHwZ3jpg1mqKQ==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       react: ^16.8.0 || ^17 || ^18 || ^19
     dependencies:
-      react: 18.2.0
+      react: 18.3.1
     dev: false
 
-  /react-hotkeys-hook@4.5.0(react-dom@18.2.0)(react@18.2.0):
+  /react-hotkeys-hook@4.5.0(react-dom@18.3.1)(react@18.3.1):
     resolution: {integrity: sha512-Samb85GSgAWFQNvVt3PS90LPPGSf9mkH/r4au81ZP1yOIFayLC3QAvqTgGtJ8YEDMXtPmaVBs6NgipHO6h4Mug==}
     peerDependencies:
       react: '>=16.8.1'
       react-dom: '>=16.8.1'
     dependencies:
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
     dev: true
 
-  /react-inspector@6.0.2(react@18.2.0):
+  /react-inspector@6.0.2(react@18.3.1):
     resolution: {integrity: sha512-x+b7LxhmHXjHoU/VrFAzw5iutsILRoYyDq97EDYdFpPLcvqtEzk4ZSZSQjnFPbr5T57tLXnHcqFYoN1pI6u8uQ==}
     peerDependencies:
       react: ^16.8.4 || ^17.0.0 || ^18.0.0
     dependencies:
-      react: 18.2.0
+      react: 18.3.1
     dev: true
 
   /react-is@16.13.1:
@@ -13366,7 +13412,7 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
-  /react-router-dom@6.4.3(react-dom@18.2.0)(react@18.2.0):
+  /react-router-dom@6.4.3(react-dom@18.3.1)(react@18.3.1):
     resolution: {integrity: sha512-MiaYQU8CwVCaOfJdYvt84KQNjT78VF0TJrA17SIQgNHRvLnXDJO6qsFqq8F/zzB1BWZjCFIrQpu4QxcshitziQ==}
     engines: {node: '>=14'}
     peerDependencies:
@@ -13374,33 +13420,33 @@ packages:
       react-dom: '>=16.8'
     dependencies:
       '@remix-run/router': 1.0.3
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
-      react-router: 6.4.3(react@18.2.0)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      react-router: 6.4.3(react@18.3.1)
     dev: false
 
-  /react-router@6.4.3(react@18.2.0):
+  /react-router@6.4.3(react@18.3.1):
     resolution: {integrity: sha512-BT6DoGn6aV1FVP5yfODMOiieakp3z46P1Fk0RNzJMACzE7C339sFuHebfvWtnB4pzBvXXkHP2vscJzWRuUjTtA==}
     engines: {node: '>=14'}
     peerDependencies:
       react: '>=16.8'
     dependencies:
       '@remix-run/router': 1.0.3
-      react: 18.2.0
+      react: 18.3.1
     dev: false
 
-  /react-virtualized-auto-sizer@1.0.7(react-dom@18.2.0)(react@18.2.0):
+  /react-virtualized-auto-sizer@1.0.7(react-dom@18.3.1)(react@18.3.1):
     resolution: {integrity: sha512-Mxi6lwOmjwIjC1X4gABXMJcKHsOo0xWl3E3ugOgufB8GJU+MqrtY35aBuvCYv/razQ1Vbp7h1gWJjGjoNN5pmA==}
     engines: {node: '>8.0.0'}
     peerDependencies:
       react: ^15.3.0 || ^16.0.0-alpha || ^17.0.0 || ^18.0.0-rc
       react-dom: ^15.3.0 || ^16.0.0-alpha || ^17.0.0 || ^18.0.0-rc
     dependencies:
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
     dev: false
 
-  /react-window@1.8.8(react-dom@18.2.0)(react@18.2.0):
+  /react-window@1.8.8(react-dom@18.3.1)(react@18.3.1):
     resolution: {integrity: sha512-D4IiBeRtGXziZ1n0XklnFGu7h9gU684zepqyKzgPNzrsrk7xOCxni+TCckjg2Nr/DiaEEGVVmnhYSlT2rB47dQ==}
     engines: {node: '>8.0.0'}
     peerDependencies:
@@ -13409,12 +13455,12 @@ packages:
     dependencies:
       '@babel/runtime': 7.21.5
       memoize-one: 5.2.1
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
     dev: false
 
-  /react@18.2.0:
-    resolution: {integrity: sha512-/3IjMdb2L9QbBdWiW5e3P2/npwMBaU9mHCSCUzNln0ZCYbcfTsGbTJrU/kGemdH2IWmB2ioZ+zkxtmq6g09fGQ==}
+  /react@18.3.1:
+    resolution: {integrity: sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==}
     engines: {node: '>=0.10.0'}
     dependencies:
       loose-envify: 1.4.0
@@ -13824,8 +13870,8 @@ packages:
       xmlchars: 2.2.0
     dev: true
 
-  /scheduler@0.23.0:
-    resolution: {integrity: sha512-CtuThmgHNg7zIZWAXi3AsyIzA3n4xx7aNyjwC2VJldO2LMVDhFK+63xGqq6CsJH4rTAt6/M+N4GhZiDYPx9eUw==}
+  /scheduler@0.23.2:
+    resolution: {integrity: sha512-UOShsPwz7NrMUqhR6t0hWjFduvOzbtv7toDH1/hIrfRNIDBnnBWd0CwJTGvTpngVlmwGCdP9/Zl/tVrDqcuYzQ==}
     dependencies:
       loose-envify: 1.4.0
 

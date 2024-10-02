@@ -6,14 +6,13 @@ import {
   SourceEventType,
 } from '@repro/domain'
 import { toWireFormat } from '@repro/wire-formats'
+import { FastifyInstance } from 'fastify'
 import { chain, promise } from 'fluture'
-import { Database, encodeId } from '~/modules/database'
-import { Storage } from '~/modules/storage'
-import { createAccountService } from '~/services/account'
-import { createRecordingService } from '~/services/recording'
-import { setUpTestDatabase } from '~/testing/database'
-import { setUpTestStorage } from '~/testing/storage'
-import { fromRouter, readableToString } from '~/testing/utils'
+import { Http2SecureServer } from 'http2'
+import { encodeId } from '~/modules/database'
+import { RecordingService } from '~/services/recording'
+import { Harness, createTestHarness } from '~/testing'
+import { readableToString } from '~/testing/utils'
 import { createRecordingRouter } from './recording'
 
 function expectISODate() {
@@ -21,38 +20,26 @@ function expectISODate() {
 }
 
 describe('Routers > Recording', () => {
-  let reset: () => Promise<void>
-  let db: Database
-  let storage: Storage
+  let harness: Harness
+  let recordingService: RecordingService
+  let app: FastifyInstance<Http2SecureServer>
 
   beforeEach(async () => {
-    const { db: dbInstance, close: closeDb } = await setUpTestDatabase()
-    const { storage: storageInstance, close: closeStorage } =
-      await setUpTestStorage()
-
-    db = dbInstance
-    storage = storageInstance
-
-    reset = async () => {
-      await closeDb()
-      await closeStorage()
-    }
+    harness = await createTestHarness()
+    recordingService = harness.services.recordingService
+    app = harness.bootstrap(
+      createRecordingRouter(
+        harness.services.recordingService,
+        harness.services.accountService
+      )
+    )
   })
 
   afterEach(async () => {
-    await reset()
+    await harness.reset()
   })
 
   it('should create a new recording', async () => {
-    const accountService = createAccountService(db)
-    const recordingService = createRecordingService(db, storage)
-    const recordingRouter = createRecordingRouter(
-      recordingService,
-      accountService
-    )
-
-    const app = fromRouter(recordingRouter)
-
     const res = await app.inject({
       method: 'POST',
       url: '/',
@@ -85,13 +72,6 @@ describe('Routers > Recording', () => {
   })
 
   it('should get info for a recording', async () => {
-    const accountService = createAccountService(db)
-    const recordingService = createRecordingService(db, storage)
-    const recordingRouter = createRecordingRouter(
-      recordingService,
-      accountService
-    )
-
     const { id } = await promise(
       recordingService.writeInfo(
         'Title',
@@ -104,8 +84,6 @@ describe('Routers > Recording', () => {
         'Linux x86_64'
       )
     )
-
-    const app = fromRouter(recordingRouter)
 
     const res = await app.inject({
       method: 'GET',
@@ -129,13 +107,6 @@ describe('Routers > Recording', () => {
   })
 
   it('should save a resource for a recording', async () => {
-    const accountService = createAccountService(db)
-    const recordingService = createRecordingService(db, storage)
-    const recordingRouter = createRecordingRouter(
-      recordingService,
-      accountService
-    )
-
     const { id } = await promise(
       recordingService.writeInfo(
         'Title',
@@ -148,8 +119,6 @@ describe('Routers > Recording', () => {
         'Linux x86_64'
       )
     )
-
-    const app = fromRouter(recordingRouter)
 
     const res = await app.inject({
       method: 'PUT',
@@ -169,13 +138,6 @@ describe('Routers > Recording', () => {
   })
 
   it('should save the resource map for a recording', async () => {
-    const accountService = createAccountService(db)
-    const recordingService = createRecordingService(db, storage)
-    const recordingRouter = createRecordingRouter(
-      recordingService,
-      accountService
-    )
-
     const { id } = await promise(
       recordingService.writeInfo(
         'Title',
@@ -188,8 +150,6 @@ describe('Routers > Recording', () => {
         'Linux x86_64'
       )
     )
-
-    const app = fromRouter(recordingRouter)
 
     const res = await app.inject({
       method: 'PUT',
@@ -213,13 +173,6 @@ describe('Routers > Recording', () => {
   })
 
   it('should save event data for a recording', async () => {
-    const accountService = createAccountService(db)
-    const recordingService = createRecordingService(db, storage)
-    const recordingRouter = createRecordingRouter(
-      recordingService,
-      accountService
-    )
-
     const { id } = await promise(
       recordingService.writeInfo(
         'Title',
@@ -256,8 +209,6 @@ describe('Routers > Recording', () => {
       },
     ]
 
-    const app = fromRouter(recordingRouter)
-
     const res = await app.inject({
       method: 'PUT',
       url: `/${id}/data`,
@@ -268,13 +219,6 @@ describe('Routers > Recording', () => {
   })
 
   it('should fail to overwrite an existing recording', async () => {
-    const accountService = createAccountService(db)
-    const recordingService = createRecordingService(db, storage)
-    const recordingRouter = createRecordingRouter(
-      recordingService,
-      accountService
-    )
-
     const { id } = await promise(
       recordingService.writeInfo(
         'Title',
@@ -314,8 +258,6 @@ describe('Routers > Recording', () => {
       },
     ]
 
-    const app = fromRouter(recordingRouter)
-
     await app.inject({
       method: 'PUT',
       url: `/${id}/data`,
@@ -332,14 +274,6 @@ describe('Routers > Recording', () => {
   })
 
   it('should fail to write data for a recording that does not exist', async () => {
-    const accountService = createAccountService(db)
-    const recordingService = createRecordingService(db, storage)
-    const recordingRouter = createRecordingRouter(
-      recordingService,
-      accountService
-    )
-    const app = fromRouter(recordingRouter)
-
     const events: Array<SourceEvent> = [
       {
         type: SourceEventType.Interaction,
@@ -364,14 +298,6 @@ describe('Routers > Recording', () => {
 
   // TODO: investigate - validating via a transform stream might add too much overhead
   it.skip('should fail to write invalid recording data', async () => {
-    const accountService = createAccountService(db)
-    const recordingService = createRecordingService(db, storage)
-    const recordingRouter = createRecordingRouter(
-      recordingService,
-      accountService
-    )
-    const app = fromRouter(recordingRouter)
-
     const { id } = await promise(
       recordingService.writeInfo(
         'Title',

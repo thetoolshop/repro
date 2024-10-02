@@ -1,8 +1,8 @@
 import { chain, map, parallel, promise } from 'fluture'
-import { Database, decodeId, encodeId } from '~/modules/database'
-import { setUpTestDatabase } from '~/testing/database'
+import { decodeId, encodeId } from '~/modules/database'
+import { Harness, createTestHarness } from '~/testing'
 import { notFound, permissionDenied, resourceConflict } from '~/utils/errors'
-import { createAccountService } from './account'
+import { AccountService } from './account'
 
 // TODO: lift into functional utilities
 function range(size: number) {
@@ -10,25 +10,20 @@ function range(size: number) {
 }
 
 describe('Services > Account', () => {
-  let reset: () => Promise<void>
-  let db: Database
+  let harness: Harness
+  let accountService: AccountService
 
   beforeEach(async () => {
-    const { db: dbInstance, close: closeDb } = await setUpTestDatabase()
-    db = dbInstance
-    reset = async () => {
-      await closeDb()
-    }
+    harness = await createTestHarness()
+    accountService = harness.services.accountService
   })
 
   afterEach(async () => {
-    await reset()
+    await harness.reset()
   })
 
   describe('Staff users', () => {
     it('should create a staff user', async () => {
-      const accountService = createAccountService(db)
-
       const user = await promise(
         accountService.createStaffUser(
           'John Smith',
@@ -46,8 +41,6 @@ describe('Services > Account', () => {
     })
 
     it('should fail to create a staff user with a duplicate email address', async () => {
-      const accountService = createAccountService(db)
-
       await promise(
         accountService.createStaffUser(
           'John Jackson',
@@ -68,8 +61,6 @@ describe('Services > Account', () => {
     })
 
     it('should get a staff user by valid email and password', async () => {
-      const accountService = createAccountService(db)
-
       await promise(
         accountService.createStaffUser(
           'Chuck Norris',
@@ -102,8 +93,6 @@ describe('Services > Account', () => {
     })
 
     it('should throw not-found when getting a staff user with invalid email', async () => {
-      const accountService = createAccountService(db)
-
       await promise(
         accountService.createStaffUser(
           'John Smith',
@@ -123,8 +112,6 @@ describe('Services > Account', () => {
     })
 
     it('should throw not-found when getting a staff user with invalid password', async () => {
-      const accountService = createAccountService(db)
-
       await promise(
         accountService.createStaffUser(
           'John Smith',
@@ -144,8 +131,6 @@ describe('Services > Account', () => {
     })
 
     it('should get a staff user by ID', async () => {
-      const accountService = createAccountService(db)
-
       const staffUser = await promise(
         accountService.createStaffUser(
           'John Smith',
@@ -164,8 +149,6 @@ describe('Services > Account', () => {
     })
 
     it('should throw not-found when getting a staff user by an invalid ID', async () => {
-      const accountService = createAccountService(db)
-
       await promise(
         accountService.createStaffUser(
           'John Smith',
@@ -180,8 +163,6 @@ describe('Services > Account', () => {
     })
 
     it('should update a staff user name', async () => {
-      const accountService = createAccountService(db)
-
       let staffUser = await promise(
         accountService.createStaffUser(
           'John Smith',
@@ -200,8 +181,6 @@ describe('Services > Account', () => {
     })
 
     it('should throw not-found when updating the name of a non-existent staff user', async () => {
-      const accountService = createAccountService(db)
-
       await expect(
         promise(
           accountService.updateStaffUserName(encodeId(999), 'Chuck Norris')
@@ -210,8 +189,6 @@ describe('Services > Account', () => {
     })
 
     it('should deactivate a staff user', async () => {
-      const accountService = createAccountService(db)
-
       const staffUser = await promise(
         accountService.createStaffUser(
           'John Smith',
@@ -240,8 +217,6 @@ describe('Services > Account', () => {
 
   describe('Accounts', () => {
     it('should create an account', async () => {
-      const accountService = createAccountService(db)
-
       await expect(
         promise(accountService.createAccount('New Account'))
       ).resolves.toMatchObject({
@@ -251,8 +226,6 @@ describe('Services > Account', () => {
     })
 
     it('should support concurrent account creation and access', async () => {
-      const accountService = createAccountService(db)
-
       await expect(
         promise(
           parallel(Infinity)(
@@ -269,8 +242,6 @@ describe('Services > Account', () => {
     })
 
     it('should get an account by ID', async () => {
-      const accountService = createAccountService(db)
-
       const account = await promise(accountService.createAccount('New Account'))
 
       await expect(
@@ -282,8 +253,6 @@ describe('Services > Account', () => {
     })
 
     it('should throw not-found when getting an account by an invalid ID', async () => {
-      const accountService = createAccountService(db)
-
       await promise(accountService.createAccount('New Account'))
 
       await expect(
@@ -292,8 +261,6 @@ describe('Services > Account', () => {
     })
 
     it('should list all accounts', async () => {
-      const accountService = createAccountService(db)
-
       await promise(
         parallel(Infinity)(
           range(10).map(n => accountService.createAccount(`Account ${n}`))
@@ -308,8 +275,6 @@ describe('Services > Account', () => {
     })
 
     it('should update an account name', async () => {
-      const accountService = createAccountService(db)
-
       const account = await promise(accountService.createAccount('New Account'))
 
       await expect(
@@ -325,8 +290,6 @@ describe('Services > Account', () => {
     })
 
     it('should throw not-found when attempting to update the name of a non-existent account', async () => {
-      const accountService = createAccountService(db)
-
       await expect(
         promise(accountService.updateAccountName(encodeId(999), 'New Account'))
       ).rejects.toThrow(notFound())
@@ -335,8 +298,6 @@ describe('Services > Account', () => {
 
   describe('Invitations', () => {
     it('should create a new invitation', async () => {
-      const accountService = createAccountService(db)
-
       const account = await promise(accountService.createAccount('New Account'))
 
       await expect(
@@ -351,8 +312,6 @@ describe('Services > Account', () => {
     })
 
     it('should reset the token when creating an invitation for an email that already exists', async () => {
-      const accountService = createAccountService(db)
-
       const account = await promise(accountService.createAccount('New Account'))
 
       const invitationA = await promise(
@@ -369,8 +328,6 @@ describe('Services > Account', () => {
     })
 
     it('should deactivate an invitation', async () => {
-      const accountService = createAccountService(db)
-
       const account = await promise(accountService.createAccount('New Account'))
 
       const invitation = await promise(
@@ -401,16 +358,12 @@ describe('Services > Account', () => {
     })
 
     it('should throw not-found when deactivating a non-existent invitation', async () => {
-      const accountService = createAccountService(db)
-
       await expect(
         promise(accountService.deactivateInvitation(encodeId(999)))
       ).rejects.toThrow(notFound())
     })
 
     it('should get an invitation by token and email address', async () => {
-      const accountService = createAccountService(db)
-
       const account = await promise(accountService.createAccount('New Account'))
 
       const invitation = await promise(
@@ -428,8 +381,6 @@ describe('Services > Account', () => {
     })
 
     it('should throw not-found when getting a non-existent invitation by token and email address', async () => {
-      const accountService = createAccountService(db)
-
       await expect(
         promise(
           accountService.getInvitationByTokenAndEmail(
@@ -443,8 +394,6 @@ describe('Services > Account', () => {
 
   describe('Users', () => {
     it('should create a user', async () => {
-      const accountService = createAccountService(db)
-
       const account = await promise(accountService.createAccount('New Account'))
 
       const user = await promise(
@@ -464,8 +413,6 @@ describe('Services > Account', () => {
     })
 
     it('should support concurrent account & user creation and access', async () => {
-      const accountService = createAccountService(db)
-
       await expect(
         promise(
           parallel(Infinity)(
@@ -490,8 +437,6 @@ describe('Services > Account', () => {
     })
 
     it('should fail to create a user with a duplicate email address', async () => {
-      const accountService = createAccountService(db)
-
       const account = await promise(accountService.createAccount('New Account'))
 
       await promise(
@@ -516,8 +461,6 @@ describe('Services > Account', () => {
     })
 
     it('should determine if a user is an account admin', async () => {
-      const accountService = createAccountService(db)
-
       const account = await promise(accountService.createAccount('New Account'))
 
       const userA = await promise(
@@ -550,16 +493,12 @@ describe('Services > Account', () => {
     })
 
     it('should throw a not-found error when setting the admin status of a non-existent user', async () => {
-      const accountService = createAccountService(db)
-
       await expect(
         promise(accountService.setUserIsAdmin(encodeId(999), true))
       ).rejects.toThrow(notFound())
     })
 
     it('should update the name of a user', async () => {
-      const accountService = createAccountService(db)
-
       const account = await promise(accountService.createAccount('New Account'))
 
       const user = await promise(
@@ -583,8 +522,6 @@ describe('Services > Account', () => {
     })
 
     it('should get a user by ID', async () => {
-      const accountService = createAccountService(db)
-
       const account = await promise(accountService.createAccount('New Account'))
 
       const user = await promise(
@@ -606,8 +543,6 @@ describe('Services > Account', () => {
     })
 
     it('should throw not-found when getting a user by an invalid ID', async () => {
-      const accountService = createAccountService(db)
-
       const account = await promise(accountService.createAccount('New Account'))
 
       await promise(
@@ -625,8 +560,6 @@ describe('Services > Account', () => {
     })
 
     it('should get a user by email address', async () => {
-      const accountService = createAccountService(db)
-
       const account = await promise(accountService.createAccount('New Account'))
 
       await promise(
@@ -648,16 +581,12 @@ describe('Services > Account', () => {
     })
 
     it('should throw not-found when getting a user by invalid email address', async () => {
-      const accountService = createAccountService(db)
-
       await expect(
         promise(accountService.getUserByEmail('doesnotexist@example.com'))
       ).rejects.toThrow(notFound())
     })
 
     it('should get a user by email address and password', async () => {
-      const accountService = createAccountService(db)
-
       const account = await promise(accountService.createAccount('New Account'))
 
       await promise(
@@ -684,8 +613,6 @@ describe('Services > Account', () => {
     })
 
     it('should thow not-found when getting a user by invalid email', async () => {
-      const accountService = createAccountService(db)
-
       const account = await promise(accountService.createAccount('New Account'))
 
       await promise(
@@ -708,8 +635,6 @@ describe('Services > Account', () => {
     })
 
     it('should throw not-found when getting a user with an invalid password', async () => {
-      const accountService = createAccountService(db)
-
       const account = await promise(accountService.createAccount('New Account'))
 
       await promise(
@@ -732,8 +657,6 @@ describe('Services > Account', () => {
     })
 
     it('should deactivate a user', async () => {
-      const accountService = createAccountService(db)
-
       const account = await promise(accountService.createAccount('New Account'))
 
       const user = await promise(
@@ -763,8 +686,6 @@ describe('Services > Account', () => {
     })
 
     it('should get the account for a user', async () => {
-      const accountService = createAccountService(db)
-
       const account = await promise(accountService.createAccount('New Account'))
 
       const user = await promise(
@@ -784,8 +705,6 @@ describe('Services > Account', () => {
 
   describe('Sessions', () => {
     it('should create a new session for a user', async () => {
-      const accountService = createAccountService(db)
-
       const account = await promise(accountService.createAccount('New Account'))
 
       const user = await promise(
@@ -808,8 +727,6 @@ describe('Services > Account', () => {
     })
 
     it('should create a new session for a staff user', async () => {
-      const accountService = createAccountService(db)
-
       const staffUser = await promise(
         accountService.createStaffUser(
           'John Smith',
@@ -829,8 +746,6 @@ describe('Services > Account', () => {
     })
 
     it('should get a session by session token', async () => {
-      const accountService = createAccountService(db)
-
       const staffUser = await promise(
         accountService.createStaffUser(
           'John Smith',
@@ -849,16 +764,12 @@ describe('Services > Account', () => {
     })
 
     it('should throw not-found when getting a non-existent session by session token', async () => {
-      const accountService = createAccountService(db)
-
       await expect(
         promise(accountService.getSessionByToken(encodeId(999)))
       ).rejects.toThrow(notFound())
     })
 
     it('should destroy a session', async () => {
-      const accountService = createAccountService(db)
-
       const staffUser = await promise(
         accountService.createStaffUser(
           'John Smith',
@@ -881,8 +792,6 @@ describe('Services > Account', () => {
     })
 
     it('should throw not-found when destroying a non-existent session', async () => {
-      const accountService = createAccountService(db)
-
       await expect(
         promise(accountService.destroySession(encodeId(999)))
       ).rejects.toThrow(notFound())
@@ -891,8 +800,6 @@ describe('Services > Account', () => {
 
   describe('Verification', () => {
     it('should verify a user', async () => {
-      const accountService = createAccountService(db)
-
       const account = await promise(accountService.createAccount('New Account'))
 
       const user = await promise(
@@ -904,7 +811,7 @@ describe('Services > Account', () => {
         )
       )
 
-      const verificationToken = await db
+      const verificationToken = await harness.db
         .selectFrom('users')
         .select('verificationToken')
         .where('id', '=', decodeId(user.id))
@@ -919,8 +826,6 @@ describe('Services > Account', () => {
     })
 
     it('should throw not-found when verifying a user that does not exist', async () => {
-      const accountService = createAccountService(db)
-
       await expect(
         promise(accountService.verifyUser(encodeId(999), 'nobody@example.com'))
       ).rejects.toThrow(notFound())
@@ -929,8 +834,6 @@ describe('Services > Account', () => {
 
   describe('Access control', () => {
     it('should ensure a staff user is valid', async () => {
-      const accountService = createAccountService(db)
-
       const staffUser = await promise(
         accountService.createStaffUser(
           'John Smith',
@@ -985,8 +888,6 @@ describe('Services > Account', () => {
     })
 
     it('should ensure a user is valid', async () => {
-      const accountService = createAccountService(db)
-
       const account = await promise(accountService.createAccount('New Account'))
 
       const user = await promise(
@@ -1008,8 +909,6 @@ describe('Services > Account', () => {
     })
 
     it('should ensure a user is an admin', async () => {
-      const accountService = createAccountService(db)
-
       const account = await promise(accountService.createAccount('New Account'))
 
       const userA = await promise(
@@ -1046,8 +945,6 @@ describe('Services > Account', () => {
     })
 
     it('should ensure that a user can access an account', async () => {
-      const accountService = createAccountService(db)
-
       const account = await promise(accountService.createAccount('New Account'))
 
       const user = await promise(
@@ -1069,8 +966,6 @@ describe('Services > Account', () => {
     })
 
     it('should ensure that a user must be an admin to modify an account', async () => {
-      const accountService = createAccountService(db)
-
       const account = await promise(accountService.createAccount('New Account'))
 
       const adminUser = await promise(
@@ -1111,8 +1006,6 @@ describe('Services > Account', () => {
     })
 
     it('should ensure that a user cannot access a different account', async () => {
-      const accountService = createAccountService(db)
-
       const accountA = await promise(accountService.createAccount('Account A'))
       const accountB = await promise(accountService.createAccount('Account B'))
 
@@ -1131,8 +1024,6 @@ describe('Services > Account', () => {
     })
 
     it('should ensure that a user cannot modify a different account', async () => {
-      const accountService = createAccountService(db)
-
       const accountA = await promise(accountService.createAccount('Account A'))
       const accountB = await promise(accountService.createAccount('Account B'))
 
@@ -1153,8 +1044,6 @@ describe('Services > Account', () => {
     })
 
     it('should ensure that a staff user can modify any account', async () => {
-      const accountService = createAccountService(db)
-
       const account = await promise(accountService.createAccount('New Account'))
 
       const staffUser = await promise(
@@ -1171,8 +1060,6 @@ describe('Services > Account', () => {
     })
 
     it('should ensure that a user can modify their own user record', async () => {
-      const accountService = createAccountService(db)
-
       const account = await promise(accountService.createAccount('New Account'))
 
       const user = await promise(
@@ -1190,8 +1077,6 @@ describe('Services > Account', () => {
     })
 
     it('should ensure that a user must be an account admin to modify other users', async () => {
-      const accountService = createAccountService(db)
-
       const account = await promise(accountService.createAccount('New Account'))
 
       const adminUser = await promise(
@@ -1236,8 +1121,6 @@ describe('Services > Account', () => {
     })
 
     it('should ensure that a user cannot modify users in a different account', async () => {
-      const accountService = createAccountService(db)
-
       const [accountA, accountB] = await Promise.all([
         promise(accountService.createAccount('Account A')),
         promise(accountService.createAccount('Account B')),
@@ -1273,8 +1156,6 @@ describe('Services > Account', () => {
     })
 
     it('should ensure that a staff user can modify any user', async () => {
-      const accountService = createAccountService(db)
-
       const account = await promise(accountService.createAccount('New Account'))
 
       const staffUser = await promise(

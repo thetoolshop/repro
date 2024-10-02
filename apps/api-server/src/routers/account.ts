@@ -1,3 +1,4 @@
+import { Account, User } from '@repro/domain'
 import { tapF } from '@repro/future-utils'
 import { FastifyPluginAsync } from 'fastify'
 import { ZodTypeProvider } from 'fastify-type-provider-zod'
@@ -6,7 +7,7 @@ import {
   bichain,
   both,
   chain,
-  map,
+  go,
   mapRej,
   reject,
   resolve,
@@ -53,24 +54,25 @@ export function createAccountRouter(
       (req, res) => {
         respondWith(
           res,
-          ensureUserDoesNotExist(req.body.email).pipe(
-            chain(() =>
-              accountService
-                .createAccount(req.body.accountName)
-                .pipe(
-                  chain(account =>
-                    accountService
-                      .createUser(
-                        account.id,
-                        req.body.userName,
-                        req.body.email,
-                        req.body.password
-                      )
-                      .pipe(map(user => ({ account, user })))
-                  )
-                )
+          go(function* () {
+            yield ensureUserDoesNotExist(req.body.email)
+
+            const account: Account = yield accountService.createAccount(
+              req.body.accountName
             )
-          ),
+
+            const user: User = yield accountService.createUser(
+              account.id,
+              req.body.userName,
+              req.body.email,
+              req.body.password
+            )
+
+            // TODO
+            // yield accountService.sendVerificationEmail(user.id)
+
+            return { account, user }
+          }),
           201
         )
       }

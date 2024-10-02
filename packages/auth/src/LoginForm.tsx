@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Button, colors, Input } from '@repro/design'
+import { Button, colors, FormFieldError, Input } from '@repro/design'
 import { isValidationError } from '@repro/validation'
 import { fork } from 'fluture'
 import { Block, Col } from 'jsxstyle'
@@ -33,6 +33,7 @@ export const LoginForm: React.FC<Props> = ({ onSuccess, onFailure }) => {
   const [showResetFlow, setShowResetFlow] = useState(false)
   const [showPostResetMessage, setShowPostResetMessage] = useState(false)
   const [supportPasswordReset] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   const navigate = useNavigate()
   const login = useLogin()
@@ -64,11 +65,15 @@ export const LoginForm: React.FC<Props> = ({ onSuccess, onFailure }) => {
 
     const session = login(data.email, data.password)
 
+    setLoading(true)
+
     return fork<Error>(err => {
       if (isValidationError(err) || err.name === 'NotAuthenticatedError') {
         setErrorMessage('Incorrect email or password')
+        setLoading(false)
       } else {
         setErrorMessage('Unable to log in. Please try again')
+        setLoading(false)
       }
 
       onFailure(err)
@@ -144,8 +149,13 @@ export const LoginForm: React.FC<Props> = ({ onSuccess, onFailure }) => {
             autoFocus={true}
             label="Email"
             autoComplete="email"
+            context={formState.errors.email != null ? 'error' : 'normal'}
             {...register('email', { required: true })}
           />
+
+          {formState.errors.email && (
+            <FormFieldError error={formState.errors.email} />
+          )}
 
           {!showResetFlow && (
             <Input

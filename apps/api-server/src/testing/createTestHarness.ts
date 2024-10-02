@@ -3,6 +3,7 @@ import { Http2SecureServer } from 'http2'
 import { Env, createEnv } from '~/config/createEnv'
 import { createSessionDecorator } from '~/decorators/session'
 import { Database } from '~/modules/database'
+import { SendParams, createStubEmailUtils } from '~/modules/email-utils'
 import { Storage } from '~/modules/storage'
 import { createAccountService } from '~/services/account'
 import { createProjectService } from '~/services/project'
@@ -20,6 +21,7 @@ export interface Harness {
   services: Services
 
   bootstrap(router: FastifyPluginAsync): FastifyInstance<Http2SecureServer>
+  // expectEmailToHaveBeenSent(params: SendParams): void
   loadFixtures<T extends Array<Fixture<unknown>>>(
     fixtures: [...T]
   ): Promise<FixtureArrayToValues<T>>
@@ -37,12 +39,16 @@ export async function createTestHarness(): Promise<Harness> {
   const { db, close: closeDb } = await setUpTestDatabase()
   const { storage, close: closeStorage } = await setUpTestStorage()
 
+  const emailLog: Array<SendParams> = []
+  const emailUtils = createStubEmailUtils(emailLog)
+
   const reset = async () => {
     await closeDb()
     await closeStorage()
+    emailLog.length = 0
   }
 
-  const accountService = createAccountService(db)
+  const accountService = createAccountService(db, emailUtils)
   const projectService = createProjectService(db)
   const recordingService = createRecordingService(db, storage)
 
@@ -65,6 +71,10 @@ export async function createTestHarness(): Promise<Harness> {
     fixtures: [...T]
   ) => Promise<FixtureArrayToValues<T>>
 
+  // function expectEmailToHaveBeenSent(expected: Partial<SendParams>) {
+  //   return
+  // }
+
   return {
     env,
     db,
@@ -72,6 +82,7 @@ export async function createTestHarness(): Promise<Harness> {
     storage,
 
     bootstrap,
+    // expectEmailToHaveBeenSent,
     loadFixtures: curriedLoadFixtures,
     reset,
   }

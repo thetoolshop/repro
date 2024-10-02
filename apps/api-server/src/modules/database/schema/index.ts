@@ -6,7 +6,7 @@ import { ProjectTable } from './ProjectTable'
 import { RecordingResourceTable } from './RecordingResourceTable'
 import { RecordingTable } from './RecordingTable'
 import { SessionTable } from './SessionTable'
-import { StaffUserTable } from './StaffUserTable'
+import { StaffUserTable, asStaffUser } from './StaffUserTable'
 import { UserTable, asUser } from './UserTable'
 
 export interface Schema {
@@ -22,4 +22,4 @@ export interface Schema {
   users: UserTable
 }
 
-export { RecordingResourceTable, RecordingTable, asUser }
+export { RecordingResourceTable, RecordingTable, asStaffUser, asUser }

@@ -15,13 +15,14 @@ import crypto from 'node:crypto'
 import { SystemConfig, defaultSystemConfig } from '~/config/system'
 import {
   Database,
+  asStaffUser,
   asUser,
   attemptQuery,
   decodeId,
   encodeId,
   withEncodedId,
 } from '~/modules/database'
-import { asStaffUser } from '~/modules/database/schema/StaffUserTable'
+import { EmailUtils } from '~/modules/email-utils'
 import {
   badRequest,
   notFound,
@@ -41,6 +42,7 @@ function createToken(): string {
 
 export function createAccountService(
   database: Database,
+  emailUtils: EmailUtils,
   _config: SystemConfig = defaultSystemConfig
 ) {
   function ensureStaffUser(
@@ -595,6 +597,30 @@ export function createAccountService(
     })
   }
 
+  function sendVerificationEmail(userId: string): FutureInstance<Error, void> {
+    const result = attemptQuery(async () => {
+      return database
+        .selectFrom('users')
+        .select(['email', 'verificationToken'])
+        .where('id', '=', decodeId(userId))
+        .executeTakeFirstOrThrow(() => notFound())
+    })
+
+    return result.pipe(
+      chain(({ email, verificationToken }) =>
+        emailUtils.send({
+          to: email,
+          from: emailUtils.getAddress('no-reply'),
+          subject: 'Verify email for your Repro account',
+          template: 'send-verification',
+          params: {
+            verificationToken,
+          },
+        })
+      )
+    )
+  }
+
   function verifyUser(
     verificationToken: string,
     email: string
@@ -721,6 +747,7 @@ export function createAccountService(
     getUserByEmailAndPassword,
     getUserById,
     getUserIsAdmin,
+    sendVerificationEmail,
     verifyUser,
 
     // Sessions

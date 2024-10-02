@@ -12,6 +12,18 @@ const numericStringTransform = z.preprocess(val => {
   return undefined
 }, z.number())
 
+const booleanStringTransform = z.preprocess(val => {
+  if (typeof val === 'string') {
+    return val === 'true'
+  }
+
+  if (typeof val === 'boolean') {
+    return val
+  }
+
+  return undefined
+}, z.boolean())
+
 const envSchema = z.object({
   HOST: z.string().default('localhost'),
   PORT: numericStringTransform.default(8080),
@@ -23,6 +35,11 @@ const envSchema = z.object({
   SESSION_COOKIE: z.string().default('sessid'),
   SESSION_SOFT_EXPIRY: numericStringTransform.default(3600),
   SESSION_HARD_EXPIRY: numericStringTransform.default(28 * 24 * 3600),
+  EMAIL_SMTP_HOST: z.string().default('localhost'),
+  EMAIL_SMTP_PORT: numericStringTransform.default(587),
+  EMAIL_SMTP_SECURE: booleanStringTransform.default(true),
+  EMAIL_SMTP_USER: z.string().optional(),
+  EMAIL_SMTP_PASS: z.string().optional(),
   DEBUG: z.string().optional(),
 })
 

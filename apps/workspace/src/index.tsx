@@ -14,7 +14,7 @@ import { HomeRoute } from './routes/HomeRoute'
 import { MainRoute } from './routes/MainRoute'
 import { RecordingRoute } from './routes/RecordingRoute'
 
-import { AuthProvider, RequireSession } from '@repro/auth'
+import { AuthProvider, SessionRouteBoundary } from '@repro/auth'
 import { PortalRootProvider } from '@repro/design'
 import { AuthLayout } from './AuthLayout'
 import { LoginRoute } from './routes/LoginRoute'
@@ -60,24 +60,22 @@ if (rootElem) {
                 <Route element={<AuthLayout />}>
                   <Route path="account/login" element={<LoginRoute />} />
                   <Route path="account/register" element={<RegisterRoute />} />
+                  <Route path="account/verify" element={<div />} />
+
                   {/* <Route */}
                   {/*   path="account/accept-invitation" */}
                   {/*   element={<AcceptInvitationRoute />} */}
                   {/* /> */}
                 </Route>
 
-                <Route
-                  element={
-                    <RequireSession>
-                      <Layout />
-                    </RequireSession>
-                  }
-                >
-                  <Route index element={<HomeRoute />} />
-                  <Route
-                    path="recordings/:recordingId"
-                    element={<RecordingRoute />}
-                  />
+                <Route element={<Layout />}>
+                  <Route element={<SessionRouteBoundary />}>
+                    <Route index element={<HomeRoute />} />
+                    <Route
+                      path="recordings/:recordingId"
+                      element={<RecordingRoute />}
+                    />
+                  </Route>
                 </Route>
               </Route>
             </Routes>

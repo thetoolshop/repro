@@ -121,7 +121,13 @@ export const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, Props>(
             fontSize={fontSize}
             lineHeight={1}
             backgroundColor={colors.white}
-            color={focused ? colors.blue['500'] : colors.slate['500']}
+            color={
+              context === 'error'
+                ? colors.rose['500']
+                : focused
+                ? colors.blue['500']
+                : colors.slate['500']
+            }
             pointerEvents="none"
             scale={value !== '' || focused ? 0.8 : 1}
             transformOrigin="0 0"
