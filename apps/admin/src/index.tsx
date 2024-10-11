@@ -4,7 +4,7 @@ import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 
-import { AuthProvider, RequireSession } from '@repro/auth'
+import { AuthProvider, SessionRouteBoundary } from '@repro/auth'
 import { PortalRootProvider } from '@repro/design'
 import { AuthLayout } from './AuthLayout'
 import { Layout } from './Layout'
@@ -47,18 +47,14 @@ if (rootElem) {
                   <Route path="account/login" element={<LoginRoute />} />
                 </Route>
 
-                <Route
-                  element={
-                    <RequireSession>
-                      <Layout />
-                    </RequireSession>
-                  }
-                >
-                  <Route index element={<HomeRoute />} />
-                  <Route
-                    path="recordings/:recordingId"
-                    element={<RecordingRoute />}
-                  />
+                <Route element={<Layout />}>
+                  <Route element={<SessionRouteBoundary />}>
+                    <Route index element={<HomeRoute />} />
+                    <Route
+                      path="recordings/:recordingId"
+                      element={<RecordingRoute />}
+                    />
+                  </Route>
                 </Route>
               </Route>
             </Routes>

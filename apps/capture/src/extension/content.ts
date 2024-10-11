@@ -1,5 +1,5 @@
 import { createPTPAgent } from '@repro/messaging'
-import Future, { chain } from 'fluture'
+import Future, { chain, resolve } from 'fluture'
 import { createRuntimeAgent } from './createRuntimeAgent'
 
 let scriptElement: HTMLScriptElement | null = null
@@ -35,5 +35,9 @@ runtimeAgent.subscribeToIntentAndForward('disable', inPageAgent)
 inPageAgent.subscribeToIntentAndForward('upload:enqueue', runtimeAgent)
 inPageAgent.subscribeToIntentAndForward('upload:progress', runtimeAgent)
 inPageAgent.subscribeToIntentAndForward('analytics:track', runtimeAgent)
+
+inPageAgent.subscribeToIntent('detect-capture-extension', () => {
+  return resolve(true)
+})
 
 export {}

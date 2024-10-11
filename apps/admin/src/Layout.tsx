@@ -35,8 +35,8 @@ export const Layout: React.FC = () => {
       <Block
         padding={20}
         height={120}
-        backgroundColor={colors.blue['800']}
-        backgroundImage={`linear-gradient(to bottom right, ${colors.blue['900']}, ${colors.blue['700']})`}
+        backgroundColor={colors.slate['800']}
+        backgroundImage={`linear-gradient(to bottom right, ${colors.slate['900']}, ${colors.slate['700']})`}
       >
         <Row alignItems="center">
           <NavLink to="/" style={{ textDecoration: 'none' }}>
@@ -44,15 +44,11 @@ export const Layout: React.FC = () => {
               <Logo size={30} inverted={true} />
 
               <Block
-                padding={5}
-                backgroundColor={colors.blue['500']}
-                color={colors.white}
-                fontSize={13}
-                fontWeight={700}
+                color={colors.slate['300']}
+                fontSize={18}
                 textTransform="lowercase"
-                borderRadius={4}
               >
-                Admin
+                / admin
               </Block>
             </Row>
           </NavLink>
@@ -73,11 +69,11 @@ export const Layout: React.FC = () => {
                 fontSize={15}
                 fontWeight={700}
                 color={colors.white}
-                backgroundColor={colors.blue['500']}
-                backgroundImage={`linear-gradient(to top right, ${colors.blue['600']}, ${colors.blue['500']})`}
-                border={`1px solid ${colors.blue['800']}`}
+                backgroundColor={colors.slate['500']}
+                backgroundImage={`linear-gradient(to top right, ${colors.slate['600']}, ${colors.slate['500']})`}
+                border={`1px solid ${colors.slate['800']}`}
                 borderRadius={4}
-                boxShadow={`0 2px 4px ${colors.blue['800']}`}
+                boxShadow={`0 2px 4px ${colors.slate['800']}`}
                 cursor="pointer"
                 props={{ onClick: onSignOut }}
               >

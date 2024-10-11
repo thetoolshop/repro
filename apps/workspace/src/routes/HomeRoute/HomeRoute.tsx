@@ -1,18 +1,23 @@
 import { Card } from '@repro/design'
-import { Block, Col } from 'jsxstyle'
-import React from 'react'
+import { Col } from 'jsxstyle'
+import React, { Fragment } from 'react'
+import { useDetectExtension } from '~/hooks/useDetectExtension'
 
 export const HomeRoute: React.FC = () => {
-  // function goToChromeWebStore() {
-  //   window.location.href =
-  //     'https://chrome.google.com/webstore/detail/repro/ecmbphfjfhnifmhbjhpejbpdnpanpice'
-  // }
+  function goToChromeWebStore() {
+    window.location.href =
+      'https://chrome.google.com/webstore/detail/repro/ecmbphfjfhnifmhbjhpejbpdnpanpice'
+  }
+
+  const hasExtension = useDetectExtension()
 
   return (
-    <Card padding={0}>
-      <Block height="calc(100vh - 90px)" overflowY="auto">
-        <Col gap={10} padding={20}></Col>
-      </Block>
-    </Card>
+    <Fragment>
+      {!hasExtension && (
+        <Card padding={0}>
+          <Col gap={10} padding={20}></Col>
+        </Card>
+      )}
+    </Fragment>
   )
 }

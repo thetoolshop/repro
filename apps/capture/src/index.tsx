@@ -1,7 +1,11 @@
 import { Analytics } from '@repro/analytics'
 import { PortalRootProvider } from '@repro/design'
 import { Stats, Trace } from '@repro/diagnostics'
-import { MessagingProvider, createPTPAgent } from '@repro/messaging'
+import {
+  DEFAULT_AGENT,
+  MessagingProvider,
+  createPTPAgent,
+} from '@repro/messaging'
 import {
   RecordingStreamProvider,
   createRecordingStream,
@@ -123,6 +127,9 @@ declare global {
     __REPRO_USING_SDK: boolean
   }
 }
+
+// Announce over loopback agent
+agent.subscribeToIntentAndForward('announce', DEFAULT_AGENT)
 
 if (!window.__REPRO_USING_SDK) {
   agent.subscribeToIntent('enable', () => {

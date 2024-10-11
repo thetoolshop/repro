@@ -44,7 +44,7 @@ export const RecordingRoute: React.FC = () => {
     const originalTitle = document.title
 
     if (info) {
-      document.title = `${info.title} - Repro`
+      document.title = `${info.title} - Repro Admin`
     }
 
     return () => {
