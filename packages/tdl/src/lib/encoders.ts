@@ -148,7 +148,12 @@ export function encodeStruct(
   view: DataView = createDataView(getByteLength(descriptor, data)),
   pointerRef: PointerRef = createPointerRef()
 ) {
-  const headerByteLength = descriptor.fields.length * ByteLengths.Int32
+  const headerByteLength = ByteLengths.Int16 + descriptor.fields.length * ByteLengths.Int32
+
+  // Prepend field encoded count to support back/foward-compat
+  view.setUint16(pointerRef.offset, descriptor.fields.length, LITTLE_ENDIAN)
+  pointerRef.offset += ByteLengths.Int16
+
   let fieldPointer = headerByteLength
 
   for (const [name, fieldDescriptor] of descriptor.fields) {

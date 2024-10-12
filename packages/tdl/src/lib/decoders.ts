@@ -19,6 +19,7 @@ import {
   createPointerRef,
   ensureUnreachable,
   getByteLength,
+  getDefaultValue,
   isFixedLengthProperty,
 } from './utils'
 
@@ -120,6 +121,8 @@ export function decodeStruct(
   const { fields } = descriptor
   const struct: any = {}
   const initialOffset = byteOffset
+  const encodedFieldsLength = view.getUint16(byteOffset, LITTLE_ENDIAN)
+  byteOffset += ByteLengths.Int16
 
   for (let i = 0, len = fields.length; i < len; i++) {
     const field = fields[i]
@@ -129,6 +132,14 @@ export function decodeStruct(
     }
 
     const [key, itemDescriptor] = field
+
+    // If field does not exist on the encoded buffer
+    // set default value for descriptor for backwards-
+    // compatibility
+    if (i >= encodedFieldsLength) {
+      struct[key] = getDefaultValue(itemDescriptor)
+      continue
+    }
 
     const fieldByteOffset =
       initialOffset + view.getUint32(byteOffset, LITTLE_ENDIAN)
@@ -147,6 +158,8 @@ export function decodeStructLazy(
   const { fields } = descriptor
   const struct: any = {}
   const initialOffset = byteOffset
+  const encodedFieldsLength = view.getUint16(initialOffset, LITTLE_ENDIAN)
+  byteOffset += ByteLengths.Int16
 
   for (let i = 0, len = fields.length; i < len; i++) {
     const field = fields[i]
@@ -161,6 +174,13 @@ export function decodeStructLazy(
       enumerable: true,
 
       get() {
+        // If field does not exist on the encoded buffer
+        // return default value for descriptor for backwards-
+        // compatibility
+        if (i >= encodedFieldsLength) {
+          return getDefaultValue(itemDescriptor)
+        }
+
         const fieldByteOffset =
           initialOffset +
           view.getUint32(byteOffset + i * ByteLengths.Int32, LITTLE_ENDIAN)
@@ -170,6 +190,10 @@ export function decodeStructLazy(
       set(value) {
         if (!isFixedLengthProperty(itemDescriptor)) {
           throw new Error(`Cannot overwrite variable length field ${key}`)
+        }
+
+        if (i >= encodedFieldsLength) {
+          throw new Error(`Cannot overwrite field ${key} that does not exist on the underlying buffer`)
         }
 
         if (itemDescriptor.nullable) {

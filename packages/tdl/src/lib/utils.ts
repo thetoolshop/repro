@@ -188,6 +188,7 @@ export function getByteLength(descriptor: AnyDescriptor, data: any): number {
   if (type === 'struct') {
     return (
       (nullable ? ByteLengths.Int8 : 0) +
+      ByteLengths.Int16 +
       descriptor.fields.length * ByteLengths.Int32 +
       descriptor.fields
         .map(([name, fieldDescriptor]) =>
@@ -230,6 +231,67 @@ export function getByteLength(descriptor: AnyDescriptor, data: any): number {
   }
 
   return 0
+}
+
+export function getDefaultValue(descriptor: AnyDescriptor): any {
+  if (descriptor.nullable) {
+    return null
+  }
+
+  switch (descriptor.type) {
+    case 'integer':
+    case 'float':
+      return 0
+
+    case 'string':
+      return ''
+
+    case 'char':
+      return ' '.repeat(descriptor.bytes)
+
+    case 'uuid':
+      return '00000000-0000-0000-0000-000000000000'
+
+    case 'bool':
+      return false
+
+    case 'buffer':
+      return new ArrayBuffer(0)
+
+    case 'map':
+      return {}
+
+    case 'vector':
+      return []
+
+    case 'array':
+      return new Array(descriptor.size).fill(getDefaultValue(descriptor.items))
+
+    case 'struct':
+      const value: Record<string, unknown> = {}
+
+      for (const [prop, propDescriptor] of descriptor.fields) {
+        value[prop] = getDefaultValue(propDescriptor)
+      }
+
+      return value
+
+    case 'union':
+      const firstTag = Object.keys(descriptor.descriptors)[0]
+
+      if (firstTag) {
+        const structDescriptor = descriptor.descriptors[parseInt(firstTag, 10)]
+
+        if (structDescriptor) {
+          return getDefaultValue(structDescriptor)
+        }
+      }
+
+      throw new Error('Could not get default value for union descriptor')
+
+    default:
+      ensureUnreachable(descriptor)
+  }
 }
 
 export interface PointerRef {
