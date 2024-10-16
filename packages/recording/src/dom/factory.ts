@@ -167,6 +167,7 @@ export function createStyleSheetVTree(
       value: null,
     },
     children,
+    shadowRoot: node.shadowRoot != null,
   }
 
   return vTree
