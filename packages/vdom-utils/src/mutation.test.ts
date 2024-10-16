@@ -19,6 +19,7 @@ describe('utils: vdom', () => {
               value: null,
             },
             children: ['2', '3', '4'],
+            shadowRoot: false,
           },
 
           2: {
@@ -33,6 +34,7 @@ describe('utils: vdom', () => {
               value: null,
             },
             children: ['5'],
+            shadowRoot: false,
           },
 
           3: {
@@ -87,6 +89,7 @@ describe('utils: vdom', () => {
               value: null,
             },
             children: ['3', '4'],
+            shadowRoot: false,
           },
 
           3: {
@@ -159,6 +162,7 @@ describe('utils: vdom', () => {
               value: null,
             },
             children: ['3', '4'],
+            shadowRoot: false,
           },
 
           3: {

@@ -10,8 +10,8 @@ import {
   MapDescriptor,
   StringDescriptor,
   StructDescriptor,
-  UnionDescriptor,
   UUIDDescriptor,
+  UnionDescriptor,
   VectorDescriptor,
 } from './descriptors'
 import { encodeProperty } from './encoders'
@@ -193,7 +193,9 @@ export function decodeStructLazy(
         }
 
         if (i >= encodedFieldsLength) {
-          throw new Error(`Cannot overwrite field ${key} that does not exist on the underlying buffer`)
+          throw new Error(
+            `Cannot overwrite field ${key} that does not exist on the underlying buffer`
+          )
         }
 
         if (itemDescriptor.nullable) {
@@ -462,7 +464,7 @@ function decodeUnionValueDescriptor(
   const { descriptors } = descriptor
 
   const tag = view.getUint8(byteOffset)
-  return descriptors[tag] as StructDescriptor
+  return descriptors[tag]
 }
 
 export function decodeUnion(
@@ -478,7 +480,11 @@ export function decodeUnion(
 
   byteOffset += ByteLengths.Int8
 
-  return decodeStruct(valueDescriptor, view, byteOffset)
+  if (valueDescriptor == null) {
+    // TODO: return boxed value
+  }
+
+  return decodeStruct(valueDescriptor!, view, byteOffset)
 }
 
 export function decodeUnionLazy(
@@ -494,7 +500,11 @@ export function decodeUnionLazy(
 
   byteOffset += ByteLengths.Int8
 
-  return decodeStructLazy(valueDescriptor, view, byteOffset)
+  if (valueDescriptor == null) {
+    // TODO: return boxed value
+  }
+
+  return decodeStructLazy(valueDescriptor!, view, byteOffset)
 }
 
 export function decodeProperty(
