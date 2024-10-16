@@ -19,7 +19,6 @@ module.exports = {
       : {
           background: path.resolve(__dirname, 'src/extension/background.ts'),
           content: path.resolve(__dirname, 'src/extension/content.ts'),
-          devtools: path.resolve(__dirname, 'src/devtools.tsx'),
           page: path.resolve(__dirname, 'src/index.tsx'),
         },
 
