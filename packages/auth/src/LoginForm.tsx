@@ -33,7 +33,7 @@ export const LoginForm: React.FC<Props> = ({ onSuccess, onFailure }) => {
   const [showResetFlow, setShowResetFlow] = useState(false)
   const [showPostResetMessage, setShowPostResetMessage] = useState(false)
   const [supportPasswordReset] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const [_loading, setLoading] = useState(false)
 
   const navigate = useNavigate()
   const login = useLogin()

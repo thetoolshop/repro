@@ -5,7 +5,6 @@ import { done } from 'fluture'
 import { Block, Col } from 'jsxstyle'
 import React, { useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router'
 import z from 'zod'
 import { useRegister } from './hooks'
 
@@ -29,10 +28,10 @@ const formSchema = z
 
 type FormState = z.infer<typeof formSchema>
 
-export const RegisterForm: React.FC<Props> = ({ onSuccess, onFailure }) => {
+export const RegisterForm: React.FC<Props> = () => {
   const [errorMessage, setErrorMessage] = useState('')
 
-  const navigate = useNavigate()
+  // const navigate = useNavigate()
   const registerAccount = useRegister()
 
   const methods = useForm<FormState>({
