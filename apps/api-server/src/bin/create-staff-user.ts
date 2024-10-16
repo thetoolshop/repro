@@ -4,6 +4,7 @@ import path from 'node:path'
 
 import { defaultEnv as env } from '~/config/env'
 import { createSQLiteDatabaseClient } from '~/modules/database'
+import { createStubEmailUtils } from '~/modules/email-utils'
 import { createAccountService } from '~/services/account'
 
 const projectRoot = path.resolve(__dirname, '../..')
@@ -12,7 +13,9 @@ const database = createSQLiteDatabaseClient({
   path: path.join(projectRoot, env.DB_FILE),
 })
 
-const accountService = createAccountService(database)
+// FIXME: use real SMTP email utils?
+const emailUtils = createStubEmailUtils([])
+const accountService = createAccountService(database, emailUtils)
 
 async function main() {
   const name = await input({ message: 'Name', required: true })
