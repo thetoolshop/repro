@@ -1,4 +1,5 @@
 import { InlineBlock } from 'jsxstyle'
+// @ts-expect-error Cannot find type declaration from npm-forks
 import { JsxstyleProps } from 'jsxstyle/lib/types'
 import React, { PropsWithChildren } from 'react'
 

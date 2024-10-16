@@ -105,7 +105,7 @@ export const ElementTree: React.FC<Props> = ({
   }, [activeRef, vtree, focusedNode, openNodes, setVisibleNodes])
 
   useEffect(() => {
-    let handle = null
+    let handle: number | null = null
 
     if (!activeRef.current) {
       handle = requestIdleCallback(() => {
