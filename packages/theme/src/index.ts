@@ -1,4 +1,5 @@
-import { colors } from '@repro/design'
+// FIXME: investigate why import from package root breaks typechecking
+import { colors } from '@repro/design/src/theme'
 
 function createResetRules(rootSelector: string) {
   return [
