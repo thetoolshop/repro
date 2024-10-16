@@ -9,6 +9,8 @@ import {
 } from '@repro/domain'
 import { ElapsedMarker } from '@repro/playback'
 import { Block, Grid, Inline, Row } from 'jsxstyle'
+// FIXME: Re-export `JsxstyleProps`
+// @ts-expect-error Cannot find declaration in npm-forks
 import { JsxstyleProps } from 'jsxstyle/lib/types'
 import {
   X as CloseIcon,
