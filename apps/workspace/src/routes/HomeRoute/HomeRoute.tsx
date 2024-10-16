@@ -4,10 +4,10 @@ import React, { Fragment } from 'react'
 import { useDetectExtension } from '~/hooks/useDetectExtension'
 
 export const HomeRoute: React.FC = () => {
-  function goToChromeWebStore() {
-    window.location.href =
-      'https://chrome.google.com/webstore/detail/repro/ecmbphfjfhnifmhbjhpejbpdnpanpice'
-  }
+  //function goToChromeWebStore() {
+  //  window.location.href =
+  //    'https://chrome.google.com/webstore/detail/repro/ecmbphfjfhnifmhbjhpejbpdnpanpice'
+  //}
 
   const hasExtension = useDetectExtension()
 
