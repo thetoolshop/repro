@@ -1,7 +1,7 @@
 import { ApiClient } from '@repro/api-client'
 import { createAtom } from '@repro/atom'
 import { SourceEvent, SourceEventView } from '@repro/domain'
-import { LazyList } from '@repro/std'
+import { List } from '@repro/tdl'
 import { fromWireFormat } from '@repro/wire-formats'
 import { both, chainRej, fork, map, resolve } from 'fluture'
 import { ReadyState, Source } from './types'
@@ -35,7 +35,7 @@ export function createApiSource(
   recordingId: string,
   apiClient: ApiClient
 ): Source {
-  const [$events, setEvents] = createAtom(LazyList.Empty<SourceEvent>())
+  const [$events, setEvents] = createAtom(new List(SourceEventView, []))
   const [$readyState, setReadyState] = createAtom<ReadyState>('waiting')
   const [$resourceMap, setResourceMap] = createAtom<Record<string, string>>({})
 
@@ -43,13 +43,7 @@ export function createApiSource(
     getResourceMap(apiClient, recordingId)
   ).pipe(
     fork(() => setReadyState('failed'))(([events, resourceMap]) => {
-      setEvents(
-        new LazyList<SourceEvent>(
-          events,
-          SourceEventView.decode,
-          SourceEventView.encode
-        )
-      )
+      setEvents(new List(SourceEventView, events))
       setResourceMap(resourceMap)
       setReadyState('ready')
     })

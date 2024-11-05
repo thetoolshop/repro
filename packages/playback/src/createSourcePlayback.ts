@@ -3,7 +3,6 @@ import { Stats, StatsLevel } from '@repro/diagnostics'
 import {
   Snapshot,
   SnapshotEvent,
-  SnapshotView,
   SourceEvent,
   SourceEventType,
   SourceEventView,
@@ -14,7 +13,8 @@ import {
   createEmptySnapshot,
   isSample,
 } from '@repro/source-utils'
-import { LazyList, copyObject } from '@repro/std'
+import { copyObject } from '@repro/std'
+import { Box, List } from '@repro/tdl'
 import {
   NEVER,
   Subscription,
@@ -26,26 +26,21 @@ import { map, observeOn, pairwise, switchMap } from 'rxjs/operators'
 import { ControlFrame, Playback, PlaybackState } from './types'
 
 const EMPTY_SNAPSHOT = createEmptySnapshot()
-
-const EMPTY_BUFFER = LazyList.Empty(
-  SourceEventView.decode,
-  SourceEventView.encode
-)
-
+const EMPTY_BUFFER = new List(SourceEventView, [])
 export const EMPTY_PLAYBACK = createSourcePlayback(
-  LazyList.Empty<SourceEvent>(),
+  new List(SourceEventView, []),
   {}
 )
 
 export function createSourcePlayback(
-  events: LazyList<SourceEvent>,
+  events: List<SourceEventView>,
   resourceMap: Record<string, string>
 ): Playback {
   const subscription = new Subscription()
 
   const [$activeIndex, setActiveIndex, getActiveIndex] = createAtom(-1)
   const [$buffer, setBuffer, getBuffer] = createAtom(
-    LazyList.Empty(SourceEventView.decode, SourceEventView.encode)
+    new List(SourceEventView, [])
   )
   const [$elapsed, setElapsed, getElapsed] = createAtom(-1)
   const [$playbackState, setPlaybackState, getPlaybackState] = createAtom(
@@ -64,9 +59,20 @@ export function createSourcePlayback(
 
   Stats.time('RecordingPlayback: calculate duration', () => {
     if (firstEvent && lastEvent) {
+      // FIXME:
+      // We need to calculate duration from the first and last boxed events,
+      // where the boxed type is not empty. We should iterate from both
+      // ends of the list to find the first non-empty event at each end.
+      //
+      // Question: should leading/trailing empty events be pruned when
+      // creating playback?
       duration =
-        SourceEventView.over(lastEvent).time -
-        SourceEventView.over(firstEvent).time
+        SourceEventView.over(lastEvent)
+          .map(event => event.time)
+          .orElse(0) -
+        SourceEventView.over(firstEvent)
+          .map(event => event.time)
+          .orElse(0)
     }
   })
 
@@ -77,7 +83,10 @@ export function createSourcePlayback(
       const dataView = events.at(i)
       const event = dataView && SourceEventView.over(dataView)
 
-      if (event && event.type === SourceEventType.Snapshot) {
+      if (
+        event &&
+        event.match(event => event.type === SourceEventType.Snapshot)
+      ) {
         snapshotIndex.push(i)
       }
     }
@@ -94,25 +103,31 @@ export function createSourcePlayback(
 
     const firstEvent = events.decode(0)
 
-    if (!firstEvent || firstEvent.type !== SourceEventType.Snapshot) {
+    if (!firstEvent) {
       throw new Error(
         'Playback: could not find leading snapshot in events (index = 0)'
       )
     }
 
-    return firstEvent.data
+    const data = firstEvent
+      .filter<SnapshotEvent>(event => event.type === SourceEventType.Snapshot)
+      .map(event => event.data)
+
+    if (data.empty()) {
+      throw new Error(
+        'Playback: could not find leading snapshot in events (index = 0)'
+      )
+    }
+
+    return data.unwrap()
   }
 
   function partitionEvents(
-    events: LazyList<SourceEvent>,
+    events: List<SourceEventView>,
     shouldPartition: (event: SourceEvent, index: number) => boolean,
     isUnresolvedSample: (sample: Sample<any>, time: number) => boolean
   ) {
-    const eventsBefore = LazyList.Empty(
-      SourceEventView.decode,
-      SourceEventView.encode
-    )
-
+    const eventsBefore = new List(SourceEventView, [])
     const eventsAfter = events.slice()
 
     Stats.time(
@@ -130,13 +145,25 @@ export function createSourcePlayback(
             break
           }
 
-          eventsBefore.append(lens)
+          eventsBefore.append(SourceEventView.decode(lens))
 
-          if (
-            'data' in lens &&
-            isSample(lens.data) &&
-            isUnresolvedSample(lens.data, lens.time)
-          ) {
+          const shouldEnqueueUnresolvedSample = lens.match(lens => {
+            if (!('data' in lens)) {
+              return false
+            }
+
+            const data = Box.from(lens.data)
+
+            if (isSample(data)) {
+              return data
+                .map(data => isUnresolvedSample(data, lens.time))
+                .orElse(false)
+            }
+
+            return false
+          })
+
+          if (shouldEnqueueUnresolvedSample) {
             unresolvedSampleEvents.push(lens)
           }
 
@@ -166,7 +193,7 @@ export function createSourcePlayback(
     }
   }
 
-  let queuedEvents: LazyList<SourceEvent> = loadEvents()
+  let queuedEvents = loadEvents()
 
   const eventLoop = connectable(
     $playbackState.pipe(
@@ -195,7 +222,7 @@ export function createSourcePlayback(
         // resuming background/idle tab)
         const [before, after] = partitionEvents(
           queuedEvents,
-          event => event.time > elapsed,
+          event => event.match(event => event.time > elapsed),
           (sample, time) => time + sample.duration > elapsed
         )
 
@@ -238,7 +265,7 @@ export function createSourcePlayback(
       if (dataView) {
         const event = SourceEventView.over(dataView)
 
-        if (event.time <= time) {
+        if (event.match(event => event.time <= time)) {
           return i
         }
       }
@@ -249,12 +276,26 @@ export function createSourcePlayback(
 
   function getEventTimeAtIndex(index: number) {
     const event = events.at(index)
-    return event ? SourceEventView.over(event).time : null
+
+    if (event == null) {
+      return event
+    }
+
+    return SourceEventView.over(event)
+      .map(event => event.time)
+      .orElse(null)
   }
 
   function getEventTypeAtIndex(index: number) {
     const event = events.at(index)
-    return event ? SourceEventView.over(event).type : null
+
+    if (event == null) {
+      return event
+    }
+
+    return SourceEventView.over(event)
+      .map(event => event.type)
+      .orElse(null)
   }
 
   function getSourceEvents() {
@@ -283,11 +324,17 @@ export function createSourcePlayback(
       const allEvents = loadEvents()
       queuedEvents = allEvents
 
-      const targetEvent = queuedEvents.decode(nextIndex)
+      const boxedTargetEvent = queuedEvents.decode(nextIndex)
 
-      if (!targetEvent) {
+      if (!boxedTargetEvent) {
         throw new Error(`Playback: could not find event at index ${nextIndex}`)
       }
+
+      if (boxedTargetEvent.empty()) {
+        throw new Error(`Playback: event at index ${nextIndex} is Box<null>`)
+      }
+
+      const targetEvent = boxedTargetEvent.unwrap()
 
       let snapshot: Snapshot | null = null
       let indexOffset = 0
@@ -298,7 +345,10 @@ export function createSourcePlayback(
 
           if (typeof index === 'number') {
             if (index <= nextIndex) {
-              snapshot = (allEvents.decode(index) as SnapshotEvent).data
+              ;(allEvents.decode(index) as Box<SnapshotEvent>).apply(event => {
+                snapshot = event.data
+              })
+
               queuedEvents = allEvents.slice(index + 1)
               indexOffset = index
 
@@ -372,8 +422,14 @@ export function createSourcePlayback(
           if (typeof index === 'number') {
             const event = allEvents.at(index)
 
-            if (event && SourceEventView.over(event).time <= elapsed) {
-              snapshot = (allEvents.decode(index) as SnapshotEvent).data
+            if (
+              event &&
+              SourceEventView.over(event).match(event => event.time <= elapsed)
+            ) {
+              ;(allEvents.decode(index) as Box<SnapshotEvent>).apply(event => {
+                snapshot = event.data
+              })
+
               queuedEvents = allEvents.slice(index + 1)
               activeIndexOffset = index + 1
 
@@ -395,7 +451,7 @@ export function createSourcePlayback(
 
       const [before, after] = partitionEvents(
         queuedEvents,
-        event => event.time > elapsed,
+        event => event.match(event => event.time > elapsed),
         (sample, time) => time + sample.duration > elapsed
       )
 
@@ -410,7 +466,8 @@ export function createSourcePlayback(
         'RecordingPlayback#seekToTime: apply events to snapshot',
         () => {
           if (snapshot && before.size()) {
-            snapshot = copyObject(SnapshotView.decode(snapshot))
+            // TODO: This was previously decoded before copy - why?
+            snapshot = copyObject(snapshot)
 
             for (const dataView of before.toSource()) {
               const event = SourceEventView.over(dataView)

@@ -10,10 +10,10 @@ import {
   NodeType,
   PatchType,
   SyntheticId,
-  VText,
   VTree,
 } from '@repro/domain'
 import { ObserverLike, createEventObserver } from '@repro/observer-utils'
+import { Box } from '@repro/tdl'
 import { Immutable } from '@repro/ts-utils'
 import { createSyntheticId, getNodeId, isElementVNode } from '@repro/vdom-utils'
 import { RecordingOptions } from '../types'
@@ -75,13 +75,15 @@ function createInputObserver(
       }
 
       if (eventTarget.value !== oldValue) {
-        subscriber({
-          type: PatchType.TextProperty,
-          targetId: getNodeId(eventTarget),
-          name: 'value',
-          value,
-          oldValue,
-        })
+        subscriber(
+          new Box({
+            type: PatchType.TextProperty,
+            targetId: getNodeId(eventTarget),
+            name: 'value',
+            value,
+            oldValue,
+          })
+        )
 
         prevChangeMap.set(eventTarget, value)
       }
@@ -94,13 +96,15 @@ function createInputObserver(
         // TODO: read prev checked state from vtree
         const prevChecked = prevCheckedMap.get(eventTarget) || false
 
-        subscriber({
-          type: PatchType.BooleanProperty,
-          targetId: getNodeId(eventTarget),
-          name: 'checked',
-          value: eventTarget.checked,
-          oldValue: prevChecked,
-        })
+        subscriber(
+          new Box({
+            type: PatchType.BooleanProperty,
+            targetId: getNodeId(eventTarget),
+            name: 'checked',
+            value: eventTarget.checked,
+            oldValue: prevChecked,
+          })
+        )
 
         prevCheckedMap.set(eventTarget, eventTarget.checked)
       }
@@ -115,13 +119,15 @@ function createInputObserver(
             if (sibling !== eventTarget) {
               const prevChecked = prevCheckedMap.get(sibling) || false
 
-              subscriber({
-                type: PatchType.BooleanProperty,
-                targetId: getNodeId(sibling),
-                name: 'checked',
-                value: false,
-                oldValue: prevChecked,
-              })
+              subscriber(
+                new Box({
+                  type: PatchType.BooleanProperty,
+                  targetId: getNodeId(sibling),
+                  name: 'checked',
+                  value: false,
+                  oldValue: prevChecked,
+                })
+              )
 
               prevCheckedMap.set(sibling, false)
             }
@@ -134,13 +140,15 @@ function createInputObserver(
       // TODO: read previous selected index from vtree
       const prevSelectedIndex = prevSelectedIndexMap.get(eventTarget) || -1
 
-      subscriber({
-        type: PatchType.NumberProperty,
-        targetId: getNodeId(eventTarget),
-        name: 'selectedIndex',
-        value: eventTarget.selectedIndex,
-        oldValue: prevSelectedIndex,
-      })
+      subscriber(
+        new Box({
+          type: PatchType.NumberProperty,
+          targetId: getNodeId(eventTarget),
+          name: 'selectedIndex',
+          value: eventTarget.selectedIndex,
+          oldValue: prevSelectedIndex,
+        })
+      )
 
       prevSelectedIndexMap.set(eventTarget, eventTarget.selectedIndex)
     }
@@ -240,13 +248,15 @@ export function internal__processMutationRecords(
         )
 
         if (attribute?.value !== record.oldValue) {
-          patches.push({
-            type: PatchType.Attribute,
-            targetId,
-            name,
-            value: attribute ? attribute.value : null,
-            oldValue: record.oldValue,
-          })
+          patches.push(
+            new Box({
+              type: PatchType.Attribute,
+              targetId,
+              name,
+              value: attribute ? attribute.value : null,
+              oldValue: record.oldValue,
+            })
+          )
         }
 
         break
@@ -256,12 +266,14 @@ export function internal__processMutationRecords(
           break
         }
 
-        patches.push({
-          type: PatchType.Text,
-          targetId: getNodeId(record.target),
-          value: (record.target as Text).data,
-          oldValue: record.oldValue || '',
-        })
+        patches.push(
+          new Box({
+            type: PatchType.Text,
+            targetId: getNodeId(record.target),
+            value: (record.target as Text).data,
+            oldValue: record.oldValue || '',
+          })
+        )
 
         break
 
@@ -323,14 +335,17 @@ export function internal__processMutationRecords(
             }
           }
 
-          patches.push({
-            type: PatchType.RemoveNodes,
-            parentId: getNodeId(record.target),
-            previousSiblingId:
-              previousSibling !== null ? getNodeId(previousSibling) : null,
-            nextSiblingId: nextSibling !== null ? getNodeId(nextSibling) : null,
-            nodes: removedVTrees,
-          })
+          patches.push(
+            new Box({
+              type: PatchType.RemoveNodes,
+              parentId: getNodeId(record.target),
+              previousSiblingId:
+                previousSibling !== null ? getNodeId(previousSibling) : null,
+              nextSiblingId:
+                nextSibling !== null ? getNodeId(nextSibling) : null,
+              nodes: removedVTrees,
+            })
+          )
         }
 
         if (addedVTrees.length) {
@@ -347,15 +362,17 @@ export function internal__processMutationRecords(
               }
             }
 
-            patches.push({
-              type: PatchType.AddNodes,
-              parentId: getNodeId(record.target),
-              previousSiblingId:
-                previousSibling !== null ? getNodeId(previousSibling) : null,
-              nextSiblingId:
-                nextSibling !== null ? getNodeId(nextSibling) : null,
-              nodes: addedVTrees,
-            })
+            patches.push(
+              new Box({
+                type: PatchType.AddNodes,
+                parentId: getNodeId(record.target),
+                previousSiblingId:
+                  previousSibling !== null ? getNodeId(previousSibling) : null,
+                nextSiblingId:
+                  nextSibling !== null ? getNodeId(nextSibling) : null,
+                nodes: addedVTrees,
+              })
+            )
           }
         }
 
@@ -417,67 +434,75 @@ function createStyleSheetObserver(
       const parentVNode = vtree.nodes[parentId]
 
       if (parentVNode && isElementVNode(parentVNode)) {
-        const previousSiblingId = parentVNode.children[index - 1] || null
-        const nextSiblingId = parentVNode.children[index] || null
+        let previousSiblingId: string | null = null
+        let nextSiblingId: string | null = null
+
+        parentVNode.apply(parentVNode => {
+          previousSiblingId = parentVNode.children[index - 1] || null
+          nextSiblingId = parentVNode.children[index] || null
+        })
+
         const id = createSyntheticId()
 
-        subscriber({
-          type: PatchType.AddNodes,
-          parentId,
-          previousSiblingId,
-          nextSiblingId,
-          nodes: [
-            {
-              rootId: id,
-              nodes: {
-                [id]: {
-                  type: NodeType.Text,
-                  id,
-                  parentId,
-                  value: rule,
+        subscriber(
+          new Box({
+            type: PatchType.AddNodes,
+            parentId,
+            previousSiblingId,
+            nextSiblingId,
+            nodes: [
+              {
+                rootId: id,
+                nodes: {
+                  [id]: new Box({
+                    type: NodeType.Text,
+                    id,
+                    parentId,
+                    value: rule,
+                  }),
                 },
               },
-            },
-          ],
-        })
+            ],
+          })
+        )
       }
     }
   }
 
-  function deleteRuleEffect(
-    vtree: Immutable<VTree>,
-    sheet: CSSStyleSheet,
-    index: number
-  ) {
+  function deleteRuleEffect(vtree: VTree, sheet: CSSStyleSheet, index: number) {
     if (sheet.ownerNode) {
       const parentId = getNodeId(sheet.ownerNode)
       const parentVNode = vtree.nodes[parentId]
 
       if (parentVNode && isElementVNode(parentVNode)) {
-        const previousSiblingId = parentVNode.children[index - 1] || null
-        const nextSiblingId = parentVNode.children[index + 1] || null
-        const id = parentVNode.children[index]
+        parentVNode.apply(parentVNode => {
+          const previousSiblingId = parentVNode.children[index - 1] || null
+          const nextSiblingId = parentVNode.children[index + 1] || null
+          const id = parentVNode.children[index] || null
 
-        if (id) {
-          const node = vtree.nodes[id]
+          if (id) {
+            const node = vtree.nodes[id]
 
-          if (node) {
-            subscriber({
-              type: PatchType.RemoveNodes,
-              parentId,
-              previousSiblingId,
-              nextSiblingId,
-              nodes: [
-                {
-                  rootId: id,
-                  nodes: {
-                    [id]: node as VText,
-                  },
-                },
-              ],
-            })
+            if (node) {
+              subscriber(
+                new Box({
+                  type: PatchType.RemoveNodes,
+                  parentId,
+                  previousSiblingId,
+                  nextSiblingId,
+                  nodes: [
+                    {
+                      rootId: id,
+                      nodes: {
+                        [id]: node,
+                      },
+                    },
+                  ],
+                })
+              )
+            }
           }
-        }
+        })
       }
     }
   }

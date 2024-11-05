@@ -13,6 +13,7 @@
     "@repro/logger": "workspace:*",
     "@repro/random-string": "workspace:*",
     "@repro/std": "workspace:*",
+    "@repro/tdl": "workspace:*",
     "@repro/ts-utils": "workspace:*"
   },
   "devDependencies": {

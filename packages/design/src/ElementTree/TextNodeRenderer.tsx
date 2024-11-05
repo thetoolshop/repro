@@ -1,8 +1,8 @@
-import { SyntheticId, VText } from '@repro/domain'
+import { NodeType, SyntheticId, VText } from '@repro/domain'
 import React from 'react'
 import { TextR } from '../DOM'
-import { useNode } from './context'
 import { TreeRow } from './TreeRow'
+import { useNode } from './context'
 
 interface Props {
   depth: number
@@ -10,20 +10,25 @@ interface Props {
 }
 
 export const TextNodeRenderer: React.FC<Props> = ({ depth, nodeId }) => {
-  const node = useNode<VText>(nodeId)
+  const node = useNode(nodeId)
 
   if (!node) {
     return null
   }
 
-  // TODO: only filter out empty text nodes between block-level elements
-  if (/^\s*$/.test(node.value)) {
-    return null
-  }
+  return node
+    .filter<VText>(node => node.type === NodeType.Text)
+    .map(node => {
+      // TODO: only filter out empty text nodes between block-level elements
+      if (/^\s*$/.test(node.value)) {
+        return null
+      }
 
-  return (
-    <TreeRow nodeId={nodeId} depth={depth}>
-      <TextR node={node} />
-    </TreeRow>
-  )
+      return (
+        <TreeRow nodeId={nodeId} depth={depth}>
+          <TextR node={node} />
+        </TreeRow>
+      )
+    })
+    .orElse(null)
 }

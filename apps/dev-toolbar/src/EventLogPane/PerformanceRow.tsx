@@ -10,9 +10,11 @@ interface Props {
 }
 
 export const PerformanceRow: React.FC<Props> = ({ event, index, style }) => {
-  return (
-    <BaseRow event={event} index={index} style={style}>
-      <Block>{PerformanceEntryType[event.data.type]}</Block>
-    </BaseRow>
-  )
+  return event.data
+    .map(data => (
+      <BaseRow event={event} index={index} style={style}>
+        <Block>{PerformanceEntryType[data.type]}</Block>
+      </BaseRow>
+    ))
+    .orElse(null)
 }

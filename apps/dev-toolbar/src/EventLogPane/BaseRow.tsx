@@ -1,14 +1,14 @@
 import { formatTime } from '@repro/date-utils'
 import { colors } from '@repro/design'
 import { SourceEvent, SourceEventType } from '@repro/domain'
-import { isLens, unwrapLens } from '@repro/tdl'
+import { Unboxed, isLens, unwrapLens } from '@repro/tdl'
 import { Block, Col, Row } from 'jsxstyle'
 import prettyBytes from 'pretty-bytes'
 import React, { PropsWithChildren } from 'react'
 import { useSelectedEvent } from '~/hooks'
 
 interface Props {
-  event: SourceEvent
+  event: Unboxed<SourceEvent>
   index: number
   style: React.CSSProperties
 }

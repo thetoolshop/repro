@@ -5,7 +5,7 @@ import {
   createSourcePlayback,
 } from '@repro/playback'
 import { InterruptSignal, useRecordingStream } from '@repro/recording'
-import { LazyList } from '@repro/std'
+import { Box, List } from '@repro/tdl'
 import { Block } from 'jsxstyle'
 import React, { useEffect, useState } from 'react'
 import {
@@ -56,24 +56,19 @@ export const Controller: React.FC = () => {
         of(stream.snapshot())
           .pipe(
             map(snapshot =>
-              SourceEventView.encode({
-                type: SourceEventType.Snapshot,
-                time: 0,
-                data: snapshot,
-              })
+              SourceEventView.encode(
+                new Box({
+                  type: SourceEventType.Snapshot,
+                  time: 0,
+                  data: snapshot,
+                })
+              )
             ),
             observeOn(asyncScheduler)
           )
           .subscribe(event => {
             setPlayback(
-              createSourcePlayback(
-                new LazyList(
-                  [event],
-                  SourceEventView.decode,
-                  SourceEventView.encode
-                ),
-                {}
-              )
+              createSourcePlayback(new List(SourceEventView, [event]), {})
             )
           })
         break
@@ -94,14 +89,7 @@ export const Controller: React.FC = () => {
             .tail(InterruptSignal)
             .pipe(
               toArray(),
-              map(
-                events =>
-                  new LazyList(
-                    events,
-                    SourceEventView.decode,
-                    SourceEventView.encode
-                  )
-              )
+              map(events => new List(SourceEventView, events))
             )
             .subscribe(events => {
               setPlayback(createSourcePlayback(events, {}))

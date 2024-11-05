@@ -5,7 +5,7 @@ import {
   SourceEventType,
   SourceEventView,
 } from '@repro/domain'
-import { LazyList } from '@repro/std'
+import { Box, List } from '@repro/tdl'
 import { html2VTree } from '@repro/testing-utils'
 import React from 'react'
 import { PlaybackProvider } from '../context'
@@ -18,9 +18,9 @@ const meta: Meta = {
 
 export default meta
 
-const events = new LazyList(
-  [
-    SourceEventView.from({
+const events = new List(SourceEventView, [
+  SourceEventView.encode(
+    new Box({
       type: SourceEventType.Snapshot,
       time: 0,
       data: {
@@ -47,22 +47,22 @@ const events = new LazyList(
           viewport: [400, 400],
         },
       },
-    }),
+    })
+  ),
 
-    SourceEventView.from({
+  SourceEventView.encode(
+    new Box({
       type: SourceEventType.Interaction,
       time: 1000,
-      data: {
+      data: new Box({
         type: InteractionType.PointerMove,
         from: [10, 10],
         to: [300, 300],
         duration: 25,
-      },
-    }),
-  ],
-  SourceEventView.decode,
-  SourceEventView.encode
-)
+      }),
+    })
+  ),
+])
 
 export const Default: Story = () => (
   <PlaybackProvider playback={createSourcePlayback(events, {})}>

@@ -9,13 +9,15 @@ import {
 import { logger } from '@repro/logger'
 import { copyObjectDeep } from '@repro/std'
 import { getVNodeById } from './id-factory'
-import { isElementVNode, isTextVNode } from './matchers'
+import { isElementVNode, isParentVNode, isTextVNode } from './matchers'
 
 export function createVTreeWithRoot(root: VNode): VTree {
+  const rootId = root.map(root => root.id).unwrap()
+
   return {
-    rootId: root.id,
+    rootId,
     nodes: {
-      [root.id]: root,
+      [rootId]: root,
     },
   }
 }
@@ -23,12 +25,16 @@ export function createVTreeWithRoot(root: VNode): VTree {
 export function addVNode(vtree: VTree, newNode: VNode, parentId: SyntheticId) {
   const parent = vtree.nodes[parentId]
 
-  if (!parent || !('children' in parent)) {
+  if (parent && isParentVNode(parent)) {
+    newNode
+      .map(node => node.id)
+      .apply(nodeId => {
+        vtree.nodes[nodeId] = newNode
+        parent.apply(parent => parent.children.push(nodeId))
+      })
+  } else {
     throw new Error('VDOM: invalid parent')
   }
-
-  vtree.nodes[newNode.id] = newNode
-  parent.children.push(newNode.id)
 }
 
 export function replaceVNodeById(
@@ -90,7 +96,9 @@ export function removeSubTreesAtNode(
         delete vtree.nodes[nodeId]
 
         if (isElementVNode(node)) {
-          queue.push(...node.children)
+          node.apply(node => {
+            queue.push(...node.children)
+          })
         }
       }
     }
@@ -115,86 +123,100 @@ export function applyVTreePatch(
 ): void {
   // const start = performance.now()
 
-  switch (patch.type) {
-    case PatchType.Attribute: {
-      let node = getVNodeById(vtree, patch.targetId)
+  patch.apply(patch => {
+    switch (patch.type) {
+      case PatchType.Attribute: {
+        let node = getVNodeById(vtree, patch.targetId)
 
-      if (node && isElementVNode(node)) {
-        node.attributes[patch.name] = revert ? patch.oldValue : patch.value
-        // TODO: move these to Debugger; stats will be published for monitoring
-        // Stats.sample('VDOM: apply attribute patch', performance.now() - start)
-      }
-
-      break
-    }
-
-    case PatchType.BooleanProperty:
-    case PatchType.NumberProperty:
-    case PatchType.TextProperty: {
-      let node = getVNodeById(vtree, patch.targetId)
-
-      if (node && isElementVNode(node)) {
-        const propertyName = patch.name as keyof VElement['properties']
-        // TODO: fix typings and type inference for element properties
-        // @ts-ignore
-        node.properties[propertyName] = revert ? patch.oldValue : patch.value
-      }
-
-      break
-    }
-
-    case PatchType.Text: {
-      let node = getVNodeById(vtree, patch.targetId)
-
-      if (node && isTextVNode(node)) {
-        node.value = revert ? patch.oldValue : patch.value
-        // TODO: move these to Debugger; stats will be published for monitoring
-        // Stats.sample('VDOM: apply text patch', performance.now() - start)
-      }
-
-      break
-    }
-
-    case PatchType.AddNodes: {
-      let parent = getVNodeById(vtree, patch.parentId)
-
-      if (parent && isElementVNode(parent)) {
-        if (revert) {
-          removeSubTreesAtNode(vtree, parent, patch.nodes)
-        } else {
-          const index = patch.previousSiblingId
-            ? parent.children.indexOf(patch.previousSiblingId) + 1
-            : 0
-
-          insertSubTreesAtNode(vtree, parent, patch.nodes, index)
+        if (node && isElementVNode(node)) {
+          node.apply(node => {
+            node.attributes[patch.name] = revert ? patch.oldValue : patch.value
+          })
+          // TODO: move these to Debugger; stats will be published for monitoring
+          // Stats.sample('VDOM: apply attribute patch', performance.now() - start)
         }
 
-        // TODO: move these to Debugger; stats will be published for monitoring
-        // Stats.sample('VDOM: apply add-nodes patch', performance.now() - start)
+        break
       }
 
-      break
-    }
+      case PatchType.BooleanProperty:
+      case PatchType.NumberProperty:
+      case PatchType.TextProperty: {
+        let node = getVNodeById(vtree, patch.targetId)
 
-    case PatchType.RemoveNodes: {
-      let parent = getVNodeById(vtree, patch.parentId)
-
-      if (parent && isElementVNode(parent)) {
-        if (revert) {
-          const index = patch.previousSiblingId
-            ? parent.children.indexOf(patch.previousSiblingId)
-            : 0
-
-          insertSubTreesAtNode(vtree, parent, patch.nodes, index)
-        } else {
-          removeSubTreesAtNode(vtree, parent, patch.nodes)
+        if (node && isElementVNode(node)) {
+          const propertyName = patch.name as keyof VElement['properties']
+          node.apply(node => {
+            // TODO: fix typings and type inference for element properties
+            // @ts-ignore
+            node.properties[propertyName] = revert
+              ? patch.oldValue
+              : patch.value
+          })
         }
 
-        // TODO: move these to Debugger; stats will be published for monitoring
-        // Stats.sample('VDOM: apply remove-nodes patch', performance.now() - start)
+        break
       }
 
-      break
+      case PatchType.Text: {
+        let node = getVNodeById(vtree, patch.targetId)
+
+        if (node && isTextVNode(node)) {
+          node.apply(node => {
+            node.value = revert ? patch.oldValue : patch.value
+          })
+          // TODO: move these to Debugger; stats will be published for monitoring
+          // Stats.sample('VDOM: apply text patch', performance.now() - start)
+        }
+
+        break
+      }
+
+      case PatchType.AddNodes: {
+        let parent = getVNodeById(vtree, patch.parentId)
+
+        if (parent && isElementVNode(parent)) {
+          parent.apply(parent => {
+            if (revert) {
+              removeSubTreesAtNode(vtree, parent, patch.nodes)
+            } else {
+              const index = patch.previousSiblingId
+                ? parent.children.indexOf(patch.previousSiblingId) + 1
+                : 0
+
+              insertSubTreesAtNode(vtree, parent, patch.nodes, index)
+            }
+          })
+
+          // TODO: move these to Debugger; stats will be published for monitoring
+          // Stats.sample('VDOM: apply add-nodes patch', performance.now() - start)
+        }
+
+        break
+      }
+
+      case PatchType.RemoveNodes: {
+        let parent = getVNodeById(vtree, patch.parentId)
+
+        if (parent && isElementVNode(parent)) {
+          parent.apply(parent => {
+            if (revert) {
+              const index = patch.previousSiblingId
+                ? parent.children.indexOf(patch.previousSiblingId)
+                : 0
+
+              insertSubTreesAtNode(vtree, parent, patch.nodes, index)
+            } else {
+              removeSubTreesAtNode(vtree, parent, patch.nodes)
+            }
+          })
+
+          // TODO: move these to Debugger; stats will be published for monitoring
+          // Stats.sample('VDOM: apply remove-nodes patch', performance.now() - start)
+        }
+
+        break
+      }
     }
-  }
+  })
 }

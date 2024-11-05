@@ -10,9 +10,11 @@ interface Props {
 }
 
 export const DOMPatchRow: React.FC<Props> = ({ event, index, style }) => {
-  return (
-    <BaseRow event={event} index={index} style={style}>
-      <Block>{PatchType[event.data.type]}</Block>
-    </BaseRow>
-  )
+  return event.data
+    .map(data => (
+      <BaseRow event={event} index={index} style={style}>
+        <Block>{PatchType[data.type]}</Block>
+      </BaseRow>
+    ))
+    .orElse(null)
 }

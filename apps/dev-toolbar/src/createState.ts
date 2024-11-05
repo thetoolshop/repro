@@ -1,12 +1,13 @@
 import { Atom, createAtom, Setter } from '@repro/atom'
 import { SourceEvent } from '@repro/domain'
+import { Unboxed } from '@repro/tdl'
 import { Pane } from './types'
 
 export interface State {
-  $selectedEvent: Atom<SourceEvent | null>
+  $selectedEvent: Atom<Unboxed<SourceEvent> | null>
   $selectedIndex: Atom<number | null>
   $visiblePane: Atom<Pane | null>
-  setSelectedEvent: Setter<SourceEvent | null>
+  setSelectedEvent: Setter<Unboxed<SourceEvent> | null>
   setSelectedIndex: Setter<number | null>
   setVisiblePane: Setter<Pane | null>
 }
@@ -20,9 +21,10 @@ const defaultValues = {
 export function createState(
   initialValues: Partial<typeof defaultValues> = defaultValues
 ): State {
-  const [$selectedEvent, setSelectedEvent] = createAtom<SourceEvent | null>(
-    initialValues.selectedEvent ?? defaultValues.selectedEvent
-  )
+  const [$selectedEvent, setSelectedEvent] =
+    createAtom<Unboxed<SourceEvent> | null>(
+      initialValues.selectedEvent ?? defaultValues.selectedEvent
+    )
 
   const [$selectedIndex, setSelectedIndex] = createAtom<number | null>(
     initialValues.selectedIndex ?? defaultValues.selectedIndex

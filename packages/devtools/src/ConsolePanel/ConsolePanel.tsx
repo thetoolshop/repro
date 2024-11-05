@@ -8,6 +8,7 @@ import {
   SourceEventView,
 } from '@repro/domain'
 import { ControlFrame, ElapsedMarker, usePlayback } from '@repro/playback'
+import { Box } from '@repro/tdl'
 import { Block, Grid } from 'jsxstyle'
 import React, {
   Fragment,
@@ -24,8 +25,8 @@ import { LevelFilter } from './LevelFilter'
 import { SearchForm } from './SearchForm'
 import { enumToBitField } from './util'
 
-function isConsoleEvent(event: SourceEvent): event is ConsoleEvent {
-  return event.type === SourceEventType.Console
+function isConsoleEvent(event: SourceEvent): event is Box<ConsoleEvent> {
+  return event.match(event => event.type === SourceEventType.Console)
 }
 
 export const ConsolePanel: React.FC = () => {
@@ -47,7 +48,9 @@ export const ConsolePanel: React.FC = () => {
           const event = SourceEventView.over(view)
 
           if (isConsoleEvent(event)) {
-            events.push([event, i])
+            event.apply(event => {
+              events.push([event, i])
+            })
           }
 
           i++
@@ -64,13 +67,14 @@ export const ConsolePanel: React.FC = () => {
         const levelBitField = enumToBitField(event.data.level)
 
         return (
-          levelBitField & consoleLevelFilter &&
+          (levelBitField & consoleLevelFilter) !== 0 &&
           event.data.parts.some(part => {
             // TODO: apply search filter to Node and Date message parts
-            return (
-              part.type === MessagePartType.Node ||
-              (part.type === MessagePartType.String &&
-                part.value.includes(consoleSearch))
+            return part.match(
+              part =>
+                part.type === MessagePartType.Node ||
+                (part.type === MessagePartType.String &&
+                  part.value.includes(consoleSearch))
             )
           })
         )

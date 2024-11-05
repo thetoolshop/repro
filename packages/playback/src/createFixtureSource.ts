@@ -1,6 +1,7 @@
 import { createAtom } from '@repro/atom'
-import { SourceEvent, SourceEventView } from '@repro/domain'
-import { LazyList, unpackListInto } from '@repro/std'
+import { SourceEventView } from '@repro/domain'
+import { unpackListInto } from '@repro/std'
+import { List } from '@repro/tdl'
 import { ReadyState, Source } from './types'
 
 export function createFixtureSource(fileName: string): Source {
@@ -8,17 +9,13 @@ export function createFixtureSource(fileName: string): Source {
     res.arrayBuffer()
   )
 
-  const [$events, setEvents] = createAtom(LazyList.Empty<SourceEvent>())
+  const [$events, setEvents] = createAtom(new List(SourceEventView, []))
   const [$readyState, setReadyState] = createAtom<ReadyState>('waiting')
   const [$resourceMap] = createAtom<Record<string, string>>({})
 
   request
     .then(buffer => {
-      const list = new LazyList(
-        [],
-        SourceEventView.decode,
-        SourceEventView.encode
-      )
+      const list = new List(SourceEventView, [])
 
       unpackListInto(buffer, list)
       setEvents(list)

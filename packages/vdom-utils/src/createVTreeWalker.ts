@@ -35,29 +35,31 @@ export function createVTreeWalker(): VTreeWalker {
         continue
       }
 
-      for (const visitor of visitors) {
-        switch (node.type) {
-          case NodeType.Document:
-            visitor.documentNode(node, vtree)
-            break
+      node.apply(node => {
+        for (const visitor of visitors) {
+          switch (node.type) {
+            case NodeType.Document:
+              visitor.documentNode(node, vtree)
+              break
 
-          case NodeType.DocType:
-            visitor.docTypeNode(node, vtree)
-            break
+            case NodeType.DocType:
+              visitor.docTypeNode(node, vtree)
+              break
 
-          case NodeType.Element:
-            visitor.elementNode(node, vtree)
-            break
+            case NodeType.Element:
+              visitor.elementNode(node, vtree)
+              break
 
-          case NodeType.Text:
-            visitor.textNode(node, vtree)
-            break
+            case NodeType.Text:
+              visitor.textNode(node, vtree)
+              break
+          }
         }
-      }
 
-      if ('children' in node) {
-        queue.push(...node.children)
-      }
+        if ('children' in node) {
+          queue.push(...node.children)
+        }
+      })
     }
   }
 

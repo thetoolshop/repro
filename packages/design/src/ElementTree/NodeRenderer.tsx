@@ -1,10 +1,10 @@
 import { NodeType, SyntheticId } from '@repro/domain'
 import React, { useContext } from 'react'
-import { VTreeContext } from './context'
-import { DocTypeNodeRenderer } from './DocTypeRender'
+import { DocTypeNodeRenderer } from './DocTypeNodeRenderer'
 import { DocumentNodeRenderer } from './DocumentNodeRenderer'
 import { ElementNodeRenderer } from './ElementNodeRenderer'
 import { TextNodeRenderer } from './TextNodeRenderer'
+import { VTreeContext } from './context'
 
 interface Props {
   depth: number
@@ -19,17 +19,21 @@ export const NodeRenderer: React.FC<Props> = ({ depth, nodeId }) => {
     return null
   }
 
-  switch (node.type) {
-    case NodeType.Document:
-      return <DocumentNodeRenderer nodeId={nodeId} depth={depth} />
+  return node
+    .map(node => {
+      switch (node.type) {
+        case NodeType.Document:
+          return <DocumentNodeRenderer nodeId={nodeId} depth={depth} />
 
-    case NodeType.DocType:
-      return <DocTypeNodeRenderer nodeId={nodeId} depth={depth} />
+        case NodeType.DocType:
+          return <DocTypeNodeRenderer nodeId={nodeId} depth={depth} />
 
-    case NodeType.Element:
-      return <ElementNodeRenderer nodeId={nodeId} depth={depth} />
+        case NodeType.Element:
+          return <ElementNodeRenderer nodeId={nodeId} depth={depth} />
 
-    case NodeType.Text:
-      return <TextNodeRenderer nodeId={nodeId} depth={depth} />
-  }
+        case NodeType.Text:
+          return <TextNodeRenderer nodeId={nodeId} depth={depth} />
+      }
+    })
+    .orElse(null)
 }

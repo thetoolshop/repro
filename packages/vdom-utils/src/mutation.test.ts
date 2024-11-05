@@ -1,4 +1,5 @@
 import { NodeType, VElement, VText, VTree } from '@repro/domain'
+import { Box } from '@repro/tdl'
 import { removeSubTreesAtNode } from './mutation'
 
 describe('utils: vdom', () => {
@@ -7,7 +8,7 @@ describe('utils: vdom', () => {
       return {
         rootId: '1',
         nodes: {
-          1: {
+          1: new Box({
             id: '1',
             parentId: null,
             type: NodeType.Element,
@@ -20,9 +21,9 @@ describe('utils: vdom', () => {
             },
             children: ['2', '3', '4'],
             shadowRoot: false,
-          },
+          }),
 
-          2: {
+          2: new Box({
             id: '2',
             parentId: '1',
             type: NodeType.Element,
@@ -35,28 +36,28 @@ describe('utils: vdom', () => {
             },
             children: ['5'],
             shadowRoot: false,
-          },
+          }),
 
-          3: {
+          3: new Box({
             id: '3',
             parentId: '1',
             type: NodeType.Text,
             value: 'foo',
-          },
+          }),
 
-          4: {
+          4: new Box({
             id: '4',
             parentId: '1',
             type: NodeType.Text,
             value: 'bar',
-          },
+          }),
 
-          5: {
+          5: new Box({
             id: '5',
             parentId: '2',
             type: NodeType.Text,
             value: 'baz',
-          },
+          }),
         },
       }
     }
@@ -64,12 +65,12 @@ describe('utils: vdom', () => {
     it('should remove subtrees from a valid parent node', () => {
       const vtree = createVTree()
 
-      removeSubTreesAtNode(vtree, vtree.nodes['1'] as VElement, [
+      removeSubTreesAtNode(vtree, vtree.nodes['1']?.unwrap() as VElement, [
         {
           rootId: '2',
           nodes: {
-            '2': vtree.nodes['2'] as VElement,
-            '5': vtree.nodes['5'] as VText,
+            '2': vtree.nodes['2'] as Box<VElement>,
+            '5': vtree.nodes['5'] as Box<VText>,
           },
         },
       ])
@@ -77,7 +78,7 @@ describe('utils: vdom', () => {
       expect(vtree).toEqual({
         rootId: '1',
         nodes: {
-          1: {
+          1: new Box({
             id: '1',
             parentId: null,
             type: NodeType.Element,
@@ -90,21 +91,21 @@ describe('utils: vdom', () => {
             },
             children: ['3', '4'],
             shadowRoot: false,
-          },
+          }),
 
-          3: {
+          3: new Box({
             id: '3',
             parentId: '1',
             type: NodeType.Text,
             value: 'foo',
-          },
+          }),
 
-          4: {
+          4: new Box({
             id: '4',
             parentId: '1',
             type: NodeType.Text,
             value: 'bar',
-          },
+          }),
         },
       })
     })
@@ -112,11 +113,11 @@ describe('utils: vdom', () => {
     it('should not remove subtrees from an invalid parent node', () => {
       const vtree = createVTree()
 
-      removeSubTreesAtNode(vtree, vtree.nodes['2'] as VElement, [
+      removeSubTreesAtNode(vtree, vtree.nodes['2']?.unwrap() as VElement, [
         {
           rootId: '3',
           nodes: {
-            '3': vtree.nodes['3'] as VText,
+            '3': vtree.nodes['3'] as Box<VText>,
           },
         },
       ])
@@ -127,22 +128,22 @@ describe('utils: vdom', () => {
     it('should remove subtrees idempotently', () => {
       const vtree = createVTree()
 
-      removeSubTreesAtNode(vtree, vtree.nodes['1'] as VElement, [
+      removeSubTreesAtNode(vtree, vtree.nodes['1']?.unwrap() as VElement, [
         {
           rootId: '2',
           nodes: {
-            '2': vtree.nodes['2'] as VElement,
-            '5': vtree.nodes['5'] as VText,
+            '2': vtree.nodes['2'] as Box<VElement>,
+            '5': vtree.nodes['5'] as Box<VText>,
           },
         },
       ])
 
-      removeSubTreesAtNode(vtree, vtree.nodes['1'] as VElement, [
+      removeSubTreesAtNode(vtree, vtree.nodes['1']?.unwrap() as VElement, [
         {
           rootId: '2',
           nodes: {
-            '2': vtree.nodes['2'] as VElement,
-            '5': vtree.nodes['5'] as VText,
+            '2': vtree.nodes['2'] as Box<VElement>,
+            '5': vtree.nodes['5'] as Box<VText>,
           },
         },
       ])
@@ -150,7 +151,7 @@ describe('utils: vdom', () => {
       expect(vtree).toEqual({
         rootId: '1',
         nodes: {
-          1: {
+          1: new Box({
             id: '1',
             parentId: null,
             type: NodeType.Element,
@@ -163,21 +164,21 @@ describe('utils: vdom', () => {
             },
             children: ['3', '4'],
             shadowRoot: false,
-          },
+          }),
 
-          3: {
+          3: new Box({
             id: '3',
             parentId: '1',
             type: NodeType.Text,
             value: 'foo',
-          },
+          }),
 
-          4: {
+          4: new Box({
             id: '4',
             parentId: '1',
             type: NodeType.Text,
             value: 'bar',
-          },
+          }),
         },
       })
     })

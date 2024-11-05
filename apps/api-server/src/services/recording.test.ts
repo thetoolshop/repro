@@ -4,6 +4,7 @@ import {
   SourceEventType,
   SourceEventView,
 } from '@repro/domain'
+import { Box } from '@repro/tdl'
 import { fromWireFormat, toWireFormat } from '@repro/wire-formats'
 import { map, promise } from 'fluture'
 import { Harness, createTestHarness, fixtures } from '~/testing'
@@ -29,16 +30,18 @@ describe('Services > Recording', () => {
     ])
 
     const events: Array<SourceEvent> = [
-      SourceEventView.from({
-        type: SourceEventType.Interaction,
-        time: 0,
-        data: {
-          type: InteractionType.PointerMove,
-          from: [0, 0],
-          to: [1024, 1024],
-          duration: 25,
-        },
-      }),
+      SourceEventView.from(
+        new Box({
+          type: SourceEventType.Interaction,
+          time: 0,
+          data: new Box({
+            type: InteractionType.PointerMove,
+            from: [0, 0],
+            to: [1024, 1024],
+            duration: 25,
+          }),
+        })
+      ),
     ]
 
     const input = await promise(

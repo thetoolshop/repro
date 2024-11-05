@@ -1,11 +1,11 @@
+import { List, View } from '@repro/tdl'
 import { gunzipSync, gzipSync } from 'fflate'
-import { LazyList } from './LazyList'
 
 const u8 = 1
 const u32 = 4
 const LITTLE_ENDIAN = true
 
-export function packList<T>(list: LazyList<T>): ArrayBuffer {
+export function packList<V extends View<any, any>>(list: List<V>): ArrayBuffer {
   const items = list.toSource()
   const byteLength =
     u32 + items.reduce((len, item) => len + u32 + item.byteLength, 0)
@@ -29,9 +29,9 @@ export function packList<T>(list: LazyList<T>): ArrayBuffer {
   return gzipSync(new Uint8Array(buffer))
 }
 
-export function unpackListInto<T>(
+export function unpackListInto<V extends View<any, any>>(
   buffer: ArrayBuffer,
-  list: LazyList<T>
+  list: List<V>
 ): void {
   const dataView = new DataView(gunzipSync(new Uint8Array(buffer)).buffer)
   const listSource = list.toSource()

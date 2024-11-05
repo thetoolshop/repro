@@ -23,6 +23,7 @@
     "@repro/playback": "workspace:*",
     "@repro/source-utils": "workspace:*",
     "@repro/std": "workspace:*",
+    "@repro/tdl": "workspace:*",
     "@repro/theme": "workspace:*",
     "@repro/wire-formats": "workspace:*",
     "jsxstyle": "^2.5.2",

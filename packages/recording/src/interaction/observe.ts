@@ -6,6 +6,7 @@ import {
 } from '@repro/dom-utils'
 import { Interaction, InteractionType, Point } from '@repro/domain'
 import { ObserverLike, createEventObserver } from '@repro/observer-utils'
+import { Box } from '@repro/tdl'
 import { getNodeId } from '@repro/vdom-utils'
 import { createVElement } from '../dom/factory'
 import { isIgnoredByNode, isIgnoredBySelector } from '../dom/utils'
@@ -86,12 +87,12 @@ function createViewportResizeObserver(
     },
     (value, duration) => {
       callback(
-        {
+        new Box({
           type: InteractionType.ViewportResize,
           from: [prevWidth, prevHeight],
           to: value,
           duration,
-        },
+        }),
         duration
       )
 
@@ -153,13 +154,13 @@ function createScrollObserver(
       prevScrollMap.set(target, nextScroll)
 
       callback(
-        {
+        new Box({
           type: InteractionType.Scroll,
           target: getNodeId(target),
           from: prevScroll,
           to: [target.scrollLeft, target.scrollTop] as Point,
           duration,
-        },
+        }),
         duration
       )
     },
@@ -202,12 +203,12 @@ function createPointerMoveObserver(
       const [x, y] = value
 
       callback(
-        {
+        new Box({
           type: InteractionType.PointerMove,
           from: [prevX ?? x, prevY ?? y],
           to: value,
           duration,
-        },
+        }),
         duration
       )
 
@@ -235,11 +236,13 @@ function createPointerDownObserver(callback: Callback): ObserverLike<Document> {
 
     const targets = doc.elementsFromPoint(x, y).map(elem => getNodeId(elem))
 
-    callback({
-      type: InteractionType.PointerDown,
-      targets,
-      at: [x, y],
-    })
+    callback(
+      new Box({
+        type: InteractionType.PointerDown,
+        targets,
+        at: [x, y],
+      })
+    )
   })
 }
 
@@ -258,11 +261,13 @@ function createPointerUpObserver(callback: Callback): ObserverLike<Document> {
 
     const targets = doc.elementsFromPoint(x, y).map(elem => getNodeId(elem))
 
-    callback({
-      type: InteractionType.PointerUp,
-      targets,
-      at: [x, y],
-    })
+    callback(
+      new Box({
+        type: InteractionType.PointerUp,
+        targets,
+        at: [x, y],
+      })
+    )
   })
 }
 
@@ -297,16 +302,18 @@ function createClickObserver(
     const humanReadableLabel =
       tagName === 'a' || tagName === 'button' ? target.textContent : null
 
-    callback({
-      type: InteractionType.Click,
-      button: evt.button,
-      targets,
-      at: [x, y],
-      meta: {
-        node: createVElement(target),
-        humanReadableLabel,
-      },
-    })
+    callback(
+      new Box({
+        type: InteractionType.Click,
+        button: evt.button,
+        targets,
+        at: [x, y],
+        meta: {
+          node: createVElement(target),
+          humanReadableLabel,
+        },
+      })
+    )
   })
 }
 
@@ -338,16 +345,18 @@ function createDoubleClickObserver(
 
     const targets = doc.elementsFromPoint(x, y).map(elem => getNodeId(elem))
 
-    callback({
-      type: InteractionType.Click,
-      button: evt.button,
-      targets,
-      at: [x, y],
-      meta: {
-        node: createVElement(target),
-        humanReadableLabel: null,
-      },
-    })
+    callback(
+      new Box({
+        type: InteractionType.Click,
+        button: evt.button,
+        targets,
+        at: [x, y],
+        meta: {
+          node: createVElement(target),
+          humanReadableLabel: null,
+        },
+      })
+    )
   })
 }
 
@@ -363,10 +372,12 @@ function shouldCaptureKeyEvent(activeElement: Node | null) {
 function createKeyDownObserver(callback: Callback): ObserverLike {
   return createEventObserver('keydown', evt => {
     if (shouldCaptureKeyEvent(document.activeElement)) {
-      callback({
-        type: InteractionType.KeyDown,
-        key: evt.key,
-      })
+      callback(
+        new Box({
+          type: InteractionType.KeyDown,
+          key: evt.key,
+        })
+      )
     }
   })
 }
@@ -374,10 +385,12 @@ function createKeyDownObserver(callback: Callback): ObserverLike {
 function createKeyUpObserver(callback: Callback): ObserverLike {
   return createEventObserver('keyup', evt => {
     if (shouldCaptureKeyEvent(document.activeElement)) {
-      callback({
-        type: InteractionType.KeyUp,
-        key: evt.key,
-      })
+      callback(
+        new Box({
+          type: InteractionType.KeyUp,
+          key: evt.key,
+        })
+      )
     }
   })
 }
@@ -389,11 +402,13 @@ function createPageTransitionObserver(callback: Callback): ObserverLike {
     const nextPageURL = globalThis.location.href
 
     if (nextPageURL !== currentPageURL) {
-      callback({
-        type: InteractionType.PageTransition,
-        from: currentPageURL,
-        to: nextPageURL,
-      })
+      callback(
+        new Box({
+          type: InteractionType.PageTransition,
+          from: currentPageURL,
+          to: nextPageURL,
+        })
+      )
 
       currentPageURL = nextPageURL
     }

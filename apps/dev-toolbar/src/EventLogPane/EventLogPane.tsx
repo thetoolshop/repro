@@ -30,25 +30,35 @@ const ItemRow: React.FC<ListChildComponentProps<Array<LogItem>>> = ({
   const firstEvent = unpackFirstEvent(item)
 
   if (firstEvent) {
-    switch (firstEvent.type) {
-      case SourceEventType.Console:
-        return <ConsoleRow event={firstEvent} index={index} style={style} />
+    return firstEvent
+      .map(firstEvent => {
+        switch (firstEvent.type) {
+          case SourceEventType.Console:
+            return <ConsoleRow event={firstEvent} index={index} style={style} />
 
-      case SourceEventType.DOMPatch:
-        return <DOMPatchRow event={firstEvent} index={index} style={style} />
+          case SourceEventType.DOMPatch:
+            return (
+              <DOMPatchRow event={firstEvent} index={index} style={style} />
+            )
 
-      case SourceEventType.Interaction:
-        return <InteractionRow event={firstEvent} index={index} style={style} />
+          case SourceEventType.Interaction:
+            return (
+              <InteractionRow event={firstEvent} index={index} style={style} />
+            )
 
-      case SourceEventType.Network:
-        return <NetworkRow event={firstEvent} index={index} style={style} />
+          case SourceEventType.Network:
+            return <NetworkRow event={firstEvent} index={index} style={style} />
 
-      case SourceEventType.Performance:
-        return <PerformanceRow event={firstEvent} index={index} style={style} />
+          case SourceEventType.Performance:
+            return (
+              <PerformanceRow event={firstEvent} index={index} style={style} />
+            )
 
-      default:
-        return <BaseRow event={firstEvent} index={index} style={style} />
-    }
+          default:
+            return <BaseRow event={firstEvent} index={index} style={style} />
+        }
+      })
+      .orElse(null)
   }
 
   return null

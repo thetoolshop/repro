@@ -25,6 +25,58 @@ import {
 } from '../parser/ASTTypes'
 import { ResolutionError } from '../parser/errors'
 
+function getDescriptorType(node: OptionNode | TypeNode) {
+  const valueNode = node.type === ASTNodeType.Option ? node.value : node
+
+  switch (valueNode.type) {
+    case ASTNodeType.ArrayType:
+      return 'tdl.ArrayDescriptor'
+
+    case ASTNodeType.BooleanLiteralType:
+    case ASTNodeType.BooleanType:
+      return 'tdl.BooleanDescriptor'
+
+    case ASTNodeType.BufferType:
+      return 'tdl.BufferDescriptor'
+
+    case ASTNodeType.CharType:
+      return 'tdl.CharDescriptor'
+
+    case ASTNodeType.EnumLiteralType:
+    case ASTNodeType.EnumType:
+    case ASTNodeType.IntegerType:
+      return 'tdl.IntegerDescriptor'
+
+    case ASTNodeType.FloatType:
+      return 'tdl.FloatDescriptor'
+
+    case ASTNodeType.MapType:
+      return 'tdl.MapDescriptor'
+
+    case ASTNodeType.StringType:
+    case ASTNodeType.TimestampType:
+      return 'tdl.StringDescriptor'
+
+    case ASTNodeType.StructType:
+      return 'tdl.StructDescriptor'
+
+    case ASTNodeType.UnionType:
+      return 'tdl.UnionDescriptor'
+
+    case ASTNodeType.UUIDType:
+      return 'tdl.UUIDDescriptor'
+
+    case ASTNodeType.VectorType:
+      return 'tdl.VectorDescriptor'
+
+    case ASTNodeType.Reference:
+      return `typeof ${valueNode.name}View.descriptor`
+
+    default:
+      return 'unknown'
+  }
+}
+
 function generateIntegerDescriptor(node: IntegerTypeNode) {
   return `{
     type: 'integer',
@@ -338,7 +390,15 @@ export function generateAssignment(node: AssignmentNode) {
     return `export const ${node.name}View = ${node.value.name}View`
   }
 
-  return `export const ${node.name}View = createView(${generateDescriptor(
-    node.value
-  )}, ${node.name}Schema)`
+  return `
+    export type ${node.name}View = tdl.View<
+      ${getDescriptorType(node.value)},
+      ${node.name}
+    >
+
+    export const ${node.name}View = tdl.createView<
+      ${getDescriptorType(node.value)},
+      ${node.name}
+    >(${generateDescriptor(node.value)})
+  `
 }

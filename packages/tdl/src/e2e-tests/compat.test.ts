@@ -2,6 +2,7 @@ import ts from 'typescript'
 import { compile } from '../cli/compiler'
 import { parse } from '../cli/parser'
 import { Module } from '../cli/parser/types'
+import { Box } from '../lib/Box'
 
 async function interpret(source: string) {
   const program = parse({
@@ -166,17 +167,21 @@ describe('Compatibility', () => {
       }
     `)
 
-    const dataView = VersionA.AnyView.encode({
-      type: VersionA.StructType.Foo,
-      foo: 'abc',
-    })
+    const dataView = VersionA.AnyView.encode(
+      new Box({
+        type: VersionA.StructType.Foo,
+        foo: 'abc',
+      })
+    )
 
-    expect(VersionB.AnyView.decode(dataView)).toEqual({
+    expect(() => VersionB.AnyView.decode(dataView).unwrap()).not.toThrow()
+    expect(VersionB.AnyView.decode(dataView).unwrap()).toEqual({
       type: VersionB.StructType.Foo,
       foo: 'abc',
     })
 
-    expect(VersionB.AnyView.over(dataView)).toEqual({
+    expect(() => VersionB.AnyView.over(dataView).unwrap()).not.toThrow()
+    expect(VersionB.AnyView.over(dataView).unwrap()).toEqual({
       type: VersionB.StructType.Foo,
       foo: 'abc',
     })
@@ -234,13 +239,14 @@ describe('Compatibility', () => {
       }
     `)
 
-    const dataView = VersionB.AnyView.encode({
-      type: VersionB.StructType.Baz,
-      baz: ['aa', 'bb'],
-    })
+    const dataView = VersionB.AnyView.encode(
+      new Box({
+        type: VersionB.StructType.Baz,
+        baz: ['aa', 'bb'],
+      })
+    )
 
-    // TODO: expect boxed value
-    expect(VersionA.AnyView.decode(dataView)).toEqual({})
-    expect(VersionA.AnyView.over(dataView)).toEqual({})
+    expect(VersionA.AnyView.decode(dataView).empty()).toBeTruthy()
+    expect(VersionA.AnyView.over(dataView).empty()).toBeTruthy()
   })
 })

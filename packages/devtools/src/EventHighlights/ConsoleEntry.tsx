@@ -33,8 +33,13 @@ export const ConsoleEntry: React.FC<Props> = ({ eventIndex, event }) => {
   const textColor = textColors[level]
   const icon = icons[level]
 
-  const value =
-    firstPart?.type === MessagePartType.String ? firstPart.value : null
+  const value = firstPart?.map(part => {
+    if (part.type === MessagePartType.String) {
+      return part.value
+    }
+
+    return null
+  })
 
   function onClick() {
     setView(View.Console)
@@ -48,7 +53,7 @@ export const ConsoleEntry: React.FC<Props> = ({ eventIndex, event }) => {
       icon={icon}
       onClick={onClick}
     >
-      {value}
+      {value?.orElse(null)}
     </BaseEntry>
   )
 }

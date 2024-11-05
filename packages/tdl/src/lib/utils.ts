@@ -1,3 +1,4 @@
+import { Box } from './Box'
 import { ByteLengths } from './constants'
 import { AnyDescriptor, StructDescriptor } from './descriptors'
 import { isLens, unwrapLens } from './view'
@@ -222,11 +223,18 @@ export function getByteLength(descriptor: AnyDescriptor, data: any): number {
 
   if (type === 'union') {
     const { descriptors, tagField } = descriptor
-    const childDescriptor = descriptors[data[tagField]] as StructDescriptor
+    // FIXME: Guard against unboxed types at runtime
+    if (!(data instanceof Box)) {
+      console.trace()
+    }
+    const unwrappedData = data.unwrap()
+    const childDescriptor = descriptors[
+      unwrappedData[tagField]
+    ] as StructDescriptor
     return (
       (nullable ? ByteLengths.Int8 : 0) +
       ByteLengths.Int8 +
-      getByteLength(childDescriptor, data)
+      getByteLength(childDescriptor, unwrappedData)
     )
   }
 

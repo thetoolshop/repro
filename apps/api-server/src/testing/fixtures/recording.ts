@@ -5,6 +5,7 @@ import {
   SourceEvent,
   SourceEventType,
 } from '@repro/domain'
+import { Box } from '@repro/tdl'
 import { go } from 'fluture'
 import { Readable } from 'node:stream'
 import { encodeId } from '~/modules/database'
@@ -47,16 +48,16 @@ export const RecordingA_Data: Fixture<string> = {
   load: ({ recordingService }, recording: RecordingInfo) => {
     return go<Error, string>(function* () {
       const events: Array<SourceEvent> = [
-        {
+        new Box({
           type: SourceEventType.Interaction,
           time: 0,
-          data: {
+          data: new Box({
             type: InteractionType.PointerMove,
             from: [100, 100],
             to: [200, 200],
             duration: 25,
-          },
-        },
+          }),
+        }),
       ]
 
       const input: Readable = yield stringToReadable(

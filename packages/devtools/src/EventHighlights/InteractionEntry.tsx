@@ -40,34 +40,37 @@ const icons = {
 export const InteractionEntry: React.FC<Props> = ({ eventIndex, event }) => {
   const [, setSelectedNode] = useSelectedNode()
   const [, setView] = useDevToolsView()
-  const icon = icons[event.data.type]
 
-  const label =
-    event.data.type === InteractionType.Click
-      ? createClickLabel(event.data)
-      : null
+  return event.data
+    .map(data => {
+      const icon = icons[data.type]
 
-  function onClick() {
-    if (event.data.type === InteractionType.Click) {
-      const firstTarget = event.data.targets[0]
+      const label =
+        data.type === InteractionType.Click ? createClickLabel(data) : null
 
-      if (firstTarget) {
-        setSelectedNode(firstTarget)
-        setView(View.Elements)
+      function onClick() {
+        if (data.type === InteractionType.Click) {
+          const firstTarget = data.targets[0]
+
+          if (firstTarget) {
+            setSelectedNode(firstTarget)
+            setView(View.Elements)
+          }
+        }
       }
-    }
-  }
 
-  return (
-    <BaseEntry
-      eventIndex={eventIndex}
-      event={event}
-      icon={icon}
-      onClick={onClick}
-    >
-      {label}
-    </BaseEntry>
-  )
+      return (
+        <BaseEntry
+          eventIndex={eventIndex}
+          event={event}
+          icon={icon}
+          onClick={onClick}
+        >
+          {label}
+        </BaseEntry>
+      )
+    })
+    .orElse(null)
 }
 
 function createClickLabel(interaction: Click): React.ReactNode {

@@ -1,6 +1,6 @@
 import { Atom } from '@repro/atom'
-import { Snapshot, SourceEvent, SourceEventType } from '@repro/domain'
-import { LazyList } from '@repro/std'
+import { Snapshot, SourceEventType, SourceEventView } from '@repro/domain'
+import { List } from '@repro/tdl'
 
 export enum PlaybackState {
   Playing,
@@ -16,7 +16,7 @@ export enum ControlFrame {
 export interface Playback {
   // Atoms
   readonly $activeIndex: Atom<number>
-  readonly $buffer: Atom<LazyList<SourceEvent>>
+  readonly $buffer: Atom<List<SourceEventView>>
   readonly $elapsed: Atom<number>
   readonly $latestControlFrame: Atom<ControlFrame>
   readonly $playbackState: Atom<PlaybackState>
@@ -24,7 +24,7 @@ export interface Playback {
 
   // Accessors
   getActiveIndex(): number
-  getBuffer(): LazyList<SourceEvent>
+  getBuffer(): List<SourceEventView>
   getDuration(): number
   getElapsed(): number
   getEventIndexAtTime(time: number): number | null
@@ -34,7 +34,7 @@ export interface Playback {
   getPlaybackState(): PlaybackState
   getResourceMap(): Record<string, string>
   getSnapshot(): Snapshot
-  getSourceEvents(): LazyList<SourceEvent>
+  getSourceEvents(): List<SourceEventView>
 
   // Controls
   play(): void
@@ -53,7 +53,7 @@ export interface Playback {
 export type ReadyState = 'waiting' | 'ready' | 'failed'
 
 export interface Source {
-  $events: Atom<LazyList<SourceEvent>>
+  $events: Atom<List<SourceEventView>>
   $readyState: Atom<ReadyState>
   $resourceMap: Atom<Record<string, string>>
 }

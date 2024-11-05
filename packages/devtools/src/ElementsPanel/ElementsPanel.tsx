@@ -89,23 +89,37 @@ function getBodyVElement(vtree: VTree): VElement | null {
     return null
   }
 
-  const documentElementNode = rootNode.children
-    .map(childId => vtree.nodes[childId])
-    .find(node => node && isElementVNode(node) && node.tagName === 'html')
+  const documentElementNode = rootNode.flatMap(rootNode =>
+    rootNode.children
+      .map(childId => vtree.nodes[childId])
+      .find(
+        node =>
+          node &&
+          isElementVNode(node) &&
+          node.match(node => node.tagName === 'html')
+      )
+  )
 
   if (!documentElementNode || !isElementVNode(documentElementNode)) {
     return null
   }
 
-  const bodyNode = documentElementNode.children
-    .map(childId => vtree.nodes[childId])
-    .find(node => node && isElementVNode(node) && node.tagName === 'body')
+  const bodyNode = documentElementNode.flatMap(documentElementNode =>
+    documentElementNode.children
+      .map(childId => vtree.nodes[childId])
+      .find(
+        node =>
+          node &&
+          isElementVNode(node) &&
+          node.match(node => node.tagName === 'body')
+      )
+  )
 
   if (!bodyNode || !isElementVNode(bodyNode)) {
     return null
   }
 
-  return bodyNode
+  return bodyNode.orElse(null)
 }
 
 function vNodeExists(vtree: VTree, nodeId: string): boolean {

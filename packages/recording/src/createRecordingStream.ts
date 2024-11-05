@@ -18,6 +18,7 @@ import {
   PointerState,
   Snapshot,
   SnapshotEvent,
+  SnapshotView,
   SourceEvent,
   SourceEventType,
   SourceEventView,
@@ -26,8 +27,8 @@ import {
 } from '@repro/domain'
 import { ObserverLike } from '@repro/observer-utils'
 import { applyEventToSnapshot, createEmptySnapshot } from '@repro/source-utils'
-import { LazyList, copyObjectDeep } from '@repro/std'
-import { copy as copyDataView } from '@repro/tdl'
+import { copyObjectDeep } from '@repro/std'
+import { Box, List, copy as copyDataView } from '@repro/tdl'
 import { applyVTreePatch, getNodeId } from '@repro/vdom-utils'
 import {
   NEVER,
@@ -87,7 +88,7 @@ export interface RecordingStream {
   $started: Atom<boolean>
   isStarted(): boolean
   peek(nodeId: SyntheticId): VNode | null
-  slice(start?: number, end?: number): LazyList<SourceEvent>
+  slice(start?: number, end?: number): List<SourceEventView>
   snapshot(): Snapshot
   tail(signal: Subject<void>): Observable<SourceEvent>
 }
@@ -103,8 +104,8 @@ export const EMPTY_RECORDING_STREAM: RecordingStream = {
   $started: createAtom(false)[0],
   isStarted: () => false,
   peek: () => null,
-  slice: () => LazyList.Empty<SourceEvent>(),
-  snapshot: () => createEmptySnapshot(),
+  slice: () => new List(SourceEventView, []),
+  snapshot: () => SnapshotView.from(createEmptySnapshot()),
   tail: () => NEVER,
 }
 
@@ -225,7 +226,7 @@ export function createRecordingStream(
     setStarted(false)
   }
 
-  function slice(start?: number, end?: number): LazyList<SourceEvent> {
+  function slice(start?: number, end?: number): List<SourceEventView> {
     let events: Array<DataView> = []
 
     Stats.time('RecordingStream#slice: total', () => {
@@ -235,25 +236,43 @@ export function createRecordingStream(
 
       Stats.time('RecordingStream#slice: sort events by time', () => {
         events.sort((a, b) => {
-          return SourceEventView.over(a).time - SourceEventView.over(b).time
+          return (
+            SourceEventView.over(a)
+              .map(event => event.time)
+              .orElse(0) -
+            SourceEventView.over(b)
+              .map(event => event.time)
+              .orElse(0)
+          )
         })
       })
 
-      const firstEvent = events[0] && SourceEventView.over(events[0])
-      const timeOffset = firstEvent ? firstEvent.time : 0
+      const firstEvent = events[0]
+
+      const timeOffset = firstEvent
+        ? SourceEventView.over(firstEvent)
+            .map(event => event.time)
+            .orElse(0)
+        : 0
 
       Stats.value('RecordingStream#slice: time offset', timeOffset)
 
       Stats.time('RecordingStream#slice: offset event times', () => {
         for (const event of events) {
-          const lens = SourceEventView.over(event)
-          lens.time = lens.time - timeOffset
+          SourceEventView.over(event).apply(lens => {
+            lens.time = lens.time - timeOffset
+          })
         }
       })
 
       // If first event is not a snapshot event (i.e. leading snapshot has been
       // evicted), prepend rolling leading snapshot.
-      if (!firstEvent || firstEvent.type !== SourceEventType.Snapshot) {
+      if (
+        !firstEvent ||
+        SourceEventView.over(firstEvent).match(
+          firstEvent => firstEvent.type !== SourceEventType.Snapshot
+        )
+      ) {
         let adjustedLeadingSnapshot = copyObjectDeep(leadingSnapshot)
 
         if (start != null && start !== 0) {
@@ -269,11 +288,12 @@ export function createRecordingStream(
 
               for (const event of before) {
                 const decoded = SourceEventView.decode(event)
-                applyEventToSnapshot(
-                  adjustedLeadingSnapshot,
-                  decoded,
-                  decoded.time
-                )
+
+                decoded
+                  .map(decoded => decoded.time)
+                  .apply(time => {
+                    applyEventToSnapshot(adjustedLeadingSnapshot, decoded, time)
+                  })
               }
             }
           )
@@ -281,17 +301,19 @@ export function createRecordingStream(
 
         Stats.time('RecordingStream#slice: prepend leading snapshot', () => {
           events.unshift(
-            SourceEventView.encode({
-              time: 0,
-              type: SourceEventType.Snapshot,
-              data: adjustedLeadingSnapshot,
-            })
+            SourceEventView.encode(
+              new Box({
+                time: 0,
+                type: SourceEventType.Snapshot,
+                data: adjustedLeadingSnapshot,
+              })
+            )
           )
         })
       }
     })
 
-    return new LazyList(events, SourceEventView.decode, SourceEventView.encode)
+    return new List(SourceEventView, events)
   }
 
   function peek(nodeId: SyntheticId): VNode | null {
@@ -305,25 +327,34 @@ export function createRecordingStream(
   }
 
   function snapshot(): Snapshot {
-    return copyObjectDeep(trailingSnapshot)
+    return SnapshotView.from(copyObjectDeep(trailingSnapshot))
   }
 
   function tail(signal: Subject<void>): Observable<SourceEvent> {
     function observeSnapshot() {
-      return defer(() => of(SourceEventView.from(createSnapshotEvent())))
+      return defer(() => of(createSnapshotEvent()))
     }
 
     return observeSnapshot().pipe(
       switchMap(snapshotEvent => {
-        const timeOffset = snapshotEvent.time
-        snapshotEvent.time -= timeOffset
+        const timeOffset = snapshotEvent
+          .map(snapshotEvent => snapshotEvent.time)
+          .orElse(0)
+
+        snapshotEvent.apply(snapshotEvent => {
+          snapshotEvent.time -= timeOffset
+        })
 
         return concat(
           of(snapshotEvent),
           new Observable<SourceEvent>(observer => {
             const subscription = eventBuffer.onPush(data => {
-              const event = SourceEventView.over(copyDataView(data))
-              event.time -= timeOffset
+              const event = SourceEventView.decode(copyDataView(data))
+
+              event.apply(event => {
+                event.time -= timeOffset
+              })
+
               observer.next(event)
             })
 
@@ -348,12 +379,12 @@ export function createRecordingStream(
     eventBuffer.push(data)
   }
 
-  function createSnapshotEvent(): SnapshotEvent {
-    return {
+  function createSnapshotEvent(): Box<SnapshotEvent> {
+    return new Box({
       time: performance.now(),
       type: SourceEventType.Snapshot,
       data: copyObjectDeep(trailingSnapshot),
-    }
+    })
   }
 
   function registerSnapshotObserver() {
@@ -362,19 +393,24 @@ export function createRecordingStream(
         const view = eventBuffer.peekLast()
         const lastEvent = view ? SourceEventView.over(view) : null
 
-        if (!lastEvent || lastEvent.type !== SourceEventType.Snapshot) {
+        if (
+          !lastEvent ||
+          lastEvent.match(
+            lastEvent => lastEvent.type !== SourceEventType.Snapshot
+          )
+        ) {
           addEvent(createSnapshotEvent())
         }
       })
     )
   }
 
-  function createPatchEvent(patch: DOMPatch): DOMPatchEvent {
-    return {
+  function createPatchEvent(patch: DOMPatch): Box<DOMPatchEvent> {
+    return new Box({
       time: performance.now(),
       type: SourceEventType.DOMPatch,
       data: patch,
-    }
+    })
   }
 
   function registerDOMObserver() {
@@ -428,12 +464,12 @@ export function createRecordingStream(
   function createInteractionEvent(
     interaction: Interaction,
     transposition: number
-  ): InteractionEvent {
-    return {
+  ): Box<InteractionEvent> {
+    return new Box({
       time: performance.now() - transposition,
       type: SourceEventType.Interaction,
       data: interaction,
-    }
+    })
   }
 
   function registerInteractionObserver() {
@@ -447,33 +483,35 @@ export function createRecordingStream(
           )
         }
 
-        switch (interaction.type) {
-          case InteractionType.PointerMove:
-            trailingInteraction.pointer = interaction.to
-            break
+        interaction.apply(interaction => {
+          switch (interaction.type) {
+            case InteractionType.PointerMove:
+              trailingInteraction.pointer = interaction.to
+              break
 
-          case InteractionType.PointerDown:
-            trailingInteraction.pointer = interaction.at
-            trailingInteraction.pointerState = PointerState.Down
-            break
+            case InteractionType.PointerDown:
+              trailingInteraction.pointer = interaction.at
+              trailingInteraction.pointerState = PointerState.Down
+              break
 
-          case InteractionType.PointerUp:
-            trailingInteraction.pointer = interaction.at
-            trailingInteraction.pointerState = PointerState.Up
-            break
+            case InteractionType.PointerUp:
+              trailingInteraction.pointer = interaction.at
+              trailingInteraction.pointerState = PointerState.Up
+              break
 
-          case InteractionType.Scroll:
-            trailingInteraction.scroll[interaction.target] = interaction.to
-            break
+            case InteractionType.Scroll:
+              trailingInteraction.scroll[interaction.target] = interaction.to
+              break
 
-          case InteractionType.ViewportResize:
-            trailingInteraction.viewport = interaction.to
-            break
+            case InteractionType.ViewportResize:
+              trailingInteraction.viewport = interaction.to
+              break
 
-          case InteractionType.PageTransition:
-            trailingInteraction.pageURL = interaction.to
-            break
-        }
+            case InteractionType.PageTransition:
+              trailingInteraction.pageURL = interaction.to
+              break
+          }
+        })
 
         addEvent(createInteractionEvent(interaction, transposition))
       })
@@ -516,12 +554,12 @@ export function createRecordingStream(
     domTreeWalker.accept(viewportVisitor)
   }
 
-  function createNetworkEvent(message: NetworkMessage): NetworkEvent {
-    return {
+  function createNetworkEvent(message: NetworkMessage): Box<NetworkEvent> {
+    return new Box({
       type: SourceEventType.Network,
       time: performance.now(),
       data: message,
-    }
+    })
   }
 
   function registerNetworkObserver() {
@@ -532,12 +570,12 @@ export function createRecordingStream(
     )
   }
 
-  function createConsoleEvent(message: ConsoleMessage): ConsoleEvent {
-    return {
+  function createConsoleEvent(message: ConsoleMessage): Box<ConsoleEvent> {
+    return new Box({
       type: SourceEventType.Console,
       time: performance.now(),
       data: message,
-    }
+    })
   }
 
   function registerConsoleObserver() {
@@ -548,12 +586,14 @@ export function createRecordingStream(
     )
   }
 
-  function createPerformanceEvent(entry: PerformanceEntry): PerformanceEvent {
-    return {
+  function createPerformanceEvent(
+    entry: PerformanceEntry
+  ): Box<PerformanceEvent> {
+    return new Box({
       type: SourceEventType.Performance,
       time: performance.now(),
       data: entry,
-    }
+    })
   }
 
   function registerPerformanceObserver() {
@@ -571,12 +611,16 @@ export function createRecordingStream(
 
         // We rebuild a snapshot from incremental events after
         // eviction, so snapshots on the buffer can be discarded
-        if (event.type === SourceEventType.Snapshot) {
+        if (event.match(event => event.type === SourceEventType.Snapshot)) {
           continue
         }
 
         if (leadingSnapshot) {
-          applyEventToSnapshot(leadingSnapshot, event, event.time)
+          event
+            .map(event => event.time)
+            .apply(time => {
+              applyEventToSnapshot(leadingSnapshot, event, time)
+            })
         }
 
         // TODO: drop evicted console and network messages from snapshots

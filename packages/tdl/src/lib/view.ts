@@ -1,4 +1,3 @@
-import { ZodNullable, ZodTypeAny } from 'zod'
 import { decodeProperty, decodePropertyLazy } from './decoders'
 import { AnyDescriptor } from './descriptors'
 import { encodeProperty } from './encoders'
@@ -18,49 +17,28 @@ export function unwrapLens(data: Lens) {
   return data.__repro_DATAVIEW
 }
 
-export interface View<
-  S extends ZodTypeAny,
-  D extends AnyDescriptor,
-  T = S['_output']
-> {
+export interface View<D extends AnyDescriptor, T> {
   readonly descriptor: D
-  readonly schema: S
-
-  validate(data: T): T
-  encode(data: T | (T & Lens), options?: { validate: boolean }): DataView
-  decode(view: DataView | T | (T & Lens)): T
-  from(data: T, options?: { validate: boolean }): T
-  over(data: DataView): T & Lens
-
-  nullable(): View<ZodNullable<S>, D & { nullable: true }, T | null>
+  encode(data: T): DataView
+  decode(view: DataView | T): T
+  from(data: T): T
+  over(data: DataView): T
+  nullable(): View<D & { nullable: true }, T | null>
 }
 
-export function createView<
-  S extends ZodTypeAny,
-  D extends AnyDescriptor,
-  T = S['_output']
->(descriptor: D, schema: S): View<S, D, T> {
-  function validate(data: T) {
-    return schema.parse(data)
-  }
-
-  function encode(
-    data: T | (T & Lens),
-    options = { validate: false }
-  ): DataView {
+export function createView<D extends AnyDescriptor, T>(
+  descriptor: D
+): View<D, T> {
+  function encode(data: T): DataView {
     if (isLens(data)) {
       // TODO: validate dataview bytecode/checksum/etc
       return unwrapLens(data)
     }
 
-    if (options.validate) {
-      validate(data)
-    }
-
     return encodeProperty(descriptor, data)
   }
 
-  function decode(view: DataView | T | (T & Lens)): T {
+  function decode(view: DataView | T): T {
     let dataView: DataView
 
     if (isLens(view)) {
@@ -69,23 +47,19 @@ export function createView<
       dataView = view
     } else {
       // No-op if view is already decoded
-      return view
+      return view as unknown as T
     }
 
-    return decodeProperty(descriptor, dataView) as unknown as T
+    return decodeProperty(descriptor, dataView)
   }
 
-  function from(data: T, options = { validate: false }): T {
-    if (options.validate) {
-      validate(data)
-    }
-
+  function from(data: T): T {
     return over(encode(data))
   }
 
-  function over(view: DataView): T & Lens {
+  function over(view: DataView): T {
     // TODO: validate dataview bytecode/checksum/etc
-    const data = decodePropertyLazy(descriptor, view) as unknown as T & Lens
+    const data = decodePropertyLazy(descriptor, view)
 
     // Primitive types will have been fully decoded.
     // Calling `over` on them is equivalent to calling `decode`.
@@ -102,21 +76,19 @@ export function createView<
     return data
   }
 
-  function nullable(): View<ZodNullable<S>, D & { nullable: true }, T | null> {
-    return createView({ ...descriptor, nullable: true }, schema.nullable())
+  function nullable(): View<D & { nullable: true }, T | null> {
+    return createView({ ...descriptor, nullable: true })
   }
 
   return {
     // Metadata
     descriptor,
-    schema,
 
     // Operations
     decode,
     encode,
     from,
     over,
-    validate,
 
     // Transforms
     nullable,

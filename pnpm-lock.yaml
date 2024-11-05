@@ -375,6 +375,9 @@ importers:
       '@repro/std':
         specifier: workspace:*
         version: link:../../packages/std
+      '@repro/tdl':
+        specifier: workspace:*
+        version: link:../../packages/tdl
       '@repro/theme':
         specifier: workspace:*
         version: link:../../packages/theme
@@ -668,6 +671,9 @@ importers:
       '@repro/std':
         specifier: workspace:*
         version: link:../../packages/std
+      '@repro/tdl':
+        specifier: workspace:*
+        version: link:../../packages/tdl
       '@repro/theme':
         specifier: workspace:*
         version: link:../../packages/theme
@@ -1477,6 +1483,9 @@ importers:
       '@repro/playback':
         specifier: workspace:*
         version: link:../playback
+      '@repro/tdl':
+        specifier: workspace:*
+        version: link:../tdl
       '@repro/vdom-utils':
         specifier: workspace:*
         version: link:../vdom-utils
@@ -1835,6 +1844,9 @@ importers:
       '@repro/std':
         specifier: workspace:*
         version: link:../std
+      '@repro/tdl':
+        specifier: workspace:*
+        version: link:../tdl
       '@repro/vdom-utils':
         specifier: workspace:*
         version: link:../vdom-utils
@@ -2008,6 +2020,9 @@ importers:
       '@repro/std':
         specifier: workspace:*
         version: link:../std
+      '@repro/tdl':
+        specifier: workspace:*
+        version: link:../tdl
       '@repro/vdom-utils':
         specifier: workspace:*
         version: link:../vdom-utils
@@ -2045,6 +2060,9 @@ importers:
 
   packages/std:
     dependencies:
+      '@repro/tdl':
+        specifier: workspace:*
+        version: link:../tdl
       fflate:
         specifier: ^0.7.3
         version: 0.7.3
@@ -2109,9 +2127,6 @@ importers:
       yargs:
         specifier: ^17.7.2
         version: 17.7.2
-      zod:
-        specifier: 3.23.8
-        version: 3.23.8
     devDependencies:
       '@ohm-js/cli':
         specifier: ^2.0.0
@@ -2266,6 +2281,9 @@ importers:
       '@repro/std':
         specifier: workspace:*
         version: link:../std
+      '@repro/tdl':
+        specifier: workspace:*
+        version: link:../tdl
       '@repro/ts-utils':
         specifier: workspace:*
         version: link:../ts-utils
