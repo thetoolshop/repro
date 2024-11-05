@@ -1,3 +1,4 @@
+import { Box } from './Box'
 import { ByteLengths, LITTLE_ENDIAN } from './constants'
 import {
   AnyDescriptor,
@@ -481,10 +482,10 @@ export function decodeUnion(
   byteOffset += ByteLengths.Int8
 
   if (valueDescriptor == null) {
-    // TODO: return boxed value
+    return new Box(null)
   }
 
-  return decodeStruct(valueDescriptor!, view, byteOffset)
+  return new Box(decodeStruct(valueDescriptor!, view, byteOffset))
 }
 
 export function decodeUnionLazy(
@@ -501,10 +502,10 @@ export function decodeUnionLazy(
   byteOffset += ByteLengths.Int8
 
   if (valueDescriptor == null) {
-    // TODO: return boxed value
+    return new Box(null)
   }
 
-  return decodeStructLazy(valueDescriptor!, view, byteOffset)
+  return new Box(decodeStructLazy(valueDescriptor!, view, byteOffset))
 }
 
 export function decodeProperty(

@@ -7,11 +7,10 @@ import {
 } from '../parser/ASTTypes'
 
 import * as definitions from './definitions'
-import * as schemas from './schemas'
 import * as views from './views'
 
 function generateImportNames(name: string) {
-  return `${name}, ${name}Schema, ${name}View`
+  return `${name}, ${name}View`
 }
 
 export function generateImport(node: ImportDeclarationNode) {
@@ -23,7 +22,7 @@ export function generateImport(node: ImportDeclarationNode) {
 }
 
 export function compile(node: StatementSetNode) {
-  const declarations = [`import { createView, z } from '@repro/tdl'`]
+  const declarations = [`import * as tdl from '@repro/tdl'`]
 
   for (const statement of node.statements) {
     switch (statement.type) {
@@ -33,7 +32,6 @@ export function compile(node: StatementSetNode) {
 
       case ASTNodeType.Assignment:
         declarations.push(definitions.generateAssignment(statement))
-        declarations.push(schemas.generateAssignment(statement))
         declarations.push(views.generateAssignment(statement))
         break
     }

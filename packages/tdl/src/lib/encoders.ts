@@ -1,3 +1,4 @@
+import { Box } from './Box'
 import { ByteLengths, LITTLE_ENDIAN } from './constants'
 import {
   AnyDescriptor,
@@ -148,7 +149,8 @@ export function encodeStruct(
   view: DataView = createDataView(getByteLength(descriptor, data)),
   pointerRef: PointerRef = createPointerRef()
 ) {
-  const headerByteLength = ByteLengths.Int16 + descriptor.fields.length * ByteLengths.Int32
+  const headerByteLength =
+    ByteLengths.Int16 + descriptor.fields.length * ByteLengths.Int32
 
   // Prepend field encoded count to support back/foward-compat
   view.setUint16(pointerRef.offset, descriptor.fields.length, LITTLE_ENDIAN)
@@ -241,17 +243,18 @@ export function encodeMap(
 
 export function encodeUnion(
   descriptor: UnionDescriptor,
-  data: any,
+  data: Box<any>,
   view: DataView = createDataView(getByteLength(descriptor, data)),
   pointerRef: PointerRef = createPointerRef()
 ) {
   const { tagField, descriptors } = descriptor
+  const value = data.unwrap()
 
-  const tag = data[tagField]
+  const tag = value[tagField]
   view.setUint8(pointerRef.offset, tag)
   pointerRef.offset += ByteLengths.Int8
 
-  encodeStruct(descriptors[tag] as StructDescriptor, data, view, pointerRef)
+  encodeStruct(descriptors[tag] as StructDescriptor, value, view, pointerRef)
 
   return view
 }

@@ -5,6 +5,7 @@ import {
   StackEntry,
 } from '@repro/domain'
 import { ObserverLike } from '@repro/observer-utils'
+import { Box } from '@repro/tdl'
 import { isErrorLike, serializeError } from 'serialize-error'
 import StackTrace, { StackTraceOptions } from 'stacktrace-js'
 import { createVNode } from '../dom/factory'
@@ -55,10 +56,10 @@ export function createConsoleObserver(
       subscriber({
         level: LogLevel.Error,
         parts: [
-          {
+          new Box({
             type: MessagePartType.String,
             value: safeSerialize(ev.message),
-          },
+          }),
         ],
         stack: await getStackEntries(ev.error),
       })
@@ -70,14 +71,14 @@ export function createConsoleObserver(
       subscriber({
         level: LogLevel.Error,
         parts: [
-          {
+          new Box({
             type: MessagePartType.String,
             value: 'Uncaught (in promise)',
-          },
-          {
+          }),
+          new Box({
             type: MessagePartType.String,
             value: safeSerialize(ev.reason),
-          },
+          }),
         ],
         stack: await getStackEntries(),
       })
@@ -96,20 +97,20 @@ export function createConsoleObserver(
             level,
             parts: args.map(value => {
               if (typeof value === 'undefined') {
-                return {
+                return new Box({
                   type: MessagePartType.Undefined,
-                }
+                })
               }
 
               if (value instanceof Node) {
-                return {
+                return new Box({
                   type: MessagePartType.Node,
                   node: createVNode(value),
-                }
+                })
               }
 
               if (value instanceof Date) {
-                return {
+                return new Box({
                   type: MessagePartType.Date,
                   year: value.getUTCFullYear(),
                   month: value.getUTCMonth(),
@@ -119,13 +120,13 @@ export function createConsoleObserver(
                   second: value.getUTCSeconds(),
                   millisecond: value.getUTCMilliseconds(),
                   timezoneOffset: value.getTimezoneOffset(),
-                }
+                })
               }
 
-              return {
+              return new Box({
                 type: MessagePartType.String,
                 value: safeSerialize(value),
-              }
+              })
             }),
             stack: await getStackEntries(),
           })

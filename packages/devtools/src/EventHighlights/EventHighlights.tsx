@@ -16,21 +16,24 @@ import { InteractionEntry } from './InteractionEntry'
 import { NetworkEntry } from './NetworkEntry'
 
 function shouldIncludeEvent(event: SourceEvent) {
-  switch (event.type) {
-    case SourceEventType.Interaction:
-      return event.data.type === InteractionType.Click
+  return event.match(event => {
+    switch (event.type) {
+      case SourceEventType.Interaction:
+        return event.data.match(data => data.type === InteractionType.Click)
 
-    case SourceEventType.Console:
-      return event.data.level === LogLevel.Error
+      case SourceEventType.Console:
+        return event.data.level === LogLevel.Error
 
-    case SourceEventType.Network:
-      return (
-        event.data.type === NetworkMessageType.FetchRequest ||
-        event.data.type === NetworkMessageType.WebSocketOpen
-      )
-  }
+      case SourceEventType.Network:
+        return event.data.match(
+          data =>
+            data.type === NetworkMessageType.FetchRequest ||
+            data.type === NetworkMessageType.WebSocketOpen
+        )
+    }
 
-  return false
+    return false
+  })
 }
 
 export const EventHighlights: React.FC = () => {
@@ -100,19 +103,21 @@ const UserEventRow: React.FC<
 
   let entry: React.ReactNode = null
 
-  switch (event.type) {
-    case SourceEventType.Console:
-      entry = <ConsoleEntry eventIndex={eventIndex} event={event} />
-      break
+  event.apply(event => {
+    switch (event.type) {
+      case SourceEventType.Console:
+        entry = <ConsoleEntry eventIndex={eventIndex} event={event} />
+        break
 
-    case SourceEventType.Interaction:
-      entry = <InteractionEntry eventIndex={eventIndex} event={event} />
-      break
+      case SourceEventType.Interaction:
+        entry = <InteractionEntry eventIndex={eventIndex} event={event} />
+        break
 
-    case SourceEventType.Network:
-      entry = <NetworkEntry eventIndex={eventIndex} event={event} />
-      break
-  }
+      case SourceEventType.Network:
+        entry = <NetworkEntry eventIndex={eventIndex} event={event} />
+        break
+    }
+  })
 
   return (
     <Grid gridTemplateRows="36px 4px" style={style}>

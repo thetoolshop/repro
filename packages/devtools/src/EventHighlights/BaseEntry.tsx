@@ -2,12 +2,13 @@ import { formatTime } from '@repro/date-utils'
 import { colors } from '@repro/design'
 import { SourceEvent } from '@repro/domain'
 import { usePlayback } from '@repro/playback'
+import { Unboxed } from '@repro/tdl'
 import { Block, Row } from 'jsxstyle'
 import React, { PropsWithChildren } from 'react'
 
 interface Props {
   eventIndex: number
-  event: SourceEvent
+  event: Unboxed<SourceEvent>
   color?: string
   icon?: React.ReactNode
   onClick?: () => void

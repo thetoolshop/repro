@@ -5,6 +5,7 @@ import {
   SourceEvent,
   SourceEventType,
 } from '@repro/domain'
+import { Box } from '@repro/tdl'
 import { toWireFormat } from '@repro/wire-formats'
 import { FastifyInstance } from 'fastify'
 import { chain, promise } from 'fluture'
@@ -187,26 +188,26 @@ describe('Routers > Recording', () => {
     )
 
     const events: Array<SourceEvent> = [
-      {
+      new Box({
         type: SourceEventType.Interaction,
         time: 0,
-        data: {
+        data: new Box({
           type: InteractionType.PointerMove,
           from: [0, 0],
           to: [100, 100],
           duration: 50,
-        },
-      },
-      {
+        }),
+      }),
+      new Box({
         type: SourceEventType.Interaction,
         time: 0,
-        data: {
+        data: new Box({
           type: InteractionType.PointerMove,
           from: [100, 100],
           to: [200, 200],
           duration: 35,
-        },
-      },
+        }),
+      }),
     ]
 
     const res = await app.inject({
@@ -233,29 +234,29 @@ describe('Routers > Recording', () => {
     )
 
     const eventsA: Array<SourceEvent> = [
-      {
+      new Box({
         type: SourceEventType.Interaction,
         time: 0,
-        data: {
+        data: new Box({
           type: InteractionType.PointerMove,
           from: [0, 0],
           to: [100, 100],
           duration: 50,
-        },
-      },
+        }),
+      }),
     ]
 
     const eventsB: Array<SourceEvent> = [
-      {
+      new Box({
         type: SourceEventType.Interaction,
         time: 0,
-        data: {
+        data: new Box({
           type: InteractionType.PointerMove,
           from: [100, 100],
           to: [0, 0],
           duration: 50,
-        },
-      },
+        }),
+      }),
     ]
 
     await app.inject({
@@ -275,16 +276,16 @@ describe('Routers > Recording', () => {
 
   it('should fail to write data for a recording that does not exist', async () => {
     const events: Array<SourceEvent> = [
-      {
+      new Box({
         type: SourceEventType.Interaction,
         time: 0,
-        data: {
+        data: new Box({
           type: InteractionType.PointerMove,
           from: [0, 0],
           to: [100, 100],
           duration: 50,
-        },
-      },
+        }),
+      }),
     ]
 
     const res = await app.inject({

@@ -30,6 +30,7 @@
     "@repro/recording": "workspace:*",
     "@repro/source-utils": "workspace:*",
     "@repro/std": "workspace:*",
+    "@repro/tdl": "workspace:*",
     "@repro/theme": "workspace:*",
     "@repro/validation": "workspace:*",
     "@repro/vdom-utils": "workspace:*",

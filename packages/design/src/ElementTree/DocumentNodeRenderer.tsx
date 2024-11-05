@@ -1,11 +1,11 @@
-import { SyntheticId, VDocument } from '@repro/domain'
+import { NodeType, SyntheticId, VDocument } from '@repro/domain'
 import { Block } from 'jsxstyle'
 import React, { useContext } from 'react'
 import { DocumentR } from '../DOM'
-import { useNode, useNodeVisibility, VTreeContext } from './context'
 import { NodeRenderer } from './NodeRenderer'
 import { Toggle } from './Toggle'
 import { TreeRow } from './TreeRow'
+import { VTreeContext, useNode, useNodeVisibility } from './context'
 
 interface Props {
   nodeId: SyntheticId
@@ -14,7 +14,7 @@ interface Props {
 
 export const DocumentNodeRenderer: React.FC<Props> = ({ nodeId, depth }) => {
   const vtree = useContext(VTreeContext)
-  const node = useNode<VDocument>(nodeId)
+  const node = useNode(nodeId)
   const { isVisible, onToggleNodeVisibility } = useNodeVisibility(nodeId)
 
   if (!vtree || !node) {
@@ -22,11 +22,15 @@ export const DocumentNodeRenderer: React.FC<Props> = ({ nodeId, depth }) => {
   }
 
   const isRootNode = nodeId === vtree.rootId
-  const hasChildren = node.children.length > 0
+
+  const childNodes = node
+    .filter<VDocument>(node => node.type === NodeType.Document)
+    .map(node => node.children)
+    .orElse<Array<string>>([])
 
   const children = isVisible && (
     <Block>
-      {node.children.map(childId => (
+      {childNodes.map(childId => (
         <NodeRenderer
           key={childId}
           nodeId={childId}
@@ -43,7 +47,7 @@ export const DocumentNodeRenderer: React.FC<Props> = ({ nodeId, depth }) => {
   return (
     <Block key={nodeId}>
       <TreeRow nodeId={nodeId} depth={depth}>
-        {hasChildren && (
+        {childNodes.length && (
           <Toggle isOpen={isVisible} onClick={onToggleNodeVisibility} />
         )}
         <DocumentR />

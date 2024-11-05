@@ -71,7 +71,9 @@ export function createResourceMap(events: Array<SourceEvent>) {
         if (node.tagName === 'source') {
           const parent = node.parentId ? vtree.nodes[node.parentId] : null
           const isPictureSource =
-            parent && isElementVNode(parent) && parent.tagName === 'picture'
+            parent &&
+            isElementVNode(parent) &&
+            parent.match(parent => parent.tagName === 'picture')
 
           if (!isPictureSource) {
             return
@@ -101,7 +103,11 @@ export function createResourceMap(events: Array<SourceEvent>) {
     textNode(node, vtree) {
       const parent = node.parentId ? vtree.nodes[node.parentId] : null
 
-      if (parent && isElementVNode(parent) && parent.tagName === 'style') {
+      if (
+        parent &&
+        isElementVNode(parent) &&
+        parent.match(parent => parent.tagName === 'style')
+      ) {
         const urls = extractCSSEmbeddedURLs(node.value)
 
         for (const url of urls) {
@@ -118,50 +124,70 @@ export function createResourceMap(events: Array<SourceEvent>) {
   // Get initial page URL
   // TODO: this should be on the leading snapshot
   for (const event of events) {
-    if (event.type === SourceEventType.Interaction) {
-      if (event.data.type === InteractionType.PageTransition) {
-        currentPageURL = event.data.to
-        break
+    let willBreak = false
+
+    event.apply(event => {
+      if (event.type === SourceEventType.Interaction) {
+        event.data.apply(data => {
+          if (data.type === InteractionType.PageTransition) {
+            currentPageURL = data.to
+            willBreak = true
+          }
+        })
       }
+    })
+
+    if (willBreak) {
+      break
     }
   }
 
   const firstEvent = events[0]
 
   // Walk leading snapshot
-  if (firstEvent && firstEvent.type === SourceEventType.Snapshot) {
-    if (firstEvent.data.dom) {
-      walkVTree(firstEvent.data.dom)
-    }
+  if (firstEvent) {
+    firstEvent.apply(firstEvent => {
+      if (firstEvent.type === SourceEventType.Snapshot) {
+        if (firstEvent.data.dom) {
+          walkVTree(firstEvent.data.dom)
+        }
+      }
+    })
   }
 
   for (const event of events) {
-    if (event.type === SourceEventType.Interaction) {
-      if (event.data.type === InteractionType.PageTransition) {
-        currentPageURL = event.data.to
-      }
-    }
-
-    if (event.type === SourceEventType.DOMPatch) {
-      if (event.data.type === PatchType.Attribute) {
-        const attributeName = event.data.name
-        const attributeValue = event.data.value
-
-        if (attributeValue !== null) {
-          if (attributeName === 'src') {
-            addResource(attributeValue)
+    event.apply(event => {
+      if (event.type === SourceEventType.Interaction) {
+        event.data.apply(data => {
+          if (data.type === InteractionType.PageTransition) {
+            currentPageURL = data.to
           }
+        })
+      }
 
-          if (attributeName === 'srcset') {
-            const urls = parseSrcset(attributeValue)
+      if (event.type === SourceEventType.DOMPatch) {
+        event.data.apply(data => {
+          if (data.type === PatchType.Attribute) {
+            const attributeName = data.name
+            const attributeValue = data.value
 
-            for (const url of urls) {
-              addResource(url)
+            if (attributeValue !== null) {
+              if (attributeName === 'src') {
+                addResource(attributeValue)
+              }
+
+              if (attributeName === 'srcset') {
+                const urls = parseSrcset(attributeValue)
+
+                for (const url of urls) {
+                  addResource(url)
+                }
+              }
             }
           }
-        }
+        })
       }
-    }
+    })
   }
 
   return resourceMap

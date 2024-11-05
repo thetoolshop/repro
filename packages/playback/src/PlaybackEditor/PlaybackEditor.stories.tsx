@@ -7,7 +7,7 @@ import {
   SourceEventType,
   SourceEventView,
 } from '@repro/domain'
-import { LazyList } from '@repro/std'
+import { Box, List } from '@repro/tdl'
 import { html2VTree } from '@repro/testing-utils'
 import { findElementsByClassName } from '@repro/vdom-utils'
 import { Grid } from 'jsxstyle'
@@ -50,9 +50,9 @@ const patch: AttributePatch = {
   value: 'box red',
 }
 
-const events = new LazyList(
-  [
-    SourceEventView.from({
+const events = new List(SourceEventView, [
+  SourceEventView.from(
+    new Box({
       type: SourceEventType.Snapshot,
       time: 0,
       data: {
@@ -65,39 +65,43 @@ const events = new LazyList(
           viewport: [400, 400],
         },
       },
-    }),
+    })
+  ),
 
-    SourceEventView.from({
+  SourceEventView.from(
+    new Box({
       type: SourceEventType.Interaction,
       time: 400,
-      data: {
+      data: new Box({
         type: InteractionType.PointerMove,
         from: [10, 10],
         to: [200, 100],
         duration: 25,
-      },
-    }),
+      }),
+    })
+  ),
 
-    SourceEventView.from({
+  SourceEventView.from(
+    new Box({
       type: SourceEventType.Interaction,
       time: 750,
-      data: {
+      data: new Box({
         type: InteractionType.PointerMove,
         from: [200, 100],
         to: [300, 300],
         duration: 25,
-      },
-    }),
+      }),
+    })
+  ),
 
-    SourceEventView.from({
+  SourceEventView.from(
+    new Box({
       type: SourceEventType.DOMPatch,
       time: 1000,
-      data: patch,
-    }),
-  ],
-  SourceEventView.decode,
-  SourceEventView.encode
-)
+      data: new Box(patch),
+    })
+  ),
+])
 
 export const Default: Story = () => (
   <PlaybackProvider playback={createSourcePlayback(events, {})}>

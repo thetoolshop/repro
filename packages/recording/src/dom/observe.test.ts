@@ -3,6 +3,7 @@
  */
 
 import { DOMPatch, NodeType, PatchType } from '@repro/domain'
+import { Box } from '@repro/tdl'
 import { MockNodeList } from '@repro/testing-utils'
 import { getNodeId } from '@repro/vdom-utils'
 import { RecordingOptions } from '../types'
@@ -165,7 +166,7 @@ describe('libs/record: dom observers', () => {
     internal__processMutationRecords(records, walkDOMTree, options, subscriber)
 
     expect(patches).toEqual<Array<DOMPatch>>([
-      {
+      new Box({
         type: PatchType.RemoveNodes,
         parentId: getNodeId(target),
         previousSiblingId: null,
@@ -174,7 +175,7 @@ describe('libs/record: dom observers', () => {
           {
             rootId: getNodeId(removed),
             nodes: {
-              [getNodeId(removed)]: {
+              [getNodeId(removed)]: new Box({
                 id: getNodeId(removed),
                 parentId: null,
                 type: NodeType.Element,
@@ -187,12 +188,12 @@ describe('libs/record: dom observers', () => {
                 },
                 children: [],
                 shadowRoot: false,
-              },
+              }),
             },
           },
         ],
-      },
-      {
+      }),
+      new Box({
         type: PatchType.AddNodes,
         parentId: getNodeId(target),
         previousSiblingId: null,
@@ -201,7 +202,7 @@ describe('libs/record: dom observers', () => {
           {
             rootId: getNodeId(added),
             nodes: {
-              [getNodeId(added)]: {
+              [getNodeId(added)]: new Box({
                 id: getNodeId(added),
                 parentId: null,
                 type: NodeType.Element,
@@ -214,11 +215,11 @@ describe('libs/record: dom observers', () => {
                 },
                 children: [],
                 shadowRoot: false,
-              },
+              }),
             },
           },
         ],
-      },
+      }),
     ])
   })
 })

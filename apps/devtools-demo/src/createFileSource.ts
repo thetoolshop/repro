@@ -1,11 +1,12 @@
 import { createAtom } from '@repro/atom'
-import { SourceEvent, SourceEventView } from '@repro/domain'
+import { SourceEventView } from '@repro/domain'
 import { logger } from '@repro/logger'
 import { ReadyState, Source } from '@repro/playback'
-import { LazyList, unpackListInto } from '@repro/std'
+import { unpackListInto } from '@repro/std'
+import { List } from '@repro/tdl'
 
 export function createFileSource(file: File): Source {
-  const [$events, setEvents] = createAtom(LazyList.Empty<SourceEvent>())
+  const [$events, setEvents] = createAtom(new List(SourceEventView, []))
   const [$readyState, setReadyState] = createAtom<ReadyState>('waiting')
 
   // TODO: bundle resources
@@ -14,11 +15,7 @@ export function createFileSource(file: File): Source {
   file
     .arrayBuffer()
     .then(buffer => {
-      const list = new LazyList(
-        [],
-        SourceEventView.decode,
-        SourceEventView.encode
-      )
+      const list = new List(SourceEventView, [])
 
       unpackListInto(buffer, list)
 

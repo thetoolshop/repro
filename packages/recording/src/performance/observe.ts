@@ -4,6 +4,7 @@ import {
 } from '@repro/domain'
 import { ObserverLike } from '@repro/observer-utils'
 import { randomString } from '@repro/random-string'
+import { Box } from '@repro/tdl'
 
 function isResourceTimingEntry(
   entry: PerformanceEntry
@@ -33,24 +34,26 @@ function createResourceTimingObserver(
   function captureResourceTimings(entries: Array<PerformanceEntry>) {
     for (const entry of entries) {
       if (isResourceTimingEntry(entry)) {
-        subscriber({
-          type: PerformanceEntryType.ResourceTiming,
-          id: randomString(4),
-          initiatorType: entry.initiatorType,
-          url: entry.name,
-          startTime: entry.startTime,
-          domainLookupStart: entry.domainLookupStart,
-          domainLookupEnd: entry.domainLookupEnd,
-          connectStart: entry.connectStart,
-          secureConnectionStart: entry.secureConnectionStart,
-          connectEnd: entry.connectEnd,
-          requestStart: entry.requestStart,
-          responseStart: entry.responseStart,
-          responseEnd: entry.responseEnd,
-          encodedBodySize: entry.encodedBodySize,
-          decodedBodySize: entry.decodedBodySize,
-          transferSize: entry.transferSize,
-        })
+        subscriber(
+          new Box({
+            type: PerformanceEntryType.ResourceTiming,
+            id: randomString(4),
+            initiatorType: entry.initiatorType,
+            url: entry.name,
+            startTime: entry.startTime,
+            domainLookupStart: entry.domainLookupStart,
+            domainLookupEnd: entry.domainLookupEnd,
+            connectStart: entry.connectStart,
+            secureConnectionStart: entry.secureConnectionStart,
+            connectEnd: entry.connectEnd,
+            requestStart: entry.requestStart,
+            responseStart: entry.responseStart,
+            responseEnd: entry.responseEnd,
+            encodedBodySize: entry.encodedBodySize,
+            decodedBodySize: entry.decodedBodySize,
+            transferSize: entry.transferSize,
+          })
+        )
       }
     }
   }

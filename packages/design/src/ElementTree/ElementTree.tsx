@@ -68,7 +68,7 @@ export const ElementTree: React.FC<Props> = ({
             break
           }
 
-          nodeId = node.parentId
+          nodeId = node.map(node => node.parentId).orElse(null)
 
           if (nodeId) {
             nextOpenNodes.add(nodeId)
@@ -93,7 +93,7 @@ export const ElementTree: React.FC<Props> = ({
           break
         }
 
-        nodeId = node.parentId
+        nodeId = node.map(node => node.parentId).orElse(null)
 
         if (nodeId) {
           nextVisibleNodes.add(nodeId)

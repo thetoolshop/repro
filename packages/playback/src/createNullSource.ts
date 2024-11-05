@@ -1,11 +1,11 @@
 import { createAtom } from '@repro/atom'
-import { SourceEvent } from '@repro/domain'
-import { LazyList } from '@repro/std'
+import { SourceEventView } from '@repro/domain'
 import { ReadyState } from '.'
 import { Source } from './types'
+import { List } from '@repro/tdl'
 
 export function createNullSource(): Source {
-  const [$events] = createAtom(LazyList.Empty<SourceEvent>())
+  const [$events] = createAtom(new List(SourceEventView, []))
   const [$readyState] = createAtom<ReadyState>('waiting')
   const [$resourceMap] = createAtom<Record<string, string>>({})
 

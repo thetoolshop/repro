@@ -11,6 +11,7 @@
   "dependencies": {
     "@repro/domain": "workspace:*",
     "@repro/std": "workspace:*",
+    "@repro/tdl": "workspace:*",
     "@repro/vdom-utils": "workspace:*",
     "uuid": "^9.0.0"
   },

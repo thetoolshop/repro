@@ -1,9 +1,8 @@
 import { VTree } from '@repro/domain'
-import { Immutable } from '@repro/ts-utils'
 
 export interface ObserverLike<T extends any = any> {
   disconnect(): void
-  observe(target: T, vtree: Immutable<VTree>): void
+  observe(target: T, vtree: VTree): void
 }
 
 export function createEventObserver<

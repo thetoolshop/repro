@@ -34,62 +34,66 @@ const icons = {
 export const NetworkEntry: React.FC<Props> = ({ eventIndex, event }) => {
   const [, setView] = useDevToolsView()
 
-  const icon = icons[event.data.type]
-  let content: React.ReactNode = null
+  return event.data
+    .map(data => {
+      const icon = icons[data.type]
+      let content: React.ReactNode = null
 
-  switch (event.data.type) {
-    case NetworkMessageType.FetchRequest:
-      content = (
-        <Row alignItems="center" gap={5}>
-          <Block
-            padding={5}
-            borderRadius={4}
-            backgroundColor={colors.slate['100']}
-            color={colors.slate['700']}
-            fontSize={13}
-            fontWeight={700}
-            textTransform="uppercase"
-          >
-            {event.data.method}
-          </Block>
+      switch (data.type) {
+        case NetworkMessageType.FetchRequest:
+          content = (
+            <Row alignItems="center" gap={5}>
+              <Block
+                padding={5}
+                borderRadius={4}
+                backgroundColor={colors.slate['100']}
+                color={colors.slate['700']}
+                fontSize={13}
+                fontWeight={700}
+                textTransform="uppercase"
+              >
+                {data.method}
+              </Block>
 
-          <Block>{event.data.url}</Block>
-        </Row>
+              <Block>{data.url}</Block>
+            </Row>
+          )
+          break
+
+        case NetworkMessageType.WebSocketOpen:
+          content = (
+            <Row alignItems="center" gap={5}>
+              <Block
+                padding={5}
+                borderRadius={4}
+                backgroundColor={colors.slate['100']}
+                color={colors.slate['700']}
+                fontSize={13}
+                fontWeight={700}
+              >
+                WS
+              </Block>
+
+              <Block>{data.url}</Block>
+            </Row>
+          )
+          break
+      }
+
+      function onClick() {
+        setView(View.Network)
+      }
+
+      return (
+        <BaseEntry
+          eventIndex={eventIndex}
+          event={event}
+          icon={icon}
+          onClick={onClick}
+        >
+          {content}
+        </BaseEntry>
       )
-      break
-
-    case NetworkMessageType.WebSocketOpen:
-      content = (
-        <Row alignItems="center" gap={5}>
-          <Block
-            padding={5}
-            borderRadius={4}
-            backgroundColor={colors.slate['100']}
-            color={colors.slate['700']}
-            fontSize={13}
-            fontWeight={700}
-          >
-            WS
-          </Block>
-
-          <Block>{event.data.url}</Block>
-        </Row>
-      )
-      break
-  }
-
-  function onClick() {
-    setView(View.Network)
-  }
-
-  return (
-    <BaseEntry
-      eventIndex={eventIndex}
-      event={event}
-      icon={icon}
-      onClick={onClick}
-    >
-      {content}
-    </BaseEntry>
-  )
+    })
+    .orElse(null)
 }

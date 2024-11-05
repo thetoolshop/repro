@@ -15,6 +15,7 @@ import { createRecordingDataWireFormat } from '~/testing/recording'
 import { readableToString } from '~/testing/utils'
 import { errorType, notFound } from '~/utils/errors'
 import { createProjectRouter } from './project'
+import { Box } from '@repro/tdl'
 
 describe('Routers > Project', () => {
   let harness: Harness
@@ -1200,16 +1201,16 @@ describe('Routers > Project', () => {
       ])
 
       const events: Array<SourceEvent> = [
-        {
+        new Box({
           type: SourceEventType.Interaction,
           time: 0,
-          data: {
+          data: new Box({
             type: InteractionType.PointerMove,
             from: [100, 100],
             to: [1000, 1000],
             duration: 25,
-          },
-        },
+          }),
+        }),
       ]
 
       const input = createRecordingDataWireFormat(events)
@@ -1241,16 +1242,16 @@ describe('Routers > Project', () => {
       ])
 
       const events: Array<SourceEvent> = [
-        {
+        new Box({
           type: SourceEventType.Interaction,
           time: 0,
-          data: {
+          data: new Box({
             type: InteractionType.PointerMove,
             from: [100, 100],
             to: [1000, 1000],
             duration: 25,
-          },
-        },
+          }),
+        }),
       ]
 
       const input = createRecordingDataWireFormat(events)
@@ -1284,16 +1285,16 @@ describe('Routers > Project', () => {
       ])
 
       const events: Array<SourceEvent> = [
-        {
+        new Box({
           type: SourceEventType.Interaction,
           time: 0,
-          data: {
+          data: new Box({
             type: InteractionType.PointerMove,
             from: [100, 100],
             to: [1000, 1000],
             duration: 25,
-          },
-        },
+          }),
+        }),
       ]
 
       const input = createRecordingDataWireFormat(events)
@@ -1327,16 +1328,16 @@ describe('Routers > Project', () => {
       ])
 
       const events: Array<SourceEvent> = [
-        {
+        new Box({
           type: SourceEventType.Interaction,
           time: 0,
-          data: {
+          data: new Box({
             type: InteractionType.PointerMove,
             from: [100, 100],
             to: [1000, 1000],
             duration: 25,
-          },
-        },
+          }),
+        }),
       ]
 
       const input = createRecordingDataWireFormat(events)

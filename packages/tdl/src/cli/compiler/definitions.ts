@@ -92,7 +92,7 @@ export function generateStructType(node: StructTypeNode): string {
 }
 
 export function generateUnionType(node: UnionTypeNode) {
-  return node.references.map(generateReference).join(' | ')
+  return `tdl.Box<${node.references.map(generateReference).join(' | ')}>`
 }
 
 export function generateReference(node: ReferenceNode) {

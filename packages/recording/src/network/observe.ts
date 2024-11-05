@@ -7,6 +7,7 @@ import {
 } from '@repro/domain'
 import { ObserverLike } from '@repro/observer-utils'
 import { randomString } from '@repro/random-string'
+import { Box } from '@repro/tdl'
 
 type Subscriber = (message: NetworkMessage) => void
 
@@ -125,16 +126,18 @@ function createXHRObserver(subscriber: Subscriber): ObserverLike<Document> {
           break
       }
 
-      subscriber({
-        type: NetworkMessageType.FetchResponse,
-        correlationId: params.correlationId,
-        status: this.status,
-        headers: stripExcludedHeaders(
-          parseHeaders(this.getAllResponseHeaders())
-        ),
-        body:
-          body.byteLength > MAX_BODY_BYTE_LENGTH ? EMPTY_ARRAY_BUFFER : body,
-      })
+      subscriber(
+        new Box({
+          type: NetworkMessageType.FetchResponse,
+          correlationId: params.correlationId,
+          status: this.status,
+          headers: stripExcludedHeaders(
+            parseHeaders(this.getAllResponseHeaders())
+          ),
+          body:
+            body.byteLength > MAX_BODY_BYTE_LENGTH ? EMPTY_ARRAY_BUFFER : body,
+        })
+      )
     })()
   }
 
@@ -239,18 +242,20 @@ function createXHRObserver(subscriber: Subscriber): ObserverLike<Document> {
             }
           }
 
-          subscriber({
-            type: NetworkMessageType.FetchRequest,
-            correlationId: params.correlationId,
-            requestType: RequestType.XHR,
-            url: params.url,
-            method: params.method,
-            headers: stripExcludedHeaders(params.headers),
-            body:
-              body.byteLength > MAX_BODY_BYTE_LENGTH
-                ? EMPTY_ARRAY_BUFFER
-                : body,
-          })
+          subscriber(
+            new Box({
+              type: NetworkMessageType.FetchRequest,
+              correlationId: params.correlationId,
+              requestType: RequestType.XHR,
+              url: params.url,
+              method: params.method,
+              headers: stripExcludedHeaders(params.headers),
+              body:
+                body.byteLength > MAX_BODY_BYTE_LENGTH
+                  ? EMPTY_ARRAY_BUFFER
+                  : body,
+            })
+          )
         }
       })()
     },
@@ -303,18 +308,20 @@ function createFetchObserver(subscriber: Subscriber): ObserverLike<Document> {
 
       req.arrayBuffer().then(
         body => {
-          subscriber({
-            type: NetworkMessageType.FetchRequest,
-            correlationId,
-            requestType: RequestType.Fetch,
-            url: req.url,
-            method: req.method,
-            headers: createHeadersRecord(req.headers),
-            body:
-              body.byteLength > MAX_BODY_BYTE_LENGTH
-                ? EMPTY_ARRAY_BUFFER
-                : body,
-          })
+          subscriber(
+            new Box({
+              type: NetworkMessageType.FetchRequest,
+              correlationId,
+              requestType: RequestType.Fetch,
+              url: req.url,
+              method: req.method,
+              headers: createHeadersRecord(req.headers),
+              body:
+                body.byteLength > MAX_BODY_BYTE_LENGTH
+                  ? EMPTY_ARRAY_BUFFER
+                  : body,
+            })
+          )
         },
 
         // TODO: capture request errors
@@ -353,16 +360,18 @@ function createFetchObserver(subscriber: Subscriber): ObserverLike<Document> {
                 cleanUpAbortController()
               }
 
-              subscriber({
-                type: NetworkMessageType.FetchResponse,
-                correlationId,
-                status: resCopy.status,
-                headers: createHeadersRecord(resCopy.headers),
-                body:
-                  body.byteLength > MAX_BODY_BYTE_LENGTH
-                    ? EMPTY_ARRAY_BUFFER
-                    : body,
-              })
+              subscriber(
+                new Box({
+                  type: NetworkMessageType.FetchResponse,
+                  correlationId,
+                  status: resCopy.status,
+                  headers: createHeadersRecord(resCopy.headers),
+                  body:
+                    body.byteLength > MAX_BODY_BYTE_LENGTH
+                      ? EMPTY_ARRAY_BUFFER
+                      : body,
+                })
+              )
             },
 
             // TODO: capture response errors
@@ -446,20 +455,24 @@ function createWebSocketObserver(
 
     socket.addEventListener('close', handleClose)
 
-    subscriber({
-      type: NetworkMessageType.WebSocketOpen,
-      correlationId,
-      url,
-    })
+    subscriber(
+      new Box({
+        type: NetworkMessageType.WebSocketOpen,
+        correlationId,
+        url,
+      })
+    )
   }
 
   function closeEffect(socket: WebSocket) {
     const correlationId = getOrCreateCorrelationId(socket)
 
-    subscriber({
-      type: NetworkMessageType.WebSocketClose,
-      correlationId,
-    })
+    subscriber(
+      new Box({
+        type: NetworkMessageType.WebSocketClose,
+        correlationId,
+      })
+    )
 
     correlationIds.delete(socket)
     socket.removeEventListener('close', handleClose)
@@ -476,14 +489,16 @@ function createWebSocketObserver(
       data instanceof Blob ||
       ArrayBuffer.isView(data)
 
-    subscriber({
-      type: NetworkMessageType.WebSocketOutbound,
-      correlationId,
-      messageType: isBinary
-        ? WebSocketMessageType.Binary
-        : WebSocketMessageType.Text,
-      data: await dataToArrayBuffer(data),
-    })
+    subscriber(
+      new Box({
+        type: NetworkMessageType.WebSocketOutbound,
+        correlationId,
+        messageType: isBinary
+          ? WebSocketMessageType.Binary
+          : WebSocketMessageType.Text,
+        data: await dataToArrayBuffer(data),
+      })
+    )
   }
 
   const messageEventObserver = createMessageEventObserver(ev => {
@@ -502,14 +517,16 @@ function createWebSocketObserver(
           ev.data instanceof Blob ||
           ArrayBuffer.isView(ev.data)
 
-        subscriber({
-          type: NetworkMessageType.WebSocketInbound,
-          correlationId,
-          messageType: isBinary
-            ? WebSocketMessageType.Binary
-            : WebSocketMessageType.Text,
-          data: await dataToArrayBuffer(ev.data),
-        })
+        subscriber(
+          new Box({
+            type: NetworkMessageType.WebSocketInbound,
+            correlationId,
+            messageType: isBinary
+              ? WebSocketMessageType.Binary
+              : WebSocketMessageType.Text,
+            data: await dataToArrayBuffer(ev.data),
+          })
+        )
       }
     })()
   })

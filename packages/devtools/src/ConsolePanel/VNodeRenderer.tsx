@@ -14,7 +14,7 @@ interface Props {
 
 export const VNodeRenderer: React.FC<Props> = ({ node }) => {
   if (isDocTypeVNode(node)) {
-    return <DocTypeR node={node} />
+    return node.map(node => <DocTypeR node={node} />).orElse(null)
   }
 
   if (isDocumentVNode(node)) {
@@ -22,11 +22,11 @@ export const VNodeRenderer: React.FC<Props> = ({ node }) => {
   }
 
   if (isElementVNode(node)) {
-    return <ElementR.Open node={node} />
+    return node.map(node => <ElementR.Open node={node} />).orElse(null)
   }
 
   if (isTextVNode(node)) {
-    return <TextR node={node} />
+    return node.map(node => <TextR node={node} />).orElse(null)
   }
 
   return null

@@ -14,18 +14,19 @@ import nativeFetch from 'isomorphic-fetch'
 import { newMockXhr } from 'mock-xmlhttprequest'
 // import fetch, { Request } from 'node-fetch'
 import { ObserverLike } from '@repro/observer-utils'
+import { Box } from '@repro/tdl'
 import { createNetworkObserver } from './observe'
 
 describe('libs/record: network observers', () => {
   const vtree: VTree = {
     rootId: 'foo',
     nodes: {
-      foo: {
+      foo: new Box({
         id: 'foo',
         parentId: null,
         type: NodeType.Document,
         children: [],
-      },
+      }),
     },
   }
 
@@ -50,18 +51,24 @@ describe('libs/record: network observers', () => {
       const body = new ArrayBuffer(0)
 
       function subscriber(message: NetworkMessage) {
-        expect(message).toEqual<NetworkMessage>({
-          type: NetworkMessageType.FetchRequest,
-          requestType: RequestType.XHR,
-          correlationId: message.correlationId,
-          url,
-          method,
-          headers: {
-            'Content-Type': 'application/json',
-            'Content-Encoding': 'gzip',
-          },
-          body,
-        })
+        const correlationId = message
+          .map(message => message.correlationId)
+          .unwrap()
+
+        expect(message).toEqual<NetworkMessage>(
+          new Box({
+            type: NetworkMessageType.FetchRequest,
+            requestType: RequestType.XHR,
+            correlationId,
+            url,
+            method,
+            headers: {
+              'Content-Type': 'application/json',
+              'Content-Encoding': 'gzip',
+            },
+            body,
+          })
+        )
       }
 
       observer = createNetworkObserver(subscriber)

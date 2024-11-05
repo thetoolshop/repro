@@ -5,6 +5,7 @@ import {
   isLocalStylesheet,
 } from '@repro/dom-utils'
 import { SyntheticId, VNode, VTree } from '@repro/domain'
+import { Box } from '@repro/tdl'
 import {
   addVNode,
   createVTreeWithRoot,
@@ -67,15 +68,14 @@ export function createDOMVisitor() {
 
   const domVisitor: Visitor<VTree> & Subscribable<VTree> = {
     documentNode(node) {
-      const vNode = createVDocument(node)
-
+      const vNode = new Box(createVDocument(node))
       const parent = node.defaultView ? node.defaultView.frameElement : null
 
       createOrUpdateVTree(vNode, parent && getNodeId(parent))
     },
 
     documentTypeNode(node) {
-      const vNode = createVDocType(node)
+      const vNode = new Box(createVDocType(node))
       createOrUpdateVTree(vNode, node.parentNode && getNodeId(node.parentNode))
     },
 
@@ -100,12 +100,14 @@ export function createDOMVisitor() {
             const parentVNode = vtree.nodes[parentId]
 
             if (parentVNode && isElementVNode(parentVNode)) {
-              insertSubTreesAtNode(
-                vtree,
-                parentVNode,
-                [subtree],
-                parentVNode.children.length
-              )
+              parentVNode.apply(parentVNode => {
+                insertSubTreesAtNode(
+                  vtree as VTree,
+                  parentVNode,
+                  [subtree as VTree],
+                  parentVNode.children.length
+                )
+              })
 
               return
             }
@@ -117,12 +119,12 @@ export function createDOMVisitor() {
         return
       }
 
-      const vNode = createVElement(node)
+      const vNode = new Box(createVElement(node))
       createOrUpdateVTree(vNode, node.parentNode && getNodeId(node.parentNode))
     },
 
     textNode(node) {
-      const vNode = createVText(node)
+      const vNode = new Box(createVText(node))
       createOrUpdateVTree(vNode, node.parentNode && getNodeId(node.parentNode))
     },
 

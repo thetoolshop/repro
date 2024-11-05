@@ -19,23 +19,24 @@ import {
   VText,
   VTree,
 } from '@repro/domain'
+import { Box } from '@repro/tdl'
 import { createSyntheticId, getNodeId } from '@repro/vdom-utils'
 
 export function createVNode(node: Node): VNode | null {
   if (isDocumentNode(node)) {
-    return createVDocument(node)
+    return new Box(createVDocument(node))
   }
 
   if (isDocTypeNode(node)) {
-    return createVDocType(node)
+    return new Box(createVDocType(node))
   }
 
   if (isElementNode(node)) {
-    return createVElement(node)
+    return new Box(createVElement(node))
   }
 
   if (isTextNode(node)) {
-    return createVText(node)
+    return new Box(createVText(node))
   }
 
   return null
@@ -139,12 +140,12 @@ export function createStyleSheetVTree(
   for (const rule of Array.from(node.sheet.cssRules)) {
     const childId = createSyntheticId()
 
-    vTree.nodes[childId] = {
+    vTree.nodes[childId] = new Box({
       id: childId,
       parentId: rootId,
       type: NodeType.Text,
       value: rule.cssText,
-    }
+    })
 
     children.push(childId)
   }
@@ -155,7 +156,7 @@ export function createStyleSheetVTree(
     attributes.media = node.getAttribute('media')
   }
 
-  vTree.nodes[rootId] = {
+  vTree.nodes[rootId] = new Box({
     id: rootId,
     parentId,
     type: NodeType.Element,
@@ -168,7 +169,7 @@ export function createStyleSheetVTree(
     },
     children,
     shadowRoot: node.shadowRoot != null,
-  }
+  })
 
   return vTree
 }

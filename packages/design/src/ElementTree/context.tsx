@@ -1,4 +1,4 @@
-import { SyntheticId, VNode, VTree } from '@repro/domain'
+import { SyntheticId, VTree } from '@repro/domain'
 import React, { useCallback, useContext } from 'react'
 
 export const VTreeContext = React.createContext<VTree | null>(null)
@@ -29,14 +29,14 @@ export const NodeStateContext = React.createContext<NodeState>({
   onToggleNodeVisibility() {},
 })
 
-export function useNode<T extends VNode = VNode>(nodeId: SyntheticId) {
+export function useNode(nodeId: SyntheticId) {
   const vtree = useContext(VTreeContext)
 
   if (!vtree) {
     return null
   }
 
-  return (vtree.nodes[nodeId] as T) || null
+  return vtree.nodes[nodeId] ?? null
 }
 
 export function useNodeVisibility(nodeId: SyntheticId) {

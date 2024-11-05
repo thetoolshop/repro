@@ -1,5 +1,3 @@
-import z from 'zod'
-
 import {
   AnyDescriptor,
   ArrayDescriptor,
@@ -14,6 +12,7 @@ import {
   VectorDescriptor,
 } from './descriptors'
 
+import { Box } from './Box'
 import { createView } from './view'
 
 describe('view', () => {
@@ -26,7 +25,7 @@ describe('view', () => {
       [{ type: 'integer', signed: false, bits: 32 }, 16777216],
       [{ type: 'integer', signed: true, bits: 32 }, 16777216],
     ])('should encode and decode', (descriptor, input) => {
-      const view = createView(descriptor, z.any())
+      const view = createView(descriptor)
       const dataView = view.encode(input)
       const lazy = view.over(dataView)
       const decoded = view.decode(dataView)
@@ -40,7 +39,7 @@ describe('view', () => {
       [{ type: 'char', bytes: 1 }, 'a'],
       [{ type: 'char', bytes: 8 }, 'abcdefgh'],
     ])('should encode and decode', (descriptor, input) => {
-      const view = createView(descriptor, z.any())
+      const view = createView(descriptor)
       const dataView = view.encode(input)
       const lazy = view.over(dataView)
       const decoded = view.decode(dataView)
@@ -54,7 +53,7 @@ describe('view', () => {
       [{ type: 'string' }, 'foo bar baz'],
       [{ type: 'string' }, ''],
     ])('should encode and decode', (descriptor, input) => {
-      const view = createView(descriptor, z.any())
+      const view = createView(descriptor)
       const dataView = view.encode(input)
       const lazy = view.over(dataView)
       const decoded = view.decode(dataView)
@@ -68,7 +67,7 @@ describe('view', () => {
       [{ type: 'bool' }, true],
       [{ type: 'bool' }, false],
     ])('should encode and decode', (descriptor, input) => {
-      const view = createView(descriptor, z.any())
+      const view = createView(descriptor)
       const dataView = view.encode(input)
       const lazy = view.over(dataView)
       const decoded = view.decode(dataView)
@@ -81,7 +80,7 @@ describe('view', () => {
     it.each<[BufferDescriptor, ArrayBufferLike]>([
       [{ type: 'buffer' }, new Uint8Array([1, 2, 3, 4]).buffer],
     ])('should encode and decode', (descriptor, input) => {
-      const view = createView(descriptor, z.any())
+      const view = createView(descriptor)
       const dataView = view.encode(input)
       const lazy = view.over(dataView)
       const decoded = view.decode(dataView)
@@ -157,7 +156,7 @@ describe('view', () => {
         { a: ['12345', 'abcde', '67890'] },
       ],
     ])('should encode and decode', (descriptor, input) => {
-      const view = createView(descriptor, z.any())
+      const view = createView(descriptor)
       const dataView = view.encode(input)
       const lazy = view.over(dataView)
       const decoded = view.decode(dataView)
@@ -190,7 +189,7 @@ describe('view', () => {
         ],
       }
 
-      const view = createView(descriptor, z.any())
+      const view = createView<AnyDescriptor, any>(descriptor)
       const dataView = view.encode(input)
       const lens = view.over(dataView)
 
@@ -219,7 +218,7 @@ describe('view', () => {
         fields: [['foo', { type: 'char', bytes: 3, nullable: true }]],
       }
 
-      const view = createView(descriptor, z.any())
+      const view = createView<AnyDescriptor, any>(descriptor)
       const dataView = view.encode(input)
       const lens = view.over(dataView)
 
@@ -238,7 +237,7 @@ describe('view', () => {
         fields: [['foo', { type: 'string' }]],
       }
 
-      const view = createView(descriptor, z.any())
+      const view = createView<AnyDescriptor, any>(descriptor)
       const dataView = view.encode(input)
       const lens = view.over(dataView)
 
@@ -259,7 +258,7 @@ describe('view', () => {
         [1024, 1024],
       ],
     ])('should encode and decode', (descriptor, input) => {
-      const view = createView(descriptor, z.any())
+      const view = createView(descriptor)
       const dataView = view.encode(input)
       const lazy = view.over(dataView)
       const decoded = view.decode(dataView)
@@ -303,13 +302,10 @@ describe('view', () => {
             },
           },
         },
-        [
-          { tag: 0, foo: 'bar' },
-          { tag: 1, bar: 'abcde' },
-        ],
+        [new Box({ tag: 0, foo: 'bar' }), new Box({ tag: 1, bar: 'abcde' })],
       ],
     ])('should encode and decode', (descriptor, input) => {
-      const view = createView(descriptor, z.any())
+      const view = createView(descriptor)
       const dataView = view.encode(input)
       const lazy = view.over(dataView)
       const decoded = view.decode(dataView)
@@ -346,10 +342,13 @@ describe('view', () => {
             },
           },
         },
-        { abcd: { type: 0, foo: 128 }, efgh: { type: 1, bar: 'ab' } },
+        {
+          abcd: new Box({ type: 0, foo: 128 }),
+          efgh: new Box({ type: 1, bar: 'ab' }),
+        },
       ],
     ])('should encode and decode', (descriptor, input) => {
-      const view = createView(descriptor, z.any())
+      const view = createView(descriptor)
       const dataView = view.encode(input)
       const lazy = view.over(dataView)
       const decoded = view.decode(dataView)
@@ -382,10 +381,10 @@ describe('view', () => {
             },
           },
         },
-        { type: 1, bar: 'ab' },
+        new Box({ type: 1, bar: 'ab' }),
       ],
     ])('should encode and decode', (descriptor, input) => {
-      const view = createView(descriptor, z.any())
+      const view = createView<AnyDescriptor, Box<any>>(descriptor)
       const dataView = view.encode(input)
       const lazy = view.over(dataView)
       const decoded = view.decode(dataView)
@@ -400,7 +399,7 @@ describe('view', () => {
       [{ type: 'char', bytes: 2, nullable: true }, null],
       [{ type: 'string', nullable: true }, null],
     ])('should encode and decode null value', (descriptor, input) => {
-      const view = createView(descriptor, z.any())
+      const view = createView(descriptor)
       const dataView = view.encode(input)
       const lazy = view.over(dataView)
       const decoded = view.decode(dataView)

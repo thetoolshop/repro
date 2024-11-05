@@ -4,37 +4,43 @@ import {
   Point,
   SourceEventType,
 } from '@repro/domain'
+import { Box } from '@repro/tdl'
+import { LogItem } from './types'
 import { collapseItemsIntoGroups } from './utils'
 
 function createPointerMove(
   time: number,
   from: Point,
   to: Point
-): InteractionEvent {
-  return {
+): Box<InteractionEvent> {
+  return new Box({
     type: SourceEventType.Interaction,
     time,
-    data: {
+    data: new Box({
       type: InteractionType.PointerMove,
       from,
       to,
       duration: 10,
-    },
-  }
+    }),
+  })
 }
 
-function createScroll(time: number, from: Point, to: Point): InteractionEvent {
-  return {
+function createScroll(
+  time: number,
+  from: Point,
+  to: Point
+): Box<InteractionEvent> {
+  return new Box({
     type: SourceEventType.Interaction,
     time,
-    data: {
+    data: new Box({
       type: InteractionType.Scroll,
       target: 'foo',
       from,
       to,
       duration: 10,
-    },
-  }
+    }),
+  })
 }
 
 describe('collapseItemsIntoGroups', () => {
@@ -47,7 +53,7 @@ describe('collapseItemsIntoGroups', () => {
       createPointerMove(80, [40, 40], [50, 50]),
     ])
 
-    expect(items).toEqual([
+    expect(items).toEqual<Array<LogItem>>([
       {
         group: true,
         type: SourceEventType.Interaction,
@@ -72,7 +78,7 @@ describe('collapseItemsIntoGroups', () => {
       createPointerMove(60, [30, 30], [40, 40]),
     ])
 
-    expect(items).toEqual([
+    expect(items).toEqual<Array<LogItem>>([
       createPointerMove(0, [0, 0], [10, 10]),
       createScroll(20, [10, 10], [20, 20]),
       {
@@ -105,7 +111,7 @@ describe('collapseItemsIntoGroups', () => {
       createPointerMove(80, [40, 40], [50, 50]),
     ])
 
-    expect(items).toEqual([
+    expect(items).toEqual<Array<LogItem>>([
       {
         group: true,
         type: SourceEventType.Interaction,

@@ -8,6 +8,7 @@ import {
   SourceEventView,
 } from '@repro/domain'
 import { ControlFrame, ElapsedMarker, usePlayback } from '@repro/playback'
+import { Box } from '@repro/tdl'
 import { Block, Grid, Row } from 'jsxstyle'
 import React, { Fragment, useEffect, useMemo, useState } from 'react'
 import { filter } from 'rxjs'
@@ -16,8 +17,8 @@ import { DetailsOverlay } from './DetailsOverlay'
 import { NetworkRow } from './NetworkRow'
 import { FetchGroup, WebSocketGroup } from './types'
 
-function isNetworkEvent(event: SourceEvent): event is NetworkEvent {
-  return event.type === SourceEventType.Network
+function isNetworkEvent(event: SourceEvent): event is Box<NetworkEvent> {
+  return event.match(event => event.type === SourceEventType.Network)
 }
 
 function groupNetworkEvents(
@@ -27,64 +28,66 @@ function groupNetworkEvents(
   const orderedGroupIds: Array<string> = []
 
   for (const [event, index] of events) {
-    let group = groups[event.data.correlationId]
+    event.data.apply(data => {
+      let group = groups[data.correlationId]
 
-    if (!group) {
-      switch (event.data.type) {
-        case NetworkMessageType.FetchRequest:
-          group = {
-            type: 'fetch',
-            requestTime: event.time,
-            requestIndex: index,
-            request: event.data,
-          }
+      if (!group) {
+        switch (data.type) {
+          case NetworkMessageType.FetchRequest:
+            group = {
+              type: 'fetch',
+              requestTime: event.time,
+              requestIndex: index,
+              request: data,
+            }
 
-          orderedGroupIds.push(event.data.correlationId)
+            orderedGroupIds.push(data.correlationId)
+            break
+
+          case NetworkMessageType.WebSocketOpen:
+            group = {
+              type: 'ws',
+              openTime: event.time,
+              openIndex: index,
+              open: data,
+            }
+
+            orderedGroupIds.push(data.correlationId)
+            break
+        }
+      }
+
+      if (!group) {
+        return
+      }
+
+      switch (data.type) {
+        case NetworkMessageType.FetchResponse:
+          ;(group as FetchGroup).response = data
+          ;(group as FetchGroup).responseTime = event.time
+          ;(group as FetchGroup).responseIndex = index
           break
 
-        case NetworkMessageType.WebSocketOpen:
-          group = {
-            type: 'ws',
-            openTime: event.time,
-            openIndex: index,
-            open: event.data,
-          }
+        case NetworkMessageType.WebSocketClose:
+          ;(group as WebSocketGroup).close = data
+          ;(group as WebSocketGroup).closeTime = event.time
+          ;(group as WebSocketGroup).closeIndex = index
+          break
 
-          orderedGroupIds.push(event.data.correlationId)
+        case NetworkMessageType.WebSocketInbound:
+        case NetworkMessageType.WebSocketOutbound:
+          const messages = (group as WebSocketGroup).messages || []
+          messages.push({
+            index,
+            time: event.time,
+            data,
+          })
+          ;(group as WebSocketGroup).messages = messages
           break
       }
-    }
 
-    if (!group) {
-      continue
-    }
-
-    switch (event.data.type) {
-      case NetworkMessageType.FetchResponse:
-        ;(group as FetchGroup).response = event.data
-        ;(group as FetchGroup).responseTime = event.time
-        ;(group as FetchGroup).responseIndex = index
-        break
-
-      case NetworkMessageType.WebSocketClose:
-        ;(group as WebSocketGroup).close = event.data
-        ;(group as WebSocketGroup).closeTime = event.time
-        ;(group as WebSocketGroup).closeIndex = index
-        break
-
-      case NetworkMessageType.WebSocketInbound:
-      case NetworkMessageType.WebSocketOutbound:
-        const messages = (group as WebSocketGroup).messages || []
-        messages.push({
-          index,
-          time: event.time,
-          data: event.data,
-        })
-        ;(group as WebSocketGroup).messages = messages
-        break
-    }
-
-    groups[event.data.correlationId] = group
+      groups[data.correlationId] = group
+    })
   }
 
   const orderedGroups: Array<FetchGroup | WebSocketGroup> = []
@@ -122,7 +125,9 @@ export const NetworkPanel: React.FC = () => {
           const event = SourceEventView.over(view)
 
           if (isNetworkEvent(event)) {
-            events.push([event, i])
+            event.apply(event => {
+              events.push([event, i])
+            })
           }
 
           i++
