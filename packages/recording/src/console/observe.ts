@@ -10,6 +10,11 @@ import { isErrorLike, serializeError } from 'serialize-error'
 import StackTrace, { StackTraceOptions } from 'stacktrace-js'
 import { createVNode } from '../dom/factory'
 
+// FIXME: `serialize-errors` chokes on enriched errors
+// like `ApolloError`. We may want to write our own
+// serialization layer. Pin max-depth as workaround.
+const MAX_SERIALIZATION_DEPTH = 20
+
 export function createConsoleObserver(
   subscriber: (message: ConsoleMessage) => void
 ): ObserverLike {
@@ -42,7 +47,7 @@ export function createConsoleObserver(
   function safeSerialize(value: any) {
     try {
       if (isErrorLike(value)) {
-        value = serializeError(value)
+        value = serializeError(value, { maxDepth: MAX_SERIALIZATION_DEPTH })
       }
 
       return JSON.stringify(value)
@@ -122,6 +127,8 @@ export function createConsoleObserver(
                   timezoneOffset: value.getTimezoneOffset(),
                 })
               }
+
+              // TODO: serialize `Error` instances
 
               return new Box({
                 type: MessagePartType.String,

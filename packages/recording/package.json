@@ -14,6 +14,7 @@
     "@repro/diagnostics": "workspace:*",
     "@repro/dom-utils": "workspace:*",
     "@repro/domain": "workspace:*",
+    "@repro/logger": "workspace:*",
     "@repro/observer-utils": "workspace:*",
     "@repro/random-string": "workspace:*",
     "@repro/source-utils": "workspace:*",
@@ -23,7 +24,7 @@
     "@repro/vdom-utils": "workspace:*",
     "react": "^18.2.0",
     "rxjs": "^7.8.0",
-    "serialize-error": "^11.0.0",
+    "serialize-error": "^11.0.3",
     "stacktrace-js": "^2.0.2"
   },
   "devDependencies": {
