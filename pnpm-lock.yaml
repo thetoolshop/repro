@@ -1837,6 +1837,33 @@ importers:
         specifier: 5.3.3
         version: 5.3.3
 
+  packages/encryption:
+    devDependencies:
+      '@types/jest':
+        specifier: ^28.1.7
+        version: 28.1.8
+      '@types/node':
+        specifier: ^18.6.2
+        version: 18.7.13
+      jest:
+        specifier: ^28.1.3
+        version: 28.1.3(@types/node@18.7.13)
+      prettier:
+        specifier: ^3.0.0
+        version: 3.0.0
+      prettier-plugin-organize-imports:
+        specifier: ^3.2.3
+        version: 3.2.3(prettier@3.0.0)(typescript@5.3.3)
+      ts-eager:
+        specifier: ^2.0.2
+        version: 2.0.2
+      ts-jest:
+        specifier: ^28.0.8
+        version: 28.0.8(@babel/core@7.24.9)(jest@28.1.3)(typescript@5.3.3)
+      typescript:
+        specifier: 5.3.3
+        version: 5.3.3
+
   packages/future-utils:
     dependencies:
       fluture:
