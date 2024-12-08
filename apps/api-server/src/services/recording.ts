@@ -1,5 +1,13 @@
 import { CODEC_VERSION, RecordingInfo, RecordingMode } from '@repro/domain'
-import { FutureInstance, chain, go, map, reject, resolve } from 'fluture'
+import {
+  FutureInstance,
+  bichain,
+  chain,
+  go,
+  map,
+  reject,
+  resolve,
+} from 'fluture'
 import { Readable } from 'node:stream'
 import {
   Database,
@@ -8,9 +16,33 @@ import {
   withEncodedId,
 } from '~/modules/database'
 import { Storage } from '~/modules/storage'
-import { badRequest, notFound, resourceConflict } from '~/utils/errors'
+import {
+  badRequest,
+  isNotFound,
+  notFound,
+  permissionDenied,
+  resourceConflict,
+} from '~/utils/errors'
 
 export function createRecordingService(database: Database, storage: Storage) {
+  function ensureIsPublicRecording(
+    recordingId: string
+  ): FutureInstance<Error, void> {
+    return attemptQuery(() => {
+      return database
+        .selectFrom('project_recordings')
+        .select('projectId')
+        .where('recordingId', '=', decodeId(recordingId))
+        .executeTakeFirstOrThrow(() => notFound())
+    }).pipe(
+      bichain<Error, Error, void>(error => {
+        return isNotFound(error) ? resolve(undefined) : reject(error)
+      })(() => {
+        return reject(permissionDenied())
+      })
+    )
+  }
+
   function readDataAsStream(
     recordingId: string
   ): FutureInstance<Error, Readable> {
@@ -192,15 +224,21 @@ export function createRecordingService(database: Database, storage: Storage) {
   }
 
   return {
+    // Access control
+    ensureIsPublicRecording,
+
+    // Queries
     readDataAsStream,
-    writeDataFromStream,
     readResourceAsStream,
-    writeResourceFromStream,
     readResourceMap,
-    writeResourceMap,
     listInfo,
     readInfo,
     readInfoMany,
+
+    // Mutations
+    writeDataFromStream,
+    writeResourceFromStream,
+    writeResourceMap,
     writeInfo,
   }
 }

@@ -23,6 +23,7 @@ declare module 'fastify' {
     session: Session | null
     user: User | StaffUser | null
     getCurrentUser(): FutureInstance<Error, User | StaffUser>
+    getCurrentUserOrNull(): FutureInstance<Error, User | StaffUser | null>
     createSession(user: User | StaffUser): FutureInstance<Error, void>
     revokeSession(): FutureInstance<Error, void>
   }
@@ -83,6 +84,23 @@ export function createSessionDecorator(
             req.user = user
           })
         )
+      }
+    )
+
+    app.decorateRequest(
+      'getCurrentUserOrNull',
+      function getCurrentUserOrNull(): FutureInstance<
+        Error,
+        User | StaffUser | null
+      > {
+        const req = this
+        return req
+          .getCurrentUser()
+          .pipe(
+            chainRej(error =>
+              isNotFound(error) ? resolve(null) : reject(error)
+            )
+          )
       }
     )
 
