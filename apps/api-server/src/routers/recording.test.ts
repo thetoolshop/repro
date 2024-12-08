@@ -12,7 +12,7 @@ import { chain, promise } from 'fluture'
 import { Http2SecureServer } from 'http2'
 import { encodeId } from '~/modules/database'
 import { RecordingService } from '~/services/recording'
-import { Harness, createTestHarness } from '~/testing'
+import { Harness, createTestHarness, fixtures } from '~/testing'
 import { readableToString } from '~/testing/utils'
 import { createRecordingRouter } from './recording'
 
@@ -72,39 +72,51 @@ describe('Routers > Recording', () => {
     })
   })
 
-  it('should get info for a recording', async () => {
-    const { id } = await promise(
-      recordingService.writeInfo(
-        'Title',
-        'https://repro.test',
-        'Description',
-        RecordingMode.Replay,
-        10_000,
-        'Chromium',
-        '120.0.0',
-        'Linux x86_64'
-      )
-    )
+  it('should get info for a public recording', async () => {
+    const [recording] = await harness.loadFixtures([
+      fixtures.recording.RecordingA,
+    ])
 
     const res = await app.inject({
       method: 'GET',
-      url: `/${id}/info`,
+      url: `/${recording.id}/info`,
     })
 
     expect(res.statusCode).toEqual(200)
-    expect(res.json()).toEqual({
-      id,
-      title: 'Title',
-      url: 'https://repro.test',
-      description: 'Description',
-      mode: RecordingMode.Replay,
-      duration: 10_000,
-      browserName: 'Chromium',
-      browserVersion: '120.0.0',
-      operatingSystem: 'Linux x86_64',
-      createdAt: expectISODate(),
-      codecVersion: CODEC_VERSION,
+    expect(res.json()).toEqual(recording)
+  })
+
+  it('should fail to get info for a private recording', async () => {
+    const [recording] = await harness.loadFixtures([
+      fixtures.recording.RecordingA,
+      fixtures.project.ProjectA_Multiple_Recordings,
+    ])
+
+    const res = await app.inject({
+      method: 'GET',
+      url: `/${recording.id}/info`,
     })
+
+    expect(res.statusCode).toEqual(404)
+  })
+
+  it('should get the info for a private recording as a staff user', async () => {
+    const [recording, _, session] = await harness.loadFixtures([
+      fixtures.recording.RecordingA,
+      fixtures.project.ProjectA_Multiple_Recordings,
+      fixtures.account.StaffUserA_Session,
+    ])
+
+    const res = await app.inject({
+      method: 'GET',
+      url: `/${recording.id}/info`,
+      cookies: {
+        [harness.env.SESSION_COOKIE]: session.sessionToken,
+      },
+    })
+
+    expect(res.statusCode).toEqual(200)
+    expect(res.json()).toEqual(recording)
   })
 
   it('should save a resource for a recording', async () => {

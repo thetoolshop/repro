@@ -2,11 +2,12 @@ import { RecordingMode, StaffUser, User } from '@repro/domain'
 import { parseSchema } from '@repro/validation'
 import { FastifyPluginAsync } from 'fastify'
 import { ZodTypeProvider } from 'fastify-type-provider-zod'
-import { chain, go } from 'fluture'
+import { FutureInstance, alt, bimap, chain, go } from 'fluture'
 import z from 'zod'
 import { defaultSystemConfig } from '~/config/system'
 import { AccountService } from '~/services/account'
 import type { RecordingService } from '~/services/recording'
+import { isPermissionDenied, notFound } from '~/utils/errors'
 import { createResponseUtils } from '~/utils/response'
 
 export function createRecordingRouter(
@@ -18,6 +19,20 @@ export function createRecordingRouter(
 
   return async function (fastify) {
     const app = fastify.withTypeProvider<ZodTypeProvider>()
+
+    function ensureCanAccessRecording(
+      user: User | StaffUser | null,
+      recordingId: string
+    ): FutureInstance<Error, User | StaffUser | null> {
+      return alt(
+        recordingService.ensureIsPublicRecording(recordingId).pipe(
+          bimap<Error, Error>(error =>
+            // Throw "not-found" to avoid leaking existence of private recording
+            isPermissionDenied(error) ? notFound() : error
+          )(() => user)
+        )
+      )(accountService.ensureStaffUser(user))
+    }
 
     app.get('/', (req, res) => {
       respondWith(
@@ -44,7 +59,14 @@ export function createRecordingRouter(
       (req, res) => {
         const recordingId = req.params.recordingId
         res.header('Content-Encoding', 'gzip')
-        respondWith(res, recordingService.readDataAsStream(recordingId))
+        respondWith(
+          res,
+          go(function* () {
+            const user = yield req.getCurrentUserOrNull()
+            yield ensureCanAccessRecording(user, recordingId)
+            return yield recordingService.readDataAsStream(recordingId)
+          })
+        )
       }
     )
 
@@ -131,7 +153,14 @@ export function createRecordingRouter(
 
       (req, res) => {
         const recordingId = req.params.recordingId
-        respondWith(res, recordingService.readResourceMap(recordingId))
+        respondWith(
+          res,
+          go(function* () {
+            const user = yield req.getCurrentUserOrNull()
+            yield ensureCanAccessRecording(user, recordingId)
+            return yield recordingService.readResourceMap(recordingId)
+          })
+        )
       }
     )
 
@@ -172,7 +201,14 @@ export function createRecordingRouter(
 
       (req, res) => {
         const recordingId = req.params.recordingId!
-        respondWith(res, recordingService.readInfo(recordingId))
+        respondWith(
+          res,
+          go(function* () {
+            const user = yield req.getCurrentUserOrNull()
+            yield ensureCanAccessRecording(user, recordingId)
+            return yield recordingService.readInfo(recordingId)
+          })
+        )
       }
     )
 

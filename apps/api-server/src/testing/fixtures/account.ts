@@ -1,4 +1,4 @@
-import { Account, Session, User } from '@repro/domain'
+import { Account, Session, StaffUser, User } from '@repro/domain'
 import { tapF } from '@repro/future-utils'
 import { Fixture } from '../types'
 
@@ -97,4 +97,20 @@ export const AdminUserA_Session: Fixture<Session> = {
   dependencies: [AdminUserA],
   load: ({ accountService }, user: User) =>
     accountService.createSession(user.id, 'user'),
+}
+
+export const StaffUserA: Fixture<StaffUser> = {
+  dependencies: [],
+  load: ({ accountService }) =>
+    accountService.createStaffUser(
+      'Staff User',
+      'staff-user@repro.test',
+      'staff-user-password'
+    ),
+}
+
+export const StaffUserA_Session: Fixture<Session> = {
+  dependencies: [StaffUserA],
+  load: ({ accountService }, user: StaffUser) =>
+    accountService.createSession(user.id, 'staff'),
 }
