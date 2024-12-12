@@ -7,7 +7,7 @@ import React, {
   useRef,
   useState,
 } from 'react'
-import { fromEvent, Subscription } from 'rxjs'
+import { Subscription, fromEvent } from 'rxjs'
 import { Portal } from '../Portal'
 import { colors } from '../theme'
 
@@ -57,7 +57,7 @@ export const Tooltip: React.FC<Props> = ({ children, position = 'top' }) => {
   }, [ref, setActive, updatePosition])
 
   return (
-    <Block props={{ ref }}>
+    <Block position="absolute" props={{ ref }}>
       {active && (
         <Portal>
           <Block
