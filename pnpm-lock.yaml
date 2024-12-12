@@ -523,6 +523,9 @@ importers:
       '@repro/domain':
         specifier: workspace:*
         version: link:../../packages/domain
+      '@repro/encryption':
+        specifier: workspace:*
+        version: link:../../packages/encryption
       '@repro/future-utils':
         specifier: workspace:*
         version: link:../../packages/future-utils
@@ -1838,6 +1841,10 @@ importers:
         version: 5.3.3
 
   packages/encryption:
+    dependencies:
+      fluture:
+        specifier: ^14.0.0
+        version: 14.0.0
     devDependencies:
       '@types/jest':
         specifier: ^28.1.7

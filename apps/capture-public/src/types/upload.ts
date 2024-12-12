@@ -23,6 +23,7 @@ export enum UploadStage {
 export interface UploadProgress {
   ref: string
   recordingId: string | null
+  encryptionKey: string | null
   stages: Record<UploadStage, number>
   completed: boolean
   error: Error | null

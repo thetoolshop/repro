@@ -1,6 +1,7 @@
 import { ApiClient } from '@repro/api-client'
 import { createNotifiableBufferStream } from '@repro/buffer-utils'
 import { RecordingInfo, SourceEvent, SourceEventView } from '@repro/domain'
+import { encryptF } from '@repro/encryption'
 import { tap } from '@repro/future-utils'
 import { randomString } from '@repro/random-string'
 import { createResourceMap, filterResourceMap } from '@repro/vdom-utils'
@@ -92,6 +93,7 @@ export function createUploadWorker(apiClient: ApiClient) {
     return (progressMap[ref] = {
       ref,
       recordingId: null,
+      encryptionKey: null,
       stages: {
         [UploadStage.Enqueued]: 0,
         [UploadStage.CreateRecording]: 0,
@@ -114,6 +116,10 @@ export function createUploadWorker(apiClient: ApiClient) {
 
   function setRecordingId(recordingId: string, progress: UploadProgress) {
     progress.recordingId = recordingId
+  }
+
+  function setEncryptionKey(encryptionKey: string, progress: UploadProgress) {
+    progress.encryptionKey = encryptionKey
   }
 
   function complete(progress: UploadProgress) {
@@ -174,20 +180,30 @@ export function createUploadWorker(apiClient: ApiClient) {
       i += 1
     }
 
-    const body = createNotifiableBufferStream(
-      gzipSync(buffer),
-      (bytesRead, byteLength) => {
-        updateStage(UploadStage.SaveEvents, bytesRead / byteLength, progress)
-      }
-    )
+    return encryptF(gzipSync(buffer)).pipe(
+      chain(([encryptedBuffer, encryptionKey]) => {
+        setEncryptionKey(encryptionKey, progress)
 
-    return apiClient.fetch(`/recordings/${recordingId}/data`, {
-      method: 'PUT',
-      body,
-      headers: { 'Content-Type': 'application/octet-stream' },
-      // @ts-expect-error
-      duplex: 'half',
-    })
+        const body = createNotifiableBufferStream(
+          encryptedBuffer,
+          (bytesRead, byteLength) => {
+            updateStage(
+              UploadStage.SaveEvents,
+              bytesRead / byteLength,
+              progress
+            )
+          }
+        )
+
+        return apiClient.fetch(`/recordings/${recordingId}/data`, {
+          method: 'PUT',
+          body,
+          headers: { 'Content-Type': 'application/octet-stream' },
+          // @ts-expect-error
+          duplex: 'half',
+        })
+      })
+    )
   }
 
   function saveResources(
