@@ -22,6 +22,7 @@
     "@repro/design": "workspace:*",
     "@repro/diagnostics": "workspace:*",
     "@repro/domain": "workspace:*",
+    "@repro/encryption": "workspace:*",
     "@repro/future-utils": "workspace:*",
     "@repro/logger": "workspace:*",
     "@repro/messaging": "workspace:*",

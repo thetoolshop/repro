@@ -8,7 +8,9 @@
     "typecheck": "tsc --noEmit"
   },
   "license": "UNLICENSED",
-  "dependencies": {},
+  "dependencies": {
+    "fluture": "^14.0.0"
+  },
   "devDependencies": {
     "@types/jest": "^28.1.7",
     "@types/node": "^18.6.2",

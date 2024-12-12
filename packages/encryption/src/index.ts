@@ -1,3 +1,5 @@
+import { attemptP } from 'fluture'
+
 const IV_BYTE_LENGTH = 12
 const KEY_BIT_LENGTH = 128
 
@@ -86,6 +88,10 @@ export async function encrypt(
   return [output, keyParts]
 }
 
+export function encryptF(data: ArrayBuffer) {
+  return attemptP(() => encrypt(data))
+}
+
 export async function decrypt(
   data: ArrayBuffer,
   keyParts: string
@@ -107,4 +113,8 @@ export async function decrypt(
     key,
     data
   )
+}
+
+export function decryptF(data: ArrayBuffer, keyParts: string) {
+  return attemptP(() => decrypt(data, keyParts))
 }
