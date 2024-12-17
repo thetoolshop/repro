@@ -89,7 +89,7 @@ export async function encrypt(
 }
 
 export function encryptF(data: ArrayBuffer) {
-  return attemptP(() => encrypt(data))
+  return attemptP<Error, [ArrayBuffer, string]>(() => encrypt(data))
 }
 
 export async function decrypt(
@@ -116,5 +116,5 @@ export async function decrypt(
 }
 
 export function decryptF(data: ArrayBuffer, keyParts: string) {
-  return attemptP(() => decrypt(data, keyParts))
+  return attemptP<Error, ArrayBuffer>(() => decrypt(data, keyParts))
 }
