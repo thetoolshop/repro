@@ -18,6 +18,7 @@
     "@repro/diagnostics": "workspace:*",
     "@repro/dom-utils": "workspace:*",
     "@repro/domain": "workspace:*",
+    "@repro/encryption": "workspace:*",
     "@repro/logger": "workspace:*",
     "@repro/source-utils": "workspace:*",
     "@repro/std": "workspace:*",

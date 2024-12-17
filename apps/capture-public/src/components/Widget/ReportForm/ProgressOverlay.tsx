@@ -58,7 +58,7 @@ export const ProgressOverlay: React.FC<Props> = ({
   onClose,
   width = 240,
 }) => {
-  const recordingUrl = `${process.env.REPRO_APP_URL}/recordings/${progress.recordingId}`
+  const recordingUrl = `${process.env.REPRO_APP_URL}/${progress.recordingId}#${progress.encryptionKey}`
 
   function copyToClipboard() {
     navigator.clipboard.writeText(recordingUrl)

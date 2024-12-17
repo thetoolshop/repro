@@ -180,12 +180,12 @@ export function createUploadWorker(apiClient: ApiClient) {
       i += 1
     }
 
-    return encryptF(gzipSync(buffer)).pipe(
+    return encryptF(buffer).pipe(
       chain(([encryptedBuffer, encryptionKey]) => {
         setEncryptionKey(encryptionKey, progress)
 
         const body = createNotifiableBufferStream(
-          encryptedBuffer,
+          gzipSync(new Uint8Array(encryptedBuffer)),
           (bytesRead, byteLength) => {
             updateStage(
               UploadStage.SaveEvents,
