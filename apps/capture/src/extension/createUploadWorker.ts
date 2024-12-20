@@ -4,7 +4,7 @@ import { RecordingInfo, SourceEvent, SourceEventView } from '@repro/domain'
 import { tap } from '@repro/future-utils'
 import { randomString } from '@repro/random-string'
 import { createResourceMap, filterResourceMap } from '@repro/vdom-utils'
-import { toWireFormat } from '@repro/wire-formats'
+import { toBinaryWireFormat } from '@repro/wire-formats'
 import { gzipSync } from 'fflate'
 import {
   FutureInstance,
@@ -164,18 +164,12 @@ export function createUploadWorker(apiClient: ApiClient) {
     events: Array<SourceEvent>,
     progress: UploadProgress
   ) {
-    const serializedData = events.map(toWireFormat).join('\n')
-    const buffer = new Uint8Array(serializedData.length)
-
-    let i = 0
-
-    for (const char of serializedData) {
-      buffer[i] = char.charCodeAt(0)
-      i += 1
-    }
+    const serialized = toBinaryWireFormat(
+      events.map(event => SourceEventView.encode(event))
+    )
 
     const body = createNotifiableBufferStream(
-      gzipSync(buffer),
+      gzipSync(new Uint8Array(serialized.buffer)),
       (bytesRead, byteLength) => {
         updateStage(UploadStage.SaveEvents, bytesRead / byteLength, progress)
       }

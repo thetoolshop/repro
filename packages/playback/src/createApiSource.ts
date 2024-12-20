@@ -1,10 +1,11 @@
 import { ApiClient } from '@repro/api-client'
 import { createAtom } from '@repro/atom'
-import { SourceEvent, SourceEventView } from '@repro/domain'
+import { Stats } from '@repro/diagnostics'
+import { SourceEventView } from '@repro/domain'
 import { decryptF } from '@repro/encryption'
 import { logger } from '@repro/logger'
 import { List } from '@repro/tdl'
-import { fromWireFormat } from '@repro/wire-formats'
+import { fromBinaryWireFormat } from '@repro/wire-formats'
 import { both, chain, chainRej, fork, map, resolve } from 'fluture'
 import { ReadyState, Source } from './types'
 
@@ -30,18 +31,11 @@ function getRecordingEvents(
       })
     )
     .pipe(
-      map(data => {
-        const lines = new TextDecoder().decode(data).split('\n')
-        const events: Array<SourceEvent> = []
-
-        for (const line of lines) {
-          if (line) {
-            events.push(SourceEventView.from(fromWireFormat(line)))
-          }
-        }
-
-        return events
-      })
+      map(data =>
+        Stats.time('createApiSource(): unpack binary wire format', () => {
+          return fromBinaryWireFormat(new DataView(data))
+        })
+      )
     )
 }
 
@@ -67,7 +61,12 @@ export function createApiSource(
       logger.error(error)
       setReadyState('failed')
     })(([events, resourceMap]) => {
-      setEvents(new List(SourceEventView, events))
+      setEvents(
+        new List(
+          SourceEventView,
+          events.map(buffer => new DataView(buffer))
+        )
+      )
       setResourceMap(resourceMap)
       setReadyState('ready')
     })

@@ -1,14 +1,15 @@
+import { Analytics, stubConsumer } from '@repro/analytics'
 import { createApiClient } from '@repro/api-client'
 import { RecordingMode, SourceEventView } from '@repro/domain'
 import { parseSchema } from '@repro/validation'
 import { fromByteString } from '@repro/wire-formats'
 import {
+  FutureInstance,
   and,
   attempt,
   attemptP,
   chain,
   fork,
-  FutureInstance,
   map,
   node,
   resolve,
@@ -27,6 +28,9 @@ const StorageKeys = {
 }
 
 const agent = createRuntimeAgent()
+
+Analytics.setAgent(agent)
+Analytics.registerConsumer(stubConsumer)
 
 const apiClient = createApiClient({
   baseUrl: process.env.REPRO_API_URL || '',
@@ -54,8 +58,8 @@ agent.subscribeToIntent('upload:enqueue', (payload: UploadEnqueuePayload) => {
     map(input =>
       uploadWorker.enqueue({
         ...input,
-        events: input.events.map(data =>
-          SourceEventView.over(new DataView(fromByteString(data).buffer))
+        events: input.events.map(byteString =>
+          SourceEventView.over(new DataView(fromByteString(byteString).buffer))
         ),
       })
     )
