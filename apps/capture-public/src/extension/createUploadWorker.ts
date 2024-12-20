@@ -5,7 +5,7 @@ import { encryptF } from '@repro/encryption'
 import { tap } from '@repro/future-utils'
 import { randomString } from '@repro/random-string'
 import { createResourceMap, filterResourceMap } from '@repro/vdom-utils'
-import { toWireFormat } from '@repro/wire-formats'
+import { toBinaryWireFormat } from '@repro/wire-formats'
 import { gzipSync } from 'fflate'
 import {
   FutureInstance,
@@ -170,17 +170,11 @@ export function createUploadWorker(apiClient: ApiClient) {
     events: Array<SourceEvent>,
     progress: UploadProgress
   ) {
-    const serializedData = events.map(toWireFormat).join('\n')
-    const buffer = new Uint8Array(serializedData.length)
+    const serialized = toBinaryWireFormat(
+      events.map(event => SourceEventView.encode(event))
+    )
 
-    let i = 0
-
-    for (const char of serializedData) {
-      buffer[i] = char.charCodeAt(0)
-      i += 1
-    }
-
-    return encryptF(buffer).pipe(
+    return encryptF(serialized.buffer).pipe(
       chain(([encryptedBuffer, encryptionKey]) => {
         setEncryptionKey(encryptionKey, progress)
 

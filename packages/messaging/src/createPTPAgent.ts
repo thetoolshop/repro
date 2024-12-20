@@ -1,4 +1,5 @@
 import { SyntheticId } from '@repro/domain'
+import { logger } from '@repro/logger'
 import { randomString } from '@repro/random-string'
 import Future, { fork, FutureInstance } from 'fluture'
 import { filter, fromEvent, map } from 'rxjs'
@@ -112,9 +113,11 @@ export function createPTPAgent(): Agent {
     })
 
     if (event.detail == null) {
-      console.error('PTP Agent: unable to serialize message.', message)
+      logger.error('PTP Agent: unable to serialize message.', message)
       return
     }
+
+    logger.debug(event)
 
     window.dispatchEvent(event)
   }

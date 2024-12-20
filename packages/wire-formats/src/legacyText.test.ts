@@ -1,6 +1,6 @@
-import { fromJSON, fromWireFormat, toJSON, toWireFormat } from './index'
+import { fromJSON, fromWireFormat, toJSON, toWireFormat } from './legacyText'
 
-describe('wire-formats', () => {
+describe('wire-formats: text', () => {
   it('should convert an object to and from JSON', () => {
     const input = {
       foo: 'bar',

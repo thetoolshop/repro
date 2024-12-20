@@ -2,6 +2,7 @@ import { formatTime } from '@repro/date-utils'
 import { colors, ToggleGroup } from '@repro/design'
 import { RecordingMode } from '@repro/domain'
 import { observeFuture } from '@repro/future-utils'
+import { logger } from '@repro/logger'
 import { useMessaging } from '@repro/messaging'
 import {
   PlaybackCanvas,
@@ -106,6 +107,7 @@ export const ReportForm: React.FC<Props> = ({
       fork(handleError)(handleEnqueued)(upload(values))
 
       function handleError(error: Error) {
+        logger.error(error)
         setUploading(false)
         setEnqueueError(error)
         onError(error)
