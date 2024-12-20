@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { BufferListView } from './generated/buffer-list'
 
 export function toBinaryWireFormat(items: Array<DataView>) {
@@ -65,7 +64,7 @@ export function fromBinaryWireFormatStream(
             size = view.getUint32(0, LITTLE_ENDIAN)
           }
 
-          if (!hasFullHeader) {
+          if (size != null && !hasFullHeader) {
             const headerByteLength =
               LIST_SIZE_BYTE_LENGTH + size * FIELD_OFFSET_BYTE_LENGTH
 
