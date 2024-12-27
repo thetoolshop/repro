@@ -1,7 +1,7 @@
 import { ApiClient } from '@repro/api-client'
 import { createNotifiableBufferStream } from '@repro/buffer-utils'
 import { RecordingInfo, SourceEvent, SourceEventView } from '@repro/domain'
-import { encryptF } from '@repro/encryption'
+import { createExportedKeyF, encryptF } from '@repro/encryption'
 import { tap } from '@repro/future-utils'
 import { randomString } from '@repro/random-string'
 import { createResourceMap, filterResourceMap } from '@repro/vdom-utils'
@@ -170,16 +170,30 @@ export function createUploadWorker(apiClient: ApiClient) {
     events: Array<SourceEvent>,
     progress: UploadProgress
   ) {
-    const serialized = toBinaryWireFormat(
-      events.map(event => SourceEventView.encode(event))
+    const exportedKey = createExportedKeyF().pipe(
+      tap(exportedKey => setEncryptionKey(exportedKey, progress))
     )
 
-    return encryptF(serialized.buffer).pipe(
-      chain(([encryptedBuffer, encryptionKey]) => {
-        setEncryptionKey(encryptionKey, progress)
+    const encryptedEvents = exportedKey.pipe(
+      chain(exportedKey =>
+        parallel(Infinity)(
+          events.map(event =>
+            encryptF(SourceEventView.encode(event).buffer, exportedKey)
+          )
+        )
+      )
+    )
 
+    const serialized = encryptedEvents.pipe(
+      map(outputs =>
+        toBinaryWireFormat(outputs.map(output => new DataView(output[0])))
+      )
+    )
+
+    return serialized.pipe(
+      chain(value => {
         const body = createNotifiableBufferStream(
-          gzipSync(new Uint8Array(encryptedBuffer)),
+          gzipSync(new Uint8Array(value.buffer)),
           (bytesRead, byteLength) => {
             updateStage(
               UploadStage.SaveEvents,
