@@ -3,22 +3,6 @@ import { attemptP } from 'fluture'
 const IV_BYTE_LENGTH = 12
 const KEY_BIT_LENGTH = 128
 
-function generateIV() {
-  const arr = new Uint8Array(IV_BYTE_LENGTH)
-  return crypto.getRandomValues(arr)
-}
-
-function generateKey() {
-  return crypto.subtle.generateKey(
-    {
-      name: 'AES-GCM',
-      length: KEY_BIT_LENGTH,
-    },
-    true, // extractable
-    ['encrypt', 'decrypt']
-  )
-}
-
 async function exportKey(key: CryptoKey): Promise<string> {
   const jwk = await crypto.subtle.exportKey('jwk', key)
   return jwk.k as string
@@ -43,36 +27,41 @@ function importKey(key: string) {
   )
 }
 
-function toBase64(data: Uint8Array): string {
-  let binaryStr = ''
-  const len = data.byteLength
-
-  for (let i = 0; i < len; i++) {
-    binaryStr += String.fromCharCode(data[i] as number)
-  }
-
-  return btoa(binaryStr)
+function generateIV() {
+  const arr = new Uint8Array(IV_BYTE_LENGTH)
+  return crypto.getRandomValues(arr)
 }
 
-function fromBase64(str: string): Uint8Array {
-  const binaryStr = atob(str)
-  const len = binaryStr.length
-  const data = new Uint8Array(len)
+function generateKey() {
+  return crypto.subtle.generateKey(
+    {
+      name: 'AES-GCM',
+      length: KEY_BIT_LENGTH,
+    },
+    true, // extractable
+    ['encrypt', 'decrypt']
+  )
+}
 
-  for (let i = 0; i < len; i++) {
-    data.set([binaryStr.charCodeAt(i)], i)
-  }
+export async function createExportedKey() {
+  const key = await generateKey()
+  return await exportKey(key)
+}
 
-  return data
+export function createExportedKeyF() {
+  return attemptP<Error, string>(() => createExportedKey())
 }
 
 export async function encrypt(
-  data: ArrayBuffer
+  data: ArrayBuffer,
+  exportedKey?: string
 ): Promise<[ArrayBuffer, string]> {
-  const key = await generateKey()
+  const key =
+    exportedKey != null ? await importKey(exportedKey) : await generateKey()
+
   const iv = generateIV()
 
-  const output = await crypto.subtle.encrypt(
+  const encryptedData = await crypto.subtle.encrypt(
     {
       name: 'AES-GCM',
       iv,
@@ -81,29 +70,27 @@ export async function encrypt(
     data
   )
 
-  const exportedKey = await exportKey(key)
-  const exportedIV = toBase64(iv)
-  const keyParts = `${exportedIV}:${exportedKey}`
+  const output = new Uint8Array(IV_BYTE_LENGTH + encryptedData.byteLength)
+  output.set(iv, 0)
+  output.set(new Uint8Array(encryptedData), IV_BYTE_LENGTH)
 
-  return [output, keyParts]
+  return [output, exportedKey ?? (await exportKey(key))]
 }
 
-export function encryptF(data: ArrayBuffer) {
-  return attemptP<Error, [ArrayBuffer, string]>(() => encrypt(data))
+export function encryptF(data: ArrayBuffer, exportedKey?: string) {
+  return attemptP<Error, [ArrayBuffer, string]>(() =>
+    encrypt(data, exportedKey)
+  )
 }
 
 export async function decrypt(
-  data: ArrayBuffer,
-  keyParts: string
+  buffer: ArrayBuffer,
+  exportedKey: string
 ): Promise<ArrayBuffer> {
-  const [exportedIV, exportedKey] = keyParts.split(':')
-
-  if (!exportedIV || !exportedKey) {
-    throw new Error(`Crypto#decrypt: cannot find IV or encryption key`)
-  }
-
   const key = await importKey(exportedKey)
-  const iv = fromBase64(exportedIV)
+  const view = new Uint8Array(buffer)
+  const iv = view.subarray(0, IV_BYTE_LENGTH)
+  const data = view.subarray(IV_BYTE_LENGTH)
 
   return crypto.subtle.decrypt(
     {
@@ -115,6 +102,6 @@ export async function decrypt(
   )
 }
 
-export function decryptF(data: ArrayBuffer, keyParts: string) {
-  return attemptP<Error, ArrayBuffer>(() => decrypt(data, keyParts))
+export function decryptF(data: ArrayBuffer, exportedKey: string) {
+  return attemptP<Error, ArrayBuffer>(() => decrypt(data, exportedKey))
 }

@@ -6,7 +6,7 @@ import { decryptF } from '@repro/encryption'
 import { logger } from '@repro/logger'
 import { List } from '@repro/tdl'
 import { fromBinaryWireFormat } from '@repro/wire-formats'
-import { both, chain, chainRej, fork, map, resolve } from 'fluture'
+import { both, chain, chainRej, fork, map, parallel, resolve } from 'fluture'
 import { ReadyState, Source } from './types'
 
 const EMPTY_RESOURCE_MAP = {}
@@ -24,16 +24,20 @@ function getRecordingEvents(
       'binary'
     )
     .pipe(
-      chain(data => {
-        return encryptionKey == null
-          ? resolve(data.buffer)
-          : decryptF(data.buffer, encryptionKey)
-      })
-    )
-    .pipe(
       map(data =>
         Stats.time('createApiSource(): unpack binary wire format', () => {
-          return fromBinaryWireFormat(new DataView(data))
+          return fromBinaryWireFormat(data)
+        })
+      )
+    )
+    .pipe(
+      chain(buffers =>
+        Stats.time('createApiSource(): decrypt event buffers', () => {
+          return encryptionKey != null
+            ? parallel(Infinity)(
+                buffers.map(buffer => decryptF(buffer, encryptionKey))
+              )
+            : resolve(buffers)
         })
       )
     )
