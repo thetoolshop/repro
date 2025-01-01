@@ -36,7 +36,7 @@ export function createUploadWorker(
   apiClient: ApiClient,
   customOptions: Partial<Options> = {}
 ) {
-  const options = { ...customOptions, ...defaultOptions }
+  const options = { ...defaultOptions, ...customOptions }
 
   const queue: Array<{ ref: string; input: UploadInput }> = []
   const progressMap: Record<string, UploadProgress> = {}
@@ -190,7 +190,9 @@ export function createUploadWorker(
 
     if (options.withEncryptionScheme === 'key') {
       const exportedKey = createExportedKeyF().pipe(
-        tap(exportedKey => setEncryptionKey(exportedKey, progress))
+        tap(exportedKey => {
+          setEncryptionKey(exportedKey, progress)
+        })
       )
 
       transformedEvents = exportedKey.pipe(

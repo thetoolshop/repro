@@ -1,4 +1,5 @@
 import { Button, Card, Meter, colors } from '@repro/design'
+import { UploadProgress, UploadStage } from '@repro/recording-api'
 import { Block, Col, Row } from 'jsxstyle'
 import {
   AlertTriangleIcon,
@@ -7,7 +8,6 @@ import {
   CornerUpLeftIcon,
 } from 'lucide-react'
 import React, { Fragment, PropsWithChildren } from 'react'
-import { UploadProgress, UploadStage } from '~/types/upload'
 
 interface Props {
   progress: UploadProgress

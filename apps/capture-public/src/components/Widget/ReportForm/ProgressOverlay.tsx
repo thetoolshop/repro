@@ -1,4 +1,5 @@
 import { Button, Card, Meter, colors } from '@repro/design'
+import { UploadProgress, UploadStage } from '@repro/recording-api'
 import { Block, Col, Row } from 'jsxstyle'
 import {
   AlertTriangleIcon,
@@ -7,7 +8,6 @@ import {
   CornerUpLeftIcon,
 } from 'lucide-react'
 import React, { Fragment, PropsWithChildren } from 'react'
-import { UploadProgress, UploadStage } from '~/types/upload'
 
 interface Props {
   progress: UploadProgress
@@ -58,7 +58,9 @@ export const ProgressOverlay: React.FC<Props> = ({
   onClose,
   width = 240,
 }) => {
-  const recordingUrl = `${process.env.REPRO_APP_URL}/${progress.recordingId}#${progress.encryptionKey}`
+  const recordingUrl = `${process.env.REPRO_APP_URL}/${progress.recordingId}${
+    progress.encryptionKey ? `#${progress.encryptionKey}` : ''
+  }`
 
   function copyToClipboard() {
     navigator.clipboard.writeText(recordingUrl)

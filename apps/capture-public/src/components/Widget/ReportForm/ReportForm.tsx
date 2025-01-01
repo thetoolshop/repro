@@ -10,12 +10,12 @@ import {
   SimpleTimeline,
   usePlayback,
 } from '@repro/playback'
+import { UploadProgress } from '@repro/recording-api'
 import { fork, FutureInstance } from 'fluture'
 import { Block, Row } from 'jsxstyle'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Subscription, switchMap, timer } from 'rxjs'
 import { useRecordingMode } from '~/state'
-import { UploadProgress } from '~/types/upload'
 import { Modal } from '../Modal'
 import { DetailsFields } from './DetailsFields'
 import { DetailsRegion, Layout, PlaybackRegion } from './Layout'

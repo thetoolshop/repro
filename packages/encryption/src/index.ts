@@ -74,7 +74,7 @@ export async function encrypt(
   output.set(iv, 0)
   output.set(new Uint8Array(encryptedData), IV_BYTE_LENGTH)
 
-  return [output, exportedKey ?? (await exportKey(key))]
+  return [output.buffer, exportedKey ?? (await exportKey(key))]
 }
 
 export function encryptF(data: ArrayBuffer, exportedKey?: string) {
