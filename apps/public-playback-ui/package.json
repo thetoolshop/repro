@@ -23,6 +23,7 @@
     "@repro/encryption": "workspace:*",
     "@repro/logger": "workspace:*",
     "@repro/playback": "workspace:*",
+    "@repro/recording-api": "workspace:*",
     "@repro/source-utils": "workspace:*",
     "@repro/std": "workspace:*",
     "@repro/tdl": "workspace:*",

@@ -1,6 +1,7 @@
 import { Analytics, stubConsumer } from '@repro/analytics'
 import { createApiClient } from '@repro/api-client'
 import { RecordingMode, SourceEventView } from '@repro/domain'
+import { createUploadWorker } from '@repro/recording-api'
 import { parseSchema } from '@repro/validation'
 import { fromByteString } from '@repro/wire-formats'
 import {
@@ -16,7 +17,6 @@ import {
 } from 'fluture'
 import z from 'zod'
 import { createRuntimeAgent } from './createRuntimeAgent'
-import { createUploadWorker } from './createUploadWorker'
 
 function run<L, R>(source: FutureInstance<L, R>, resolve = console.log) {
   return source.pipe(fork<L>(console.error)<R>(resolve))
@@ -37,7 +37,9 @@ const apiClient = createApiClient({
   authStorage: (process.env.AUTH_STORAGE as any) || 'local-storage',
 })
 
-const uploadWorker = createUploadWorker(apiClient)
+const uploadWorker = createUploadWorker(apiClient, {
+  withEncryptionScheme: 'key',
+})
 
 const UploadEnqueuePayloadSchema = z.object({
   title: z.string(),

@@ -23,6 +23,7 @@
     "@repro/future-utils": "workspace:*",
     "@repro/logger": "workspace:*",
     "@repro/playback": "workspace:*",
+    "@repro/recording-api": "workspace:*",
     "@repro/string-utils": "workspace:*",
     "@repro/theme": "workspace:*",
     "fluture": "^14.0.0",

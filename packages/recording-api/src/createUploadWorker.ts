@@ -9,6 +9,7 @@ import { toBinaryWireFormat } from '@repro/wire-formats'
 import { gzipSync } from 'fflate'
 import {
   FutureInstance,
+  attempt,
   both,
   cache,
   chain,
@@ -18,12 +19,25 @@ import {
   parallel,
   resolve,
 } from 'fluture'
-import { UploadInput, UploadProgress, UploadStage } from '~/types/upload'
+import { UploadInput, UploadProgress, UploadStage } from './types'
 
 // Resources bigger than 1MiB should either load from origin or be replaced by placeholder (TBD)
 const MAX_RESOURCE_SIZE = 1_000_000
 
-export function createUploadWorker(apiClient: ApiClient) {
+interface Options {
+  withEncryptionScheme: 'key' | 'none'
+}
+
+const defaultOptions: Options = {
+  withEncryptionScheme: 'none',
+}
+
+export function createUploadWorker(
+  apiClient: ApiClient,
+  customOptions: Partial<Options> = {}
+) {
+  const options = { ...customOptions, ...defaultOptions }
+
   const queue: Array<{ ref: string; input: UploadInput }> = []
   const progressMap: Record<string, UploadProgress> = {}
 
@@ -170,24 +184,28 @@ export function createUploadWorker(apiClient: ApiClient) {
     events: Array<SourceEvent>,
     progress: UploadProgress
   ) {
-    const exportedKey = createExportedKeyF().pipe(
-      tap(exportedKey => setEncryptionKey(exportedKey, progress))
+    let transformedEvents = attempt<Error, DataView[]>(() =>
+      events.map(event => SourceEventView.encode(event))
     )
 
-    const encryptedEvents = exportedKey.pipe(
-      chain(exportedKey =>
-        parallel(Infinity)(
-          events.map(event =>
-            encryptF(SourceEventView.encode(event).buffer, exportedKey)
-          )
+    if (options.withEncryptionScheme === 'key') {
+      const exportedKey = createExportedKeyF().pipe(
+        tap(exportedKey => setEncryptionKey(exportedKey, progress))
+      )
+
+      transformedEvents = exportedKey.pipe(
+        chain(exportedKey =>
+          parallel(Infinity)(
+            events.map(event =>
+              encryptF(SourceEventView.encode(event).buffer, exportedKey)
+            )
+          ).pipe(map(outputs => outputs.map(output => new DataView(output[0]))))
         )
       )
-    )
+    }
 
-    const serialized = encryptedEvents.pipe(
-      map(outputs =>
-        toBinaryWireFormat(outputs.map(output => new DataView(output[0])))
-      )
+    const serialized = transformedEvents.pipe(
+      map(views => toBinaryWireFormat(views))
     )
 
     return serialized.pipe(

@@ -2,9 +2,9 @@ import { useApiClient } from '@repro/api-client'
 import {
   PlaybackFromSourceProvider,
   Source,
-  createApiSource,
   createNullSource,
 } from '@repro/playback'
+import { createApiSource } from '@repro/recording-api'
 import React, { PropsWithChildren, useEffect, useMemo, useState } from 'react'
 
 function getRecordingId() {

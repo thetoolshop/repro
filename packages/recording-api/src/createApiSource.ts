@@ -4,10 +4,10 @@ import { Stats } from '@repro/diagnostics'
 import { SourceEventView } from '@repro/domain'
 import { decryptF } from '@repro/encryption'
 import { logger } from '@repro/logger'
+import { ReadyState, Source } from '@repro/playback'
 import { List } from '@repro/tdl'
 import { fromBinaryWireFormat } from '@repro/wire-formats'
 import { both, chain, chainRej, fork, map, parallel, resolve } from 'fluture'
-import { ReadyState, Source } from './types'
 
 const EMPTY_RESOURCE_MAP = {}
 

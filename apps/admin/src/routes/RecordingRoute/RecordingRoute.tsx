@@ -4,10 +4,10 @@ import { DevTools } from '@repro/devtools'
 import { RecordingInfo } from '@repro/domain'
 import { useFuture } from '@repro/future-utils'
 import {
-  createApiSource,
   createNullSource,
   PlaybackFromSourceProvider,
 } from '@repro/playback'
+import { createApiSource } from '@repro/recording-api'
 import { Block, Grid } from 'jsxstyle'
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
