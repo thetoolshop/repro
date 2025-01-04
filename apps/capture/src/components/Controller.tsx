@@ -5,6 +5,7 @@ import {
   createSourcePlayback,
 } from '@repro/playback'
 import { InterruptSignal, useRecordingStream } from '@repro/recording'
+import { calculateDuration } from '@repro/source-utils'
 import { Box, List } from '@repro/tdl'
 import { Block } from 'jsxstyle'
 import React, { useEffect, useState } from 'react'
@@ -68,7 +69,7 @@ export const Controller: React.FC = () => {
           )
           .subscribe(event => {
             setPlayback(
-              createSourcePlayback(new List(SourceEventView, [event]), {})
+              createSourcePlayback(new List(SourceEventView, [event]), 0, {})
             )
           })
         break
@@ -78,7 +79,9 @@ export const Controller: React.FC = () => {
           defer(() => of(stream.slice()))
             .pipe(observeOn(asyncScheduler))
             .subscribe(events => {
-              setPlayback(createSourcePlayback(events, {}))
+              setPlayback(
+                createSourcePlayback(events, calculateDuration(events), {})
+              )
             })
         )
         break
@@ -92,7 +95,9 @@ export const Controller: React.FC = () => {
               map(events => new List(SourceEventView, events))
             )
             .subscribe(events => {
-              setPlayback(createSourcePlayback(events, {}))
+              setPlayback(
+                createSourcePlayback(events, calculateDuration(events), {})
+              )
             })
         )
         break

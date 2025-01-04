@@ -104,7 +104,7 @@ const events = new List(SourceEventView, [
 ])
 
 export const Default: Story = () => (
-  <PlaybackProvider playback={createSourcePlayback(events, {})}>
+  <PlaybackProvider playback={createSourcePlayback(events, 1000, {})}>
     <Grid height={640}>
       <PlaybackEditor />
     </Grid>

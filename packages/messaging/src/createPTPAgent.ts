@@ -117,8 +117,6 @@ export function createPTPAgent(): Agent {
       return
     }
 
-    logger.debug(event)
-
     window.dispatchEvent(event)
   }
 

@@ -8,6 +8,7 @@ import {
   PlaybackProvider,
 } from '@repro/playback'
 import { useRecordingStream } from '@repro/recording'
+import { calculateDuration } from '@repro/source-utils'
 import { approxByteLength } from '@repro/tdl'
 import { Block, Grid, Row } from 'jsxstyle'
 import { CopyIcon } from 'lucide-react'
@@ -22,7 +23,9 @@ export const Details: React.FC = () => {
 
   useEffect(() => {
     if (selectedEvent) {
-      const sourcePlayback = createSourcePlayback(stream.slice(), {})
+      const events = stream.slice()
+      const duration = calculateDuration(events)
+      const sourcePlayback = createSourcePlayback(events, duration, {})
       setPlayback(sourcePlayback)
     }
   }, [stream, selectedEvent, setPlayback])

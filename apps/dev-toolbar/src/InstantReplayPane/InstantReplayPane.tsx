@@ -7,6 +7,7 @@ import {
 } from '@repro/playback'
 import { randomString } from '@repro/random-string'
 import { useRecordingStream } from '@repro/recording'
+import { calculateDuration } from '@repro/source-utils'
 import { packList } from '@repro/std/src/list-utils'
 import { Block, Row } from 'jsxstyle'
 import { DownloadIcon, HistoryIcon } from 'lucide-react'
@@ -15,7 +16,11 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 export const InstantReplayPane: React.FC = () => {
   const stream = useRecordingStream()
   const events = useMemo(() => stream.slice(), [stream])
-  const playback = useMemo(() => createSourcePlayback(events, {}), [events])
+  const duration = useMemo(() => calculateDuration(events), [events])
+  const playback = useMemo(
+    () => createSourcePlayback(events, duration, {}),
+    [events]
+  )
 
   const [min, setMin] = useState(0)
   const [max, setMax] = useState(playback.getDuration())
