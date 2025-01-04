@@ -103,7 +103,7 @@ export function createFetch(authStore: AuthStore, config: ApiConfiguration) {
     url: string,
     init: RequestInit = {},
     requestType: 'json' | 'binary' = 'json',
-    responseType: 'auto' | 'json' | 'binary' | 'text' = 'auto'
+    responseType: 'auto' | 'json' | 'binary' | 'text' | 'stream' = 'auto'
   ): FutureInstance<Error, R> {
     const reqOptions = createDefaultRequestOptions(
       authStore,
@@ -127,6 +127,16 @@ export function createFetch(authStore: AuthStore, config: ApiConfiguration) {
     return res.pipe(
       chain<Error, Response, R>(res =>
         attemptP(async () => {
+          if (responseType === 'stream') {
+            // From https://developer.mozilla.org/en-US/docs/Web/API/Response/body:
+            // > Note: Current browsers don't actually conform to the spec requirement
+            // > to set the body property to null for responses with no body (for example,
+            // > responses to HEAD requests, or 204 No Content responses).
+            //
+            // FIXME: Create empty ReadableStream if `res.body` is null
+            return res.body as ReadableStream<Uint8Array>
+          }
+
           const contentType = res.headers.get('content-type')
 
           let body: any

@@ -7,11 +7,12 @@ import {
   Snapshot,
   SourceEvent,
   SourceEventType,
+  SourceEventView,
 } from '@repro/domain'
 import { v4 as uuidv4 } from 'uuid'
 
 import { copyArray } from '@repro/std'
-import { Box } from '@repro/tdl'
+import { Box, List } from '@repro/tdl'
 import { applyVTreePatch } from '@repro/vdom-utils'
 
 export function createRecordingId() {
@@ -136,4 +137,13 @@ export function applyEventToSnapshot(
         break
     }
   })
+}
+
+export function calculateDuration(events: List<SourceEventView>) {
+  const first = events.over(0)
+  const last = events.over(events.size() - 1)
+
+  return first && last
+    ? last.get('time').orElse(0) - first.get('time').orElse(0)
+    : 0
 }

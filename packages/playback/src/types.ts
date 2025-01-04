@@ -11,6 +11,7 @@ export enum ControlFrame {
   Idle,
   SeekToEvent,
   SeekToTime,
+  Flush,
 }
 
 export interface Playback {
@@ -54,6 +55,7 @@ export type ReadyState = 'waiting' | 'ready' | 'failed'
 
 export interface Source {
   $events: Atom<List<SourceEventView>>
+  $duration: Atom<number>
   $readyState: Atom<ReadyState>
   $resourceMap: Atom<Record<string, string>>
 }

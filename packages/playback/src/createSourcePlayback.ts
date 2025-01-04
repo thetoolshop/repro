@@ -21,6 +21,7 @@ import {
   animationFrames,
   asyncScheduler,
   connectable,
+  interval,
 } from 'rxjs'
 import { map, observeOn, pairwise, switchMap } from 'rxjs/operators'
 import { ControlFrame, Playback, PlaybackState } from './types'
@@ -29,11 +30,13 @@ const EMPTY_SNAPSHOT = createEmptySnapshot()
 const EMPTY_BUFFER = new List(SourceEventView, [])
 export const EMPTY_PLAYBACK = createSourcePlayback(
   new List(SourceEventView, []),
+  0,
   {}
 )
 
 export function createSourcePlayback(
   events: List<SourceEventView>,
+  duration: number,
   resourceMap: Record<string, string>
 ): Playback {
   const subscription = new Subscription()
@@ -52,45 +55,25 @@ export function createSourcePlayback(
   const [$latestControlFrame, setLatestControlFrame, getLatestControlFrame] =
     createAtom<ControlFrame>(ControlFrame.Idle)
 
-  const firstEvent = events.at(0)
-  const lastEvent = events.at(events.size() - 1)
-
-  let duration = 0
-
-  Stats.time('RecordingPlayback: calculate duration', () => {
-    if (firstEvent && lastEvent) {
-      // FIXME:
-      // We need to calculate duration from the first and last boxed events,
-      // where the boxed type is not empty. We should iterate from both
-      // ends of the list to find the first non-empty event at each end.
-      //
-      // Question: should leading/trailing empty events be pruned when
-      // creating playback?
-      duration =
-        SourceEventView.over(lastEvent)
-          .map(event => event.time)
-          .orElse(0) -
-        SourceEventView.over(firstEvent)
-          .map(event => event.time)
-          .orElse(0)
-    }
-  })
-
   const snapshotIndex: Array<number> = []
 
-  Stats.time('RecordingPlayback: index snapshot events', () => {
-    for (let i = 0, len = events.size(); i < len; i++) {
-      const dataView = events.at(i)
-      const event = dataView && SourceEventView.over(dataView)
+  function buildSnapshotIndex() {
+    Stats.time('RecordingPlayback: index snapshot events', () => {
+      for (let i = 0, len = events.size(); i < len; i++) {
+        const dataView = events.at(i)
+        const event = dataView && SourceEventView.over(dataView)
 
-      if (
-        event &&
-        event.match(event => event.type === SourceEventType.Snapshot)
-      ) {
-        snapshotIndex.push(i)
+        if (
+          event &&
+          event.match(event => event.type === SourceEventType.Snapshot)
+        ) {
+          snapshotIndex.push(i)
+        }
       }
-    }
-  })
+    })
+  }
+
+  buildSnapshotIndex()
 
   function loadEvents() {
     return events.slice()
@@ -194,6 +177,30 @@ export function createSourcePlayback(
   }
 
   let queuedEvents = loadEvents()
+
+  let currentSize = events.size()
+
+  subscription.add(
+    interval(100).subscribe(() => {
+      if (currentSize < events.size()) {
+        queuedEvents.append(
+          ...events
+            .toSource()
+            .slice(currentSize)
+            .map(buffer => SourceEventView.over(buffer))
+        )
+
+        buildSnapshotIndex()
+
+        if (getSnapshot() === EMPTY_SNAPSHOT) {
+          setSnapshot(getLeadingSnapshot())
+          setLatestControlFrame(ControlFrame.Flush)
+        }
+
+        currentSize = events.size()
+      }
+    })
+  )
 
   const eventLoop = connectable(
     $playbackState.pipe(
@@ -497,7 +504,7 @@ export function createSourcePlayback(
   }
 
   function copy() {
-    return createSourcePlayback(events, resourceMap)
+    return createSourcePlayback(events, duration, resourceMap)
   }
 
   return {

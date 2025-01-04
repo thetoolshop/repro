@@ -75,26 +75,37 @@ export function fromBinaryWireFormatStream(
           }
 
           if (hasFullHeader) {
-            const contentView = new DataView(
-              rollingBuffer,
-              readOffset,
-              writeOffset - readOffset
-            )
-
-            const itemByteLength = contentView.getUint32(0, LITTLE_ENDIAN)
-
-            if (
-              contentView.byteLength >=
-              BUFFER_SIZE_BYTE_LENGTH + itemByteLength
-            ) {
-              controller.enqueue(
-                rollingBuffer.slice(
-                  readOffset + BUFFER_SIZE_BYTE_LENGTH,
-                  readOffset + BUFFER_SIZE_BYTE_LENGTH + itemByteLength
-                )
+            // Exhaust items from rolling buffer
+            while (true) {
+              const contentView = new DataView(
+                rollingBuffer,
+                readOffset,
+                writeOffset - readOffset
               )
 
-              readOffset += BUFFER_SIZE_BYTE_LENGTH + itemByteLength
+              const itemByteLength = contentView.getUint32(0, LITTLE_ENDIAN)
+
+              if (
+                contentView.byteLength >=
+                BUFFER_SIZE_BYTE_LENGTH + itemByteLength
+              ) {
+                controller.enqueue(
+                  rollingBuffer.slice(
+                    readOffset + BUFFER_SIZE_BYTE_LENGTH,
+                    readOffset + BUFFER_SIZE_BYTE_LENGTH + itemByteLength
+                  )
+                )
+
+                readOffset += BUFFER_SIZE_BYTE_LENGTH + itemByteLength
+
+                // Read next if more bytes on rolling buffer
+                if (readOffset < writeOffset) {
+                  continue
+                }
+              }
+
+              // Exit and await next chunk
+              break
             }
           }
         }

@@ -1,15 +1,19 @@
 import { ApiClient } from '@repro/api-client'
 import { createAtom } from '@repro/atom'
 import { Stats } from '@repro/diagnostics'
-import { SourceEventView } from '@repro/domain'
+import { RecordingInfo, SourceEventView } from '@repro/domain'
 import { decryptF } from '@repro/encryption'
 import { logger } from '@repro/logger'
 import { ReadyState, Source } from '@repro/playback'
 import { List } from '@repro/tdl'
-import { fromBinaryWireFormat } from '@repro/wire-formats'
-import { both, chain, chainRej, fork, map, parallel, resolve } from 'fluture'
+import { fromBinaryWireFormatStream } from '@repro/wire-formats'
+import { both, chainRej, fork, map, resolve } from 'fluture'
 
-const EMPTY_RESOURCE_MAP = {}
+const EMPTY_RESOURCE_MAP: Record<string, string> = {}
+
+function getRecordingInfo(apiClient: ApiClient, recordingId: string) {
+  return apiClient.fetch<RecordingInfo>(`/recordings/${recordingId}/info`)
+}
 
 function getRecordingEvents(
   apiClient: ApiClient,
@@ -17,28 +21,47 @@ function getRecordingEvents(
   encryptionKey?: string
 ) {
   return apiClient
-    .fetch<DataView>(
+    .fetch<ReadableStream<Uint8Array>>(
       `/recordings/${recordingId}/data`,
       undefined,
       'json',
-      'binary'
+      'stream'
     )
     .pipe(
       map(data =>
         Stats.time('createApiSource(): unpack binary wire format', () => {
-          return fromBinaryWireFormat(data)
+          return fromBinaryWireFormatStream(data)
         })
       )
     )
     .pipe(
-      chain(buffers =>
-        Stats.time('createApiSource(): decrypt event buffers', () => {
-          return encryptionKey != null
-            ? parallel(Infinity)(
-                buffers.map(buffer => decryptF(buffer, encryptionKey))
+      map(stream =>
+        stream.pipeThrough(
+          new TransformStream<ArrayBuffer, ArrayBuffer>({
+            transform(chunk, controller) {
+              if (encryptionKey == null) {
+                controller.enqueue(chunk)
+                return
+              }
+
+              decryptF(chunk, encryptionKey).pipe(
+                fork(error => {
+                  logger.error('Decryption transform error:', error)
+                  controller.error(error)
+                })(value => {
+                  controller.enqueue(value)
+                })
               )
-            : resolve(buffers)
-        })
+            },
+
+            flush(controller) {
+              controller.terminate()
+            },
+          }),
+          {
+            preventClose: true,
+          }
+        )
       )
     )
 }
@@ -55,22 +78,31 @@ export function createApiSource(
   extra: { encryptionKey?: string } = {}
 ): Source {
   const [$events, setEvents] = createAtom(new List(SourceEventView, []))
+  const [$duration, setDuration] = createAtom(0)
   const [$readyState, setReadyState] = createAtom<ReadyState>('waiting')
   const [$resourceMap, setResourceMap] = createAtom<Record<string, string>>({})
 
-  both(getRecordingEvents(apiClient, recordingId, extra.encryptionKey))(
-    getResourceMap(apiClient, recordingId)
+  both(getRecordingInfo(apiClient, recordingId))(
+    both(getRecordingEvents(apiClient, recordingId, extra.encryptionKey))(
+      getResourceMap(apiClient, recordingId)
+    )
   ).pipe(
     fork(error => {
       logger.error(error)
       setReadyState('failed')
-    })(([events, resourceMap]) => {
-      setEvents(
-        new List(
-          SourceEventView,
-          events.map(buffer => new DataView(buffer))
-        )
+    })(([info, [events, resourceMap]]) => {
+      const sourceList = new List(SourceEventView, [])
+      setEvents(sourceList)
+
+      events.pipeTo(
+        new WritableStream({
+          write(buffer) {
+            sourceList.append(SourceEventView.over(new DataView(buffer)))
+          },
+        })
       )
+
+      setDuration(info.duration)
       setResourceMap(resourceMap)
       setReadyState('ready')
     })
@@ -78,6 +110,7 @@ export function createApiSource(
 
   return {
     $events,
+    $duration,
     $readyState,
     $resourceMap,
   }

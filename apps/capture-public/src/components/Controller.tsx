@@ -5,6 +5,7 @@ import {
   createSourcePlayback,
 } from '@repro/playback'
 import { useRecordingStream } from '@repro/recording'
+import { calculateDuration } from '@repro/source-utils'
 import { Block } from 'jsxstyle'
 import React, { useEffect, useState } from 'react'
 import { Subscription, asyncScheduler, defer, observeOn, of } from 'rxjs'
@@ -48,7 +49,9 @@ export const Controller: React.FC = () => {
           defer(() => of(stream.slice()))
             .pipe(observeOn(asyncScheduler))
             .subscribe(events => {
-              setPlayback(createSourcePlayback(events, {}))
+              setPlayback(
+                createSourcePlayback(events, calculateDuration(events), {})
+              )
             })
         )
         break
