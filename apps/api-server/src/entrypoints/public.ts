@@ -1,3 +1,4 @@
+import caching from '@fastify/caching'
 import compress from '@fastify/compress'
 import cors from '@fastify/cors'
 import fs from 'node:fs'
@@ -84,6 +85,11 @@ function bootstrap(routers: Record<string, FastifyPluginAsync>) {
   })
 
   app.register(compress)
+
+  app.register(caching, {
+    privacy: caching.privacy.PUBLIC,
+    expiresIn: 60 * 60 * 24 * 365,
+  })
 
   app.setValidatorCompiler(validatorCompiler)
   app.setSerializerCompiler(serializerCompiler)
