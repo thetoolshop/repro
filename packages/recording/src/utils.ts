@@ -30,7 +30,7 @@ export function sliceEventsAtRange(
               } else {
                 leadingEventBuffers.push(event)
               }
-            } else if (time > range[0] && time < range[1]) {
+            } else if (time > range[0] && time <= range[1]) {
               eventBuffers.push(copyDataView(event))
             }
           })

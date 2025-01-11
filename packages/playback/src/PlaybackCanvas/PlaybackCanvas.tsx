@@ -9,6 +9,8 @@ import React, {
   useRef,
   useState,
 } from 'react'
+import { asyncScheduler, combineLatest, observeOn } from 'rxjs'
+import { usePlayback } from '..'
 import { withPlaybackErrorBoundary } from '../PlaybackErrorBoundary'
 import { FullWidthViewport } from './FullWidthViewport'
 import { InteractionMask } from './InteractionMask'
@@ -40,9 +42,12 @@ export const PlaybackCanvas = withPlaybackErrorBoundary<
     onDocumentReady,
     onLoad,
   }) => {
+    const playback = usePlayback()
     const frameRef = useRef() as MutableRefObject<HTMLIFrameElement>
     const [ownerDocument, setOwnerDocument] = useState<Document | null>(null)
+
     const [loaded, setLoaded] = useState(false)
+    const [waitingForEvents, setWaitingForEvents] = useState(true)
 
     const handleLoad = useCallback(
       (nodeMap: MutableNodeMap) => {
@@ -68,6 +73,23 @@ export const PlaybackCanvas = withPlaybackErrorBoundary<
         onDocumentReady(contentDocument)
       }
     }, [frameRef, setOwnerDocument, onDocumentReady])
+
+    useEffect(() => {
+      const subscription = combineLatest([
+        playback.$elapsed,
+        playback.$latestEventTime,
+      ])
+        .pipe(observeOn(asyncScheduler))
+        .subscribe(([elapsed, latestEventTime]) => {
+          setWaitingForEvents(
+            elapsed < playback.getDuration() && elapsed > latestEventTime
+          )
+        })
+
+      return () => {
+        subscription.unsubscribe()
+      }
+    }, [playback, setWaitingForEvents])
 
     const viewportContents = (
       <React.Fragment>
@@ -99,7 +121,7 @@ export const PlaybackCanvas = withPlaybackErrorBoundary<
           ${colors.slate['100']} 20px
         )`}
       >
-        {!loaded && (
+        {(!loaded || waitingForEvents) && (
           <Row alignItems="center" justifyContent="center" height="100%">
             <FX.Spin height={24} color={colors.slate['500']}>
               <LoaderIcon size={24} />

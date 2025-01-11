@@ -55,6 +55,11 @@ export function createSourcePlayback(
   const [$latestControlFrame, setLatestControlFrame, getLatestControlFrame] =
     createAtom<ControlFrame>(ControlFrame.Idle)
 
+  const lastEvent = events.over(events.size() - 1)
+  const lastEventTime = lastEvent ? lastEvent.get('time').orElse(-1) : -1
+  const [$latestEventTime, setLatestEventTime, getLatestEventTime] =
+    createAtom(lastEventTime)
+
   const snapshotIndex: Array<number> = []
 
   function buildSnapshotIndex() {
@@ -183,21 +188,34 @@ export function createSourcePlayback(
   subscription.add(
     interval(100).subscribe(() => {
       if (currentSize < events.size()) {
-        queuedEvents.append(
-          ...events
-            .toSource()
-            .slice(currentSize)
-            .map(buffer => SourceEventView.over(buffer))
+        Stats.time(
+          'RecordingPlayback - append new events from source list',
+          () => {
+            queuedEvents.append(
+              ...events
+                .toSource()
+                .slice(currentSize)
+                .map(buffer => SourceEventView.over(buffer))
+            )
+
+            buildSnapshotIndex()
+
+            if (getSnapshot() === EMPTY_SNAPSHOT) {
+              setSnapshot(getLeadingSnapshot())
+              setLatestControlFrame(ControlFrame.Flush)
+            }
+
+            const lastEvent = queuedEvents.over(queuedEvents.size() - 1)
+
+            if (lastEvent) {
+              setLatestEventTime(
+                lastEvent.get('time').orElse(getLatestEventTime())
+              )
+            }
+
+            currentSize = events.size()
+          }
         )
-
-        buildSnapshotIndex()
-
-        if (getSnapshot() === EMPTY_SNAPSHOT) {
-          setSnapshot(getLeadingSnapshot())
-          setLatestControlFrame(ControlFrame.Flush)
-        }
-
-        currentSize = events.size()
       }
     })
   )
@@ -513,6 +531,7 @@ export function createSourcePlayback(
     $buffer,
     $elapsed,
     $latestControlFrame,
+    $latestEventTime,
     $playbackState,
     $snapshot,
 
@@ -525,6 +544,7 @@ export function createSourcePlayback(
     getEventTimeAtIndex,
     getEventTypeAtIndex,
     getLatestControlFrame,
+    getLatestEventTime,
     getPlaybackState,
     getResourceMap,
     getSnapshot,

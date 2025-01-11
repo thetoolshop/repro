@@ -20,6 +20,7 @@ export interface Playback {
   readonly $buffer: Atom<List<SourceEventView>>
   readonly $elapsed: Atom<number>
   readonly $latestControlFrame: Atom<ControlFrame>
+  readonly $latestEventTime: Atom<number>
   readonly $playbackState: Atom<PlaybackState>
   readonly $snapshot: Atom<Snapshot>
 
@@ -32,6 +33,7 @@ export interface Playback {
   getEventTimeAtIndex(index: number): number | null
   getEventTypeAtIndex(index: number): SourceEventType | null
   getLatestControlFrame(): ControlFrame
+  getLatestEventTime(): number
   getPlaybackState(): PlaybackState
   getResourceMap(): Record<string, string>
   getSnapshot(): Snapshot
@@ -57,5 +59,6 @@ export interface Source {
   $events: Atom<List<SourceEventView>>
   $duration: Atom<number>
   $readyState: Atom<ReadyState>
+  $error: Atom<Error | null>
   $resourceMap: Atom<Record<string, string>>
 }

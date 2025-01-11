@@ -1,5 +1,6 @@
 import { createAtom } from '@repro/atom'
 import { SourceEventView } from '@repro/domain'
+import { calculateDuration } from '@repro/source-utils'
 import { unpackListInto } from '@repro/std'
 import { List } from '@repro/tdl'
 import { ReadyState, Source } from './types'
@@ -12,6 +13,7 @@ export function createFixtureSource(fileName: string): Source {
   const [$events, setEvents] = createAtom(new List(SourceEventView, []))
   const [$duration, setDuration] = createAtom(0)
   const [$readyState, setReadyState] = createAtom<ReadyState>('waiting')
+  const [$error, setError] = createAtom<Error | null>(null)
   const [$resourceMap] = createAtom<Record<string, string>>({})
 
   request
@@ -19,25 +21,22 @@ export function createFixtureSource(fileName: string): Source {
       const list = new List(SourceEventView, [])
 
       unpackListInto(buffer, list)
+
+      setDuration(calculateDuration(list))
       setEvents(list)
-
-      const first = list.over(0)
-      const last = list.over(list.size() - 1)
-
-      if (first && last) {
-        setDuration(last.get('time').orElse(0) - first.get('time').orElse(0))
-      }
 
       setReadyState('ready')
     })
-    .catch(() => {
+    .catch(error => {
+      setError(error)
       setReadyState('failed')
     })
 
   return {
-    $readyState,
     $events,
     $duration,
+    $readyState,
+    $error,
     $resourceMap,
   }
 }

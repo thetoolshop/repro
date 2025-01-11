@@ -28,6 +28,8 @@ export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
   const [$elapsed, setElapsed, getElapsed] = createAtom(0)
   const [$latestControlFrame, setLatestControlFrame, getLatestControlFrame] =
     createAtom(ControlFrame.Idle)
+  const [$latestEventTime, setLatestEventTime, getLatestEventTime] =
+    createAtom(-1)
   const [$playbackState, _setPlaybackState, getPlaybackState] = createAtom(
     PlaybackState.Playing
   )
@@ -103,6 +105,7 @@ export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
       initialSnapshot$.subscribe(event => {
         event.apply(event => {
           const decoded = SnapshotEventView.decode(event)
+          setLatestEventTime(decoded.time)
           setSnapshot(decoded.data)
           leadingSnapshot = copyObject(decoded.data)
         })
@@ -130,6 +133,7 @@ export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
 
           setSnapshot(trailingSnapshot)
 
+          setLatestEventTime(elapsed)
           setElapsed(elapsed)
           setBuffer(new List(SourceEventView, [event]))
 
@@ -165,6 +169,7 @@ export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
     $buffer,
     $elapsed,
     $latestControlFrame,
+    $latestEventTime,
     $playbackState,
     $snapshot,
 
@@ -177,6 +182,7 @@ export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
     getEventTimeAtIndex,
     getEventTypeAtIndex,
     getLatestControlFrame,
+    getLatestEventTime,
     getPlaybackState,
     getResourceMap,
     getSnapshot,
