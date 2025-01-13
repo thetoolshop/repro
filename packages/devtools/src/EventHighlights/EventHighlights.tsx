@@ -1,3 +1,4 @@
+import { FX, colors } from '@repro/design'
 import {
   InteractionType,
   LogLevel,
@@ -7,10 +8,12 @@ import {
   SourceEventView,
 } from '@repro/domain'
 import { ElapsedMarker, usePlayback } from '@repro/playback'
-import { Grid } from 'jsxstyle'
+import { Grid, InlineBlock, Row } from 'jsxstyle'
+import { LoaderIcon } from 'lucide-react'
 import React, { Fragment, useEffect, useState } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList, ListChildComponentProps } from 'react-window'
+import { distinctUntilChanged } from 'rxjs'
 import { ConsoleEntry } from './ConsoleEntry'
 import { InteractionEntry } from './InteractionEntry'
 import { NetworkEntry } from './NetworkEntry'
@@ -39,24 +42,36 @@ function shouldIncludeEvent(event: SourceEvent) {
 export const EventHighlights: React.FC = () => {
   const playback = usePlayback()
   const [userEvents, setUserEvents] = useState<Array<[number, SourceEvent]>>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const allSourceEvents = playback.getSourceEvents().toSource()
-    const events: Array<[number, SourceEvent]> = []
+    const subscription = playback.$latestEventTime
+      .pipe(distinctUntilChanged())
+      .subscribe(latestEventTime => {
+        const duration = playback.getDuration()
 
-    for (let i = 0, len = allSourceEvents.length; i < len; i++) {
-      const dataView = allSourceEvents[i]
+        const allSourceEvents = playback.getSourceEvents().toSource()
+        const events: Array<[number, SourceEvent]> = []
 
-      if (dataView) {
-        const event = SourceEventView.over(dataView)
+        for (let i = 0, len = allSourceEvents.length; i < len; i++) {
+          const dataView = allSourceEvents[i]
 
-        if (shouldIncludeEvent(event)) {
-          events.push([i, event])
+          if (dataView) {
+            const event = SourceEventView.over(dataView)
+
+            if (shouldIncludeEvent(event)) {
+              events.push([i, event])
+            }
+          }
         }
-      }
-    }
 
-    setUserEvents(events)
+        setUserEvents(events)
+        setLoading(latestEventTime < duration)
+      })
+
+    return () => {
+      subscription.unsubscribe()
+    }
   }, [playback, setUserEvents])
 
   if (userEvents.length === 0) {
@@ -67,6 +82,23 @@ export const EventHighlights: React.FC = () => {
 
   return (
     <Fragment>
+      {loading && (
+        <Row
+          alignItems="center"
+          gap={5}
+          paddingBlock={10}
+          paddingInline={15}
+          borderTop={`1px solid ${colors.slate['200']}`}
+          backgroundColor={colors.slate['50']}
+        >
+          <FX.Spin>
+            <LoaderIcon size={16} />
+          </FX.Spin>
+
+          <InlineBlock fontSize={13}>Loading events...</InlineBlock>
+        </Row>
+      )}
+
       <ElapsedMarker
         prevIndex={-1}
         nextIndex={firstEvent?.[0] ?? Number.MAX_SAFE_INTEGER}

@@ -3,13 +3,13 @@ import { Card } from '@repro/design'
 import { DevTools } from '@repro/devtools'
 import { RecordingInfo } from '@repro/domain'
 import { useFuture } from '@repro/future-utils'
-import { createNullSource, PlaybackFromSourceProvider } from '@repro/playback'
-import { createApiSource } from '@repro/recording-api'
 import { Block, Grid } from 'jsxstyle'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { Loading } from './Loading'
+import { FullWidthLayout } from '~/components/FullWidthLayout'
+import { Loading } from '../components/Loading'
 import { RecordingError } from './RecordingError'
+import { RecordingLoader } from './RecordingLoader'
 import { Sidebar } from './Sidebar'
 
 export const RecordingRoute: React.FC = () => {
@@ -29,19 +29,11 @@ export const RecordingRoute: React.FC = () => {
     return apiClient.fetch<RecordingInfo>(`/recordings/${recordingId}/info`)
   }, [apiClient, recordingId])
 
-  const [source, setSource] = useState(createNullSource())
-
-  useEffect(() => {
-    if (recordingId && !loading && !error) {
-      setSource(createApiSource(recordingId, apiClient))
-    }
-  }, [error, loading, recordingId, apiClient, setSource])
-
   useEffect(() => {
     const originalTitle = document.title
 
     if (info) {
-      document.title = `${info.title} - Repro`
+      document.title = `Repro: ${info.title}`
     }
 
     return () => {
@@ -58,21 +50,23 @@ export const RecordingRoute: React.FC = () => {
   }
 
   return (
-    <PlaybackFromSourceProvider source={source}>
-      <Grid
-        gap={15}
-        height="calc(100vh - 90px)"
-        gridTemplateColumns="1fr 4fr"
-        gridTemplateRows="100%"
-      >
-        <Sidebar info={info} />
+    <FullWidthLayout>
+      <RecordingLoader>
+        <Grid
+          gap={15}
+          height="calc(100vh - 90px)"
+          gridTemplateRows="100%"
+          gridTemplateColumns="1fr 4fr"
+        >
+          <Sidebar info={info} />
 
-        <Card fullBleed height="100%">
-          <Block height="100%" overflow="hidden" borderRadius={4}>
-            <DevTools resourceBaseURL={resourceBaseURL} />
-          </Block>
-        </Card>
-      </Grid>
-    </PlaybackFromSourceProvider>
+          <Card fullBleed height="100%">
+            <Block height="100%" overflow="hidden" borderRadius={4}>
+              <DevTools resourceBaseURL={resourceBaseURL} />
+            </Block>
+          </Card>
+        </Grid>
+      </RecordingLoader>
+    </FullWidthLayout>
   )
 }

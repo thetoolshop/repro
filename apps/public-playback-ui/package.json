@@ -16,16 +16,19 @@
   "dependencies": {
     "@repro/api-client": "workspace:*",
     "@repro/atom": "workspace:*",
+    "@repro/date-utils": "workspace:*",
     "@repro/design": "workspace:*",
     "@repro/devtools": "workspace:*",
     "@repro/diagnostics": "workspace:*",
     "@repro/domain": "workspace:*",
     "@repro/encryption": "workspace:*",
+    "@repro/future-utils": "workspace:*",
     "@repro/logger": "workspace:*",
     "@repro/playback": "workspace:*",
     "@repro/recording-api": "workspace:*",
     "@repro/source-utils": "workspace:*",
     "@repro/std": "workspace:*",
+    "@repro/string-utils": "workspace:*",
     "@repro/tdl": "workspace:*",
     "@repro/theme": "workspace:*",
     "@repro/wire-formats": "workspace:*",
@@ -33,7 +36,9 @@
     "lucide-react": "^0.277.0",
     "prop-types": "^15.8.1",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-router": "^6.4.3",
+    "react-router-dom": "^6.4.3"
   },
   "devDependencies": {
     "@repro/testing-utils": "workspace:*",
