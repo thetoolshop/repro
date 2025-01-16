@@ -41,12 +41,13 @@ export const SimpleTimeline: React.FC<PropsWithChildren<Props>> = ({
 
     if (root) {
       const background = createBackgroundElement()
+      const buffer = createBufferElement()
       const ghost = createGhostElement()
       const progress = createProgressElement()
       const tooltip = createTooltipElement()
       const elapsedTime = elapsedTimeRef.current
 
-      root.append(background, ghost, progress, tooltip)
+      root.append(background, buffer, ghost, progress, tooltip)
 
       function getMinValue() {
         return min !== undefined ? min : 0
@@ -208,6 +209,14 @@ export const SimpleTimeline: React.FC<PropsWithChildren<Props>> = ({
       )
 
       subscription.add(
+        playback.$latestEventTime
+          .pipe(map(mapValueToOffset))
+          .subscribe(offset => {
+            updateBarOffset(buffer, offset)
+          })
+      )
+
+      subscription.add(
         playback.$elapsed
           .pipe(map(mapAbsoluteToRelativeValue))
           .subscribe(elapsed => {
@@ -314,11 +323,33 @@ function createBackgroundElement() {
   const elem = document.createElement('div')
 
   const styles = [
-    ['backgroundColor', colors.slate['200'] as string],
+    ['backgroundColor', colors.slate['100'] as string],
     ['cursor', 'pointer'],
     ['height', '100%'],
     ['pointerEvents', 'none'],
     ['position', 'relative'],
+    ['width', '100%'],
+  ] as const
+
+  for (const [key, value] of styles) {
+    elem.style[key] = value
+  }
+
+  return elem
+}
+
+function createBufferElement() {
+  const elem = document.createElement('div')
+
+  const styles = [
+    ['backgroundColor', colors.blue['100'] as string],
+    ['height', '100%'],
+    ['left', '0'],
+    ['pointerEvents', 'none'],
+    ['position', 'absolute'],
+    ['transform', 'scaleX(0)'],
+    ['transformOrigin', '0 0'],
+    ['top', '0'],
     ['width', '100%'],
   ] as const
 
@@ -355,7 +386,7 @@ function createGhostElement() {
   const elem = document.createElement('div')
 
   const styles = [
-    ['backgroundColor', colors.slate['300'] as string],
+    ['backgroundColor', colors.blue['200'] as string],
     ['height', '100%'],
     ['left', '0'],
     ['pointerEvents', 'none'],
