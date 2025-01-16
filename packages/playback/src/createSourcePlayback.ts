@@ -236,7 +236,9 @@ export function createSourcePlayback(
 
   subscription.add(
     eventLoop.subscribe(delta => {
-      setElapsed(elapsed => Math.min(duration, elapsed + delta))
+      setElapsed(elapsed =>
+        Math.min(getLatestEventTime(), duration, elapsed + delta)
+      )
     })
   )
 
@@ -433,6 +435,8 @@ export function createSourcePlayback(
 
   function seekToTime(elapsed: number) {
     Stats.time('RecordingPlayback#seekToTime: total', () => {
+      elapsed = Math.min(elapsed, getLatestEventTime())
+
       setBuffer(EMPTY_BUFFER)
       const allEvents = loadEvents()
       queuedEvents = allEvents
