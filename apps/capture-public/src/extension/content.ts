@@ -1,5 +1,6 @@
 import { createPTPAgent } from '@repro/messaging'
 import Future, { chain, resolve } from 'fluture'
+import browser from 'webextension-polyfill'
 import { createRuntimeAgent } from './createRuntimeAgent'
 
 let scriptElement: HTMLScriptElement | null = null
@@ -13,7 +14,7 @@ function addPageScript() {
       resolve(null)
     } else {
       scriptElement = document.createElement('script')
-      scriptElement.src = chrome.runtime.getURL('capture.js')
+      scriptElement.src = browser.runtime.getURL('capture.js')
       scriptElement.onerror = reject
       scriptElement.onload = resolve
 

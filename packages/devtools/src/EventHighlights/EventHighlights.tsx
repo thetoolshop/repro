@@ -74,6 +74,25 @@ export const EventHighlights: React.FC = () => {
     }
   }, [playback, setUserEvents])
 
+  if (loading) {
+    return (
+      <Row
+        alignItems="center"
+        gap={5}
+        paddingBlock={10}
+        paddingInline={15}
+        borderTop={`1px solid ${colors.slate['200']}`}
+        backgroundColor={colors.slate['50']}
+      >
+        <FX.Spin>
+          <LoaderIcon size={16} />
+        </FX.Spin>
+
+        <InlineBlock fontSize={13}>Loading events...</InlineBlock>
+      </Row>
+    )
+  }
+
   if (userEvents.length === 0) {
     return null
   }
@@ -82,23 +101,6 @@ export const EventHighlights: React.FC = () => {
 
   return (
     <Fragment>
-      {loading && (
-        <Row
-          alignItems="center"
-          gap={5}
-          paddingBlock={10}
-          paddingInline={15}
-          borderTop={`1px solid ${colors.slate['200']}`}
-          backgroundColor={colors.slate['50']}
-        >
-          <FX.Spin>
-            <LoaderIcon size={16} />
-          </FX.Spin>
-
-          <InlineBlock fontSize={13}>Loading events...</InlineBlock>
-        </Row>
-      )}
-
       <ElapsedMarker
         prevIndex={-1}
         nextIndex={firstEvent?.[0] ?? Number.MAX_SAFE_INTEGER}

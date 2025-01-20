@@ -7,14 +7,13 @@ import { fromByteString } from '@repro/wire-formats'
 import {
   FutureInstance,
   and,
-  attempt,
   attemptP,
   chain,
   fork,
   map,
-  node,
   resolve,
 } from 'fluture'
+import browser from 'webextension-polyfill'
 import z from 'zod'
 import { createRuntimeAgent } from './createRuntimeAgent'
 
@@ -80,7 +79,7 @@ agent.subscribeToIntent('upload:progress', (payload: UploadProgressPayload) => {
   )
 })
 
-chrome.runtime.onInstalled.addListener(() => {
+browser.runtime.onInstalled.addListener(() => {
   const source = isFirstRun().pipe(
     chain(firstRun =>
       firstRun ? setEnabledState(true) : resolve<void>(undefined)
@@ -92,13 +91,13 @@ chrome.runtime.onInstalled.addListener(() => {
   })
 })
 
-chrome.runtime.onStartup.addListener(() => {
+browser.runtime.onStartup.addListener(() => {
   return run(syncActionState(), () => {
     console.debug('LIFECYCLE: on-startup')
   })
 })
 
-chrome.action.onClicked.addListener(() => {
+browser.action.onClicked.addListener(() => {
   const source = toggleEnabledState()
     .pipe(chain(() => getActiveTabId()))
     .pipe(
@@ -112,13 +111,13 @@ chrome.action.onClicked.addListener(() => {
   })
 })
 
-chrome.tabs.onActivated.addListener(({ tabId }) => {
+browser.tabs.onActivated.addListener(({ tabId }) => {
   return run(syncTab(tabId), result => {
     console.debug('LIFECYCLE: on-activated', result)
   })
 })
 
-chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+browser.tabs.onUpdated.addListener((tabId, changeInfo) => {
   const actionState = syncActionState()
 
   const tab = resolve<boolean>(changeInfo.status === 'complete').pipe(
@@ -139,12 +138,14 @@ function syncActionState(): FutureInstance<unknown, void> {
 }
 
 function getActiveTabId(): FutureInstance<unknown, number | null> {
-  return node(done => {
-    chrome.tabs.query({ active: true, lastFocusedWindow: true }, result => {
-      const activeTabId = result[0]?.id
-      done(null, activeTabId ?? null)
-    })
-  })
+  return attemptP(() =>
+    browser.tabs
+      .query({ active: true, lastFocusedWindow: true })
+      .then(result => {
+        const activeTabId = result[0]?.id
+        return activeTabId ?? null
+      })
+  )
 }
 
 function syncTab(tabId: number) {
@@ -162,11 +163,11 @@ function disableInTab(tabId: number) {
 }
 
 function isEnabled(): FutureInstance<unknown, boolean> {
-  return node(done => {
-    chrome.storage.local.get([StorageKeys.ENABLED], result => {
-      done(null, result[StorageKeys.ENABLED] || false)
+  return attemptP(() =>
+    browser.storage.local.get([StorageKeys.ENABLED]).then(result => {
+      return !!result[StorageKeys.ENABLED]
     })
-  })
+  )
 }
 
 function toggleEnabledState() {
@@ -175,23 +176,23 @@ function toggleEnabledState() {
 
 function setEnabledState(enabled: boolean) {
   return attemptP(() =>
-    chrome.storage.local.set({
+    browser.storage.local.set({
       [StorageKeys.ENABLED]: enabled,
     })
   ).pipe(chain(() => (enabled ? showActiveIcon() : showInactiveIcon())))
 }
 
 function isFirstRun(): FutureInstance<unknown, boolean> {
-  return node(done => {
-    chrome.storage.local.get([StorageKeys.ENABLED], result => {
-      done(null, result[StorageKeys.ENABLED] === undefined)
+  return attemptP(() =>
+    browser.storage.local.get([StorageKeys.ENABLED]).then(result => {
+      return result[StorageKeys.ENABLED] === undefined
     })
-  })
+  )
 }
 
 function showActiveIcon(): FutureInstance<unknown, void> {
-  return attempt(() =>
-    chrome.action.setIcon({
+  return attemptP(() =>
+    browser.action.setIcon({
       path: {
         128: 'logo-128.png',
         48: 'logo-48.png',
@@ -203,8 +204,8 @@ function showActiveIcon(): FutureInstance<unknown, void> {
 }
 
 function showInactiveIcon(): FutureInstance<unknown, void> {
-  return attempt(() =>
-    chrome.action.setIcon({
+  return attemptP(() =>
+    browser.action.setIcon({
       path: {
         128: 'logo-inactive-128.png',
         48: 'logo-inactive-48.png',

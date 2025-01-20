@@ -1,6 +1,7 @@
 import { logger } from '@repro/logger'
 import { Agent, Intent, Resolver, Unsubscribe } from '@repro/messaging'
 import Future, { FutureInstance, fork } from 'fluture'
+import browser, { Events, Runtime } from 'webextension-polyfill'
 
 interface RuntimeOptions {
   target?: number
@@ -18,8 +19,20 @@ interface ErrorMessage {
 
 type Message = ResponseMessage | ErrorMessage
 
+type MessagingRuntime = Omit<Runtime.Static, 'onMessage'> & {
+  onMessage: Events.Event<
+    (
+      intent: Intent<any>,
+      sender: Runtime.MessageSender,
+      sendResponse: (message: Message) => void
+    ) => true | undefined
+  >
+}
+
+const runtime = browser.runtime as MessagingRuntime
+
 function isSupportedURL(url: string | undefined) {
-  return url !== undefined && !url.startsWith('chrome://')
+  return url !== undefined && !url.startsWith('browser://')
 }
 
 export function createRuntimeAgent(): Agent {
@@ -27,7 +40,7 @@ export function createRuntimeAgent(): Agent {
 
   function onMessage(
     intent: Intent<any>,
-    _sender: chrome.runtime.MessageSender,
+    _sender: Runtime.MessageSender,
     sendResponse: (message: Message) => void
   ) {
     const resolver = resolvers.get(intent.type)
@@ -54,7 +67,7 @@ export function createRuntimeAgent(): Agent {
     return undefined
   }
 
-  chrome.runtime.onMessage.addListener(onMessage)
+  runtime.onMessage.addListener(onMessage)
 
   function raiseIntent<R, P = any>(
     intent: Intent<P>,
@@ -62,14 +75,14 @@ export function createRuntimeAgent(): Agent {
   ): FutureInstance<Error, R> {
     return Future((reject, resolve) => {
       function callback(message: Message) {
-        if (chrome.runtime.lastError) {
+        if (runtime.lastError) {
           logger.debug('Runtime error when raising intent', {
-            error: chrome.runtime.lastError,
+            error: runtime.lastError,
             intent,
             options,
           })
 
-          reject(new Error(chrome.runtime.lastError?.message))
+          reject(new Error(runtime.lastError?.message))
         } else {
           if (message.type === 'response') {
             resolve(message.response)
@@ -82,13 +95,19 @@ export function createRuntimeAgent(): Agent {
       if (options?.target !== undefined) {
         const tabId = options.target
 
-        chrome.tabs.get(tabId, tab => {
+        browser.tabs.get(tabId).then(tab => {
           if (isSupportedURL(tab.url)) {
-            chrome.tabs.sendMessage(tabId, intent, callback)
+            browser.tabs
+              .sendMessage<Intent<P>, Message>(tabId, intent)
+              .then(callback)
+              .catch(reject)
           }
         })
       } else {
-        chrome.runtime.sendMessage(intent, callback)
+        runtime
+          .sendMessage<Intent<P>, Message>(intent)
+          .then(callback)
+          .catch(reject)
       }
 
       return () => {

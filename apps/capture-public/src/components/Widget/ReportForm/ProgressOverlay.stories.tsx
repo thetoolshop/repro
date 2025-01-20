@@ -52,6 +52,7 @@ export const Example: Story<{
       progress={{
         ref: 'foo',
         recordingId,
+        encryptionKey: null,
         completed,
         error: error ? new Error(error) : null,
         stages: {
