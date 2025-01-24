@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@dotenvx/dotenvx": "^1.14.0",
+    "node-gyp-build": "^4.8.4",
     "nx": "15.9.2",
     "pm2": "^5.3.1"
   },
