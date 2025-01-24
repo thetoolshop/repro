@@ -6,9 +6,7 @@
   "scripts": {},
   "license": "UNLICENSED",
   "devDependencies": {
-    "@types/trusted-types": "^2.0.2",
-    "nx": "15.9.2",
-    "pm2": "^5.3.1"
+    "@types/trusted-types": "^2.0.2"
   },
   "pnpm": {
     "overrides": {
@@ -24,7 +22,9 @@
     }
   },
   "dependencies": {
-    "@dotenvx/dotenvx": "^1.14.0"
+    "@dotenvx/dotenvx": "^1.14.0",
+    "nx": "15.9.2",
+    "pm2": "^5.3.1"
   },
   "engines": {
     "node": "^22",
