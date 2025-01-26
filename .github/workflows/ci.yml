@@ -1,7 +1,7 @@
-name: Typecheck all packages
+name: Build, lint and test
 on: workflow_dispatch
 jobs:
-  typecheck:
+  run-all:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -13,5 +13,8 @@ jobs:
           version: 8
           run_install: true
 
-      - name: Run typecheck on all packages
+      - name: Build all
+        run: pnpm nx run-many -t build
+
+      - name: Typecheck all
         run: pnpm nx run-many -t typecheck
