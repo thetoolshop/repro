@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "prepare": "./scripts/prepare-npm-forks.sh"
+  },
   "license": "UNLICENSED",
   "devDependencies": {
     "@types/trusted-types": "^2.0.2"
