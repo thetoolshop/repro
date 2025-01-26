@@ -4,13 +4,13 @@ jobs:
   typecheck:
     runs-on: ubuntu-latest
     steps:
-      name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      name: Setup PNPM
-      uses: pnpm/action-setup@v4
-      with:
-        version: 8
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
 
-      name: Run typecheck on all packages
-      run: pnpm nx run-many -t typecheck
+      - name: Run typecheck on all packages
+        run: pnpm nx run-many -t typecheck
