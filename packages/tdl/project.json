@@ -9,5 +9,6 @@
       "inputs": ["{projectRoot}/src/cli/grammar.ohm"],
       "outputs": ["{projectRoot}/src/cli/grammar.ohm-bundle.*"]
     }
-  }
+  },
+  "tags": ["type:package"]
 }

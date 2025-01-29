@@ -1,12 +1,11 @@
 {
-  "tasksRunnerOptions": {
-    "default": {
-      "runner": "nx/tasks-runners/default",
-      "options": {
-        "cacheableOperations": ["build"],
-        "cacheDirectory": ".nx-cache"
-      }
+  "defaultBase": "main",
+  "cacheDirectory": ".nx-cache",
+  "targetDefaults": {
+    "build": {
+      "cache": true
     }
   },
-  "defaultBase": "main"
+  "useInferencePlugins": false,
+  "useLegacyCache": true
 }

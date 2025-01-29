@@ -10,5 +10,6 @@
       "outputs": ["{projectRoot}/src/generated/**/*"],
       "dependsOn": ["^build"]
     }
-  }
+  },
+  "tags": ["type:package"]
 }

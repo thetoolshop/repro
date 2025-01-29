@@ -8,3 +8,6 @@ certs
 
 # ENVIRONMENT
 .env.keys
+
+.nx/cache
+.nx/workspace-data
