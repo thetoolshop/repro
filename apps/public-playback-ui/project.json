@@ -17,5 +17,6 @@
       },
       "dependsOn": ["^build"]
     }
-  }
+  },
+  "tags": ["type:app"]
 }

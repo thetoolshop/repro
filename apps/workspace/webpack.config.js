@@ -54,14 +54,15 @@ module.exports = {
   },
 
   plugins: [
-    new EnvironmentPlugin([
-      'AUTH_STORAGE',
-      'BUILD_ENV',
-      'MIXPANEL_API_URL',
-      'MIXPANEL_TOKEN',
-      'REPRO_API_URL',
-      'REPRO_APP_URL',
-    ]),
+    new EnvironmentPlugin({
+      AUTH_STORAGE: 'memory',
+      BUILD_ENV: 'production',
+      MIXPANEL_API_URL: '',
+      MIXPANEL_TOKEN: '',
+      REPRO_API_URL: 'http://localhost:8181',
+      REPRO_APP_URL: 'http://localhost:8080',
+      STATS_LEVEL: 'debug'
+    }),
 
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, 'src/templates/index.html'),

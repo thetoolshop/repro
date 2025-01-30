@@ -54,13 +54,13 @@ module.exports = {
   },
 
   plugins: [
-    new EnvironmentPlugin([
-      'AUTH_STORAGE',
-      'BUILD_ENV',
-      'REPRO_ADMIN_URL',
-      'REPRO_API_URL',
-      'REPRO_WORKSPACE_URL',
-    ]),
+    new EnvironmentPlugin({
+      AUTH_STORAGE: 'local-storage',
+      BUILD_ENV: 'production',
+      REPRO_WORKSPACE_URL: 'http://localhost:8080',
+      REPRO_ADMIN_URL: 'http://localhost:8081',
+      REPRO_API_URL: 'http://localhost:8182'
+    }),
 
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, 'src/templates/index.html'),

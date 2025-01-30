@@ -54,12 +54,12 @@ module.exports = {
   },
 
   plugins: [
-    new EnvironmentPlugin([
-      'BUILD_ENV',
-      'STATS_LEVEL',
-      'AUTH_STORAGE',
-      'REPRO_API_URL',
-    ]),
+    new EnvironmentPlugin({
+      BUILD_ENV: 'production',
+      STATS_LEVEL: 'debug',
+      AUTH_STORAGE: 'memory',
+      REPRO_API_URL: 'http://localhost:8181'
+    }),
 
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, 'src/templates/index.html'),
@@ -70,7 +70,7 @@ module.exports = {
 
   devServer: {
     port: process.env.PORT || 8080,
-    allowedHosts: ['share.repro.test', 'localhost:8082'],
+    allowedHosts: ['app.repro.test', 'localhost:8080'],
     historyApiFallback: true,
     static: path.resolve(__dirname, 'dist'),
   },

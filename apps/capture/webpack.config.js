@@ -48,15 +48,15 @@ module.exports = {
   },
 
   plugins: [
-    new EnvironmentPlugin([
-      'AUTH_STORAGE',
-      'BUILD_ENV',
-      'MIXPANEL_API_URL',
-      'MIXPANEL_TOKEN',
-      'REPRO_APP_URL',
-      'REPRO_API_URL',
-      'STATS_LEVEL',
-    ]),
+    new EnvironmentPlugin({
+      BUILD_ENV: 'production',
+      MIXPANEL_API_URL: '',
+      MIXPANEL_TOKEN: '',
+      REPRO_APP_URL: 'http://localhost:8080',
+      REPRO_API_URL: 'http://localhost:8181',
+      AUTH_STORAGE: 'memory',
+      STATS_LEVEL: 'debug'
+    }),
   ],
 
   devtool: process.env.BUILD_ENV === 'development' ? 'source-map' : false,

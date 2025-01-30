@@ -63,7 +63,11 @@ module.exports = {
       __BUILD_VERSION__: JSON.stringify(commitHash),
     }),
 
-    new EnvironmentPlugin(['BUILD_ENV', 'MODE', 'STATS_LEVEL']),
+    new EnvironmentPlugin({
+      BUILD_ENV: 'production',
+      MODE: 'extension',
+      STATS_LEVEL: 'debug'
+    }),
   ],
 
   devtool: process.env.BUILD_ENV === 'development' ? 'source-map' : false,

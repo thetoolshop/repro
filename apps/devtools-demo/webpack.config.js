@@ -54,7 +54,10 @@ module.exports = {
   },
 
   plugins: [
-    new EnvironmentPlugin(['BUILD_ENV', 'STATS_LEVEL']),
+    new EnvironmentPlugin({
+      BUILD_ENV: 'production',
+      STATS_LEVEL: 'debug'
+    }),
 
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, 'src/templates/index.html'),

@@ -11,13 +11,27 @@ jobs:
         uses: pnpm/action-setup@v4
         with:
           version: 8
-          run_install: true
+          run_install: false
 
-      - name: Build packages
-        run: pnpm nx run-many -t build --projects=packages/*
+      - name: Setup Node.js with caching
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
 
-      - name: Build workspace app
-        run: pnpm dotenvx -f apps/workspace/.env.ci -- nx run @repro/workspace:build
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Get Nx cache
+        uses: actions/cache@v3
+        with:
+          path: .nx-cache
+          key: ${{ runner.os }}-nx-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-nx-
+
+      - name: Build all packages and apps
+        run: pnpm nx run-many -t build
 
       - name: Typecheck all
         run: pnpm nx run-many -t typecheck
