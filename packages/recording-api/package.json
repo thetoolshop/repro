@@ -23,7 +23,8 @@
     "@repro/vdom-utils": "workspace:*",
     "@repro/wire-formats": "workspace:*",
     "fflate": "^0.7.3",
-    "fluture": "^14.0.0"
+    "fluture": "^14.0.0",
+    "web-streams-polyfill": "^4.1.0"
   },
   "devDependencies": {
     "@types/jest": "^28.1.7",

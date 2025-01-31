@@ -91,16 +91,20 @@ export function createProjectRouter(
         })
       )
     })
+   
+    const createProjectSchema = {
+      body: z.object({
+        name: z.string(),
+      }),
+    } as const
 
-    app.post(
+    app.post<{
+      Body: z.infer<typeof createProjectSchema.body>
+    }>(
       '/',
 
       {
-        schema: {
-          body: z.object({
-            name: z.string(),
-          }),
-        },
+        schema: createProjectSchema,
       },
 
       (req, res) => {
@@ -133,15 +137,19 @@ export function createProjectRouter(
       }
     )
 
-    app.get(
+    const projectIdSchema = {
+      params: z.object({
+        projectId: z.string(),
+      }),
+    } as const
+
+    app.get<{
+      Params: z.infer<typeof projectIdSchema.params>
+    }>(
       '/:projectId',
 
       {
-        schema: {
-          params: z.object({
-            projectId: z.string(),
-          }),
-        },
+        schema: projectIdSchema,
       },
 
       (req, res) => {
@@ -157,18 +165,23 @@ export function createProjectRouter(
       }
     )
 
-    app.put(
+    const updateProjectActiveSchema = {
+      body: z.object({
+        active: z.boolean(),
+      }),
+      params: z.object({
+        projectId: z.string(),
+      }),
+    } as const
+
+    app.put<{
+      Body: z.infer<typeof updateProjectActiveSchema.body>
+      Params: z.infer<typeof updateProjectActiveSchema.params>
+    }>(
       '/:projectId/active',
 
       {
-        schema: {
-          body: z.object({
-            active: z.boolean(),
-          }),
-          params: z.object({
-            projectId: z.string(),
-          }),
-        },
+        schema: updateProjectActiveSchema,
       },
 
       (req, res) => {
@@ -191,19 +204,23 @@ export function createProjectRouter(
       }
     )
 
-    app.put(
+    const updateProjectNameSchema = {
+      body: z.object({
+        name: z.string(),
+      }),
+      params: z.object({
+        projectId: z.string(),
+      }),
+    } as const
+
+    app.put<{
+      Body: z.infer<typeof updateProjectNameSchema.body>
+      Params: z.infer<typeof updateProjectNameSchema.params>
+    }>(
       '/:projectId/name',
 
       {
-        schema: {
-          params: z.object({
-            projectId: z.string(),
-          }),
-
-          body: z.object({
-            name: z.string(),
-          }),
-        },
+        schema: updateProjectNameSchema,
       },
 
       (req, res) => {
@@ -222,15 +239,19 @@ export function createProjectRouter(
       }
     )
 
-    app.get(
+    const projectMembersSchema = {
+      params: z.object({
+        projectId: z.string(),
+      }),
+    } as const
+
+    app.get<{
+      Params: z.infer<typeof projectMembersSchema.params>
+    }>(
       '/:projectId/members',
 
       {
-        schema: {
-          params: z.object({
-            projectId: z.string(),
-          }),
-        },
+        schema: projectMembersSchema,
       },
 
       (req, res) => {
@@ -257,19 +278,24 @@ export function createProjectRouter(
       }
     )
 
-    app.post(
-      '/:projectId/members',
-      {
-        schema: {
-          params: z.object({
-            projectId: z.string(),
-          }),
+    const addProjectMemberSchema = {
+      body: z.object({
+        userId: z.string(),
+        role: z.nativeEnum(ProjectRole),
+      }),
+      params: z.object({
+        projectId: z.string(),
+      }),
+    } as const
 
-          body: z.object({
-            userId: z.string(),
-            role: z.nativeEnum(ProjectRole),
-          }),
-        },
+    app.post<{
+      Body: z.infer<typeof addProjectMemberSchema.body>
+      Params: z.infer<typeof addProjectMemberSchema.params>
+    }>(
+      '/:projectId/members',
+
+      {
+        schema: addProjectMemberSchema,
       },
 
       (req, res) => {
@@ -305,16 +331,20 @@ export function createProjectRouter(
       }
     )
 
-    app.get(
+    const projectMemberSchema = {
+      params: z.object({
+        projectId: z.string(),
+        userId: z.string(),
+      }),
+    } as const
+
+    app.get<{
+      Params: z.infer<typeof projectMemberSchema.params>
+    }>(
       '/:projectId/members/:userId',
 
       {
-        schema: {
-          params: z.object({
-            projectId: z.string(),
-            userId: z.string(),
-          }),
-        },
+        schema: projectMemberSchema,
       },
 
       (req, res) => {
@@ -340,16 +370,20 @@ export function createProjectRouter(
       }
     )
 
-    app.delete(
+    const removeProjectMemberSchema = {
+      params: z.object({
+        projectId: z.string(),
+        userId: z.string(),
+      }),
+    } as const
+
+    app.delete<{
+      Params: z.infer<typeof removeProjectMemberSchema.params>
+    }>(
       '/:projectId/members/:userId',
 
       {
-        schema: {
-          params: z.object({
-            projectId: z.string(),
-            userId: z.string(),
-          }),
-        },
+        schema: removeProjectMemberSchema,
       },
 
       (req, res) => {
@@ -374,19 +408,24 @@ export function createProjectRouter(
       }
     )
 
-    app.put(
+    const updateProjectMemberRoleSchema = {
+      body: z.object({
+        role: z.nativeEnum(ProjectRole),
+      }),
+      params: z.object({
+        projectId: z.string(),
+        userId: z.string(),
+      }),
+    } as const
+
+    app.put<{
+      Body: z.infer<typeof updateProjectMemberRoleSchema.body>
+      Params: z.infer<typeof updateProjectMemberRoleSchema.params>
+    }>(
       '/:projectId/members/:userId/role',
 
       {
-        schema: {
-          params: z.object({
-            projectId: z.string(),
-            userId: z.string(),
-          }),
-          body: z.object({
-            role: z.nativeEnum(ProjectRole),
-          }),
-        },
+        schema: updateProjectMemberRoleSchema,
       },
 
       (req, res) => {
@@ -417,15 +456,19 @@ export function createProjectRouter(
       }
     )
 
-    app.get(
+    const projectRecordingsSchema = {
+      params: z.object({
+        projectId: z.string(),
+      }),
+    } as const
+
+    app.get<{
+      Params: z.infer<typeof projectRecordingsSchema.params>
+    }>(
       '/:projectId/recordings',
 
       {
-        schema: {
-          params: z.object({
-            projectId: z.string(),
-          }),
-        },
+        schema: projectRecordingsSchema,
       },
 
       (req, res) => {
@@ -441,16 +484,20 @@ export function createProjectRouter(
       }
     )
 
-    app.get(
+    const projectRecordingInfoSchema = {
+      params: z.object({
+        projectId: z.string(),
+        recordingId: z.string(),
+      }),
+    } as const
+
+    app.get<{
+      Params: z.infer<typeof projectRecordingInfoSchema.params>
+    }>(
       '/:projectId/recordings/:recordingId/info',
 
       {
-        schema: {
-          params: z.object({
-            projectId: z.string(),
-            recordingId: z.string(),
-          }),
-        },
+        schema: projectRecordingInfoSchema,
       },
 
       (req, res) => {
@@ -467,26 +514,30 @@ export function createProjectRouter(
       }
     )
 
-    app.post(
+    const createProjectRecordingSchema = {
+      body: z.object({
+        title: z.string(),
+        url: z.string().url(),
+        description: z.string(),
+        mode: z.nativeEnum(RecordingMode),
+        duration: z.number(),
+        browserName: z.string().nullable(),
+        browserVersion: z.string().nullable(),
+        operatingSystem: z.string().nullable(),
+      }),
+      params: z.object({
+        projectId: z.string(),
+      }),
+    } as const
+
+    app.post<{
+      Body: z.infer<typeof createProjectRecordingSchema.body>
+      Params: z.infer<typeof createProjectRecordingSchema.params>
+    }>(
       '/:projectId/recordings',
 
       {
-        schema: {
-          params: z.object({
-            projectId: z.string(),
-          }),
-
-          body: z.object({
-            title: z.string(),
-            url: z.string().url(),
-            description: z.string(),
-            mode: z.nativeEnum(RecordingMode),
-            duration: z.number(),
-            browserName: z.string().nullable(),
-            browserVersion: z.string().nullable(),
-            operatingSystem: z.string().nullable(),
-          }),
-        },
+        schema: createProjectRecordingSchema,
       },
 
       (req, res) => {
@@ -513,16 +564,20 @@ export function createProjectRouter(
       }
     )
 
-    app.get(
+    const projectRecordingDataSchema = {
+      params: z.object({
+        projectId: z.string(),
+        recordingId: z.string(),
+      }),
+    } as const
+
+    app.get<{
+      Params: z.infer<typeof projectRecordingDataSchema.params>
+    }>(
       '/:projectId/recordings/:recordingId/data',
 
       {
-        schema: {
-          params: z.object({
-            projectId: z.string(),
-            recordingId: z.string(),
-          }),
-        },
+        schema: projectRecordingDataSchema,
       },
 
       (req, res) => {
@@ -539,16 +594,20 @@ export function createProjectRouter(
       }
     )
 
-    app.put(
+    const updateProjectRecordingDataSchema = {
+      params: z.object({
+        projectId: z.string(),
+        recordingId: z.string(),
+      }),
+    } as const
+
+    app.put<{
+      Params: z.infer<typeof updateProjectRecordingDataSchema.params>
+    }>(
       '/:projectId/recordings/:recordingId/data',
 
       {
-        schema: {
-          params: z.object({
-            projectId: z.string(),
-            recordingId: z.string(),
-          }),
-        },
+        schema: updateProjectRecordingDataSchema,
       },
 
       (req, res) => {
@@ -568,17 +627,21 @@ export function createProjectRouter(
       }
     )
 
-    app.get(
+    const projectRecordingResourceSchema = {
+      params: z.object({
+        projectId: z.string(),
+        recordingId: z.string(),
+        resourceId: z.string(),
+      }),
+    } as const
+
+    app.get<{
+      Params: z.infer<typeof projectRecordingResourceSchema.params>
+    }>(
       '/:projectId/recordings/:recordingId/resources/:resourceId',
 
       {
-        schema: {
-          params: z.object({
-            projectId: z.string(),
-            recordingId: z.string(),
-            resourceId: z.string(),
-          }),
-        },
+        schema: projectRecordingResourceSchema,
       },
 
       (req, res) => {
@@ -599,17 +662,21 @@ export function createProjectRouter(
       }
     )
 
-    app.put(
+    const updateProjectRecordingResourceSchema = {
+      params: z.object({
+        projectId: z.string(),
+        recordingId: z.string(),
+        resourceId: z.string(),
+      }),
+    } as const
+
+    app.put<{
+      Params: z.infer<typeof updateProjectRecordingResourceSchema.params>
+    }>(
       '/:projectId/recordings/:recordingId/resources/:resourceId',
 
       {
-        schema: {
-          params: z.object({
-            projectId: z.string(),
-            recordingId: z.string(),
-            resourceId: z.string(),
-          }),
-        },
+        schema: updateProjectRecordingResourceSchema,
       },
 
       (req, res) => {
@@ -630,16 +697,20 @@ export function createProjectRouter(
       }
     )
 
-    app.get(
+    const projectRecordingResourceMapSchema = {
+      params: z.object({
+        projectId: z.string(),
+        recordingId: z.string(),
+      }),
+    } as const
+
+    app.get<{
+      Params: z.infer<typeof projectRecordingResourceMapSchema.params>
+    }>(
       '/:projectId/recordings/:recordingId/resource-map',
 
       {
-        schema: {
-          params: z.object({
-            projectId: z.string(),
-            recordingId: z.string(),
-          }),
-        },
+        schema: projectRecordingResourceMapSchema,
       },
 
       (req, res) => {
@@ -656,18 +727,22 @@ export function createProjectRouter(
       }
     )
 
-    app.put(
+    const updateProjectRecordingResourceMapSchema = {
+      body: z.record(z.string()),
+      params: z.object({
+        projectId: z.string(),
+        recordingId: z.string(),
+      }),
+    } as const
+
+    app.put<{
+      Body: z.infer<typeof updateProjectRecordingResourceMapSchema.body>
+      Params: z.infer<typeof updateProjectRecordingResourceMapSchema.params>
+    }>(
       '/:projectId/recordings/:recordingId/resource-map',
 
       {
-        schema: {
-          params: z.object({
-            projectId: z.string(),
-            recordingId: z.string(),
-          }),
-
-          body: z.record(z.string()),
-        },
+        schema: updateProjectRecordingResourceMapSchema,
       },
 
       (req, res) => {

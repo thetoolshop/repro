@@ -10,7 +10,8 @@
   },
   "license": "UNLICENSED",
   "dependencies": {
-    "@repro/tdl": "workspace:*"
+    "@repro/tdl": "workspace:*",
+    "web-streams-polyfill": "^4.1.0"
   },
   "devDependencies": {
     "@repro/testing-utils": "workspace:*",

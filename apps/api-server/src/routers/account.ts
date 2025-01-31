@@ -18,6 +18,44 @@ import { AccountService } from '~/services/account'
 import { isNotFound, notAuthenticated, resourceConflict } from '~/utils/errors'
 import { createResponseUtils } from '~/utils/response'
 
+const registerSchema = {
+  body: z.object({
+    accountName: z.string(),
+    userName: z.string(),
+    email: z.string().email(),
+    password: z.string(),
+  }),
+} as const
+
+const inviteSchema = {
+  body: z.object({
+    email: z.string().email(),
+  }),
+} as const
+
+const acceptInvitationSchema = {
+  body: z.object({
+    invitationToken: z.string(),
+    name: z.string(),
+    email: z.string().email(),
+    password: z.string(),
+  }),
+} as const
+
+const loginSchema = {
+  body: z.object({
+    email: z.string().email(),
+    password: z.string(),
+  }),
+} as const
+
+const verifySchema = {
+  body: z.object({
+    verificationToken: z.string(),
+    email: z.string().email(),
+  }),
+} as const
+
 export function createAccountRouter(
   accountService: AccountService,
   config = defaultSystemConfig
@@ -37,20 +75,13 @@ export function createAccountRouter(
   return async function (fastify) {
     const app = fastify.withTypeProvider<ZodTypeProvider>()
 
-    app.post(
+    app.post<{
+      Body: z.infer<typeof registerSchema.body>
+    }>(
       '/register',
-
       {
-        schema: {
-          body: z.object({
-            accountName: z.string(),
-            userName: z.string(),
-            email: z.string().email(),
-            password: z.string(),
-          }),
-        },
+        schema: registerSchema,
       },
-
       (req, res) => {
         respondWith(
           res,
@@ -78,17 +109,13 @@ export function createAccountRouter(
       }
     )
 
-    app.post(
+    app.post<{
+      Body: z.infer<typeof inviteSchema.body>
+    }>(
       '/invite',
-
       {
-        schema: {
-          body: z.object({
-            email: z.string().email(),
-          }),
-        },
+        schema: inviteSchema,
       },
-
       (req, res) => {
         const currentUser = req.getCurrentUser()
 
@@ -134,20 +161,13 @@ export function createAccountRouter(
       }
     )
 
-    app.post(
+    app.post<{
+      Body: z.infer<typeof acceptInvitationSchema.body>
+    }>(
       '/accept-invitation',
-
       {
-        schema: {
-          body: z.object({
-            invitationToken: z.string(),
-            name: z.string(),
-            email: z.string().email(),
-            password: z.string(),
-          }),
-        },
+        schema: acceptInvitationSchema,
       },
-
       (req, res) => {
         const { invitationToken, name, email, password } = req.body
 
@@ -170,18 +190,13 @@ export function createAccountRouter(
       }
     )
 
-    app.post(
+    app.post<{
+      Body: z.infer<typeof loginSchema.body>
+    }>(
       '/login',
-
       {
-        schema: {
-          body: z.object({
-            email: z.string().email(),
-            password: z.string(),
-          }),
-        },
+        schema: loginSchema,
       },
-
       (req, res) => {
         respondWith(
           res,
@@ -199,18 +214,13 @@ export function createAccountRouter(
       respondWith(res, req.revokeSession())
     })
 
-    app.post(
+    app.post<{
+      Body: z.infer<typeof verifySchema.body>
+    }>(
       '/verify',
-
       {
-        schema: {
-          body: z.object({
-            verificationToken: z.string(),
-            email: z.string().email(),
-          }),
-        },
+        schema: verifySchema,
       },
-
       (req, res) => {
         const ensureCurrentUserMatchesEmail = req
           .getCurrentUser()

@@ -8,6 +8,13 @@ import { AccountService } from '~/services/account'
 import { isNotFound, notAuthenticated } from '~/utils/errors'
 import { createResponseUtils } from '~/utils/response'
 
+const loginSchema = {
+  body: z.object({
+    email: z.string().email(),
+    password: z.string(),
+  }),
+} as const
+
 export function createStaffRouter(
   accountService: AccountService,
   config = defaultSystemConfig
@@ -17,18 +24,13 @@ export function createStaffRouter(
   return async function (fastify) {
     const app = fastify.withTypeProvider<ZodTypeProvider>()
 
-    app.post(
+    app.post<{
+      Body: z.infer<typeof loginSchema.body>
+    }>(
       '/login',
-
       {
-        schema: {
-          body: z.object({
-            email: z.string().email(),
-            password: z.string(),
-          }),
-        },
+        schema: loginSchema,
       },
-
       (req, res) => {
         respondWith(
           res,

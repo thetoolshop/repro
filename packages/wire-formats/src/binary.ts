@@ -1,3 +1,4 @@
+import { ReadableStream } from 'web-streams-polyfill'
 import { BufferListView } from './generated/buffer-list'
 
 export function toBinaryWireFormat(items: Array<DataView>) {

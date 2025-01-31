@@ -10,6 +10,39 @@ import type { RecordingService } from '~/services/recording'
 import { isPermissionDenied, notFound } from '~/utils/errors'
 import { createResponseUtils } from '~/utils/response'
 
+const recordingIdSchema = {
+  params: z.object({
+    recordingId: z.string(),
+  }),
+} as const
+
+const recordingResourceSchema = {
+  params: z.object({
+    recordingId: z.string(),
+    resourceId: z.string(),
+  }),
+} as const
+
+const writeResourceMapSchema = {
+  body: z.record(z.string()),
+  params: z.object({
+    recordingId: z.string(),
+  }),
+} as const
+
+const createRecordingSchema = {
+  body: z.object({
+    title: z.string(),
+    url: z.string().url(),
+    description: z.string(),
+    mode: z.nativeEnum(RecordingMode),
+    duration: z.number(),
+    browserName: z.string().nullable(),
+    browserVersion: z.string().nullable(),
+    operatingSystem: z.string().nullable(),
+  }),
+} as const
+
 export function createRecordingRouter(
   recordingService: RecordingService,
   accountService: AccountService,
@@ -45,19 +78,15 @@ export function createRecordingRouter(
       )
     })
 
-    app.get(
+    app.get<{
+      Params: z.infer<typeof recordingIdSchema.params>
+    }>(
       '/:recordingId/data',
-
       {
-        schema: {
-          params: z.object({
-            recordingId: z.string(),
-          }),
-        },
+        schema: recordingIdSchema,
       },
-
       (req, res) => {
-        const recordingId = req.params.recordingId
+        const { recordingId } = req.params
         res.header('Content-Encoding', 'gzip')
         respondWith(
           res,
@@ -70,19 +99,15 @@ export function createRecordingRouter(
       }
     )
 
-    app.put(
+    app.put<{
+      Params: z.infer<typeof recordingIdSchema.params>
+    }>(
       '/:recordingId/data',
-
       {
-        schema: {
-          params: z.object({
-            recordingId: z.string(),
-          }),
-        },
+        schema: recordingIdSchema,
       },
-
       (req, res) => {
-        const recordingId = req.params.recordingId
+        const { recordingId } = req.params
         respondWith(
           res,
           recordingService.writeDataFromStream(recordingId, req.raw),
@@ -91,21 +116,15 @@ export function createRecordingRouter(
       }
     )
 
-    app.get(
+    app.get<{
+      Params: z.infer<typeof recordingResourceSchema.params>
+    }>(
       '/:recordingId/resources/:resourceId',
-
       {
-        schema: {
-          params: z.object({
-            recordingId: z.string(),
-            resourceId: z.string(),
-          }),
-        },
+        schema: recordingResourceSchema,
       },
-
       (req, res) => {
-        const recordingId = req.params.recordingId
-        const resourceId = req.params.resourceId
+        const { recordingId, resourceId } = req.params
         respondWith(
           res,
           recordingService.readResourceAsStream(recordingId, resourceId)
@@ -113,21 +132,15 @@ export function createRecordingRouter(
       }
     )
 
-    app.put(
+    app.put<{
+      Params: z.infer<typeof recordingResourceSchema.params>
+    }>(
       '/:recordingId/resources/:resourceId',
-
       {
-        schema: {
-          params: z.object({
-            recordingId: z.string(),
-            resourceId: z.string(),
-          }),
-        },
+        schema: recordingResourceSchema,
       },
-
       (req, res) => {
-        const recordingId = req.params.recordingId
-        const resourceId = req.params.resourceId
+        const { recordingId, resourceId } = req.params
         respondWith(
           res,
           recordingService.writeResourceFromStream(
@@ -140,19 +153,15 @@ export function createRecordingRouter(
       }
     )
 
-    app.get(
+    app.get<{
+      Params: z.infer<typeof recordingIdSchema.params>
+    }>(
       '/:recordingId/resource-map',
-
       {
-        schema: {
-          params: z.object({
-            recordingId: z.string(),
-          }),
-        },
+        schema: recordingIdSchema,
       },
-
       (req, res) => {
-        const recordingId = req.params.recordingId
+        const { recordingId } = req.params
         respondWith(
           res,
           go(function* () {
@@ -164,23 +173,19 @@ export function createRecordingRouter(
       }
     )
 
-    const writeResourceMapRequestBody = z.record(z.string())
-
-    app.put(
+    app.put<{
+      Body: z.infer<typeof writeResourceMapSchema.body>
+      Params: z.infer<typeof writeResourceMapSchema.params>
+    }>(
       '/:recordingId/resource-map',
-
       {
-        schema: {
-          params: z.object({ recordingId: z.string() }),
-          body: z.record(z.string()),
-        },
+        schema: writeResourceMapSchema,
       },
-
       (req, res) => {
-        const recordingId = req.params.recordingId
+        const { recordingId } = req.params
         respondWith(
           res,
-          parseSchema(writeResourceMapRequestBody, req.body).pipe(
+          parseSchema(writeResourceMapSchema.body, req.body).pipe(
             chain(body => recordingService.writeResourceMap(recordingId, body))
           ),
           201
@@ -188,19 +193,15 @@ export function createRecordingRouter(
       }
     )
 
-    app.get(
+    app.get<{
+      Params: z.infer<typeof recordingIdSchema.params>
+    }>(
       '/:recordingId/info',
-
       {
-        schema: {
-          params: z.object({
-            recordingId: z.string(),
-          }),
-        },
+        schema: recordingIdSchema,
       },
-
       (req, res) => {
-        const recordingId = req.params.recordingId!
+        const { recordingId } = req.params
         respondWith(
           res,
           go(function* () {
@@ -212,36 +213,26 @@ export function createRecordingRouter(
       }
     )
 
-    app.post(
+    app.post<{
+      Body: z.infer<typeof createRecordingSchema.body>
+    }>(
       '/',
-
       {
-        schema: {
-          body: z.object({
-            title: z.string(),
-            url: z.string().url(),
-            description: z.string(),
-            mode: z.nativeEnum(RecordingMode),
-            duration: z.number(),
-            browserName: z.string().nullable(),
-            browserVersion: z.string().nullable(),
-            operatingSystem: z.string().nullable(),
-          }),
-        },
+        schema: createRecordingSchema,
       },
-
       (req, res) => {
+        const { title, url, description, mode, duration, browserName, browserVersion, operatingSystem } = req.body
         respondWith(
           res,
           recordingService.writeInfo(
-            req.body.title,
-            req.body.url,
-            req.body.description,
-            req.body.mode,
-            req.body.duration,
-            req.body.browserName,
-            req.body.browserVersion,
-            req.body.operatingSystem
+            title,
+            url,
+            description,
+            mode,
+            duration,
+            browserName,
+            browserVersion,
+            operatingSystem
           ),
           201
         )
