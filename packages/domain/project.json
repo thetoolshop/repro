@@ -8,7 +8,8 @@
       },
       "inputs": ["{projectRoot}/src/**/*.tdls"],
       "outputs": ["{projectRoot}/src/generated/**/*"],
-      "dependsOn": ["^build"]
+      "dependsOn": ["^build"],
+      "cache": true
     }
   },
   "tags": ["type:package"]
