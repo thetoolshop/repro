@@ -26,7 +26,18 @@ jobs:
           node-version: 22
           cache: 'pnpm'
 
+      - name: Get npm-forks cache
+        uses: actions/cache@v3
+        id: npm-forks-cache
+        with:
+          path: |
+            npm-forks/**/lib
+            npm-forks/**/dist
+          key: ${{ runner.os }}-npm-forks-${{ hashFiles('npm-forks/**/npm-fork-version.json') }}
+
       - name: Install dependencies
+        env:
+          CI_NPM_FORKS_CACHE_HIT: ${{ steps.npm-forks-cache.outputs.cache-hit }}
         run: pnpm install
 
       - name: Get Nx cache
