@@ -6,7 +6,7 @@ module.exports = {
 
   deploy: {
     production: {
-      host: ["production"],
+      host: process.env.PROD_SSH_HOST,
       ref: "origin/main",
       repo: "git@github.com:thetoolshop/repro.git",
       path: "/home/me/Projects/thetoolshop/repro",
