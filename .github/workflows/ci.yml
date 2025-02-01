@@ -1,11 +1,18 @@
 name: Build, lint and test
-on: workflow_dispatch
+
+on:
+  push:
+    branches:
+      - '**'
+
 jobs:
-  run-all:
+  run-affected:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup PNPM
         uses: pnpm/action-setup@v4
@@ -30,8 +37,23 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nx-
 
-      - name: Build all packages and apps
-        run: pnpm nx run-many -t build
+      - name: Get base and head for affected commands
+        id: vars
+        run: |
+          git fetch origin main --depth=1
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "NX_BASE=origin/main^" >> $GITHUB_ENV
+            echo "NX_HEAD=origin/main" >> $GITHUB_ENV
+          else
+            echo "NX_BASE=origin/main" >> $GITHUB_ENV
+            echo "NX_HEAD=${{ github.sha }}" >> $GITHUB_ENV
+          fi
 
-      - name: Typecheck all
-        run: pnpm nx run-many -t typecheck
+      - name: Build affected packages and apps
+        run: pnpm nx affected -t build
+
+      - name: Typecheck affected
+        run: pnpm nx affected -t typecheck
+
+      - name: Test affected
+        run: pnpm nx affected -t test
