@@ -7,7 +7,9 @@
         "script": "build"
       },
       "inputs": ["{projectRoot}/src/cli/grammar.ohm"],
-      "outputs": ["{projectRoot}/src/cli/grammar.ohm-bundle.*"]
+      "outputs": ["{projectRoot}/src/cli/grammar.ohm-bundle.*"],
+      "dependsOn": ["^build"],
+      "cache": true
     }
   },
   "tags": ["type:package"]

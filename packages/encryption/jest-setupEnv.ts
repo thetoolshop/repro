@@ -6,4 +6,9 @@ global.TextDecoder = TextDecoder
 global.TextEncoder = TextEncoder
 
 // @ts-ignore
-global.crypto = webcrypto
+Object.defineProperty(global, 'crypto', {
+  value: webcrypto,
+  writable: true,
+  configurable: true,
+  enumerable: true,
+})
