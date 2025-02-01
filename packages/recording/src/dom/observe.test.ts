@@ -53,13 +53,13 @@ describe('libs/record: dom observers', () => {
     internal__processMutationRecords(records, walkDOMTree, options, subscriber)
 
     expect(patches).toEqual([
-      {
+      new Box({
         type: PatchType.Attribute,
         targetId: getNodeId(target),
         name: 'class',
         value: 'foo',
         oldValue: null,
-      },
+      }),
     ])
   })
 
@@ -103,12 +103,12 @@ describe('libs/record: dom observers', () => {
     internal__processMutationRecords(records, walkDOMTree, options, subscriber)
 
     expect(patches).toEqual([
-      {
+      new Box({
         type: PatchType.Text,
         targetId: getNodeId(target),
         value: 'bar',
         oldValue: 'foo',
-      },
+      }),
     ])
   })
 
