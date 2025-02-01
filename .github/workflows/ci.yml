@@ -40,10 +40,10 @@ jobs:
       - name: Get base and head for affected commands
         id: vars
         run: |
-          git fetch origin main --depth=1
+          git fetch origin main --depth=2
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            echo "NX_BASE=origin/main^" >> $GITHUB_ENV
-            echo "NX_HEAD=origin/main" >> $GITHUB_ENV
+            echo "NX_BASE=HEAD~1" >> $GITHUB_ENV
+            echo "NX_HEAD=HEAD" >> $GITHUB_ENV
           else
             echo "NX_BASE=origin/main" >> $GITHUB_ENV
             echo "NX_HEAD=${{ github.sha }}" >> $GITHUB_ENV
