@@ -1,9 +1,0 @@
-*.log
-/.rpt2_cache
-/.vscode
-node_modules
-size-plugin.json
-.env
-misc/saucelabs-data.json
-/.rollup.cache
-*.tsbuildinfo

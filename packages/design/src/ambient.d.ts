@@ -1,7 +1,7 @@
-export {}
+import { CSSProperties } from '@jsxstyle/core'
 
-declare module 'jsxstyle' {
-  interface CSSProperties {
+declare module '@jsxstyle/core' {
+  interface PseudoPrefixedProps {
     focusBorderColor?: CSSProperties['borderColor']
     focusOutline?: CSSProperties['outline']
 

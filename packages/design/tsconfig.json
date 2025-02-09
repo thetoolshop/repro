@@ -22,12 +22,10 @@
     "rootDir": "./src",
     "skipLibCheck": true,
     "strict": true,
-    "target": "es2021",
+    "target": "es2021"
   },
 
-  "include": [
-    "src/**/*.ts"
-  ],
+  "include": ["src/**/*.ts"],
 
   "ts-node": {
     "files": true
