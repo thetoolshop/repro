@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "packageManager": "pnpm@8.3.1",
   "scripts": {
     "prepare": "./scripts/prepare-npm-forks.sh"
   },

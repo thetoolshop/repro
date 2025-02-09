@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: public-playback-ui
+  labels:
+    app: public-playback-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: public-playback-ui
+  template:
+    metadata:
+      labels:
+        app: public-playback-ui
+    spec:
+      containers:
+      - name: public-playback-ui
+        image: public-playback-ui-dev
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 3005
+        env:
+        - name: NODE_ENV
+          value: "development"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: public-playback-ui
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 3005
+  selector:
+    app: public-playback-ui 

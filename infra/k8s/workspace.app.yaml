@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workspace
+  labels:
+    app: workspace
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: workspace
+  template:
+    metadata:
+      labels:
+        app: workspace
+    spec:
+      containers:
+      - name: workspace
+        image: workspace-dev
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 3006
+        env:
+        - name: NODE_ENV
+          value: "development"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: workspace
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 3006
+  selector:
+    app: workspace 
