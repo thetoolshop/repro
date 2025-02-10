@@ -44,7 +44,7 @@
     "detect-browser": "^5.3.0",
     "fluture": "^14.0.0",
     "http-status-codes": "^2.2.0",
-    "jsxstyle": "^2.5.2",
+    "@jsxstyle/react": "^3.0.1",
     "lucide-react": "^0.277.0",
     "pretty-bytes": "^6.0.0",
     "pretty-ms": "^8.0.0",
@@ -87,6 +87,7 @@
     "typescript": "overridden",
     "webpack": "^5.75.0",
     "webpack-cli": "^4.10.0",
-    "webpack-dev-server": "^4.11.1"
+    "webpack-dev-server": "^4.11.1",
+    "@types/repro-shared-types": "workspace:*"
   }
 }

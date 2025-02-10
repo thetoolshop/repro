@@ -4,7 +4,7 @@ import {
   createRecordingStream,
 } from '@repro/recording'
 import { applyResetStyles } from '@repro/theme'
-import { cache as styleCache } from 'jsxstyle'
+import { cache as styleCache } from '@jsxstyle/react'
 import React from 'react'
 import { Root, createRoot } from 'react-dom/client'
 import { Controller } from './Controller'

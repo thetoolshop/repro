@@ -1,7 +1,7 @@
 import { Analytics } from '@repro/analytics'
 import { formatTime } from '@repro/date-utils'
 import { colors } from '@repro/design'
-import { Block, Row } from 'jsxstyle'
+import { Block, Row } from '@jsxstyle/react'
 import React, {
   MutableRefObject,
   PropsWithChildren,

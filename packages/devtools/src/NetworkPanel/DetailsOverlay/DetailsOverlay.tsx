@@ -1,5 +1,5 @@
 import { colors } from '@repro/design'
-import { Block, Grid, Row } from 'jsxstyle'
+import { Block, Grid, Row } from '@jsxstyle/react'
 import { X as CloseIcon } from 'lucide-react'
 import React, { Fragment, useState } from 'react'
 import { FetchGroup, WebSocketGroup } from '../types'

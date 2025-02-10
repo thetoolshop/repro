@@ -1,6 +1,6 @@
 import { Button, colors, Logo, Tooltip } from '@repro/design'
 import { RecordingMode } from '@repro/domain'
-import { Col } from 'jsxstyle'
+import { Col } from '@jsxstyle/react'
 import React from 'react'
 import { ReadyState, useReadyState, useRecordingMode } from '~/state'
 

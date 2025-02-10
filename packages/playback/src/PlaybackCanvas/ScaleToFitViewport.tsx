@@ -1,6 +1,6 @@
 import { colors } from '@repro/design'
 import { Point } from '@repro/domain'
-import { Block } from 'jsxstyle'
+import { Block } from '@jsxstyle/react'
 import React, {
   MutableRefObject,
   PropsWithChildren,

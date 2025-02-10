@@ -25,6 +25,7 @@
   "devDependencies": {
     "@types/node": "^18.7.13",
     "@types/react": "^18.0.14",
+    "@types/repro-shared-types": "workspace:*",
     "prettier": "^3.0.0",
     "prettier-plugin-organize-imports": "^3.2.3",
     "ts-eager": "^2.0.2",

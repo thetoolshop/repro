@@ -10,7 +10,7 @@ import {
 import { useRecordingStream } from '@repro/recording'
 import { calculateDuration } from '@repro/source-utils'
 import { approxByteLength } from '@repro/tdl'
-import { Block, Grid, Row } from 'jsxstyle'
+import { Block, Grid, Row } from '@jsxstyle/react'
 import { CopyIcon } from 'lucide-react'
 import prettyBytes from 'pretty-bytes'
 import React, { useEffect, useState } from 'react'

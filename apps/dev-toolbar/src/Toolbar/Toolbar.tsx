@@ -1,7 +1,7 @@
 import { useAtomValue } from '@repro/atom'
 import { Button, colors, Logo, Toggle } from '@repro/design'
 import { useRecordingStream } from '@repro/recording'
-import { Block, Row } from 'jsxstyle'
+import { Block, Row } from '@jsxstyle/react'
 import {
   HistoryIcon,
   PictureInPictureIcon,

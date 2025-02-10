@@ -1,5 +1,5 @@
 import { JSONView } from '@repro/design'
-import { Block } from 'jsxstyle'
+import { Block } from '@jsxstyle/react'
 import React, { PropsWithChildren } from 'react'
 
 interface Props {

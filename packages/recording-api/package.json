@@ -34,6 +34,7 @@
     "prettier-plugin-organize-imports": "^3.2.3",
     "ts-eager": "^2.0.2",
     "ts-jest": "^28.0.8",
-    "typescript": "overridden"
+    "typescript": "overridden",
+    "@types/repro-shared-types": "workspace:*"
   }
 }
