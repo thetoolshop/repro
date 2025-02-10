@@ -1,5 +1,5 @@
 import { DOMPatchEvent, PatchType } from '@repro/domain'
-import { Block } from 'jsxstyle'
+import { Block } from '@jsxstyle/react'
 import React from 'react'
 import { BaseRow } from './BaseRow'
 

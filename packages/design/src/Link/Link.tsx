@@ -1,4 +1,4 @@
-import { Inline } from 'jsxstyle'
+import { Inline } from '@jsxstyle/react'
 import React, { PropsWithChildren } from 'react'
 import { colors } from '../theme'
 

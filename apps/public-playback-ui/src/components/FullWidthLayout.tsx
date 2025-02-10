@@ -1,5 +1,5 @@
 import { Logo, colors } from '@repro/design'
-import { Block, Grid, Row } from 'jsxstyle'
+import { Block, Grid, Row } from '@jsxstyle/react'
 import React, { PropsWithChildren } from 'react'
 
 export const FullWidthLayout: React.FC<PropsWithChildren> = ({ children }) => (

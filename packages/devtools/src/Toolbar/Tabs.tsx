@@ -1,5 +1,5 @@
 import { colors } from '@repro/design'
-import { Inline, Row } from 'jsxstyle'
+import { Inline, Row } from '@jsxstyle/react'
 import {
   AlertTriangle as ConsoleIcon,
   Code as ElementsIcon,

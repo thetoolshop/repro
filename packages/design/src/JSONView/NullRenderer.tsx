@@ -1,4 +1,4 @@
-import { Block } from 'jsxstyle'
+import { Block } from '@jsxstyle/react'
 import React from 'react'
 import { colors } from '../theme'
 import { TreeRow } from './TreeRow'

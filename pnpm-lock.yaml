@@ -3,7 +3,6 @@ lockfileVersion: '6.0'
 overrides:
   '@types/react': 18.3.10
   '@types/react-dom': 18.3.0
-  jsxstyle: npm:@jsxstyle/react@3.0.1
   react: 18.3.1
   react-dom: 18.3.1
   react-hook-form: 7.53.0
@@ -44,6 +43,9 @@ importers:
       '@hookform/resolvers':
         specifier: ^2.9.10
         version: 2.9.10(react-hook-form@7.53.0)
+      '@jsxstyle/react':
+        specifier: ^3.0.1
+        version: 3.0.1(@types/react@18.3.10)(react@18.3.1)
       '@repro/api-client':
         specifier: workspace:*
         version: link:../../packages/api-client
@@ -86,9 +88,6 @@ importers:
       fluture:
         specifier: ^14.0.0
         version: 14.0.0
-      jsxstyle:
-        specifier: npm:@jsxstyle/react@3.0.1
-        version: /@jsxstyle/react@3.0.1(@types/react@18.3.10)(react@18.3.1)
       lucide-react:
         specifier: ^0.277.0
         version: 0.277.0(react@18.3.1)
@@ -126,6 +125,9 @@ importers:
       '@types/react-dom':
         specifier: 18.3.0
         version: 18.3.0
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../../packages/shared-types
       css-loader:
         specifier: ^6.6.0
         version: 6.6.0(webpack@5.75.0)
@@ -292,6 +294,9 @@ importers:
       '@types/nunjucks':
         specifier: ^3.2.6
         version: 3.2.6
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../../packages/shared-types
       '@types/supertest':
         specifier: ^6.0.2
         version: 6.0.2
@@ -340,6 +345,9 @@ importers:
 
   apps/capture:
     dependencies:
+      '@jsxstyle/react':
+        specifier: ^3.0.1
+        version: 3.0.1(@types/react@18.3.10)(react@18.3.1)
       '@repro/analytics':
         specifier: workspace:*
         version: link:../../packages/analytics
@@ -418,9 +426,6 @@ importers:
       fluture:
         specifier: ^14.0.0
         version: 14.0.0
-      jsxstyle:
-        specifier: npm:@jsxstyle/react@3.0.1
-        version: /@jsxstyle/react@3.0.1(@types/react@18.3.10)(react@18.3.1)
       lucide-react:
         specifier: ^0.277.0
         version: 0.277.0(react@18.3.1)
@@ -458,6 +463,9 @@ importers:
       '@types/react-dom':
         specifier: 18.3.0
         version: 18.3.0
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../../packages/shared-types
       css-loader:
         specifier: ^6.6.0
         version: 6.6.0(webpack@5.75.0)
@@ -515,6 +523,9 @@ importers:
 
   apps/capture-public:
     dependencies:
+      '@jsxstyle/react':
+        specifier: ^3.0.1
+        version: 3.0.1(@types/react@18.3.10)(react@18.3.1)
       '@repro/analytics':
         specifier: workspace:*
         version: link:../../packages/analytics
@@ -596,9 +607,6 @@ importers:
       fluture:
         specifier: ^14.0.0
         version: 14.0.0
-      jsxstyle:
-        specifier: npm:@jsxstyle/react@3.0.1
-        version: /@jsxstyle/react@3.0.1(@types/react@18.3.10)(react@18.3.1)
       lucide-react:
         specifier: ^0.277.0
         version: 0.277.0(react@18.3.1)
@@ -636,6 +644,9 @@ importers:
       '@types/react-dom':
         specifier: 18.3.0
         version: 18.3.0
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../../packages/shared-types
       '@types/webextension-polyfill':
         specifier: ^0.12.1
         version: 0.12.1
@@ -696,6 +707,9 @@ importers:
 
   apps/dev-toolbar:
     dependencies:
+      '@jsxstyle/react':
+        specifier: ^3.0.1
+        version: 3.0.1(@types/react@18.3.10)(react@18.3.1)
       '@repro/atom':
         specifier: workspace:*
         version: link:../../packages/atom
@@ -750,9 +764,6 @@ importers:
       fluture:
         specifier: ^14.0.0
         version: 14.0.0
-      jsxstyle:
-        specifier: npm:@jsxstyle/react@3.0.1
-        version: /@jsxstyle/react@3.0.1(@types/react@18.3.10)(react@18.3.1)
       lucide-react:
         specifier: ^0.277.0
         version: 0.277.0(react@18.3.1)
@@ -790,6 +801,9 @@ importers:
       '@types/react-window':
         specifier: ^1.8.5
         version: 1.8.5
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../../packages/shared-types
       css-loader:
         specifier: ^6.6.0
         version: 6.6.0(webpack@5.75.0)
@@ -844,6 +858,9 @@ importers:
 
   apps/devtools-demo:
     dependencies:
+      '@jsxstyle/react':
+        specifier: ^3.0.1
+        version: 3.0.1(@types/react@18.3.10)(react@18.3.1)
       '@repro/atom':
         specifier: workspace:*
         version: link:../../packages/atom
@@ -880,9 +897,6 @@ importers:
       '@repro/wire-formats':
         specifier: workspace:*
         version: link:../../packages/wire-formats
-      jsxstyle:
-        specifier: npm:@jsxstyle/react@3.0.1
-        version: /@jsxstyle/react@3.0.1(@types/react@18.3.10)(react@18.3.1)
       lucide-react:
         specifier: ^0.277.0
         version: 0.277.0(react@18.3.1)
@@ -914,6 +928,9 @@ importers:
       '@types/react-dom':
         specifier: 18.3.0
         version: 18.3.0
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../../packages/shared-types
       css-loader:
         specifier: ^6.6.0
         version: 6.6.0(webpack@5.75.0)
@@ -974,6 +991,9 @@ importers:
 
   apps/public-playback-ui:
     dependencies:
+      '@jsxstyle/react':
+        specifier: ^3.0.1
+        version: 3.0.1(@types/react@18.3.10)(react@18.3.1)
       '@repro/api-client':
         specifier: workspace:*
         version: link:../../packages/api-client
@@ -1028,9 +1048,6 @@ importers:
       '@repro/wire-formats':
         specifier: workspace:*
         version: link:../../packages/wire-formats
-      jsxstyle:
-        specifier: npm:@jsxstyle/react@3.0.1
-        version: /@jsxstyle/react@3.0.1(@types/react@18.3.10)(react@18.3.1)
       lucide-react:
         specifier: ^0.277.0
         version: 0.277.0(react@18.3.1)
@@ -1068,6 +1085,9 @@ importers:
       '@types/react-dom':
         specifier: 18.3.0
         version: 18.3.0
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../../packages/shared-types
       css-loader:
         specifier: ^6.6.0
         version: 6.6.0(webpack@5.75.0)
@@ -1131,6 +1151,9 @@ importers:
       '@hookform/resolvers':
         specifier: ^2.9.10
         version: 2.9.10(react-hook-form@7.53.0)
+      '@jsxstyle/react':
+        specifier: ^3.0.1
+        version: 3.0.1(@types/react@18.3.10)(react@18.3.1)
       '@repro/analytics':
         specifier: workspace:*
         version: link:../../packages/analytics
@@ -1218,9 +1241,6 @@ importers:
       http-status-codes:
         specifier: ^2.2.0
         version: 2.2.0
-      jsxstyle:
-        specifier: npm:@jsxstyle/react@3.0.1
-        version: /@jsxstyle/react@3.0.1(@types/react@18.3.10)(react@18.3.1)
       lucide-react:
         specifier: ^0.277.0
         version: 0.277.0(react@18.3.1)
@@ -1288,6 +1308,9 @@ importers:
       '@types/react-window':
         specifier: ^1.8.5
         version: 1.8.5
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../../packages/shared-types
       css-loader:
         specifier: ^6.6.0
         version: 6.6.0(webpack@5.75.0)
@@ -1370,6 +1393,9 @@ importers:
       '@types/node':
         specifier: ^18.6.2
         version: 18.7.13
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@18.7.13)(ts-node@10.9.1)
@@ -1413,6 +1439,9 @@ importers:
       '@types/node':
         specifier: ^18.6.2
         version: 18.7.13
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@18.7.13)(ts-node@10.9.1)
@@ -1477,6 +1506,9 @@ importers:
       '@types/react':
         specifier: 18.3.10
         version: 18.3.10
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
       prettier:
         specifier: ^3.0.0
         version: 3.0.0
@@ -1508,6 +1540,9 @@ importers:
       '@types/react':
         specifier: 18.3.10
         version: 18.3.10
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@18.7.13)(ts-node@10.9.1)
@@ -1532,6 +1567,9 @@ importers:
       '@hookform/resolvers':
         specifier: ^2.9.10
         version: 2.9.10(react-hook-form@7.53.0)
+      '@jsxstyle/react':
+        specifier: ^3.0.1
+        version: 3.0.1(@types/react@18.3.10)(react@18.3.1)
       '@repro/api-client':
         specifier: workspace:*
         version: link:../api-client
@@ -1553,9 +1591,6 @@ importers:
       fluture:
         specifier: ^14.0.0
         version: 14.0.0
-      jsxstyle:
-        specifier: npm:@jsxstyle/react@3.0.1
-        version: /@jsxstyle/react@3.0.1(@types/react@18.3.10)(react@18.3.1)
       lucide-react:
         specifier: ^0.277.0
         version: 0.277.0(react@18.3.1)
@@ -1581,6 +1616,9 @@ importers:
       '@types/react':
         specifier: 18.3.10
         version: 18.3.10
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
       jest:
         specifier: ^28.1.3
         version: 28.1.3(@types/node@18.7.13)
@@ -1615,6 +1653,9 @@ importers:
       '@types/react':
         specifier: 18.3.10
         version: 18.3.10
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@18.7.13)(ts-node@10.9.1)
@@ -1649,6 +1690,9 @@ importers:
       '@types/node':
         specifier: ^18.6.2
         version: 18.7.13
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@18.7.13)(ts-node@10.9.1)
@@ -1686,6 +1730,9 @@ importers:
       '@types/react':
         specifier: 18.3.10
         version: 18.3.10
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@18.7.13)(ts-node@10.9.1)
@@ -1713,6 +1760,9 @@ importers:
       '@types/node':
         specifier: ^18.6.2
         version: 18.7.13
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@18.7.13)(ts-node@10.9.1)
@@ -1795,6 +1845,9 @@ importers:
       '@types/react-dom':
         specifier: 18.3.0
         version: 18.3.0
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@18.7.13)(ts-node@10.9.1)
@@ -1816,6 +1869,9 @@ importers:
 
   packages/devtools:
     dependencies:
+      '@jsxstyle/react':
+        specifier: ^3.0.1
+        version: 3.0.1(@types/react@18.3.10)(react@18.3.1)
       '@repro/analytics':
         specifier: workspace:*
         version: link:../analytics
@@ -1852,9 +1908,6 @@ importers:
       http-status-codes:
         specifier: ^2.2.0
         version: 2.2.0
-      jsxstyle:
-        specifier: npm:@jsxstyle/react@3.0.1
-        version: /@jsxstyle/react@3.0.1(@types/react@18.3.10)(react@18.3.1)
       lucide-react:
         specifier: ^0.277.0
         version: 0.277.0(react@18.3.1)
@@ -1898,6 +1951,9 @@ importers:
       '@types/react-window':
         specifier: ^1.8.5
         version: 1.8.5
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
       jest:
         specifier: ^28.1.3
         version: 28.1.3(@types/node@18.7.13)
@@ -1935,6 +1991,9 @@ importers:
       '@types/node':
         specifier: ^18.6.2
         version: 18.7.13
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@18.7.13)(ts-node@10.9.1)
@@ -1966,6 +2025,9 @@ importers:
       '@types/node':
         specifier: ^18.6.2
         version: 18.7.13
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@18.7.13)(ts-node@10.9.1)
@@ -2000,6 +2062,9 @@ importers:
       '@types/jest':
         specifier: ^28.1.8
         version: 28.1.8
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
       '@types/uuid':
         specifier: ^8.3.4
         version: 8.3.4
@@ -2037,6 +2102,9 @@ importers:
       '@types/node':
         specifier: ^18.6.2
         version: 18.7.13
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
       jest:
         specifier: ^28.1.3
         version: 28.1.3(@types/node@18.7.13)
@@ -2077,6 +2145,9 @@ importers:
       '@types/react':
         specifier: 18.3.10
         version: 18.3.10
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@18.7.13)(ts-node@10.9.1)
@@ -2101,6 +2172,9 @@ importers:
       '@types/node':
         specifier: ^18.6.2
         version: 18.7.13
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
       prettier:
         specifier: ^3.0.0
         version: 3.0.0
@@ -2144,6 +2218,9 @@ importers:
       '@types/react':
         specifier: 18.3.10
         version: 18.3.10
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@18.7.13)(ts-node@10.9.1)
@@ -2178,6 +2255,9 @@ importers:
       '@types/node':
         specifier: ^18.6.2
         version: 18.7.13
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@18.7.13)(ts-node@10.9.1)
@@ -2199,6 +2279,12 @@ importers:
 
   packages/playback:
     dependencies:
+      '@jsxstyle/core':
+        specifier: ^3.0.1
+        version: 3.0.1(patch_hash=43nv4tmruzalvorssgwsluwgqm)
+      '@jsxstyle/react':
+        specifier: ^3.0.1
+        version: 3.0.1(@types/react@18.3.10)(react@18.3.1)
       '@repro/analytics':
         specifier: workspace:*
         version: link:../analytics
@@ -2250,9 +2336,6 @@ importers:
       fluture:
         specifier: ^14.0.0
         version: 14.0.0
-      jsxstyle:
-        specifier: npm:@jsxstyle/react@3.0.1
-        version: /@jsxstyle/react@3.0.1(@types/react@18.3.10)(react@18.3.1)
       lucide-react:
         specifier: ^0.277.0
         version: 0.277.0(react@18.3.1)
@@ -2281,6 +2364,9 @@ importers:
       '@types/react':
         specifier: 18.3.10
         version: 18.3.10
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@18.7.13)(ts-node@10.9.1)
@@ -2305,6 +2391,9 @@ importers:
       '@types/node':
         specifier: ^18.6.2
         version: 18.7.13
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
       prettier:
         specifier: ^3.0.0
         version: 3.0.0
@@ -2393,6 +2482,9 @@ importers:
       '@types/react':
         specifier: 18.3.10
         version: 18.3.10
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
       babel-jest:
         specifier: ^29.7.0
         version: 29.7.0(@babel/core@7.26.7)
@@ -2478,6 +2570,9 @@ importers:
       '@types/node':
         specifier: ^18.6.2
         version: 18.7.13
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
       jest:
         specifier: ^28.1.3
         version: 28.1.3(@types/node@18.7.13)
@@ -2496,6 +2591,8 @@ importers:
       typescript:
         specifier: 5.7.3
         version: 5.7.3
+
+  packages/shared-types: {}
 
   packages/source-utils:
     dependencies:
@@ -2521,6 +2618,9 @@ importers:
       '@types/node':
         specifier: ^18.6.2
         version: 18.7.13
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
       '@types/uuid':
         specifier: ^8.3.4
         version: 8.3.4
@@ -2555,6 +2655,9 @@ importers:
       '@types/node':
         specifier: ^18.6.2
         version: 18.7.13
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
       prettier:
         specifier: ^3.0.0
         version: 3.0.0
@@ -2576,6 +2679,9 @@ importers:
       '@types/node':
         specifier: ^18.6.2
         version: 18.7.13
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@18.7.13)(ts-node@10.9.1)
@@ -2625,6 +2731,9 @@ importers:
       '@types/node':
         specifier: ^18.6.2
         version: 18.7.13
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
       '@types/yargs':
         specifier: ^17.0.24
         version: 17.0.24
@@ -2662,6 +2771,9 @@ importers:
       '@types/node':
         specifier: ^18.6.2
         version: 18.7.13
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@18.7.13)(ts-node@10.9.1)
@@ -2693,6 +2805,9 @@ importers:
       '@types/node':
         specifier: ^18.6.2
         version: 18.7.13
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@18.7.13)(ts-node@10.9.1)
@@ -2717,6 +2832,9 @@ importers:
       '@types/node':
         specifier: ^18.6.2
         version: 18.7.13
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
       prettier:
         specifier: ^3.0.0
         version: 3.0.0
@@ -2742,6 +2860,9 @@ importers:
       '@types/node':
         specifier: ^18.6.2
         version: 18.7.13
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
       prettier:
         specifier: ^3.0.0
         version: 3.0.0
@@ -2779,6 +2900,9 @@ importers:
       '@types/node':
         specifier: ^18.6.2
         version: 18.7.13
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
       jest:
         specifier: ^29
         version: 29.0.0(@types/node@18.7.13)
@@ -2819,6 +2943,9 @@ importers:
       '@types/node':
         specifier: ^18.6.2
         version: 18.7.13
+      '@types/repro-shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@18.7.13)(ts-node@10.9.1)

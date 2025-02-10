@@ -1,6 +1,6 @@
 import { colors } from '@repro/design'
 import { SimpleTimeline } from '@repro/playback'
-import { Block, Row } from 'jsxstyle'
+import { Block, Row } from '@jsxstyle/react'
 import React, { PropsWithChildren } from 'react'
 import { Picker } from './Picker'
 import { Tabs } from './Tabs'

@@ -1,6 +1,6 @@
 import { NodeType, SyntheticId, VElement } from '@repro/domain'
 import { isEmptyElementVNode, isParentVNode } from '@repro/vdom-utils'
-import { Block } from 'jsxstyle'
+import { Block } from '@jsxstyle/react'
 import React, { useContext } from 'react'
 import { ElementR } from '../DOM'
 import { NodeRenderer } from './NodeRenderer'

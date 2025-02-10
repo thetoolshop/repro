@@ -1,8 +1,7 @@
-import { InlineBlock } from 'jsxstyle'
-import { JsxstyleProps } from 'jsxstyle/lib/types'
+import { InlineBlock, JsxstyleComponentStyleProps } from '@jsxstyle/react'
 import React, { PropsWithChildren } from 'react'
 
-type Props = PropsWithChildren<JsxstyleProps<'div'>>
+type Props = PropsWithChildren<JsxstyleComponentStyleProps>
 
 const animation = {
   from: { transform: 'rotate(0deg)' },

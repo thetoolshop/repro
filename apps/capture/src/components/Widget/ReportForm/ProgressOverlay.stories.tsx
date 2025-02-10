@@ -1,7 +1,7 @@
 import type { Meta, Story } from '@ladle/react'
 import { colors } from '@repro/design'
 import { UploadStage } from '@repro/recording-api'
-import { Block } from 'jsxstyle'
+import { Block } from '@jsxstyle/react'
 import React, { PropsWithChildren } from 'react'
 import { ProgressOverlay } from './ProgressOverlay'
 

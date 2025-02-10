@@ -1,4 +1,4 @@
-import { Grid } from 'jsxstyle'
+import { Grid } from '@jsxstyle/react'
 import React from 'react'
 import { PlaybackCanvas } from '../PlaybackCanvas'
 import { RangeTimeline } from '../PlaybackTimeline/RangeTimeline'

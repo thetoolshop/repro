@@ -1,5 +1,5 @@
 import { NodeType, SyntheticId, VDocument } from '@repro/domain'
-import { Block } from 'jsxstyle'
+import { Block } from '@jsxstyle/react'
 import React, { useContext } from 'react'
 import { DocumentR } from '../DOM'
 import { NodeRenderer } from './NodeRenderer'

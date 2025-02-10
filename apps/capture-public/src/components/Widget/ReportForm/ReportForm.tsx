@@ -12,7 +12,7 @@ import {
 } from '@repro/playback'
 import { UploadProgress } from '@repro/recording-api'
 import { fork, FutureInstance } from 'fluture'
-import { Block, Row } from 'jsxstyle'
+import { Block, Row } from '@jsxstyle/react'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Subscription, switchMap, timer } from 'rxjs'
 import { useRecordingMode } from '~/state'

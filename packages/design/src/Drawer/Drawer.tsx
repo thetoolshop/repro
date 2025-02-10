@@ -1,4 +1,4 @@
-import { Block, Row } from 'jsxstyle'
+import { Block, Row } from '@jsxstyle/react'
 import { X as CloseIcon } from 'lucide-react'
 import React, { PropsWithChildren } from 'react'
 import { Portal } from '../Portal'

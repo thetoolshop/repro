@@ -1,4 +1,4 @@
-import { Block, Inline } from 'jsxstyle'
+import { Block, Inline } from '@jsxstyle/react'
 import React from 'react'
 import { colors } from '../theme'
 

@@ -1,6 +1,6 @@
 import { Button, Card, Meter, colors } from '@repro/design'
 import { UploadProgress, UploadStage } from '@repro/recording-api'
-import { Block, Col, Row } from 'jsxstyle'
+import { Block, Col, Row } from '@jsxstyle/react'
 import {
   AlertTriangleIcon,
   CheckCircle2Icon,

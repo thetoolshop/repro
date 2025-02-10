@@ -1,5 +1,5 @@
 import { VElement } from '@repro/domain'
-import { Inline } from 'jsxstyle'
+import { Inline } from '@jsxstyle/react'
 import React, { Fragment, PropsWithChildren } from 'react'
 import { colors } from '../theme'
 import { FONT_SIZE } from './constants'

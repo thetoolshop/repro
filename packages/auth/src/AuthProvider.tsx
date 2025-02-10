@@ -1,7 +1,7 @@
 import { defaultClient, useApiClient } from '@repro/api-client'
 import { FX } from '@repro/design'
 import { done } from 'fluture'
-import { Grid } from 'jsxstyle'
+import { Grid } from '@jsxstyle/react'
 import { LoaderIcon } from 'lucide-react'
 import React, {
   PropsWithChildren,

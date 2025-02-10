@@ -1,5 +1,5 @@
 import { Card } from '@repro/design'
-import { Col } from 'jsxstyle'
+import { Col } from '@jsxstyle/react'
 import React, { Fragment } from 'react'
 import { useDetectExtension } from '~/hooks/useDetectExtension'
 
