@@ -9,7 +9,7 @@ import {
 } from '@repro/domain'
 import { ControlFrame, ElapsedMarker, usePlayback } from '@repro/playback'
 import { Box } from '@repro/tdl'
-import { Block, Grid, Row } from 'jsxstyle'
+import { Block, Grid, Row } from '@jsxstyle/react'
 import React, { Fragment, useEffect, useMemo, useState } from 'react'
 import { filter } from 'rxjs'
 import { pairwise } from '../utils'

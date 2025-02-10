@@ -1,5 +1,5 @@
 import { FX } from '@repro/design'
-import { Grid } from 'jsxstyle'
+import { Grid } from '@jsxstyle/react'
 import { Loader as LoaderIcon } from 'lucide-react'
 import React from 'react'
 

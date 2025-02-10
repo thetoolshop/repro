@@ -1,5 +1,5 @@
 import { colors, Logo } from '@repro/design'
-import { Block, Grid, Row } from 'jsxstyle'
+import { Block, Grid, Row } from '@jsxstyle/react'
 import React from 'react'
 import { Outlet } from 'react-router'
 import { NavLink } from 'react-router-dom'

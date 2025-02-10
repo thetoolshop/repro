@@ -1,5 +1,5 @@
 import { colors } from '@repro/design'
-import { Block } from 'jsxstyle'
+import { Block } from '@jsxstyle/react'
 import React from 'react'
 
 interface Props {

@@ -3,7 +3,7 @@ import { colors } from '@repro/design'
 import { SourceEvent } from '@repro/domain'
 import { usePlayback } from '@repro/playback'
 import { Unboxed } from '@repro/tdl'
-import { Block, Row } from 'jsxstyle'
+import { Block, Row } from '@jsxstyle/react'
 import React, { PropsWithChildren } from 'react'
 
 interface Props {

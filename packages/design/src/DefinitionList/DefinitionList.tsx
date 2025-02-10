@@ -1,4 +1,4 @@
-import { Block } from 'jsxstyle'
+import { Block } from '@jsxstyle/react'
 import React, { Fragment } from 'react'
 import { colors } from '../theme'
 

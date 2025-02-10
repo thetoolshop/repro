@@ -8,7 +8,7 @@ import {
   PlaybackFromSourceProvider,
 } from '@repro/playback'
 import { createApiSource } from '@repro/recording-api'
-import { Block, Grid } from 'jsxstyle'
+import { Block, Grid } from '@jsxstyle/react'
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Loading } from './Loading'

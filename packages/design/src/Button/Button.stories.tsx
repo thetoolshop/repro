@@ -1,5 +1,5 @@
 import type { Meta, Story } from '@ladle/react'
-import { Block, Col, Grid } from 'jsxstyle'
+import { Block, Col, Grid } from '@jsxstyle/react'
 import React from 'react'
 import { colors } from '../theme'
 import { Button } from './Button'

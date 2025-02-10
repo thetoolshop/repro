@@ -1,4 +1,4 @@
-import { Block, Row } from 'jsxstyle'
+import { Block, Row } from '@jsxstyle/react'
 import md5 from 'md5'
 import React, { useMemo } from 'react'
 

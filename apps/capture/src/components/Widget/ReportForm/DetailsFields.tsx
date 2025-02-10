@@ -1,5 +1,5 @@
 import { Button, colors, Input, Label } from '@repro/design'
-import { Block, Col, Row } from 'jsxstyle'
+import { Block, Col, Row } from '@jsxstyle/react'
 import { BugPlayIcon } from 'lucide-react'
 import React, { PropsWithChildren } from 'react'
 import { useForm } from 'react-hook-form'

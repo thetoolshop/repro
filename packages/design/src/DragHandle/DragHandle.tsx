@@ -1,4 +1,4 @@
-import { Block } from 'jsxstyle'
+import { Block } from '@jsxstyle/react'
 import React, { useCallback, useEffect, useState } from 'react'
 import { colors } from '../theme'
 

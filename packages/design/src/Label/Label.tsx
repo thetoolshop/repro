@@ -1,4 +1,4 @@
-import { Block, Row } from 'jsxstyle'
+import { Block, Row } from '@jsxstyle/react'
 import React, { PropsWithChildren } from 'react'
 import { colors } from '../theme'
 

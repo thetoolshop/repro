@@ -1,5 +1,5 @@
 import { colors, Logo } from '@repro/design'
-import { Col, Grid, Row } from 'jsxstyle'
+import { Col, Grid, Row } from '@jsxstyle/react'
 import React from 'react'
 import { Outlet } from 'react-router'
 

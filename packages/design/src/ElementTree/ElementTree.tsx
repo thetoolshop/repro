@@ -1,5 +1,5 @@
 import { SyntheticId, VTree } from '@repro/domain'
-import { Block } from 'jsxstyle'
+import { Block } from '@jsxstyle/react'
 import React, {
   MutableRefObject,
   useCallback,

@@ -1,7 +1,7 @@
 import { RegisterForm } from '@repro/auth'
 import { Card } from '@repro/design'
 import { logger } from '@repro/logger'
-import { Col } from 'jsxstyle'
+import { Col } from '@jsxstyle/react'
 import React, { useCallback } from 'react'
 
 export const RegisterRoute: React.FC = () => {

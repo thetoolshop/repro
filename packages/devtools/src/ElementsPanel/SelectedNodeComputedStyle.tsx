@@ -8,7 +8,7 @@ import {
 import { colors } from '@repro/design'
 import { isElementNode } from '@repro/dom-utils'
 import { useElapsed, useLatestControlFrame } from '@repro/playback'
-import { Block, InlineBlock } from 'jsxstyle'
+import { Block, InlineBlock } from '@jsxstyle/react'
 import React, { useEffect, useState } from 'react'
 import { useSelectedElement } from '../hooks'
 

@@ -17,7 +17,7 @@
     "@repro/future-utils": "workspace:*",
     "@repro/validation": "workspace:*",
     "fluture": "^14.0.0",
-    "jsxstyle": "^2.5.2",
+    "@jsxstyle/react": "^3.0.1",
     "lucide-react": "^0.277.0",
     "react": "18.2.0",
     "react-hook-form": "^7.38.0",
@@ -33,6 +33,7 @@
     "prettier-plugin-organize-imports": "^3.2.3",
     "ts-eager": "^2.0.2",
     "ts-jest": "^28.0.8",
-    "typescript": "overridden"
+    "typescript": "overridden",
+    "@types/repro-shared-types": "workspace:*"
   }
 }

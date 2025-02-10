@@ -1,6 +1,6 @@
 import { colors } from '@repro/design'
 import { NetworkEvent, NetworkMessageType } from '@repro/domain'
-import { Block, Row } from 'jsxstyle'
+import { Block, Row } from '@jsxstyle/react'
 import {
   ArrowUp as FetchRequestIcon,
   ArrowUpDown as WebSocketIcon,

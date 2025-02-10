@@ -1,4 +1,4 @@
-import { Block, Row } from 'jsxstyle'
+import { Block, Row } from '@jsxstyle/react'
 import { CheckCircle, Circle } from 'lucide-react'
 import React from 'react'
 import { colors } from '../theme'

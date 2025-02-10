@@ -6,7 +6,7 @@ import {
 } from '@repro/playback'
 import { useRecordingStream } from '@repro/recording'
 import { calculateDuration } from '@repro/source-utils'
-import { Block } from 'jsxstyle'
+import { Block } from '@jsxstyle/react'
 import React, { useEffect, useState } from 'react'
 import { Subscription, asyncScheduler, defer, observeOn, of } from 'rxjs'
 import { MAX_INT32 } from '~/constants'

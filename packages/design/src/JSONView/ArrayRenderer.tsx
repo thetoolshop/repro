@@ -1,4 +1,4 @@
-import { Block } from 'jsxstyle'
+import { Block } from '@jsxstyle/react'
 import React, { Fragment, useState } from 'react'
 import { getRendererForType } from './getRendererForType'
 import { Toggle } from './Toggle'

@@ -1,9 +1,0 @@
-{
-  "include": [
-    "typescript"
-  ],
-  "compilerOptions": {
-    "jsx": "preserve",
-    "noEmit": true
-  }
-}
