@@ -9,5 +9,7 @@ certs
 # ENVIRONMENT
 .env.keys
 
+# WORKSPACE
 .nx/cache
 .nx/workspace-data
+.aider*
