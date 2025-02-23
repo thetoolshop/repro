@@ -60,8 +60,8 @@ module.exports = {
       MIXPANEL_API_URL: '',
       MIXPANEL_TOKEN: '',
       REPRO_API_URL: 'http://localhost:8181',
-      REPRO_APP_URL: 'http://localhost:8080',
-      STATS_LEVEL: 'debug'
+      REPRO_APP_URL: 'http://localhost:8081',
+      STATS_LEVEL: 'debug',
     }),
 
     new HtmlWebpackPlugin({
@@ -72,8 +72,8 @@ module.exports = {
   ],
 
   devServer: {
-    port: process.env.PORT || 8080,
-    allowedHosts: ['app.repro.test', 'localhost:8080'],
+    port: process.env.PORT,
+    allowedHosts: ['app.repro.test', `localhost:${process.env.PORT}`],
     historyApiFallback: true,
     static: path.resolve(__dirname, 'dist'),
   },

@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dev-storage
+  labels:
+    app: dev-storage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dev-storage
+  template:
+    metadata:
+      labels:
+        app: dev-storage
+    spec:
+      containers:
+        - name: dev-storage
+          image: bitnami/seaweedfs

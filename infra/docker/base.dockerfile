@@ -4,6 +4,7 @@ WORKDIR /app
 RUN corepack enable
 RUN corepack prepare pnpm@8.3.1 --activate
 
+COPY ./patches/ ./patches/
 COPY pnpm-lock.yaml ./
 RUN pnpm fetch
 

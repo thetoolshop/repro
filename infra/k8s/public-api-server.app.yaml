@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: api-server
+  name: public-api-server
   labels:
-    app: api-server
+    app: public-api-server
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: api-server
+      app: public-api-server
   template:
     metadata:
       labels:
-        app: api-server
+        app: public-api-server
     spec:
       containers:
-        - name: api-server
-          image: api-server
+        - name: public-api-server
+          image: public-api-server
           imagePullPolicy: Never
           ports:
             - containerPort: 8080
