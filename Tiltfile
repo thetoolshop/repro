@@ -210,6 +210,15 @@ helm_resource(
     labels=['infra']
 )
 
+docker_build(
+    'gateway-nginx',
+    '.',
+    dockerfile='infra/docker/gateway.dockerfile',
+    live_update=[
+        sync('infra/nginx/', '/etc/nginx/')
+    ]
+)
+
 helm_resource(
     name='gateway',
     chart='./infra/helm/gateway',

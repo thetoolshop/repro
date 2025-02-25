@@ -1,57 +1,17 @@
 # Default values for gateway chart
+gateway:
+  image: gateway-nginx
+  replicas: 1
+  port: 80
+
 ingress:
   enabled: true
   className: nginx
-  annotations:
-    nginx.ingress.kubernetes.io/app-root: /w
-    nginx.ingress.kubernetes.io/use-regex: "true"
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
+  annotations: {}
   
-  # Add WebSocket specific routes
-  wsRoutes:
-    enabled: true
-    annotations:
-      nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
-      nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
-      nginx.ingress.kubernetes.io/proxy-connect-timeout: "3600"
-      nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
-      # Use the built-in WebSocket support in nginx ingress controller
-      nginx.ingress.kubernetes.io/websocket-services: "workspace-service,public-playback-ui-service"
-    routes:
-      - path: /w/ws
-        pathType: Prefix
-        serviceName: workspace-service
-        servicePort: 8443
-      - path: /s/ws
-        pathType: Prefix
-        serviceName: public-playback-ui-service
-        servicePort: 8443
-  
+  # Routes to the gateway service
   routes:
-    - path: /w(/|$)(.*)
-      pathType: ImplementationSpecific
-      serviceName: workspace-service
-      servicePort: 8443
-    - path: /s(/|$)(.*)
-      pathType: ImplementationSpecific
-      serviceName: public-playback-ui-service
-      servicePort: 8443
-  
-  # Commented out routes that can be enabled later
-  apiRoutes:
-    enabled: false
-    host: api.repro.localhost
-    paths:
-      - path: /s
-        pathType: Prefix
-        serviceName: public-api-server-service
-        servicePort: 8080
-  
-  adminRoutes:
-    enabled: false
-    host: admin.repro.localhost
-    paths:
-      - path: /
-        pathType: Prefix
-        serviceName: admin-service
-        servicePort: 8080
+    - path: /
+      pathType: Prefix
+      serviceName: gateway-service
+      servicePort: 80
