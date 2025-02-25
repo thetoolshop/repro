@@ -4,11 +4,11 @@ kind: Ingress
 metadata:
   name: {{ .Release.Name }}-ingress
   annotations:
-    kubernetes.io/ingress.class: {{ .Values.ingress.className }}
     {{- range $key, $value := .Values.ingress.annotations }}
     {{ $key }}: {{ $value | quote }}
     {{- end }}
 spec:
+  ingressClassName: {{ .Values.ingress.className }}
   rules:
     - http:
         paths:
@@ -30,11 +30,11 @@ kind: Ingress
 metadata:
   name: {{ .Release.Name }}-ingress-websocket
   annotations:
-    kubernetes.io/ingress.class: {{ .Values.ingress.className }}
     {{- range $key, $value := .Values.ingress.wsRoutes.annotations }}
     {{ $key }}: {{ $value | quote }}
     {{- end }}
 spec:
+  ingressClassName: {{ .Values.ingress.className }}
   rules:
     - http:
         paths:
@@ -56,9 +56,9 @@ kind: Ingress
 metadata:
   name: {{ .Release.Name }}-ingress-api
   annotations:
-    kubernetes.io/ingress.class: {{ .Values.ingress.className }}
     nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
+  ingressClassName: {{ .Values.ingress.className }}
   rules:
     - host: {{ .Values.ingress.apiRoutes.host }}
       http:
@@ -81,9 +81,9 @@ kind: Ingress
 metadata:
   name: {{ .Release.Name }}-ingress-admin
   annotations:
-    kubernetes.io/ingress.class: {{ .Values.ingress.className }}
     nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
+  ingressClassName: {{ .Values.ingress.className }}
   rules:
     - host: {{ .Values.ingress.adminRoutes.host }}
       http:

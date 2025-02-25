@@ -10,6 +10,9 @@ ingress:
     nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "3600"
+    # Add WebSocket support without using configuration-snippet
+    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
+    nginx.ingress.kubernetes.io/websocket-services: "workspace-service,public-playback-ui-service"
   
   # Add WebSocket specific routes
   wsRoutes:
@@ -19,9 +22,8 @@ ingress:
       nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
       nginx.ingress.kubernetes.io/proxy-connect-timeout: "3600"
       nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
-      nginx.ingress.kubernetes.io/configuration-snippet: |
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
+      # Use the built-in WebSocket support in nginx ingress controller
+      nginx.ingress.kubernetes.io/websocket-services: "workspace-service,public-playback-ui-service"
     routes:
       - path: /w/ws
         pathType: Prefix
