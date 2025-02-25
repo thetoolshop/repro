@@ -1,19 +1,74 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: main-ingress
+  name: ingress
   annotations:
     kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/app-root: /w
     nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   rules:
-    - host: example.com  # Replace with your domain
-      http:
+    - http:
         paths:
-          - path: /
-            pathType: Prefix
+          - path: /w(/|$)(.*)
+            pathType: ImplementationSpecific
             backend:
               service:
-                name: example-service  # Replace with your service name
+                name: workspace-service
                 port:
-                  number: 80
+                  number: 8443
+          - path: /s(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: public-playback-ui-service
+                port:
+                  number: 8443
+# ---
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: ingress-api
+#   annotations:
+#     kubernetes.io/ingress.class: nginx
+#     nginx.ingress.kubernetes.io/use-regex: "true"
+# spec:
+#   rules:
+#     - host: api.repro.localhost
+#       http:
+#         paths:
+#           # - path: /w
+#           #   pathType: Prefix
+#           #   backend:
+#           #     service:
+#           #       name: api-server-service
+#           #       port:
+#           #         number: 8080
+#           - path: /s
+#             pathType: Prefix
+#             backend:
+#               service:
+#                 name: public-api-server-service
+#                 port:
+#                   number: 8080
+# ---
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: ingress-admin
+#   annotations:
+#     kubernetes.io/ingress.class: nginx
+#     nginx.ingress.kubernetes.io/use-regex: "true"
+# spec:
+#   rules:
+#     - host: admin.repro.localhost
+#       http:
+#         paths:
+#           - path: /
+#             pathType: Prefix
+#             backend:
+#               service:
+#                 name: admin-service
+#                 port:
+#                   number: 8080

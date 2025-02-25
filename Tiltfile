@@ -38,20 +38,6 @@ local_resource(
 )
 
 helm_repo(
-    'ingress-nginx',
-    'https://kubernetes.github.io/ingress-nginx',
-    labels=['infra']
-)
-
-helm_resource(
-    name='ingress-controller',
-    chart='ingress-nginx/ingress-nginx',
-    namespace='default',
-    resource_deps=['ingress-nginx'],
-    labels=['infra']
-)
-
-helm_repo(
     'bitnami',
     'https://charts.bitnami.com/bitnami',
     labels=['infra']
@@ -67,7 +53,6 @@ helm_resource(
         '--set=global.postgresql.auth.password=repro',
         '--set=global.postgresql.auth.database=repro'
     ],
-    port_forwards='8280:5432',
     labels=['infra']
 )
 
@@ -83,7 +68,6 @@ helm_resource(
     namespace='default',
     resource_deps=['seaweedfs'],
     flags=['--set=filer.s3.enabled=true,filer.s3.port=8080'],
-    port_forwards='8281:8080',
     labels=['infra']
 )
 
@@ -120,32 +104,30 @@ k8s_yaml(helm(
 
 k8s_resource(
     'public-api-server-deployment',
-    port_forwards='8180:8080',
     labels=['api']
 )
 
-docker_build(
-    'api-server',
-    '.',
-    dockerfile='infra/docker/api-server.dockerfile',
-    target='dev',
-    live_update=[
-        fall_back_on([
-            'pnpm-lock.yaml',
-            'apps/api-server/.env.development',
-            'apps/api-server/package.json'
-        ]),
-        sync('.', '/app')
-    ]
-)
-
-k8s_yaml('infra/k8s/api-server.app.yaml')
-
-k8s_resource(
-    'api-server',
-    port_forwards='8181:8080',
-    labels=['api']
-)
+# docker_build(
+#     'api-server',
+#     '.',
+#     dockerfile='infra/docker/api-server.dockerfile',
+#     target='dev',
+#     live_update=[
+#         fall_back_on([
+#             'pnpm-lock.yaml',
+#             'apps/api-server/.env.development',
+#             'apps/api-server/package.json'
+#         ]),
+#         sync('.', '/app')
+#     ]
+# )
+#
+# k8s_yaml('infra/k8s/api-server.app.yaml')
+#
+# k8s_resource(
+#     'api-server',
+#     labels=['api']
+# )
 
 docker_build(
     'public-playback-ui-dev',
@@ -167,15 +149,14 @@ k8s_yaml(helm(
     name='public-playback-ui',
     set=[
         'container.image=public-playback-ui-dev',
-        'vars.REPRO_APP_URL=http://localhost:8080',
-        'vars.REPRO_API_URL=http://localhost:8180',
-        'vars.PORT=8080'
+        'vars.REPRO_APP_URL=https://app.repro.localhost:8443/s',
+        'vars.REPRO_API_URL=https://api.repro.localhost:8443/s',
+        'vars.PORT=8443'
     ]
 ))
 
 k8s_resource(
     'public-playback-ui-deployment',
-    port_forwards='8080',
     labels=['app']
 )
 
@@ -200,14 +181,33 @@ k8s_yaml(helm(
     name='workspace',
     set=[
         'container.image=workspace-dev',
-        'vars.REPRO_APP_URL=http://localhost:8081',
-        'vars.REPRO_API_URL=http://localhost:8181',
-        'vars.PORT=8081'
+        'vars.REPRO_APP_URL=https://app.repro.localhost:8443/w',
+        'vars.REPRO_API_URL=https://api.repro.localhost:8443/w',
+        'vars.PORT=8443'
     ]
 ))
 
 k8s_resource(
     'workspace-deployment',
-    port_forwards='8081',
     labels=['app']
 )
+
+helm_repo(
+    'ingress-nginx',
+    'https://kubernetes.github.io/ingress-nginx',
+    labels=['infra']
+)
+
+helm_resource(
+    name='ingress-controller',
+    chart='ingress-nginx/ingress-nginx',
+    namespace='default',
+    resource_deps=['ingress-nginx'],
+    port_forwards=[
+        '8080:80',
+        '8443:443'
+    ],
+    labels=['infra']
+)
+
+k8s_yaml('infra/k8s/ingress.yaml')
