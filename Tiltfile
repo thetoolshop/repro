@@ -210,4 +210,10 @@ helm_resource(
     labels=['infra']
 )
 
-k8s_yaml('infra/k8s/ingress.yaml')
+helm_resource(
+    name='gateway',
+    chart='./infra/helm/gateway',
+    namespace='default',
+    resource_deps=['ingress-controller'],
+    labels=['infra']
+)
