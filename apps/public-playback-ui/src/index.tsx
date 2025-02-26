@@ -29,10 +29,14 @@ if (rootStyleSheet) {
 
 if (rootElem) {
   const root = createRoot(rootElem)
+  
+  const basename = process.env.REPRO_APP_URL
+    ? new URL(process.env.REPRO_APP_URL).pathname
+    : undefined
 
   root.render(
     <PortalRootProvider>
-      <BrowserRouter>
+      <BrowserRouter basename={basename}>
         <Routes>
           <Route index element={<HomeRoute />} />
           <Route path=":recordingId" element={<RecordingRoute />} />

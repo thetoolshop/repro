@@ -61,6 +61,7 @@ module.exports = {
       BUILD_ENV: 'production',
       STATS_LEVEL: 'debug',
       AUTH_STORAGE: 'memory',
+      REPRO_APP_URL: 'http://localhost:8080',
       REPRO_API_URL: 'http://localhost:8181',
     }),
 

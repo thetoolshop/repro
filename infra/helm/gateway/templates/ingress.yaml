@@ -1,18 +1,20 @@
-{{- if .Values.ingress.enabled -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ .Release.Name }}-ingress
+  name: {{ .Release.Name }}-ingress-app
   annotations:
-    {{- range $key, $value := .Values.ingress.annotations }}
+    {{- range $key, $value := .Values.ingress.appRoutes.annotations }}
     {{ $key }}: {{ $value | quote }}
     {{- end }}
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   ingressClassName: {{ .Values.ingress.className }}
   rules:
-    - http:
+    - host: {{ .Values.ingress.appRoutes.host }}
+      http:
         paths:
-          {{- range .Values.ingress.routes }}
+          {{- range .Values.ingress.appRoutes.paths }}
           - path: {{ .path }}
             pathType: {{ .pathType }}
             backend:
@@ -21,9 +23,6 @@ spec:
                 port:
                   number: {{ .servicePort }}
           {{- end }}
-{{- end }}
-
-{{- if .Values.ingress.apiRoutes.enabled -}}
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -32,6 +31,7 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: {{ .Values.ingress.className }}
     nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   rules:
     - host: {{ .Values.ingress.apiRoutes.host }}
@@ -46,9 +46,6 @@ spec:
                 port:
                   number: {{ .servicePort }}
           {{- end }}
-{{- end }}
-
-{{- if .Values.ingress.adminRoutes.enabled -}}
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -57,6 +54,7 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: {{ .Values.ingress.className }}
     nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   rules:
     - host: {{ .Values.ingress.adminRoutes.host }}
@@ -71,4 +69,3 @@ spec:
                 port:
                   number: {{ .servicePort }}
           {{- end }}
-{{- end }}

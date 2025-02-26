@@ -214,8 +214,3 @@ k8s_yaml(helm(
     './infra/helm/gateway',
     name='gateway',
 ))
-
-k8s_resource(
-    'gateway-ingress',
-    labels=['infra']
-)
