@@ -76,6 +76,7 @@ module.exports = {
     allowedHosts: ['app.repro.test', `localhost:${process.env.PORT}`],
     historyApiFallback: true,
     static: path.resolve(__dirname, 'dist'),
+    webSocketServer: false,
   },
 
   devtool: process.env.BUILD_ENV === 'development' ? 'eval-source-map' : false,

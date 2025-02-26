@@ -219,10 +219,12 @@ docker_build(
     ]
 )
 
-helm_resource(
+k8s_yaml(helm(
+    './infra/helm/gateway',
     name='gateway',
-    chart='./infra/helm/gateway',
-    namespace='default',
-    resource_deps=['ingress-controller'],
+))
+
+k8s_resource(
+    'gateway-deployment',
     labels=['infra']
 )
