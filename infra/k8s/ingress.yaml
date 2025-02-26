@@ -6,10 +6,17 @@ metadata:
     nginx.ingress.kubernetes.io/app-root: /w
     nginx.ingress.kubernetes.io/use-regex: "true"
     nginx.ingress.kubernetes.io/rewrite-target: /$2
+    cert-manager.io/cluster-issuer: "selfsigned-issuer"
 spec:
   ingressClassName: nginx
+  tls:
+  - hosts:
+    - "*.repro.localhost"
+    - "repro.localhost"
+    secretName: repro-localhost-tls
   rules:
-    - http:
+    - host: app.repro.localhost
+      http:
         paths:
           - path: /w(/|$)(.*)
             pathType: ImplementationSpecific

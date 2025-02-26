@@ -46,9 +46,10 @@ if (rootStyleSheet) {
 if (rootElem) {
   const root = createRoot(rootElem)
 
+  // Use the app URL if provided, otherwise check if we're on app.repro.localhost
   const basename = process.env.REPRO_APP_URL
     ? new URL(process.env.REPRO_APP_URL).pathname
-    : undefined
+    : window.location.hostname === 'app.repro.localhost' ? '/w' : undefined
 
   root.render(
     <BrowserRouter basename={basename}>
