@@ -1,17 +1,37 @@
 # Default values for gateway chart
-gateway:
-  image: gateway-nginx
-  replicas: 1
-  port: 80
-
 ingress:
   enabled: true
   className: nginx
-  annotations: {}
+  annotations:
+    nginx.ingress.kubernetes.io/app-root: /w
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
   
-  # Routes to the gateway service
   routes:
-    - path: /
-      pathType: Prefix
-      serviceName: gateway-service
-      servicePort: 80
+    - path: /w(/|$)(.*)
+      pathType: ImplementationSpecific
+      serviceName: workspace-service
+      servicePort: 8443
+    - path: /s(/|$)(.*)
+      pathType: ImplementationSpecific
+      serviceName: public-playback-ui-service
+      servicePort: 8443
+  
+  # Commented out routes that can be enabled later
+  apiRoutes:
+    enabled: false
+    host: api.repro.localhost
+    paths:
+      - path: /s
+        pathType: Prefix
+        serviceName: public-api-server-service
+        servicePort: 8080
+  
+  adminRoutes:
+    enabled: false
+    host: admin.repro.localhost
+    paths:
+      - path: /
+        pathType: Prefix
+        serviceName: admin-service
+        servicePort: 8080

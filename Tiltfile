@@ -210,21 +210,12 @@ helm_resource(
     labels=['infra']
 )
 
-docker_build(
-    'gateway-nginx',
-    '.',
-    dockerfile='infra/docker/gateway.dockerfile',
-    live_update=[
-        sync('infra/nginx/', '/etc/nginx/')
-    ]
-)
-
 k8s_yaml(helm(
     './infra/helm/gateway',
     name='gateway',
 ))
 
 k8s_resource(
-    'gateway-deployment',
+    'gateway-ingress',
     labels=['infra']
 )
