@@ -5,7 +5,7 @@ container:
 vars:
   BUILD_ENV: development
   PORT: 8080
-  REPRO_APP_URL: http://localhost:8080
-  REPRO_API_URL: http://localhost:8181
+  REPRO_APP_URL: http://app.repro.localhost/s
+  REPRO_API_URL: http://api.repro.localhost/s
   AUTH_STORAGE: memory
   STATS_LEVEL: debug

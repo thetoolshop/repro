@@ -1,0 +1,34 @@
+load('ext://helm_resource', 'helm_resource', 'helm_repo')
+
+helm_repo(
+    'ingress-nginx',
+    'https://kubernetes.github.io/ingress-nginx',
+    labels=['infra']
+)
+
+helm_resource(
+    name='ingress-controller',
+    chart='ingress-nginx/ingress-nginx',
+    namespace='default',
+    flags=[
+      '--set=controller.hostPort.enabled=true',
+      '--set=controller.service.type=NodePort'
+    ],
+    resource_deps=['ingress-nginx'],
+    labels=['infra']
+)
+
+k8s_yaml(helm(
+  './chart',
+  name='gateway',
+))
+
+k8s_resource(
+  new_name='gateway-ingress',
+  objects=[
+    'gateway-ingress-app:Ingress:default',
+    'gateway-ingress-api:Ingress:default',
+    'gateway-ingress-admin:Ingress:default'
+  ],
+  labels=['infra']
+)

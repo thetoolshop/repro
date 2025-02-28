@@ -8,3 +8,4 @@ spec:
   ports:
     - port: {{ .Values.vars.PORT }}
       targetPort: http
+      name: http

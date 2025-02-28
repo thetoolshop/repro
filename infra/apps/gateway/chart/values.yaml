@@ -1,6 +1,8 @@
 ingress:
   className: nginx
 
+  tlsSecretName: repro-dev-tls
+
   appRoutes:
     host: app.repro.localhost
     annotations:
@@ -9,11 +11,11 @@ ingress:
       - path: /w(/|$)(.*)
         pathType: ImplementationSpecific
         serviceName: workspace-service
-        servicePort: 8443
+        servicePort: http
       - path: /s(/|$)(.*)
         pathType: ImplementationSpecific
         serviceName: public-playback-ui-service
-        servicePort: 8443
+        servicePort: http
   
   apiRoutes:
     host: api.repro.localhost

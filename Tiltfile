@@ -1,5 +1,5 @@
 update_settings(
-    k8s_upsert_timeout_secs=60
+    k8s_upsert_timeout_secs=120
 )
 
 allow_k8s_contexts('kind')
@@ -70,6 +70,25 @@ helm_resource(
     flags=['--set=filer.s3.enabled=true,filer.s3.port=8080'],
     labels=['infra']
 )
+
+helm_repo(
+    'jetstack',
+    'https://charts.jetstack.io',
+    labels=['infra']
+)
+
+helm_resource(
+    name='cert-manager',
+    chart='jetstack/cert-manager',
+    resource_deps=['jetstack'],
+    flags=['--set=crds.enabled=true'],
+    labels=['infra']
+)
+
+k8s_yaml([
+    'infra/k8s/cert-manager/issuer.yaml',
+    'infra/k8s/cert-manager/certificate.yaml'
+])
 
 docker_build(
     'repro-base',

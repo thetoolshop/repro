@@ -1,0 +1,35 @@
+load('ext://helm_resource', 'helm_resource', 'helm_repo')
+
+helm_repo(
+    'bitnami',
+    'https://charts.bitnami.com/bitnami',
+    labels=['infra']
+)
+
+helm_resource(
+    name='database',
+    chart='bitnami/postgresql',
+    namespace='default',
+    resource_deps=['bitnami'],
+    flags=[
+        '--set=global.postgresql.auth.username=repro',
+        '--set=global.postgresql.auth.password=repro',
+        '--set=global.postgresql.auth.database=repro'
+    ],
+    labels=['infra']
+)
+
+helm_repo(
+    'seaweedfs',
+    'https://seaweedfs.github.io/seaweedfs/helm',
+    labels=['infra']
+)
+
+helm_resource(
+    name='storage',
+    chart='seaweedfs/seaweedfs',
+    namespace='default',
+    resource_deps=['seaweedfs'],
+    flags=['--set=filer.s3.enabled=true,filer.s3.port=8080'],
+    labels=['infra']
+)
