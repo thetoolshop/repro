@@ -20,10 +20,14 @@ ingress:
   apiRoutes:
     host: api.repro.localhost
     paths:
+      - path: /w(/|$)(.*)
+        pathType: ImplementationSpecific
+        serviceName: api-server-service
+        servicePort: http
       - path: /s(/|$)(.*)
         pathType: ImplementationSpecific
         serviceName: public-api-server-service
-        servicePort: 8080
+        servicePort: http
   
   adminRoutes:
     host: admin.repro.localhost
@@ -31,4 +35,4 @@ ingress:
       - path: /(.*)
         pathType: ImplementationSpecific
         serviceName: admin-service
-        servicePort: 8080
+        servicePort: http

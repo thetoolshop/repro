@@ -67,18 +67,6 @@ function bootstrap(routers: Record<string, FastifyPluginAsync>) {
     bodyLimit: 16777216, // 16MiB
     http2: true,
     logger: true,
-    https: {
-      key: fs.readFileSync(
-        path.isAbsolute(env.CERT_KEY_FILE)
-          ? env.CERT_KEY_FILE
-          : path.join(projectRoot, env.CERT_KEY_FILE)
-      ),
-      cert: fs.readFileSync(
-        path.isAbsolute(env.CERT_FILE)
-          ? env.CERT_FILE
-          : path.join(projectRoot, env.CERT_FILE)
-      ),
-    },
   })
 
   app.addContentTypeParser('*', async () => {})

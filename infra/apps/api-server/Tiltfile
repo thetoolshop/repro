@@ -1,0 +1,36 @@
+PROJECT_ROOT = os.path.join(os.getcwd(), '../../..')
+
+docker_build(
+    'api-server',
+    PROJECT_ROOT,
+    dockerfile='./Dockerfile',
+    target='dev',
+    live_update=[
+        fall_back_on([
+            'pnpm-lock.yaml',
+            'apps/api-server/.env.development',
+            'apps/api-server/package.json'
+        ]),
+        sync('.', '/app')
+    ]
+)
+
+k8s_yaml(helm(
+    './chart',
+    name='api-server',
+    set=[
+        'container.image=api-server',
+        'vars.REPRO_APP_URL=https://app.repro.localhost/w',
+        'vars.REPRO_API_URL=https://api.repro.localhost/w',
+        'vars.PORT=8080'
+    ]
+))
+
+k8s_resource(
+    'api-server-deployment',
+    new_name='api-server',
+    links=[
+        'https://api.repro.localhost/w',
+    ],
+    labels=['api']
+)

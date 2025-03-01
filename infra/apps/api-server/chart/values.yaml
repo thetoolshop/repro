@@ -1,6 +1,6 @@
 container:
-  name: public-api-server
-  image: public-api-server-dev
+  name: api-server
+  image: api-server-dev
 
 vars:
   NODE_ENV: development

@@ -13,7 +13,7 @@ import {
   reject,
   resolve,
 } from 'fluture'
-import { Http2SecureServer } from 'node:http2'
+import { Http2SecureServer, Http2Server } from 'node:http2'
 import { Env } from '~/config/createEnv'
 import { AccountService } from '~/services/account'
 import { isNotFound, notFound } from '~/utils/errors'
@@ -38,7 +38,7 @@ export function createSessionDecorator(
   env: Env
 ) {
   return function registerSessionDecorator(
-    fastify: FastifyInstance<Http2SecureServer>
+    fastify: FastifyInstance<Http2Server | Http2SecureServer>
   ) {
     const app = fastify.withTypeProvider<ZodTypeProvider>()
 
