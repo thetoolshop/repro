@@ -1,12 +1,11 @@
 import { Cancel, fork, FutureInstance, promise } from 'fluture'
 import {
-  ApiConfiguration,
   AuthStore,
-  createFetch,
   createInMemoryAuthStore,
   createLocalStorageAuthStore,
-  Fetch,
-} from './common'
+} from './auth'
+import { createFetch } from './fetch'
+import { ApiConfiguration, Fetch } from './types'
 
 export interface ApiClient {
   authStore: AuthStore
