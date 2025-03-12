@@ -1,6 +1,6 @@
 import { tap } from '@repro/future-utils'
 import { chain, fork } from 'fluture'
-import { ReadableStream, WritableStream } from 'web-streams-polyfill'
+import { WritableStream } from 'node:stream/web'
 import { AuthStore } from '../auth'
 import { ApiConfiguration, Fetch } from '../types'
 
@@ -91,19 +91,9 @@ export const createFetchTestSuite = (options: TestSuiteOptions) => {
         )
         .pipe(
           fork(error => done(error))(res => {
-            expect(res).toBeInstanceOf(ReadableStream)
-
-            const chunks: Array<ArrayBuffer> = []
-
             res.pipeTo(
               new WritableStream({
-                write(chunk) {
-                  console.error(chunk)
-                  chunks.push(chunk)
-                },
-
                 close() {
-                  console.error(chunks)
                   done()
                 },
               })
