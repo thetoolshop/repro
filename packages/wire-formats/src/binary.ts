@@ -1,4 +1,3 @@
-import { ReadableStream } from 'web-streams-polyfill'
 import { BufferListView } from './generated/buffer-list'
 
 export function toBinaryWireFormat(items: Array<DataView>) {
@@ -22,8 +21,8 @@ function writeToBuffer(
   source: ArrayBuffer,
   byteOffset: number
 ): ArrayBuffer {
-  // NOTE: If source will overflow target buffer, grow target by `BUFFER_CHUNK_SIZE`
-  if (byteOffset + source.byteLength > target.byteLength) {
+  // NOTE: If source will overflow target buffer, grow target by increments of `BUFFER_CHUNK_SIZE`
+  while (byteOffset + source.byteLength > target.byteLength) {
     target = writeToBuffer(
       new ArrayBuffer(target.byteLength + BUFFER_CHUNK_SIZE),
       target,

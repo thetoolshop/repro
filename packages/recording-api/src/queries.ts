@@ -4,7 +4,6 @@ import { RecordingInfo } from '@repro/domain'
 import { decryptF } from '@repro/encryption'
 import { fromBinaryWireFormatStream } from '@repro/wire-formats'
 import { chainRej, fork, map, resolve } from 'fluture'
-import { ReadableStream, TransformStream } from 'web-streams-polyfill'
 
 const EMPTY_RESOURCE_MAP: Record<string, string> = {}
 

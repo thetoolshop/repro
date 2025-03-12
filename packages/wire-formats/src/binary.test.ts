@@ -1,4 +1,3 @@
-import { ReadableStream, WritableStream } from 'web-streams-polyfill'
 import {
   fromBinaryWireFormat,
   fromBinaryWireFormatStream,

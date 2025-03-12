@@ -49,6 +49,7 @@ export function createFetch(
       chain(reqOptions => {
         const init: RequestInit = {
           ...reqOptions,
+          method: options.method ?? reqOptions.method,
           headers: { ...reqOptions.headers, ...options.headers },
           body: options.body,
         }
