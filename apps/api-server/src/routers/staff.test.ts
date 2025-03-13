@@ -1,6 +1,5 @@
 import { FastifyInstance } from 'fastify'
 import { promise } from 'fluture'
-import { Http2SecureServer } from 'http2'
 import { AccountService } from '~/services/account'
 import { Harness, createTestHarness } from '~/testing'
 import { createStaffRouter } from './staff'
@@ -8,7 +7,7 @@ import { createStaffRouter } from './staff'
 describe('Routers > Staff', () => {
   let harness: Harness
   let accountService: AccountService
-  let app: FastifyInstance<Http2SecureServer>
+  let app: FastifyInstance
 
   beforeEach(async () => {
     harness = await createTestHarness()

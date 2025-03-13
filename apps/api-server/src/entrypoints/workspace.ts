@@ -1,6 +1,5 @@
 import compress from '@fastify/compress'
 import cors from '@fastify/cors'
-import fs from 'node:fs'
 import path from 'node:path'
 
 import fastify, { FastifyPluginAsync } from 'fastify'
@@ -65,7 +64,6 @@ const registerSessionDecorator = createSessionDecorator(accountService, env)
 function bootstrap(routers: Record<string, FastifyPluginAsync>) {
   const app = fastify({
     bodyLimit: 16777216, // 16MiB
-    http2: true,
     logger: true,
   })
 

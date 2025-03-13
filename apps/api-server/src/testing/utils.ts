@@ -6,14 +6,13 @@ import {
   validatorCompiler,
 } from 'fastify-type-provider-zod'
 import Future, { FutureInstance, resolve } from 'fluture'
-import { Http2SecureServer } from 'node:http2'
 import { Readable } from 'node:stream'
 
 export function fromRouter(
   router: FastifyPluginCallback,
-  decorators: Array<(fastify: FastifyInstance<Http2SecureServer>) => void> = []
-): FastifyInstance<Http2SecureServer> {
-  const app = fastify() as unknown as FastifyInstance<Http2SecureServer>
+  decorators: Array<(fastify: FastifyInstance) => void> = []
+): FastifyInstance {
+  const app = fastify() as unknown as FastifyInstance
 
   app.addContentTypeParser('*', async () => {})
 

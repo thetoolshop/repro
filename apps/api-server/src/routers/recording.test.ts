@@ -9,7 +9,6 @@ import { Box } from '@repro/tdl'
 import { toWireFormat } from '@repro/wire-formats'
 import { FastifyInstance } from 'fastify'
 import { chain, promise } from 'fluture'
-import { Http2SecureServer } from 'http2'
 import { encodeId } from '~/modules/database'
 import { RecordingService } from '~/services/recording'
 import { Harness, createTestHarness, fixtures } from '~/testing'
@@ -23,7 +22,7 @@ function expectISODate() {
 describe('Routers > Recording', () => {
   let harness: Harness
   let recordingService: RecordingService
-  let app: FastifyInstance<Http2SecureServer>
+  let app: FastifyInstance
 
   beforeEach(async () => {
     harness = await createTestHarness()

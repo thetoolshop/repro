@@ -58,7 +58,6 @@ const registerSessionDecorator = createSessionDecorator(accountService, env)
 function bootstrap(routers: Record<string, FastifyPluginAsync>) {
   const app = fastify({
     bodyLimit: 16777216, // 16MiB
-    http2: true,
     logger: true,
   })
 

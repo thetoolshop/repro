@@ -11,7 +11,6 @@ if (!baseURL.endsWith('/')) {
 }
 
 const port = process.env.PORT || 8080
-const publicPath = new URL(baseURL).pathname
 
 module.exports = {
   mode: process.env.BUILD_ENV === 'production' ? 'production' : 'development',
