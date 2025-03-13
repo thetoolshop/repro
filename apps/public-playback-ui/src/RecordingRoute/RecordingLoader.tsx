@@ -8,7 +8,10 @@ import { createApiSource } from '@repro/recording-api'
 import React, { PropsWithChildren, useEffect, useMemo, useState } from 'react'
 
 function getRecordingId() {
-  const path = location.pathname.split('/').filter(segment => segment !== '')
+  const path = location.href
+    .replace(process.env.REPRO_APP_URL ?? '', '')
+    .split('/')
+    .filter(segment => segment !== '')
   return path[0] ?? null
 }
 
