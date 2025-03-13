@@ -19,6 +19,7 @@
     "@repro/logger": "workspace:*",
     "@repro/playback": "workspace:*",
     "@repro/random-string": "workspace:*",
+    "@repro/stream-utils": "workspace:*",
     "@repro/tdl": "workspace:*",
     "@repro/vdom-utils": "workspace:*",
     "@repro/wire-formats": "workspace:*",

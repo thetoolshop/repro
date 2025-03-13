@@ -1,3 +1,4 @@
+import { ReadableStream } from '@repro/stream-utils'
 import { BufferListView } from './generated/buffer-list'
 
 export function toBinaryWireFormat(items: Array<DataView>) {

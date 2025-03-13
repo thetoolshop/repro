@@ -1,3 +1,4 @@
+import { ReadableStream } from '@repro/stream-utils'
 import {
   fromBinaryWireFormat,
   fromBinaryWireFormatStream,
@@ -57,7 +58,7 @@ describe('wire-formats: binary', () => {
     const encoded = input.map(entity => EntityView.encode(entity))
     const serialized = toBinaryWireFormat(encoded)
 
-    const stream = new ReadableStream({
+    const stream = new ReadableStream<ArrayBuffer>({
       start(controller) {
         const chunkSizeBytes = 8
         let pointer = 0

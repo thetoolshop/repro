@@ -1,6 +1,6 @@
 import { tap } from '@repro/future-utils'
+import { ReadableStream, WritableStream } from '@repro/stream-utils'
 import { chain, fork } from 'fluture'
-import { WritableStream } from 'node:stream/web'
 import { AuthStore } from '../auth'
 import { ApiConfiguration, Fetch } from '../types'
 

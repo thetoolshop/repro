@@ -10,6 +10,7 @@
   },
   "license": "UNLICENSED",
   "dependencies": {
+    "@repro/stream-utils": "workspace:*",
     "@repro/tdl": "workspace:*"
   },
   "devDependencies": {

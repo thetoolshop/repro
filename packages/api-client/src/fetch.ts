@@ -1,3 +1,4 @@
+import { ReadableStream } from '@repro/stream-utils'
 import { attemptP, bichain, chain, FutureInstance, map, resolve } from 'fluture'
 import nativeFetch from 'isomorphic-unfetch'
 import { AuthStore } from './auth'
@@ -75,7 +76,7 @@ export function createFetch(
             // > responses to HEAD requests, or 204 No Content responses).
             //
             // FIXME: Create empty ReadableStream if `res.body` is null
-            return res.body as ReadableStream<Uint8Array>
+            return res.body as unknown as ReadableStream<Uint8Array>
           }
 
           const contentType = res.headers.get('content-type')

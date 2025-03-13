@@ -35,7 +35,7 @@ module.exports = {
         loader: 'esbuild-loader',
         options: {
           minify: true,
-          target: 'es2015',
+          target: 'esnext',
         },
       },
       {
@@ -48,7 +48,7 @@ module.exports = {
   optimization: {
     minimizer: [
       new EsbuildPlugin({
-        target: 'es2015',
+        target: 'esnext',
       }),
     ],
   },

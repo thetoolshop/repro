@@ -2,6 +2,7 @@ import { ApiClient } from '@repro/api-client'
 import { Stats } from '@repro/diagnostics'
 import { RecordingInfo } from '@repro/domain'
 import { decryptF } from '@repro/encryption'
+import { ReadableStream, TransformStream } from '@repro/stream-utils'
 import { fromBinaryWireFormatStream } from '@repro/wire-formats'
 import { chainRej, fork, map, resolve } from 'fluture'
 
