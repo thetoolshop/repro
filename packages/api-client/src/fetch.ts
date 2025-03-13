@@ -1,76 +1,8 @@
-import { deepmerge } from 'deepmerge-ts'
-import {
-  attemptP,
-  bichain,
-  chain,
-  FutureInstance,
-  map,
-  reject,
-  resolve,
-} from 'fluture'
+import { ReadableStream } from '@repro/stream-utils'
+import { attemptP, bichain, chain, FutureInstance, map, resolve } from 'fluture'
 import nativeFetch from 'isomorphic-unfetch'
-import localForage from 'localforage'
-
-export interface ApiConfiguration {
-  baseUrl: string
-  authStorage: 'memory' | 'local-storage'
-}
-
-export interface AuthStore {
-  getSessionToken(): FutureInstance<Error, string>
-  setSessionToken(token: string): FutureInstance<Error, string>
-  clearSessionToken(): FutureInstance<Error, void>
-}
-
-export function createLocalStorageAuthStore(): AuthStore {
-  const KEY = 'repro-session'
-
-  function getSessionToken(): FutureInstance<Error, string> {
-    return attemptP<Error, string | null>(() =>
-      localForage.getItem<string>(KEY)
-    ).pipe(
-      chain(token => (token === null ? reject(new Error()) : resolve(token)))
-    )
-  }
-
-  function setSessionToken(token: string): FutureInstance<Error, string> {
-    return attemptP(() => localForage.setItem<string>(KEY, token))
-  }
-
-  function clearSessionToken(): FutureInstance<Error, void> {
-    return attemptP(() => localForage.removeItem(KEY))
-  }
-
-  return {
-    getSessionToken,
-    setSessionToken,
-    clearSessionToken,
-  }
-}
-
-export function createInMemoryAuthStore(): AuthStore {
-  let storedToken: string | null = null
-
-  function getSessionToken(): FutureInstance<Error, string> {
-    return storedToken === null ? reject(new Error()) : resolve(storedToken)
-  }
-
-  function setSessionToken(token: string): FutureInstance<Error, string> {
-    storedToken = token
-    return resolve(storedToken)
-  }
-
-  function clearSessionToken(): FutureInstance<Error, void> {
-    storedToken = null
-    return resolve(undefined)
-  }
-
-  return {
-    getSessionToken,
-    setSessionToken,
-    clearSessionToken,
-  }
-}
+import { AuthStore } from './auth'
+import { ApiConfiguration, Fetch, FetchOptions } from './types'
 
 export function createDefaultRequestOptions(
   authStore: AuthStore,
@@ -98,27 +30,37 @@ export function createDefaultRequestOptions(
     )
 }
 
-export function createFetch(authStore: AuthStore, config: ApiConfiguration) {
+export function createFetch(
+  authStore: AuthStore,
+  config: ApiConfiguration
+): Fetch {
   return function fetch<R = any>(
     url: string,
-    init: RequestInit = {},
+    options: FetchOptions = {},
     requestType: 'json' | 'binary' = 'json',
     responseType: 'auto' | 'json' | 'binary' | 'text' | 'stream' = 'auto'
   ): FutureInstance<Error, R> {
     const reqOptions = createDefaultRequestOptions(
       authStore,
       requestType,
-      init.body != null
+      options.body != null
     )
 
     const res = reqOptions.pipe(
       chain(reqOptions => {
+        const init: RequestInit = {
+          ...reqOptions,
+          method: options.method ?? reqOptions.method,
+          headers: { ...reqOptions.headers, ...options.headers },
+          body: options.body,
+        }
+
         return attemptP<Error, Response>(() => {
           return nativeFetch(
             url.startsWith('http:') || url.startsWith('https:')
               ? url
               : `${config.baseUrl}/${url.replace(/^\//, '')}`,
-            deepmerge(reqOptions, init)
+            init
           )
         })
       })
@@ -134,7 +76,7 @@ export function createFetch(authStore: AuthStore, config: ApiConfiguration) {
             // > responses to HEAD requests, or 204 No Content responses).
             //
             // FIXME: Create empty ReadableStream if `res.body` is null
-            return res.body as ReadableStream<Uint8Array>
+            return res.body as unknown as ReadableStream<Uint8Array>
           }
 
           const contentType = res.headers.get('content-type')
@@ -173,5 +115,3 @@ export function createFetch(authStore: AuthStore, config: ApiConfiguration) {
     )
   }
 }
-
-export type Fetch = ReturnType<typeof createFetch>

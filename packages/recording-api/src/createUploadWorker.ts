@@ -1,5 +1,4 @@
 import { ApiClient } from '@repro/api-client'
-import { createNotifiableBufferStream } from '@repro/buffer-utils'
 import { RecordingInfo, SourceEvent, SourceEventView } from '@repro/domain'
 import { createExportedKeyF, encryptF } from '@repro/encryption'
 import { tap } from '@repro/future-utils'
@@ -149,34 +148,23 @@ export function createUploadWorker(
     input: UploadInput,
     progress: UploadProgress
   ): FutureInstance<Error, RecordingInfo> {
-    const body = createNotifiableBufferStream(
-      new TextEncoder().encode(
-        JSON.stringify({
-          title: input.title,
-          description: input.description,
-          url: input.url,
-          mode: input.mode,
-          duration: input.duration,
-          browserName: input.browserName,
-          browserVersion: input.browserVersion,
-          operatingSystem: input.operatingSystem,
-        })
-      ),
-      (bytesRead, byteLength) => {
-        updateStage(
-          UploadStage.CreateRecording,
-          bytesRead / byteLength,
-          progress
-        )
-      }
-    )
-
-    return apiClient.fetch<RecordingInfo>('/recordings', {
+    const res = apiClient.fetch<RecordingInfo>('/recordings', {
       method: 'POST',
-      body,
-      // @ts-expect-error
-      duplex: 'half',
+      body: JSON.stringify({
+        title: input.title,
+        description: input.description,
+        url: input.url,
+        mode: input.mode,
+        duration: input.duration,
+        browserName: input.browserName,
+        browserVersion: input.browserVersion,
+        operatingSystem: input.operatingSystem,
+      }),
     })
+
+    return res.pipe(
+      tap(() => updateStage(UploadStage.CreateRecording, 1, progress))
+    )
   }
 
   function saveEvents(
@@ -212,24 +200,15 @@ export function createUploadWorker(
 
     return serialized.pipe(
       chain(value => {
-        const body = createNotifiableBufferStream(
-          gzipSync(new Uint8Array(value.buffer)),
-          (bytesRead, byteLength) => {
-            updateStage(
-              UploadStage.SaveEvents,
-              bytesRead / byteLength,
-              progress
-            )
-          }
-        )
-
-        return apiClient.fetch(`/recordings/${recordingId}/data`, {
+        const res = apiClient.fetch(`/recordings/${recordingId}/data`, {
           method: 'PUT',
-          body,
           headers: { 'Content-Type': 'application/octet-stream' },
-          // @ts-expect-error
-          duplex: 'half',
+          body: gzipSync(new Uint8Array(value.buffer)),
         })
+
+        return res.pipe(
+          tap(() => updateStage(UploadStage.SaveEvents, 1, progress))
+        )
       })
     )
   }

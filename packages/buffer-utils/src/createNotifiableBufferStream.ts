@@ -1,3 +1,5 @@
+import { ReadableStream } from '@repro/stream-utils'
+
 interface Options {
   chunkSize: number
 }
