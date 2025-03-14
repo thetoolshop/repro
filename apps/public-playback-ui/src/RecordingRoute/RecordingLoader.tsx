@@ -9,7 +9,10 @@ import React, { PropsWithChildren, useEffect, useMemo, useState } from 'react'
 
 function getRecordingId() {
   const path = location.href
+    // Strip leading app base URL
     .replace(process.env.REPRO_APP_URL ?? '', '')
+    // Strip trailing hash (encryption key)
+    .replace(/#.*$/, '')
     .split('/')
     .filter(segment => segment !== '')
   return path[0] ?? null

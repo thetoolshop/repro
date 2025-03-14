@@ -19,6 +19,10 @@ ingress:
   
   apiRoutes:
     host: api.repro.localhost
+    annotations:
+      nginx.ingress.kubernetes.io/proxy-body-size: "0"
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+      nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
     paths:
       - path: /w(/|$)(.*)
         pathType: ImplementationSpecific
