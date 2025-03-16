@@ -6,20 +6,19 @@ import {
   SourceEvent,
   SourceEventType,
 } from '@repro/domain'
+import { Box } from '@repro/tdl'
 import { FastifyInstance } from 'fastify'
 import { chain, promise } from 'fluture'
-import { Http2SecureServer } from 'http2'
 import { encodeId } from '~/modules/database'
 import { Harness, createTestHarness, fixtures } from '~/testing'
 import { createRecordingDataWireFormat } from '~/testing/recording'
 import { readableToString } from '~/testing/utils'
 import { errorType, notFound } from '~/utils/errors'
 import { createProjectRouter } from './project'
-import { Box } from '@repro/tdl'
 
 describe('Routers > Project', () => {
   let harness: Harness
-  let app: FastifyInstance<Http2SecureServer>
+  let app: FastifyInstance
 
   beforeEach(async () => {
     harness = await createTestHarness()

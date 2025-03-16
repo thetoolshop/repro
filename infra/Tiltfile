@@ -1,0 +1,40 @@
+PROJECT_ROOT = os.path.join(os.getcwd(), '..')
+
+update_settings(
+  k8s_upsert_timeout_secs=120
+)
+
+allow_k8s_contexts('kind')
+
+local_resource(
+  'dependencies',
+  cmd='pnpm fetch && pnpm install --offline',
+  dir='..',
+  deps=['pnpm-lock.yaml'],
+  labels=['infra'],
+)
+
+load_dynamic('./apps/capture/Tiltfile')
+load_dynamic('./apps/capture-public/Tiltfile')
+load_dynamic('./apps/dev-toolbar/Tiltfile')
+
+docker_build(
+    'repro-base',
+    PROJECT_ROOT,
+    dockerfile='./base.dockerfile',
+    ignore=['infra', 'dist', 'build', 'node_modules']
+)
+
+# Data
+load_dynamic('./apps/data/Tiltfile')
+
+# APIs
+load_dynamic('./apps/api-server/Tiltfile')
+load_dynamic('./apps/public-api-server/Tiltfile')
+
+# Apps
+load_dynamic('./apps/public-playback-ui/Tiltfile')
+load_dynamic('./apps/workspace/Tiltfile')
+
+# Infra
+load_dynamic('./apps/gateway/Tiltfile')

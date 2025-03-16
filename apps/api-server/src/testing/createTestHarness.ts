@@ -1,5 +1,4 @@
 import { FastifyInstance, FastifyPluginAsync } from 'fastify'
-import { Http2SecureServer } from 'http2'
 import { Env, createEnv } from '~/config/createEnv'
 import { createSessionDecorator } from '~/decorators/session'
 import { Database } from '~/modules/database'
@@ -20,7 +19,7 @@ export interface Harness {
   env: Env
   services: Services
 
-  bootstrap(router: FastifyPluginAsync): FastifyInstance<Http2SecureServer>
+  bootstrap(router: FastifyPluginAsync): FastifyInstance
   // expectEmailToHaveBeenSent(params: SendParams): void
   loadFixtures<T extends Array<Fixture<unknown>>>(
     fixtures: [...T]

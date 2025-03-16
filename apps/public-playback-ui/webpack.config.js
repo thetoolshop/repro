@@ -10,6 +10,8 @@ if (!baseURL.endsWith('/')) {
   baseURL += '/'
 }
 
+const port = process.env.PORT || 8080
+
 module.exports = {
   mode: process.env.BUILD_ENV === 'production' ? 'production' : 'development',
 
@@ -58,7 +60,8 @@ module.exports = {
       BUILD_ENV: 'production',
       STATS_LEVEL: 'debug',
       AUTH_STORAGE: 'memory',
-      REPRO_API_URL: 'http://localhost:8181'
+      REPRO_APP_URL: 'http://localhost:8080',
+      REPRO_API_URL: 'http://localhost:8181',
     }),
 
     new HtmlWebpackPlugin({
@@ -69,10 +72,11 @@ module.exports = {
   ],
 
   devServer: {
-    port: process.env.PORT || 8080,
-    allowedHosts: ['app.repro.test', 'localhost:8080'],
+    port,
+    allowedHosts: [`app.repro.localhost:${port}`, `localhost:${port}`],
     historyApiFallback: true,
     static: path.resolve(__dirname, 'dist'),
+    webSocketServer: false,
   },
 
   devtool: process.env.BUILD_ENV === 'development' ? 'eval-source-map' : false,

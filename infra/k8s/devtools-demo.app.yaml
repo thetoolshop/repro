@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devtools-demo
+  labels:
+    app: devtools-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: devtools-demo
+  template:
+    metadata:
+      labels:
+        app: devtools-demo
+    spec:
+      containers:
+      - name: devtools-demo
+        image: devtools-demo-dev
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 3004
+        env:
+        - name: NODE_ENV
+          value: "development"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: devtools-demo
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 3004
+  selector:
+    app: devtools-demo 

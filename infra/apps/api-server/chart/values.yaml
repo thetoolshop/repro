@@ -1,0 +1,11 @@
+container:
+  name: api-server
+  image: api-server-dev
+
+vars:
+  NODE_ENV: development
+  HOST: 0.0.0.0
+  PORT: 8080
+  DB_FILE: tmp/repro-data.db
+  STORAGE_DIR: tmp/storage
+  DEBUG: true

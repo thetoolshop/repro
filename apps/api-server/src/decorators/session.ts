@@ -2,7 +2,7 @@ import fastifyCookie from '@fastify/cookie'
 import { Session, StaffUser, User } from '@repro/domain'
 import { tap } from '@repro/future-utils'
 import { addMinutes, min, parseISO } from 'date-fns'
-import { FastifyInstance, FastifyRequest, RouteGenericInterface } from 'fastify'
+import { FastifyInstance, FastifyRequest } from 'fastify'
 import { ZodTypeProvider } from 'fastify-type-provider-zod'
 import {
   FutureInstance,
@@ -13,7 +13,6 @@ import {
   reject,
   resolve,
 } from 'fluture'
-import { Http2SecureServer } from 'node:http2'
 import { Env } from '~/config/createEnv'
 import { AccountService } from '~/services/account'
 import { isNotFound, notFound } from '~/utils/errors'
@@ -29,17 +28,13 @@ declare module 'fastify' {
   }
 }
 
-type Request =
-  | FastifyRequest
-  | FastifyRequest<RouteGenericInterface, Http2SecureServer>
+type Request = FastifyRequest
 
 export function createSessionDecorator(
   accountService: AccountService,
   env: Env
 ) {
-  return function registerSessionDecorator(
-    fastify: FastifyInstance<Http2SecureServer>
-  ) {
+  return function registerSessionDecorator(fastify: FastifyInstance) {
     const app = fastify.withTypeProvider<ZodTypeProvider>()
 
     function getSessionToken<T extends Request>(req: T) {

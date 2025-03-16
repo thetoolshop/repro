@@ -1,0 +1,36 @@
+PROJECT_ROOT = os.path.join(os.getcwd(), '../../..')
+
+docker_build(
+  'workspace',
+  PROJECT_ROOT,
+  dockerfile='./Dockerfile',
+  target='dev',
+  ignore=['infra', 'dist', 'build', 'node_modules'],
+  live_update=[
+    fall_back_on([
+      os.path.join(PROJECT_ROOT, 'pnpm-lock.yaml'),
+      os.path.join(PROJECT_ROOT, 'package.json'),
+    ]),
+    sync(PROJECT_ROOT, '/app')
+  ]
+)
+
+k8s_yaml(helm(
+  './chart',
+  name='workspace',
+  set=[
+    'container.image=workspace',
+    'vars.REPRO_APP_URL=https://app.repro.localhost/w',
+    'vars.REPRO_API_URL=https://api.repro.localhost/w',
+    'vars.PORT=8080'
+  ]
+))
+
+k8s_resource(
+  'workspace-deployment',
+  new_name='workspace',
+  links=[
+    'https://app.repro.localhost/w',
+  ],
+  labels=['app']
+)

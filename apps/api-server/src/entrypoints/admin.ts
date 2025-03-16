@@ -1,6 +1,5 @@
 import compress from '@fastify/compress'
 import cors from '@fastify/cors'
-import fs from 'node:fs'
 import path from 'node:path'
 
 import fastify, { FastifyPluginAsync } from 'fastify'
@@ -68,20 +67,7 @@ const registerSessionDecorator = createSessionDecorator(accountService, env)
 function bootstrap(routers: Record<string, FastifyPluginAsync>) {
   const app = fastify({
     bodyLimit: 16777216, // 16MiB
-    http2: true,
     logger: true,
-    https: {
-      key: fs.readFileSync(
-        path.isAbsolute(env.CERT_KEY_FILE)
-          ? env.CERT_KEY_FILE
-          : path.join(projectRoot, env.CERT_KEY_FILE)
-      ),
-      cert: fs.readFileSync(
-        path.isAbsolute(env.CERT_FILE)
-          ? env.CERT_FILE
-          : path.join(projectRoot, env.CERT_FILE)
-      ),
-    },
   })
 
   app.addContentTypeParser('*', async () => {})

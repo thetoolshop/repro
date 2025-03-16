@@ -3,7 +3,7 @@ name: Build, lint and test
 on:
   push:
     branches:
-      - '**'
+      - "**"
 
 jobs:
   run-affected:
@@ -17,14 +17,13 @@ jobs:
       - name: Setup PNPM
         uses: pnpm/action-setup@v4
         with:
-          version: 8
           run_install: false
 
       - name: Setup Node.js with caching
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Get npm-forks cache
         uses: actions/cache@v3

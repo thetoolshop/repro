@@ -1,0 +1,42 @@
+ingress:
+  className: nginx
+
+  tlsSecretName: repro-dev-tls
+
+  appRoutes:
+    host: app.repro.localhost
+    annotations:
+      nginx.ingress.kubernetes.io/app-root: /w
+    paths:
+      - path: /w(/|$)(.*)
+        pathType: ImplementationSpecific
+        serviceName: workspace-service
+        servicePort: http
+      - path: /s(/|$)(.*)
+        pathType: ImplementationSpecific
+        serviceName: public-playback-ui-service
+        servicePort: http
+  
+  apiRoutes:
+    host: api.repro.localhost
+    annotations:
+      nginx.ingress.kubernetes.io/proxy-body-size: "0"
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+      nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    paths:
+      - path: /w(/|$)(.*)
+        pathType: ImplementationSpecific
+        serviceName: api-server-service
+        servicePort: http
+      - path: /s(/|$)(.*)
+        pathType: ImplementationSpecific
+        serviceName: public-api-server-service
+        servicePort: http
+  
+  adminRoutes:
+    host: admin.repro.localhost
+    paths:
+      - path: /(.*)
+        pathType: ImplementationSpecific
+        serviceName: admin-service
+        servicePort: http
