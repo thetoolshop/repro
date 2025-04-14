@@ -1,3 +1,5 @@
+import expect from 'expect'
+import { describe, it } from 'node:test'
 import { fromJSON, fromWireFormat, toJSON, toWireFormat } from './legacyText'
 
 describe('wire-formats: text', () => {

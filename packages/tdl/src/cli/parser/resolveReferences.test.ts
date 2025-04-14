@@ -1,3 +1,5 @@
+import expect from 'expect'
+import { describe, it } from 'node:test'
 import { ASTNodeType } from './ASTTypes'
 import { buildAST } from './buildAST'
 import { ResolutionError } from './errors'
@@ -38,7 +40,7 @@ describe('resolveReferences', () => {
     const program: Program = [a, b, c]
     resolveReferences(program)
 
-    expect(program).toEqual<Program>([
+    expect(program).toEqual([
       {
         name: 'a',
         filename: 'a.tdls',

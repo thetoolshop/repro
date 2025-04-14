@@ -1,5 +1,7 @@
+import expect from 'expect'
 import { FastifyInstance } from 'fastify'
 import { map, promise } from 'fluture'
+import { afterEach, beforeEach, describe, it } from 'node:test'
 import { decodeId } from '~/modules/database'
 import { AccountService } from '~/services/account'
 import { Harness, createTestHarness, fixtures } from '~/testing'
@@ -185,7 +187,7 @@ describe('Routers > Account', () => {
       })
 
       expect(res.statusCode).toEqual(200)
-      expect(res.json()).toMatchObject(user)
+      expect(res.json()).toMatchObject({ ...user })
     })
 
     it('should return not-found for the current user with no session', async () => {

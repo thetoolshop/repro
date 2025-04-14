@@ -1,11 +1,9 @@
-/**
- * @jest-environment jsdom
- */
-
 import { DOMPatch, NodeType, PatchType } from '@repro/domain'
 import { Box } from '@repro/tdl'
 import { MockNodeList } from '@repro/testing-utils'
 import { getNodeId } from '@repro/vdom-utils'
+import expect from 'expect'
+import { describe, it } from 'node:test'
 import { RecordingOptions } from '../types'
 import { internal__processMutationRecords } from './observe'
 import { createDOMTreeWalker } from './utils'
@@ -165,7 +163,7 @@ describe('libs/record: dom observers', () => {
 
     internal__processMutationRecords(records, walkDOMTree, options, subscriber)
 
-    expect(patches).toEqual<Array<DOMPatch>>([
+    expect(patches).toEqual([
       new Box({
         type: PatchType.RemoveNodes,
         parentId: getNodeId(target),

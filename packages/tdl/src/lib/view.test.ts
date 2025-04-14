@@ -1,3 +1,6 @@
+import expect from 'expect'
+import { describe, it } from 'node:test'
+
 import {
   AnyDescriptor,
   ArrayDescriptor,
@@ -15,9 +18,17 @@ import {
 import { Box } from './Box'
 import { createView } from './view'
 
+function each<T extends Array<unknown>>(entries: Array<T>) {
+  return function (name: string, fn: (...args: T) => void) {
+    for (const entry of entries) {
+      it(name, () => fn(...entry))
+    }
+  }
+}
+
 describe('view', () => {
   describe('integer', () => {
-    it.each<[IntegerDescriptor, number]>([
+    each<[IntegerDescriptor, number]>([
       [{ type: 'integer', signed: false, bits: 8 }, 64],
       [{ type: 'integer', signed: true, bits: 8 }, 64],
       [{ type: 'integer', signed: false, bits: 16 }, 4096],
@@ -35,7 +46,7 @@ describe('view', () => {
   })
 
   describe('char', () => {
-    it.each<[CharDescriptor, string]>([
+    each<[CharDescriptor, string]>([
       [{ type: 'char', bytes: 1 }, 'a'],
       [{ type: 'char', bytes: 8 }, 'abcdefgh'],
     ])('should encode and decode', (descriptor, input) => {
@@ -49,7 +60,7 @@ describe('view', () => {
   })
 
   describe('string', () => {
-    it.each<[StringDescriptor, string]>([
+    each<[StringDescriptor, string]>([
       [{ type: 'string' }, 'foo bar baz'],
       [{ type: 'string' }, ''],
     ])('should encode and decode', (descriptor, input) => {
@@ -63,7 +74,7 @@ describe('view', () => {
   })
 
   describe('bool', () => {
-    it.each<[BooleanDescriptor, boolean]>([
+    each<[BooleanDescriptor, boolean]>([
       [{ type: 'bool' }, true],
       [{ type: 'bool' }, false],
     ])('should encode and decode', (descriptor, input) => {
@@ -77,7 +88,7 @@ describe('view', () => {
   })
 
   describe('buffer', () => {
-    it.each<[BufferDescriptor, ArrayBufferLike]>([
+    each<[BufferDescriptor, ArrayBufferLike]>([
       [{ type: 'buffer' }, new Uint8Array([1, 2, 3, 4]).buffer],
     ])('should encode and decode', (descriptor, input) => {
       const view = createView(descriptor)
@@ -90,7 +101,7 @@ describe('view', () => {
   })
 
   describe('struct', () => {
-    it.each<[StructDescriptor, object]>([
+    each<[StructDescriptor, object]>([
       [
         {
           type: 'struct',
@@ -248,7 +259,7 @@ describe('view', () => {
   })
 
   describe('array', () => {
-    it.each<[ArrayDescriptor, Array<any>]>([
+    each<[ArrayDescriptor, Array<any>]>([
       [
         {
           type: 'array',
@@ -268,7 +279,7 @@ describe('view', () => {
   })
 
   describe('vector', () => {
-    it.each<[VectorDescriptor, Array<any>]>([
+    each<[VectorDescriptor, Array<any>]>([
       [
         { type: 'vector', items: { type: 'integer', signed: false, bits: 8 } },
         [64, 128],
@@ -315,7 +326,7 @@ describe('view', () => {
   })
 
   describe('map', () => {
-    it.each<[MapDescriptor, object]>([
+    each<[MapDescriptor, object]>([
       [
         {
           type: 'map',
@@ -358,7 +369,7 @@ describe('view', () => {
   })
 
   describe('union', () => {
-    it.each<[UnionDescriptor, any]>([
+    each<[UnionDescriptor, any]>([
       [
         {
           type: 'union',
@@ -394,7 +405,7 @@ describe('view', () => {
   })
 
   describe('null', () => {
-    it.each<[AnyDescriptor, null]>([
+    each<[AnyDescriptor, null]>([
       [{ type: 'integer', signed: false, bits: 8, nullable: true }, null],
       [{ type: 'char', bytes: 2, nullable: true }, null],
       [{ type: 'string', nullable: true }, null],

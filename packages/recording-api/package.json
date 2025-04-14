@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "src/index.ts",
   "scripts": {
-    "test": "jest --passWithNoTests",
+    "test": "tsx --experimental-test-module-mocks --test src/**/*.test.ts{,x}",
     "fmt": "prettier --write src",
     "typecheck": "tsc --noEmit"
   },
@@ -27,14 +27,12 @@
     "fluture": "^14.0.0"
   },
   "devDependencies": {
-    "@types/jest": "^28.1.7",
-    "@types/node": "^18.6.2",
+    "@types/node": "22.14.0",
     "@types/repro-shared-types": "workspace:*",
-    "jest": "^28.1.3",
     "prettier": "^3.0.0",
     "prettier-plugin-organize-imports": "^3.2.3",
     "ts-eager": "^2.0.2",
-    "ts-jest": "^28.0.8",
+    "tsx": "4.19.3",
     "typescript": "overridden"
   }
 }

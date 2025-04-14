@@ -32,7 +32,8 @@ export function createDefaultRequestOptions(
 
 export function createFetch(
   authStore: AuthStore,
-  config: ApiConfiguration
+  config: ApiConfiguration,
+  fetchImpl = nativeFetch
 ): Fetch {
   return function fetch<R = any>(
     url: string,
@@ -56,7 +57,7 @@ export function createFetch(
         }
 
         return attemptP<Error, Response>(() => {
-          return nativeFetch(
+          return fetchImpl(
             url.startsWith('http:') || url.startsWith('https:')
               ? url
               : `${config.baseUrl}/${url.replace(/^\//, '')}`,

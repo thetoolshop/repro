@@ -5,7 +5,8 @@ import {
   SourceEventType,
 } from '@repro/domain'
 import { Box } from '@repro/tdl'
-import { LogItem } from './types'
+import expect from 'expect'
+import { describe, it } from 'node:test'
 import { collapseItemsIntoGroups } from './utils'
 
 function createPointerMove(
@@ -53,7 +54,7 @@ describe('collapseItemsIntoGroups', () => {
       createPointerMove(80, [40, 40], [50, 50]),
     ])
 
-    expect(items).toEqual<Array<LogItem>>([
+    expect(items).toEqual([
       {
         group: true,
         type: SourceEventType.Interaction,
@@ -78,7 +79,7 @@ describe('collapseItemsIntoGroups', () => {
       createPointerMove(60, [30, 30], [40, 40]),
     ])
 
-    expect(items).toEqual<Array<LogItem>>([
+    expect(items).toEqual([
       createPointerMove(0, [0, 0], [10, 10]),
       createScroll(20, [10, 10], [20, 20]),
       {
@@ -111,7 +112,7 @@ describe('collapseItemsIntoGroups', () => {
       createPointerMove(80, [40, 40], [50, 50]),
     ])
 
-    expect(items).toEqual<Array<LogItem>>([
+    expect(items).toEqual([
       {
         group: true,
         type: SourceEventType.Interaction,

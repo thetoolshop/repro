@@ -6,7 +6,7 @@
   "scripts": {
     "bench": "./scripts/bench",
     "build": "tdlc src --outdir src/generated",
-    "test": "jest --passWithNoTests",
+    "test": "tsx --test src/**/*.test.ts{,x}",
     "fmt": "prettier --write src",
     "typecheck": "tsc --noEmit"
   },
@@ -25,15 +25,16 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "@types/jest": "^28.1.8",
+    "@types/expect": "^24.3.2",
+    "@types/node": "22.14.0",
+    "@types/repro-shared-types": "workspace:*",
     "@types/uuid": "^8.3.4",
+    "expect": "^29.7.0",
     "fflate": "^0.7.3",
-    "jest": "^29.7.0",
     "prettier": "^3.0.0",
     "prettier-plugin-organize-imports": "^3.2.3",
     "ts-eager": "^2.0.2",
-    "ts-jest": "^29.1.2",
-    "typescript": "overridden",
-    "@types/repro-shared-types": "workspace:*"
+    "tsx": "4.19.3",
+    "typescript": "overridden"
   }
 }

@@ -1,4 +1,6 @@
+import expect from 'expect'
 import { chain, map, parallel, promise } from 'fluture'
+import { afterEach, beforeEach, describe, it } from 'node:test'
 import { decodeId, encodeId } from '~/modules/database'
 import { Harness, createTestHarness } from '~/testing'
 import { notFound, permissionDenied, resourceConflict } from '~/utils/errors'
@@ -341,7 +343,7 @@ describe('Services > Account', () => {
             invitation.email
           )
         )
-      ).resolves.toMatchObject(invitation)
+      ).resolves.toMatchObject({ ...invitation })
 
       await expect(
         promise(accountService.deactivateInvitation(invitation.id))
@@ -377,7 +379,7 @@ describe('Services > Account', () => {
             'jsmith@example.com'
           )
         )
-      ).resolves.toMatchObject(invitation)
+      ).resolves.toMatchObject({ ...invitation })
     })
 
     it('should throw not-found when getting a non-existent invitation by token and email address', async () => {
@@ -699,7 +701,7 @@ describe('Services > Account', () => {
 
       await expect(
         promise(accountService.getAccountForUser(user.id))
-      ).resolves.toMatchObject(account)
+      ).resolves.toMatchObject({ ...account })
     })
   })
 
@@ -760,7 +762,7 @@ describe('Services > Account', () => {
 
       await expect(
         promise(accountService.getSessionByToken(session.sessionToken))
-      ).resolves.toMatchObject(session)
+      ).resolves.toMatchObject({ ...session })
     })
 
     it('should throw not-found when getting a non-existent session by session token', async () => {

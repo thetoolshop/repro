@@ -9,9 +9,11 @@ import {
   RequestType,
   VTree,
 } from '@repro/domain'
+import expect from 'expect'
 // @ts-ignore
 import nativeFetch from 'isomorphic-fetch'
 import { newMockXhr } from 'mock-xmlhttprequest'
+import { afterEach, describe, it } from 'node:test'
 // import fetch, { Request } from 'node-fetch'
 import { ObserverLike } from '@repro/observer-utils'
 import { Box } from '@repro/tdl'
@@ -55,7 +57,7 @@ describe('libs/record: network observers', () => {
           .map(message => message.correlationId)
           .unwrap()
 
-        expect(message).toEqual<NetworkMessage>(
+        expect(message).toEqual(
           new Box({
             type: NetworkMessageType.FetchRequest,
             requestType: RequestType.XHR,

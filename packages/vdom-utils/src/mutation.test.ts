@@ -1,5 +1,7 @@
 import { NodeType, VElement, VText, VTree } from '@repro/domain'
 import { Box } from '@repro/tdl'
+import expect from 'expect'
+import { describe, it } from 'node:test'
 import { removeSubTreesAtNode } from './mutation'
 
 describe('utils: vdom', () => {
