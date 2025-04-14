@@ -275,7 +275,7 @@ importers:
         specifier: ^2.8.12
         version: 2.8.12
       '@types/expect':
-        specifier: ^24.3.2
+        specifier: 24.3.2
         version: 24.3.2
       '@types/node':
         specifier: 22.14.0
@@ -299,7 +299,7 @@ importers:
         specifier: ^7.3.0
         version: 7.3.0
       expect:
-        specifier: ^29.7.0
+        specifier: 29.7.0
         version: 29.7.0
       migration-files:
         specifier: ^0.4.1
@@ -1421,7 +1421,7 @@ importers:
         version: 3.23.8
     devDependencies:
       '@types/expect':
-        specifier: ^24.3.2
+        specifier: 24.3.2
         version: 24.3.2
       '@types/node':
         specifier: 22.14.0
@@ -1433,7 +1433,7 @@ importers:
         specifier: workspace:*
         version: link:../shared-types
       expect:
-        specifier: ^29.7.0
+        specifier: 29.7.0
         version: 29.7.0
       prettier:
         specifier: ^3.0.0
@@ -1935,7 +1935,7 @@ importers:
         version: 9.0.0
     devDependencies:
       '@types/expect':
-        specifier: ^24.3.2
+        specifier: 24.3.2
         version: 24.3.2
       '@types/node':
         specifier: 22.14.0
@@ -1947,7 +1947,7 @@ importers:
         specifier: ^8.3.4
         version: 8.3.4
       expect:
-        specifier: ^29.7.0
+        specifier: 29.7.0
         version: 29.7.0
       fflate:
         specifier: ^0.7.3
@@ -1975,7 +1975,7 @@ importers:
         version: 14.0.0
     devDependencies:
       '@types/expect':
-        specifier: ^24.3.2
+        specifier: 24.3.2
         version: 24.3.2
       '@types/node':
         specifier: 22.14.0
@@ -1984,7 +1984,7 @@ importers:
         specifier: workspace:*
         version: link:../shared-types
       expect:
-        specifier: ^29.7.0
+        specifier: 29.7.0
         version: 29.7.0
       prettier:
         specifier: ^3.0.0
@@ -2586,7 +2586,7 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0(ohm-js@17.1.0)
       '@types/expect':
-        specifier: ^24.3.2
+        specifier: 24.3.2
         version: 24.3.2
       '@types/glob':
         specifier: ^8.1.0
@@ -2601,7 +2601,7 @@ importers:
         specifier: ^17.0.24
         version: 17.0.24
       expect:
-        specifier: ^29.7.0
+        specifier: 29.7.0
         version: 29.7.0
       prettier-plugin-organize-imports:
         specifier: ^3.2.3
@@ -2746,7 +2746,7 @@ importers:
         version: link:../ts-utils
     devDependencies:
       '@types/expect':
-        specifier: ^24.3.2
+        specifier: 24.3.2
         version: 24.3.2
       '@types/node':
         specifier: 22.14.0
@@ -2755,7 +2755,7 @@ importers:
         specifier: workspace:*
         version: link:../shared-types
       expect:
-        specifier: ^29.7.0
+        specifier: 29.7.0
         version: 29.7.0
       prettier:
         specifier: ^3.0.0
@@ -2786,7 +2786,7 @@ importers:
         specifier: workspace:*
         version: link:../testing-utils
       '@types/expect':
-        specifier: ^24.3.2
+        specifier: 24.3.2
         version: 24.3.2
       '@types/node':
         specifier: 22.14.0
@@ -2795,7 +2795,7 @@ importers:
         specifier: workspace:*
         version: link:../shared-types
       expect:
-        specifier: ^29.7.0
+        specifier: 29.7.0
         version: 29.7.0
       prettier:
         specifier: ^3.0.0
@@ -7962,16 +7962,6 @@ packages:
     resolution: {integrity: sha512-GRnmB5gPyJpAhTQdSZTSp9uaPSvl09KoYcMQtsB9rQoOmzs9dH6ffeccH+Z+cv6P68Hu5bC6JjRh4Ah/mHSNRw==}
     dev: false
 
-  /follow-redirects@1.15.9:
-    resolution: {integrity: sha512-gew4GsXizNgdoRyqmyfMHyAmXsZDk6mHkSxZFCzW9gwlbtOW44CDtYavM+y+72qD/Vq2l550kMF52DT8fOLJqQ==}
-    engines: {node: '>=4.0'}
-    peerDependencies:
-      debug: '*'
-    peerDependenciesMeta:
-      debug:
-        optional: true
-    dev: true
-
   /follow-redirects@1.15.9(debug@4.3.5):
     resolution: {integrity: sha512-gew4GsXizNgdoRyqmyfMHyAmXsZDk6mHkSxZFCzW9gwlbtOW44CDtYavM+y+72qD/Vq2l550kMF52DT8fOLJqQ==}
     engines: {node: '>=4.0'}
@@ -7982,7 +7972,6 @@ packages:
         optional: true
     dependencies:
       debug: 4.3.5
-    dev: false
 
   /foreground-child@3.1.1:
     resolution: {integrity: sha512-TMKDUnIte6bfb5nWv7V/caI169OHgvwjb7V4WkeUvbQQdjr5rWKqHFiKWb/fcOwB+CzBT+qbWjvj+DVwRskpIg==}
@@ -8620,7 +8609,7 @@ packages:
     engines: {node: '>=8.0.0'}
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.15.9
+      follow-redirects: 1.15.9(debug@4.3.5)
       requires-port: 1.0.0
     transitivePeerDependencies:
       - debug
