@@ -29,7 +29,6 @@ export interface Harness {
 
 export async function createTestHarness(): Promise<Harness> {
   const env = createEnv({
-    DB_FILE: '',
     STORAGE_DIR: '',
     CERT_FILE: '',
     CERT_KEY_FILE: '',

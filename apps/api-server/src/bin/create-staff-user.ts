@@ -1,16 +1,17 @@
 import { input, password } from '@inquirer/prompts'
 import { fork } from 'fluture'
-import path from 'node:path'
 
 import { defaultEnv as env } from '~/config/env'
-import { createSQLiteDatabaseClient } from '~/modules/database'
+import { createPostgresDatabaseClient } from '~/modules/database/database-postgres'
 import { createStubEmailUtils } from '~/modules/email-utils'
 import { createAccountService } from '~/services/account'
 
-const projectRoot = path.resolve(__dirname, '../..')
-
-const database = createSQLiteDatabaseClient({
-  path: path.join(projectRoot, env.DB_FILE),
+const database = createPostgresDatabaseClient({
+  host: env.DB_HOST,
+  port: env.DB_PORT,
+  database: env.DB_NAME,
+  user: env.DB_USER,
+  password: env.DB_PASSWORD,
 })
 
 // FIXME: use real SMTP email utils?

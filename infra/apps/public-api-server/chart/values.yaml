@@ -6,6 +6,10 @@ vars:
   NODE_ENV: development
   HOST: 0.0.0.0
   PORT: 8080
-  DB_FILE: tmp/repro-data.db
+  DB_HOST: database-postgresql
+  DB_PORT: 5432
+  DB_USER: repro
+  DB_PASSWORD: repro
+  DB_NAME: repro
   STORAGE_DIR: tmp/storage
   DEBUG: true

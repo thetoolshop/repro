@@ -1,15 +1,15 @@
-import { migrate } from '@blackglory/better-sqlite3-migrations'
 import SQLiteDatabase from 'better-sqlite3'
-import { getMigrations } from '~/migrations/getMigrations'
+import { migrate } from '~/migrations/migrate'
 import { createSQLiteDatabaseClient } from '~/modules/database'
 
 export async function setUpTestDatabase() {
   const db = new SQLiteDatabase(':memory:')
-  const migrations = await getMigrations()
-  migrate(db, migrations)
+  const client = createSQLiteDatabaseClient(db)
+
+  await migrate(client)
 
   return {
-    db: createSQLiteDatabaseClient(db),
+    db: client,
     close: async () => {
       db.close()
     },

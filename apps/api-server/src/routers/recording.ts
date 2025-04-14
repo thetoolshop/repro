@@ -221,7 +221,17 @@ export function createRecordingRouter(
         schema: createRecordingSchema,
       },
       (req, res) => {
-        const { title, url, description, mode, duration, browserName, browserVersion, operatingSystem } = req.body
+        const {
+          title,
+          url,
+          description,
+          mode,
+          duration,
+          browserName,
+          browserVersion,
+          operatingSystem,
+        } = req.body
+
         respondWith(
           res,
           recordingService.writeInfo(

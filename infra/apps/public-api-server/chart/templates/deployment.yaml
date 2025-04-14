@@ -28,8 +28,16 @@ spec:
               value: "{{ .Values.vars.HOST }}"
             - name: PORT
               value: "{{ .Values.vars.PORT }}"
-            - name: DB_FILE
-              value: "{{ .Values.vars.DB_FILE }}"
+            - name: DB_HOST
+              value: "{{ .Values.vars.DB_HOST }}"
+            - name: DB_PORT
+              value: "{{ .Values.vars.DB_PORT }}"
+            - name: DB_USER
+              value: "{{ .Values.vars.DB_USER }}"
+            - name: DB_PASSWORD
+              value: "{{ .Values.vars.DB_PASSWORD }}"
+            - name: DB_NAME
+              value: "{{ .Values.vars.DB_NAME }}"
             - name: STORAGE_DIR
               value: "{{ .Values.vars.STORAGE_DIR }}"
             - name: CERT_KEY_FILE

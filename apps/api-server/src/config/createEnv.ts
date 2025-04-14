@@ -27,7 +27,11 @@ const booleanStringTransform = z.preprocess(val => {
 const envSchema = z.object({
   HOST: z.string().default('localhost'),
   PORT: numericStringTransform.default(8080),
-  DB_FILE: z.string(),
+  DB_HOST: z.string().default('localhost'),
+  DB_PORT: numericStringTransform.default(5432),
+  DB_NAME: z.string().default('repro'),
+  DB_USER: z.string().default('repro'),
+  DB_PASSWORD: z.string().default('repro'),
   STORAGE_DIR: z.string(),
   CERT_KEY_FILE: z.string(),
   CERT_FILE: z.string(),
