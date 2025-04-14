@@ -163,7 +163,7 @@ describe('libs/record: dom observers', () => {
 
     internal__processMutationRecords(records, walkDOMTree, options, subscriber)
 
-    expect(patches).toEqual<Array<DOMPatch>>([
+    expect(patches).toEqual([
       new Box({
         type: PatchType.RemoveNodes,
         parentId: getNodeId(target),
