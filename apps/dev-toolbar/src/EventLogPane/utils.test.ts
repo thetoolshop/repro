@@ -5,6 +5,8 @@ import {
   SourceEventType,
 } from '@repro/domain'
 import { Box } from '@repro/tdl'
+import expect from 'expect'
+import { describe, it } from 'node:test'
 import { LogItem } from './types'
 import { collapseItemsIntoGroups } from './utils'
 

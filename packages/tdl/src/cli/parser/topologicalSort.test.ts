@@ -1,3 +1,5 @@
+import expect from 'expect'
+import { describe, it } from 'node:test'
 import { buildAST } from './buildAST'
 import { topologicalSort } from './topologicalSort'
 import { Module } from './types'

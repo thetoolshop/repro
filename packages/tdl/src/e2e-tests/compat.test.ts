@@ -1,3 +1,5 @@
+import expect from 'expect'
+import { describe, it } from 'node:test'
 import ts from 'typescript'
 import { compile } from '../cli/compiler'
 import { parse } from '../cli/parser'

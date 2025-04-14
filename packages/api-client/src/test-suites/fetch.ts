@@ -1,6 +1,8 @@
 import { tap } from '@repro/future-utils'
 import { ReadableStream, WritableStream } from '@repro/stream-utils'
+import expect from 'expect'
 import { chain, fork } from 'fluture'
+import { afterEach, it } from 'node:test'
 import { AuthStore } from '../auth'
 import { ApiConfiguration, Fetch } from '../types'
 
@@ -16,20 +18,26 @@ export interface MockRequest {
 
 export interface TestSuiteOptions {
   createAuthStore: () => AuthStore
-  createFetch: (authStore: AuthStore, config: ApiConfiguration) => Fetch
+  createFetch: (
+    authStore: AuthStore,
+    config: ApiConfiguration,
+    fetchImpl?: typeof fetch
+  ) => Fetch
+  fetchImplMock: typeof fetch
   addMock: (req: MockRequest) => void
   clearMocks: () => void
 }
 
 export const createFetchTestSuite = (options: TestSuiteOptions) => {
-  const { createAuthStore, createFetch, addMock, clearMocks } = options
+  const { createAuthStore, createFetch, fetchImplMock, addMock, clearMocks } =
+    options
 
   return () => {
     afterEach(() => {
       clearMocks()
     })
 
-    it('should make a request with the correct URL and options', done => {
+    it('should make a request with the correct URL and options', async ctx => {
       addMock({
         url: 'https://api.example.com/test-endpoint',
         method: 'GET',
@@ -47,19 +55,28 @@ export const createFetchTestSuite = (options: TestSuiteOptions) => {
         authStorage: 'memory' as const,
       }
 
-      const fetch = createFetch(authStore, config)
+      ctx.mock.module('isomorphic-unfetch', {
+        defaultExport: fetchImplMock,
+      })
 
-      authStore
-        .setSessionToken('test-token')
-        .pipe(tap(token => expect(token).toBe('test-token')))
-        .pipe(chain(() => fetch('/test-endpoint')))
-        .pipe(
-          tap(res => expect(res).toEqual({ success: true, data: 'test-data' }))
-        )
-        .pipe(fork(error => done(error))(() => done()))
+      const fetchImpl = (await import('isomorphic-unfetch')).default
+      const fetch = createFetch(authStore, config, fetchImpl)
+
+      return new Promise<void>((resolve, reject) => {
+        authStore
+          .setSessionToken('test-token')
+          .pipe(tap(token => expect(token).toEqual('test-token')))
+          .pipe(chain(() => fetch('/test-endpoint')))
+          .pipe(
+            tap(res =>
+              expect(res).toEqual({ success: true, data: 'test-data' })
+            )
+          )
+          .pipe(fork(error => reject(error))(() => resolve(undefined)))
+      })
     })
 
-    it('should support streaming responses', done => {
+    it('should support streaming responses', async ctx => {
       addMock({
         url: 'https://api.example.com/test-endpoint',
         method: 'GET',
@@ -74,32 +91,39 @@ export const createFetchTestSuite = (options: TestSuiteOptions) => {
         authStorage: 'memory' as const,
       }
 
-      const fetch = createFetch(authStore, config)
+      ctx.mock.module('isomorphic-unfetch', {
+        defaultExport: fetchImplMock,
+      })
 
-      authStore
-        .setSessionToken('test-token')
-        .pipe(tap(token => expect(token).toBe('test-token')))
-        .pipe(
-          chain(() =>
-            fetch<ReadableStream<Uint8Array>>(
-              '/test-endpoint',
-              {},
-              'json',
-              'stream'
+      const fetchImpl = (await import('isomorphic-unfetch')).default
+      const fetch = createFetch(authStore, config, fetchImpl)
+
+      return new Promise<void>((resolve, reject) => {
+        authStore
+          .setSessionToken('test-token')
+          .pipe(tap(token => expect(token).toEqual('test-token')))
+          .pipe(
+            chain(() =>
+              fetch<ReadableStream<Uint8Array>>(
+                '/test-endpoint',
+                {},
+                'json',
+                'stream'
+              )
             )
           )
-        )
-        .pipe(
-          fork(error => done(error))(res => {
-            res.pipeTo(
-              new WritableStream({
-                close() {
-                  done()
-                },
-              })
-            )
-          })
-        )
+          .pipe(
+            fork(error => reject(error))(res => {
+              res.pipeTo(
+                new WritableStream({
+                  close() {
+                    resolve(undefined)
+                  },
+                })
+              )
+            })
+          )
+      })
     })
   }
 }

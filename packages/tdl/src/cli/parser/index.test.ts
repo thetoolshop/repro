@@ -1,9 +1,12 @@
+import expect from 'expect'
+import { describe, it } from 'node:test'
+import { Interval } from 'ohm-js'
 import { AssignmentNode, ASTNodeType, IntegerTypeNode } from './ASTTypes'
 import { parse } from './index'
 import { Program } from './types'
 
 describe('TDL: parser', () => {
-  const interval = expect.anything()
+  const interval = expect.anything() as unknown as Interval
 
   it('should parse a simple schema', () => {
     const input = `

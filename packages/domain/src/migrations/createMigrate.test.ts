@@ -1,3 +1,5 @@
+import expect from 'expect'
+import { describe, it } from 'node:test'
 import { createMigrate } from './createMigrate'
 
 const migrate = createMigrate([

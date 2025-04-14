@@ -1,3 +1,5 @@
+import expect from 'expect'
+import { describe, it } from 'node:test'
 import { buildAST } from './buildAST'
 import { RESERVED_KEYWORDS } from './constants'
 import { ValidationError } from './errors'
@@ -59,9 +61,8 @@ describe('validate', () => {
     ).toThrowError(`Unknown module "doesnotexist"`)
   })
 
-  it.each(Array.from(RESERVED_KEYWORDS))(
-    'should fail to assign to reserved keyword: %s',
-    keyword => {
+  for (const keyword of RESERVED_KEYWORDS) {
+    it(`should fail to assign to reserved keyword: ${keyword}`, () => {
       const a: Module = {
         name: 'a',
         filename: 'a.tdls',
@@ -77,8 +78,8 @@ describe('validate', () => {
           validate(resolveReferences(topologicalSort(program)))
         )
       ).toThrowError(`Cannot assign to reserved keyword "${keyword}"`)
-    }
-  )
+    })
+  }
 
   it('should validate an enum', () => {
     const a: Module = {

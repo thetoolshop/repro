@@ -1,4 +1,6 @@
 import { ReadableStream } from '@repro/stream-utils'
+import expect from 'expect'
+import { describe, it } from 'node:test'
 import {
   fromBinaryWireFormat,
   fromBinaryWireFormatStream,
@@ -36,7 +38,7 @@ describe('wire-formats: binary', () => {
     expect(output).toEqual(input)
   })
 
-  it('should create a readable stream of buffers from a binary wire format', done => {
+  it('should create a readable stream of buffers from a binary wire format', () => {
     const input: Array<Entity> = [
       {
         id: 1,
@@ -77,17 +79,19 @@ describe('wire-formats: binary', () => {
 
     const output: Array<Entity> = []
 
-    fromBinaryWireFormatStream(stream).pipeTo(
-      new WritableStream({
-        write(chunk) {
-          output.push(EntityView.decode(new DataView(chunk)))
-        },
+    return new Promise<void>(done => {
+      fromBinaryWireFormatStream(stream).pipeTo(
+        new WritableStream({
+          write(chunk) {
+            output.push(EntityView.decode(new DataView(chunk)))
+          },
 
-        close() {
-          expect(output).toEqual(input)
-          done()
-        },
-      })
-    )
+          close() {
+            expect(output).toEqual(input)
+            done()
+          },
+        })
+      )
+    })
   })
 })
