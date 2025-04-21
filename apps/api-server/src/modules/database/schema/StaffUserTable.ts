@@ -9,7 +9,7 @@ export interface StaffUserTable {
   password: string
   active: number | null
   admin: number | null
-  createdAt: GeneratedAlways<string>
+  createdAt: GeneratedAlways<Date>
 }
 
 type DomainObject = Pick<Selectable<StaffUserTable>, 'id' | 'name' | 'email'>

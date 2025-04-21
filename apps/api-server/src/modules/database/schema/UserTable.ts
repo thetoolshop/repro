@@ -12,7 +12,7 @@ export interface UserTable {
   verified: number | null
   active: number | null
   admin: number | null
-  createdAt: GeneratedAlways<string>
+  createdAt: GeneratedAlways<Date>
 }
 
 type DomainObject = Pick<Selectable<UserTable>, 'id' | 'name' | 'verified'>

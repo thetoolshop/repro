@@ -9,7 +9,7 @@ CREATE TABLE recordings (
   "description" TEXT NOT NULL,
   "mode" INTEGER NOT NULL,
   "duration" INTEGER NOT NULL,
-  "createdAt" TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "createdAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "browserName" TEXT,
   "browserVersion" TEXT,
   "operatingSystem" TEXT,

@@ -5,5 +5,5 @@ export interface SessionTable {
   sessionToken: string
   subjectId: number
   subjectType: 'user' | 'staff'
-  createdAt: GeneratedAlways<string>
+  createdAt: GeneratedAlways<Date>
 }

@@ -1,7 +1,7 @@
 import { ProjectRole } from '@repro/domain'
 import expect from 'expect'
 import { promise } from 'fluture'
-import { afterEach, beforeEach, describe, it } from 'node:test'
+import { after, before, beforeEach, describe, it } from 'node:test'
 import { encodeId } from '~/modules/database'
 import { Harness, createTestHarness, fixtures } from '~/testing'
 import { notFound, permissionDenied } from '~/utils/errors'
@@ -11,13 +11,17 @@ describe('Services > Project', () => {
   let harness: Harness
   let projectService: ProjectService
 
-  beforeEach(async () => {
+  before(async () => {
     harness = await createTestHarness()
     projectService = harness.services.projectService
   })
 
-  afterEach(async () => {
+  beforeEach(async () => {
     await harness.reset()
+  })
+
+  after(async () => {
+    await harness.close()
   })
 
   it('should create a new project', async () => {
@@ -152,7 +156,7 @@ describe('Services > Project', () => {
 
     await expect(
       promise(projectService.getUserProjects(user.id))
-    ).resolves.toEqual([projectA, projectB])
+    ).resolves.toEqual([projectB, projectA])
   })
 
   it('should get a project by ID', async () => {

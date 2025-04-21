@@ -6,7 +6,7 @@ CREATE TABLE accounts (
   "id" SERIAL PRIMARY KEY,
   "name" TEXT NOT NULL,
   "active" INTEGER NOT NULL DEFAULT 1,
-  "createdAt" TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  "createdAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE invitations (
@@ -16,7 +16,7 @@ CREATE TABLE invitations (
   "accountId" INTEGER NOT NULL,
   "active" INTEGER NOT NULL DEFAULT 1,
   FOREIGN KEY ("accountId") REFERENCES accounts ("id"),
-  CONSTRAINT invitations_token UNIQUE ("email"),
+  CONSTRAINT invitations_token UNIQUE ("token"),
   CONSTRAINT invitations_email UNIQUE ("email")
 );
 
@@ -34,7 +34,7 @@ CREATE TABLE users (
   "verified" INTEGER NOT NULL DEFAULT 0,
   "active" INTEGER NOT NULL DEFAULT 1,
   "admin" INTEGER NOT NULL DEFAULT 0,
-  "createdAt" TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "createdAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY ("accountId") REFERENCES accounts ("id"),
   CONSTRAINT users_email UNIQUE ("email")
 );
@@ -49,7 +49,7 @@ CREATE TABLE staff_users (
   "password" TEXT NOT NULL,
   "active" INTEGER NOT NULL DEFAULT 1,
   "admin" INTEGER NOT NULL DEFAULT 0,
-  "createdAt" TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "createdAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT staff_users_email UNIQUE ("email")
 );
 
@@ -60,7 +60,7 @@ CREATE TABLE sessions (
   "sessionToken" TEXT NOT NULL,
   "subjectId" INTEGER NOT NULL,
   "subjectType" TEXT CHECK("subjectType" IN ('user', 'staff')) NOT NULL,
-  "createdAt" TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "createdAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "modifiedAt" TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT session_sessionToken UNIQUE ("sessionToken")
 );
@@ -72,7 +72,7 @@ CREATE TABLE projects (
   "name" TEXT NOT NULL,
   "accountId" INTEGER NOT NULL,
   "active" INTEGER NOT NULL DEFAULT 1,
-  "createdAt" TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "createdAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY ("accountId") REFERENCES accounts ("id")
 );
 

@@ -10,7 +10,7 @@ import { toWireFormat } from '@repro/wire-formats'
 import expect from 'expect'
 import { FastifyInstance } from 'fastify'
 import { chain, promise } from 'fluture'
-import { afterEach, beforeEach, describe, it } from 'node:test'
+import { after, before, beforeEach, describe, it } from 'node:test'
 import { encodeId } from '~/modules/database'
 import { RecordingService } from '~/services/recording'
 import { Harness, createTestHarness, fixtures } from '~/testing'
@@ -18,7 +18,9 @@ import { readableToString } from '~/testing/utils'
 import { createRecordingRouter } from './recording'
 
 function expectISODate() {
-  return expect.stringMatching(/^\d{4}-\d{2}-\d{2}[T\s]\d{2}:\d{2}:\d{2}$/)
+  return expect.stringMatching(
+    /^\d{4}-\d{2}-\d{2}[T\s]\d{2}:\d{2}:\d{2}\.\d{3}Z$/
+  )
 }
 
 describe('Routers > Recording', () => {
@@ -26,7 +28,7 @@ describe('Routers > Recording', () => {
   let recordingService: RecordingService
   let app: FastifyInstance
 
-  beforeEach(async () => {
+  before(async () => {
     harness = await createTestHarness()
     recordingService = harness.services.recordingService
     app = harness.bootstrap(
@@ -37,8 +39,12 @@ describe('Routers > Recording', () => {
     )
   })
 
-  afterEach(async () => {
+  beforeEach(async () => {
     await harness.reset()
+  })
+
+  after(async () => {
+    await harness.close()
   })
 
   it('should create a new recording', async () => {

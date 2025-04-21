@@ -165,7 +165,14 @@ export function createRecordingService(database: Database, storage: Storage) {
         .offset(offset)
         .limit(limit)
         .execute()
-    }).pipe(map(rows => rows.map(withEncodedId)))
+    }).pipe(
+      map(rows =>
+        rows.map(row => ({
+          ...withEncodedId(row),
+          createdAt: row.createdAt.toISOString(),
+        }))
+      )
+    )
   }
 
   function readInfo(recordingId: string): FutureInstance<Error, RecordingInfo> {
@@ -175,7 +182,12 @@ export function createRecordingService(database: Database, storage: Storage) {
         .selectAll()
         .where('id', '=', decodeId(recordingId))
         .executeTakeFirstOrThrow(() => notFound())
-    }).pipe(map(withEncodedId))
+    }).pipe(
+      map(row => ({
+        ...withEncodedId(row),
+        createdAt: row.createdAt.toISOString(),
+      }))
+    )
   }
 
   function readInfoMany(
@@ -191,7 +203,14 @@ export function createRecordingService(database: Database, storage: Storage) {
         .offset(offset)
         .limit(limit)
         .execute()
-    }).pipe(map(rows => rows.map(withEncodedId)))
+    }).pipe(
+      map(rows =>
+        rows.map(row => ({
+          ...withEncodedId(row),
+          createdAt: row.createdAt.toISOString(),
+        }))
+      )
+    )
   }
 
   function writeInfo(
@@ -220,7 +239,12 @@ export function createRecordingService(database: Database, storage: Storage) {
         })
         .returningAll()
         .executeTakeFirstOrThrow()
-    }).pipe(map(withEncodedId))
+    }).pipe(
+      map(row => ({
+        ...withEncodedId(row),
+        createdAt: row.createdAt.toISOString(),
+      }))
+    )
   }
 
   return {

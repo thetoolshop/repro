@@ -11,16 +11,21 @@ interface Config {
   password: string
 }
 
-export function createPostgresDatabaseClient(config: Config): Database {
+export function createPostgresDatabaseClient(
+  configOrInstance: Config | Pool
+): Database {
   return new Kysely<Schema>({
     dialect: new PostgresDialect({
-      pool: new Pool({
-        host: config.host,
-        port: config.port,
-        database: config.database,
-        user: config.user,
-        password: config.password,
-      }),
+      pool:
+        configOrInstance instanceof Pool
+          ? configOrInstance
+          : new Pool({
+              host: configOrInstance.host,
+              port: configOrInstance.port,
+              database: configOrInstance.database,
+              user: configOrInstance.user,
+              password: configOrInstance.password,
+            }),
     }),
   })
 }

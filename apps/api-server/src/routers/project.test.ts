@@ -10,7 +10,7 @@ import { Box } from '@repro/tdl'
 import expect from 'expect'
 import { FastifyInstance } from 'fastify'
 import { chain, promise } from 'fluture'
-import { afterEach, beforeEach, describe, it } from 'node:test'
+import { after, before, beforeEach, describe, it } from 'node:test'
 import { encodeId } from '~/modules/database'
 import { Harness, createTestHarness, fixtures } from '~/testing'
 import { createRecordingDataWireFormat } from '~/testing/recording'
@@ -22,7 +22,7 @@ describe('Routers > Project', () => {
   let harness: Harness
   let app: FastifyInstance
 
-  beforeEach(async () => {
+  before(async () => {
     harness = await createTestHarness()
     app = harness.bootstrap(
       createProjectRouter(
@@ -33,8 +33,12 @@ describe('Routers > Project', () => {
     )
   })
 
-  afterEach(async () => {
+  beforeEach(async () => {
     await harness.reset()
+  })
+
+  after(async () => {
+    await harness.close()
   })
 
   describe('Projects', () => {
@@ -130,7 +134,7 @@ describe('Routers > Project', () => {
       })
 
       expect(res.statusCode).toEqual(200)
-      expect(res.json()).toEqual([projectA, projectB])
+      expect(res.json()).toEqual([projectB, projectA])
     })
   })
 
@@ -827,7 +831,7 @@ describe('Routers > Project', () => {
         },
       })
 
-      expect(res.json()).toEqual([recordingA, recordingB])
+      expect(res.json()).toEqual([recordingB, recordingA])
     })
 
     it('should get all recordings for a project where user is an account admin', async () => {
@@ -847,7 +851,7 @@ describe('Routers > Project', () => {
         },
       })
 
-      expect(res.json()).toEqual([recordingA, recordingB])
+      expect(res.json()).toEqual([recordingB, recordingA])
     })
 
     it('should return permission-denied when getting recordings for a project without membership', async () => {
