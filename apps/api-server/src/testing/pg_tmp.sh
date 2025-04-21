@@ -16,19 +16,19 @@
 
 usage() {
 	>&2 echo "release: ${release}"
-	>&2 echo "usage: pg_tmp [-t [-p port]] [-w timeout] [-o extra-options] [-d datadir]"
+	>&2 echo "usage: pg_tmp [-k] [-t [-p port]] [-w timeout] [-o extra-options] [-d datadir]"
 	exit 1
 }
 
 trap 'printf "$0: exit code $? on line $LINENO\n" >&2; exit 1' ERR \
 	2> /dev/null || exec bash $0 "$@"
 trap '' HUP
-set +o posix
 
 USER_OPTS=""
->/dev/null getopt tp:w:o:d: "$@" || usage
+>/dev/null getopt ktp:w:o:d: "$@" || usage
 while [ $# -gt 0 ]; do
 	case "$1" in
+		-k) KEEP=$1 ;;
 		-t) LISTENTO="127.0.0.1" ;;
 		-p) PGPORT="$2"; shift ;;
 		-w) TIMEOUT="$2"; shift ;;
@@ -40,7 +40,7 @@ while [ $# -gt 0 ]; do
 done
 
 initdb -V > /dev/null || exit 1
-PGVER=$(psql -V | awk '{print $NF}')
+PGVER=$(pg_ctl -V | awk '{print $3}')
 
 [ -n "$LISTENTO" ] && [ -z "$PGPORT" ] && {
 	PGPORT="$(getsocket)"
@@ -79,10 +79,12 @@ start)
 	else
 		[ -O $TD/$PGVER ] || TD=$($0 initdb -d $TD)
 	fi
-	nice -n 19 $0 -w ${TIMEOUT:-60} -d $TD -p ${PGPORT:-5432} stop > $TD/stop.log 2>&1 &
-	[ -n "$PGPORT" ] && OPTS="-c listen_addresses='$LISTENTO' -c port=$PGPORT"
+	if [ ${TIMEOUT:-1} -gt 0 ]; then
+		nice -n 19 $0 $KEEP -w ${TIMEOUT:-60} -d $TD -p ${PGPORT:-5432} stop > $TD/stop.log 2>&1 &
+	fi
+	[ -n "$PGPORT" ] && OPTS="-c listen_addresses='*' -c port=$PGPORT"
 	LOGFILE="$TD/$PGVER/postgres.log"
-	pg_ctl -W -o "$OPTS $USER_OPTS" -s -D $TD/$PGVER -l $LOGFILE start
+	LC_ALL=${LC_ALL:-C} pg_ctl -W -o "$OPTS $USER_OPTS" -s -D $TD/$PGVER -l $LOGFILE start
 	PGHOST=$TD
 	export PGPORT PGHOST
 	if [ -n "$PGPORT" ]; then
@@ -94,20 +96,22 @@ start)
 		sleep 0.1
 		createdb -E UNICODE test > /dev/null 2>&1 && break
 	done
-	[ $? != 0 ] && { >&2 cat $LOGFILE; exit 1; }
-	[ -t 1 ] && echo "$url" || echo -n "$url"
+	[ $? != 0 ] && { >&2 tail $LOGFILE; exit 1; }
+	[ -t 1 ] && echo "$url" || printf "%s" "$url"
 	;;
 stop)
 	[ -O $TD/$PGVER/postgresql.conf ] || {
 		>&2 echo "Please specify a PostgreSQL data directory using -d"
 		exit 1
 	}
-	trap "rm -r $TD" EXIT
+	[ "$KEEP" == "" ] && trap "rm -r $TD" EXIT
 	PGHOST=$TD
 	export PGHOST PGPORT
-	q="SELECT count(*) FROM pg_stat_activity WHERE datname='test';"
+	q="SELECT count(*) FROM pg_stat_activity
+		WHERE datname IS NOT NULL
+		AND state IS NOT NULL;"
 	until [ "${count:-2}" -lt "2" ]; do
-		sleep ${TIMEOUT:-0}
+		sleep ${TIMEOUT:-5}
 		count=$(psql test --no-psqlrc -At -c "$q" || echo 0)
 	done
 	pg_ctl -W -D $TD/$PGVER stop
