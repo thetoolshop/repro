@@ -14,8 +14,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up Postgres
+      - name: Set up local install directory
         run: mkdir -p $HOME/.local
+
+      - name: Set up Postgres
         uses: bmizerany/setup-postgres@v3
 
       - name: Check pg_tmp health
