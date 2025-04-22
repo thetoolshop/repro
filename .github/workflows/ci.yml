@@ -14,6 +14,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Enable Postgres
+        run: sudo systemctl start postgresql.service
+
+      - name: Check pg_tmp health
+        run: ./apps/api-server/src/testing/pg_tmp.sh selftest
+
       - name: Setup PNPM
         uses: pnpm/action-setup@v4
         with:
