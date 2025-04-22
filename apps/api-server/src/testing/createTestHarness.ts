@@ -1,4 +1,6 @@
+import { randomString } from '@repro/random-string'
 import { FastifyInstance, FastifyPluginAsync } from 'fastify'
+import { sql } from 'kysely'
 import { Env, createEnv } from '~/config/createEnv'
 import { createSessionDecorator } from '~/decorators/session'
 import { Database } from '~/modules/database'
@@ -20,16 +22,18 @@ export interface Harness {
   services: Services
 
   bootstrap(router: FastifyPluginAsync): FastifyInstance
+  generateRandomEmailAddress(): string
   // expectEmailToHaveBeenSent(params: SendParams): void
   loadFixtures<T extends Array<Fixture<unknown>>>(
     fixtures: [...T]
   ): Promise<FixtureArrayToValues<T>>
+
   reset(): Promise<void>
+  close(): Promise<void>
 }
 
 export async function createTestHarness(): Promise<Harness> {
   const env = createEnv({
-    DB_FILE: '',
     STORAGE_DIR: '',
     CERT_FILE: '',
     CERT_KEY_FILE: '',
@@ -41,10 +45,8 @@ export async function createTestHarness(): Promise<Harness> {
   const emailLog: Array<SendParams> = []
   const emailUtils = createStubEmailUtils(emailLog)
 
-  const reset = async () => {
-    await closeDb()
-    await closeStorage()
-    emailLog.length = 0
+  function generateRandomEmailAddress() {
+    return randomString(10).toLowerCase() + '@repro.test'
   }
 
   const accountService = createAccountService(db, emailUtils)
@@ -74,6 +76,26 @@ export async function createTestHarness(): Promise<Harness> {
   //   return
   // }
 
+  async function reset() {
+    // Truncate all tables in the current schema
+    await sql`
+      DO $$ DECLARE
+        r RECORD;
+      BEGIN
+        FOR r IN (SELECT table_name FROM information_schema.tables WHERE table_schema = current_schema()) LOOP
+          EXECUTE 'TRUNCATE TABLE ' || quote_ident(r.table_name) || ' CASCADE';
+        END LOOP;
+      END $$;
+    `.execute(db)
+
+    emailLog.length = 0
+  }
+
+  async function close() {
+    await closeDb()
+    await closeStorage()
+  }
+
   return {
     env,
     db,
@@ -82,7 +104,10 @@ export async function createTestHarness(): Promise<Harness> {
 
     bootstrap,
     // expectEmailToHaveBeenSent,
+    generateRandomEmailAddress,
     loadFixtures: curriedLoadFixtures,
+
     reset,
+    close,
   }
 }

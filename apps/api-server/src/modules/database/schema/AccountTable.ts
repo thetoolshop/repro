@@ -4,5 +4,5 @@ export interface AccountTable {
   id: GeneratedAlways<number>
   name: string
   active: number
-  createdAt: GeneratedAlways<string>
+  createdAt: GeneratedAlways<Date>
 }

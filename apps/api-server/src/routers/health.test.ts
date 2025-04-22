@@ -1,6 +1,6 @@
 import expect from 'expect'
 import { reject } from 'fluture'
-import { afterEach, beforeEach, describe, it } from 'node:test'
+import { after, before, describe, it } from 'node:test'
 import { Database } from '~/modules/database'
 import { Storage } from '~/modules/storage'
 import { createHealthService } from '~/services/health'
@@ -15,7 +15,7 @@ describe('Routers > Health', () => {
   let db: Database
   let storage: Storage
 
-  beforeEach(async () => {
+  before(async () => {
     const { db: dbInstance, close: closeDb } = await setUpTestDatabase()
     const { storage: storageInstance, close: closeStorage } =
       await setUpTestStorage()
@@ -29,7 +29,7 @@ describe('Routers > Health', () => {
     }
   })
 
-  afterEach(async () => {
+  after(async () => {
     await reset()
   })
 

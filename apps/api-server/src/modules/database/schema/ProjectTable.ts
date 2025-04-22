@@ -5,5 +5,5 @@ export interface ProjectTable {
   accountId: number
   name: string
   active: number | null
-  createdAt: GeneratedAlways<string>
+  createdAt: GeneratedAlways<Date>
 }

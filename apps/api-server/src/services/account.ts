@@ -365,9 +365,15 @@ export function createAccountService(
     }).pipe(map(withEncodedId))
   }
 
-  function listAccounts(): FutureInstance<Error, Array<Account>> {
+  function listAccounts(
+    order: 'asc' | 'desc' = 'asc'
+  ): FutureInstance<Error, Array<Account>> {
     return attemptQuery(() => {
-      return database.selectFrom('accounts').select(['id', 'name']).execute()
+      return database
+        .selectFrom('accounts')
+        .select(['id', 'name'])
+        .orderBy(`createdAt ${order}`)
+        .execute()
     }).pipe(map(rows => rows.map(withEncodedId)))
   }
 
@@ -408,7 +414,7 @@ export function createAccountService(
           email,
           accountId: decodedAccountId,
         })
-        .onConflict(cb => cb.doUpdateSet({ token, active: 1 }))
+        .onConflict(cb => cb.column('email').doUpdateSet({ token, active: 1 }))
         .returning(['id', 'token', 'email'])
         .executeTakeFirstOrThrow()
     }).pipe(map(withEncodedId))
@@ -669,6 +675,7 @@ export function createAccountService(
       map(values => ({
         ...withEncodedId(values),
         subjectId: encodeId(values.subjectId),
+        createdAt: values.createdAt.toISOString(),
       }))
     )
   }
@@ -686,6 +693,7 @@ export function createAccountService(
       map(values => ({
         ...withEncodedId(values),
         subjectId: encodeId(values.subjectId),
+        createdAt: values.createdAt.toISOString(),
       }))
     )
   }

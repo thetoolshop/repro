@@ -10,7 +10,7 @@ import {
 } from 'fastify-type-provider-zod'
 import { defaultEnv as env } from '~/config/env'
 import { createSessionDecorator } from '~/decorators/session'
-import { createSQLiteDatabaseClient } from '~/modules/database'
+import { createPostgresDatabaseClient } from '~/modules/database/database-postgres'
 import { createSMTPEmailUtils } from '~/modules/email-utils'
 import { createFileSystemStorageClient } from '~/modules/storage-fs'
 import { createHealthRouter } from '~/routers/health'
@@ -22,8 +22,12 @@ import { serverError } from '~/utils/errors'
 
 const projectRoot = path.resolve(__dirname, '../..')
 
-const database = createSQLiteDatabaseClient({
-  path: path.join(projectRoot, env.DB_FILE),
+const database = createPostgresDatabaseClient({
+  host: env.DB_HOST,
+  port: env.DB_PORT,
+  database: env.DB_NAME,
+  user: env.DB_USER,
+  password: env.DB_PASSWORD,
 })
 
 const storage = createFileSystemStorageClient({
@@ -51,7 +55,9 @@ const healthService = createHealthService(database, storage)
 const healthRouter = createHealthRouter(healthService)
 
 const recordingService = createRecordingService(database, storage)
-const recordingRouter = createRecordingRouter(recordingService, accountService)
+const recordingRouter = createRecordingRouter(recordingService, accountService, {
+  debug: true
+})
 
 const registerSessionDecorator = createSessionDecorator(accountService, env)
 

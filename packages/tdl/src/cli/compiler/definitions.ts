@@ -42,6 +42,7 @@ export function generateUUIDType(_: UUIDTypeNode) {
 }
 
 export function generateTimestampType(_: TimestampTypeNode) {
+  // TODO: represent timestamp as a 64-bit integer
   return 'string'
 }
 

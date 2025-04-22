@@ -122,7 +122,9 @@ export function createProjectService(
           projectId: decodedProjectId,
           role,
         })
-        .onConflict(oc => oc.doUpdateSet({ role }))
+        .onConflict(oc =>
+          oc.columns(['userId', 'projectId']).doUpdateSet({ role })
+        )
         .execute()
     })
   }
@@ -224,7 +226,14 @@ export function createProjectService(
         .where('pr.projectId', '=', decodeId(projectId))
         .orderBy('r.createdAt desc')
         .execute()
-    }).pipe(map(rows => rows.map(withEncodedId)))
+    }).pipe(
+      map(rows =>
+        rows.map(row => ({
+          ...withEncodedId(row),
+          createdAt: row.createdAt.toISOString(),
+        }))
+      )
+    )
   }
 
   function addRecordingToProject(

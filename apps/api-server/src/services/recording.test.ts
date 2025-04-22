@@ -8,7 +8,7 @@ import { Box } from '@repro/tdl'
 import { fromWireFormat, toWireFormat } from '@repro/wire-formats'
 import expect from 'expect'
 import { map, promise } from 'fluture'
-import { afterEach, beforeEach, describe, it } from 'node:test'
+import { after, before, beforeEach, describe, it } from 'node:test'
 import { Harness, createTestHarness, fixtures } from '~/testing'
 import { readableToString, stringToReadable } from '~/testing/utils'
 import { RecordingService } from './recording'
@@ -17,13 +17,17 @@ describe('Services > Recording', () => {
   let harness: Harness
   let recordingService: RecordingService
 
-  beforeEach(async () => {
+  before(async () => {
     harness = await createTestHarness()
     recordingService = harness.services.recordingService
   })
 
-  afterEach(async () => {
+  beforeEach(async () => {
     await harness.reset()
+  })
+
+  after(async () => {
+    await harness.close()
   })
 
   it('should correctly write and read recording data', async () => {
