@@ -15,7 +15,8 @@ jobs:
           fetch-depth: 0
 
       - name: Set up Postgres
-        uses: bmizerany/setup-postgres@0923a0e
+        run: mkdir -p $HOME/.local
+        uses: bmizerany/setup-postgres@v3
 
       - name: Check pg_tmp health
         run: ./apps/api-server/src/testing/pg_tmp.sh selftest
