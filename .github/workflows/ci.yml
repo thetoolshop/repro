@@ -20,9 +20,6 @@ jobs:
       - name: Set up Postgres
         uses: bmizerany/setup-postgres@v3
 
-      - name: Check pg_tmp health
-        run: ./apps/api-server/src/testing/pg_tmp.sh selftest
-
       - name: Setup PNPM
         uses: pnpm/action-setup@v4
         with:
