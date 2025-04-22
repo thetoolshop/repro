@@ -14,11 +14,26 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up local install directory
-        run: mkdir -p $HOME/.local
+      # Optional: Ensure PostgreSQL client (which includes pg_config) is installed
+      # ubuntu-latest usually has it, but being explicit can be safer.
+      - name: Install PostgreSQL client (if needed)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
 
-      - name: Set up Postgres
-        uses: bmizerany/setup-postgres@v3
+      # Find the PostgreSQL bin directory and add it to the PATH
+      - name: Add PostgreSQL bin directory to PATH
+        run: |
+          PG_BIN_DIR=$(pg_config --bindir)
+          echo "Found PostgreSQL bin directory: $PG_BIN_DIR"
+          echo "$PG_BIN_DIR" >> $GITHUB_PATH
+        shell: bash # Explicitly use bash for command substitution
+
+      # Verify that the command is now available
+      - name: Verify initdb is in PATH
+        run: |
+          which initdb
+          initdb --version # Example command using the newly available tool
 
       - name: Setup PNPM
         uses: pnpm/action-setup@v4
