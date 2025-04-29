@@ -3,6 +3,8 @@ import {
   GetObjectCommandOutput,
   HeadObjectCommand,
   HeadObjectCommandOutput,
+  PutObjectCommand,
+  PutObjectCommandOutput,
   S3Client,
 } from '@aws-sdk/client-s3'
 import {
@@ -71,7 +73,17 @@ export function createS3StorageClient(config: Config): Storage {
   }
 
   function write(path: string, data: Readable): FutureInstance<Error, void> {
-    // TODO: write the file to the S3 bucket
+    const res = attemptP<Error, PutObjectCommandOutput>(() =>
+      s3.send(
+        new PutObjectCommand({
+          Bucket: config.bucket,
+          Key: path,
+          Body: data,
+        })
+      )
+    )
+
+    return res.pipe(map(() => void 0))
   }
 
   return {
