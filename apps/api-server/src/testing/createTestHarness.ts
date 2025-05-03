@@ -33,11 +33,7 @@ export interface Harness {
 }
 
 export async function createTestHarness(): Promise<Harness> {
-  const env = createEnv({
-    STORAGE_DIR: '',
-    CERT_FILE: '',
-    CERT_KEY_FILE: '',
-  })
+  const env = createEnv()
 
   const { db, close: closeDb } = await setUpTestDatabase()
   const { storage, close: closeStorage } = await setUpTestFileSystemStorage()

@@ -1,12 +1,12 @@
 import {
+  CompleteMultipartUploadCommandOutput,
   GetObjectCommand,
   GetObjectCommandOutput,
   HeadObjectCommand,
   HeadObjectCommandOutput,
-  PutObjectCommand,
-  PutObjectCommandOutput,
   S3Client,
 } from '@aws-sdk/client-s3'
+import { Upload } from '@aws-sdk/lib-storage'
 import {
   attemptP,
   bichain,
@@ -19,6 +19,7 @@ import { Readable } from 'node:stream'
 import { Storage } from './storage'
 
 interface Config {
+  endpoint: string
   region: string
   bucket: string
   accessKeyId: string
@@ -27,6 +28,8 @@ interface Config {
 
 export function createS3StorageClient(config: Config): Storage {
   const s3 = new S3Client({
+    endpoint: config.endpoint,
+    forcePathStyle: true,
     region: config.region,
     credentials: {
       accessKeyId: config.accessKeyId,
@@ -73,14 +76,17 @@ export function createS3StorageClient(config: Config): Storage {
   }
 
   function write(path: string, data: Readable): FutureInstance<Error, void> {
-    const res = attemptP<Error, PutObjectCommandOutput>(() =>
-      s3.send(
-        new PutObjectCommand({
-          Bucket: config.bucket,
-          Key: path,
-          Body: data,
-        })
-      )
+    const upload = new Upload({
+      client: s3,
+      params: {
+        Bucket: config.bucket,
+        Key: path,
+        Body: data,
+      },
+    })
+
+    const res = attemptP<Error, CompleteMultipartUploadCommandOutput>(() =>
+      upload.done()
     )
 
     return res.pipe(map(() => void 0))

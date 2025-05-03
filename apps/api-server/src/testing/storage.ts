@@ -24,6 +24,7 @@ export async function setUpTestS3Storage() {
 
   return {
     storage: createS3StorageClient({
+      endpoint: 'http://repro-test-endpoint',
       region: 'repro-test-region',
       bucket: 'repro-test-bucket',
       accessKeyId: '',
