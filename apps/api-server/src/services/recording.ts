@@ -46,12 +46,13 @@ export function createRecordingService(database: Database, storage: Storage) {
   function readDataAsStream(
     recordingId: string
   ): FutureInstance<Error, Readable> {
+    const path = `${recordingId}/data`
     return storage
-      .exists(recordingId)
+      .exists(path)
       .pipe(
         chain(exists =>
           exists
-            ? storage.read(`${recordingId}/data`)
+            ? storage.read(path)
             : reject(notFound('Recording data not found'))
         )
       )

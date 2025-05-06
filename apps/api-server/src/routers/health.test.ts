@@ -5,7 +5,7 @@ import { Database } from '~/modules/database'
 import { Storage } from '~/modules/storage'
 import { createHealthService } from '~/services/health'
 import { setUpTestDatabase } from '~/testing/database'
-import { setUpTestStorage } from '~/testing/storage'
+import { setUpTestFileSystemStorage } from '~/testing/storage'
 import { fromRouter } from '~/testing/utils'
 import { serviceUnavailable } from '~/utils/errors'
 import { createHealthRouter } from './health'
@@ -18,7 +18,7 @@ describe('Routers > Health', () => {
   before(async () => {
     const { db: dbInstance, close: closeDb } = await setUpTestDatabase()
     const { storage: storageInstance, close: closeStorage } =
-      await setUpTestStorage()
+      await setUpTestFileSystemStorage()
 
     db = dbInstance
     storage = storageInstance

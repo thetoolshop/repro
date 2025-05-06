@@ -2,7 +2,7 @@ import expect from 'expect'
 import { chain, done } from 'fluture'
 import { afterEach, beforeEach, describe, it } from 'node:test'
 import { Readable } from 'stream'
-import { setUpTestStorage } from '~/testing/storage'
+import { setUpTestFileSystemStorage } from '~/testing/storage'
 import { stringToReadable } from '~/testing/utils'
 import { Storage } from './storage'
 
@@ -12,7 +12,7 @@ describe('Modules > FileSystemStorage', () => {
 
   beforeEach(async () => {
     const { storage: storageInstance, close: closeStorage } =
-      await setUpTestStorage()
+      await setUpTestFileSystemStorage()
     storage = storageInstance
     reset = closeStorage
   })

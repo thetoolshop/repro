@@ -1,6 +1,5 @@
 import compress from '@fastify/compress'
 import cors from '@fastify/cors'
-import path from 'node:path'
 
 import fastify, { FastifyPluginAsync } from 'fastify'
 import {
@@ -11,7 +10,7 @@ import { defaultEnv as env } from '~/config/env'
 import { createSessionDecorator } from '~/decorators/session'
 import { createPostgresDatabaseClient } from '~/modules/database/database-postgres'
 import { createSMTPEmailUtils } from '~/modules/email-utils'
-import { createFileSystemStorageClient } from '~/modules/storage-fs'
+import { createS3StorageClient } from '~/modules/storage-s3'
 import { createHealthRouter } from '~/routers/health'
 import { createProjectRouter } from '~/routers/project'
 import { createRecordingRouter } from '~/routers/recording'
@@ -22,8 +21,6 @@ import { createProjectService } from '~/services/project'
 import { createRecordingService } from '~/services/recording'
 import { serverError } from '~/utils/errors'
 
-const projectRoot = path.resolve(__dirname, '../..')
-
 const database = createPostgresDatabaseClient({
   host: env.DB_HOST,
   port: env.DB_PORT,
@@ -32,8 +29,12 @@ const database = createPostgresDatabaseClient({
   password: env.DB_PASSWORD,
 })
 
-const storage = createFileSystemStorageClient({
-  path: path.join(projectRoot, env.STORAGE_DIR),
+const storage = createS3StorageClient({
+  endpoint: env.STORAGE_ENDPOINT,
+  region: env.STORAGE_REGION,
+  bucket: env.STORAGE_BUCKET,
+  accessKeyId: env.STORAGE_ACCESS_KEY_ID,
+  secretAccessKey: env.STORAGE_SECRET_ACCESS_KEY,
 })
 
 const emailUtils = createSMTPEmailUtils({

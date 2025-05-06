@@ -11,7 +11,7 @@ import { createProjectService } from '~/services/project'
 import { createRecordingService } from '~/services/recording'
 import { setUpTestDatabase } from './database'
 import { loadFixtures } from './loadFixtures'
-import { setUpTestStorage } from './storage'
+import { setUpTestFileSystemStorage } from './storage'
 import { Fixture, FixtureArrayToValues, Services } from './types'
 import { fromRouter } from './utils'
 
@@ -33,14 +33,10 @@ export interface Harness {
 }
 
 export async function createTestHarness(): Promise<Harness> {
-  const env = createEnv({
-    STORAGE_DIR: '',
-    CERT_FILE: '',
-    CERT_KEY_FILE: '',
-  })
+  const env = createEnv()
 
   const { db, close: closeDb } = await setUpTestDatabase()
-  const { storage, close: closeStorage } = await setUpTestStorage()
+  const { storage, close: closeStorage } = await setUpTestFileSystemStorage()
 
   const emailLog: Array<SendParams> = []
   const emailUtils = createStubEmailUtils(emailLog)
