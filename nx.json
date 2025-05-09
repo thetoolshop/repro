@@ -2,10 +2,9 @@
   "defaultBase": "main",
   "cacheDirectory": ".nx-cache",
   "targetDefaults": {
-    "build": {
-      "cache": true
-    }
+    "build": { "cache": true },
+    "test": { "cache": true },
+    "typecheck": { "cache": true },
   },
-  "useInferencePlugins": false,
-  "useLegacyCache": true
+  "useInferencePlugins": false
 }
