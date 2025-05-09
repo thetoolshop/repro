@@ -1,6 +1,5 @@
 {
   "defaultBase": "main",
-  "cacheDirectory": ".nx-cache",
   "targetDefaults": {
     "build": { "cache": true },
     "test": { "cache": true },
