@@ -12,7 +12,7 @@ try {
   passthroughHTMLPolicy =
     window.trustedTypes && window.trustedTypes.createPolicy
       ? window.trustedTypes.createPolicy('passthrough-html', {
-          createHTML: html => html,
+          createHTML: (html: string) => html,
         })
       : null
 } catch (err) {
