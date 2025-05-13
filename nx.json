@@ -5,6 +5,5 @@
     "test": { "cache": true },
     "typecheck": { "cache": true },
   },
-  "useInferencePlugins": false,
-  "nxCloudId": "68237973538d11f8290d9358"
+  "useInferencePlugins": false
 }
