@@ -18,5 +18,5 @@
       "dependsOn": ["^build"]
     }
   },
-  "tags": ["type:app"]
+  "tags": ["type:app", "build:docker"]
 }
