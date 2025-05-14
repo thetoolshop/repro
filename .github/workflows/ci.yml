@@ -88,8 +88,8 @@ jobs:
       - name: Build base Docker image
         uses: docker/build-push-action@v6
         with:
-          cache-from: type=registry,ref=${{ secrets/CONTAINER_REGISTRY_ENDPOINT }}/repro-base:build-cache
-          cache-to: type=registry,ref=${{ secrets/CONTAINER_REGISTRY_ENDPOINT }}/repro-base:build-cache
+          cache-from: type=registry,ref=${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/repro-base:build-cache
+          cache-to: type=registry,ref=${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/repro-base:build-cache
           tags: ${{ secrets.CONTAINER_REGISTRY_ENDPOINT}}/repro-base:latest
           file: infra/base.dockerfile
           push: true
@@ -99,7 +99,7 @@ jobs:
         with:
           target: prod
           cache-from: type=registry,ref=${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/api-server:build-cache
-          cache-to: type=registry,ref=${{ secrets/CONTAINER_REGISTRY_ENDPOINT }}/api-server:build-cache
+          cache-to: type=registry,ref=${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/api-server:build-cache
           tags: ${{ secrets.CONTAINER_REGISTRY_ENDPOINT}}/api-server:latest
           file: infra/apps/api-server/Dockerfile
           push: true
