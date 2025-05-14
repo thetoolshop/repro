@@ -69,11 +69,16 @@ jobs:
             echo "NX_HEAD=${{ github.sha }}" >> $GITHUB_ENV
           fi
 
-      - name: Build affected packages and apps
-        run: pnpm nx affected -t build
+      - name: Build, lint and test affected packages
+        run: pnpm nx affected -t build typecheck test
 
-      - name: Typecheck affected
-        run: pnpm nx affected -t typecheck
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Test affected
-        run: pnpm nx affected -t test
+      - name: Build base Docker image
+        uses: docker/build-push-action@v6
+        with:
+          tags: repro-base:latest
+          file: infra/base.dockerfile
+          push: false
+
