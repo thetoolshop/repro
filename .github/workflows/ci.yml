@@ -72,15 +72,35 @@ jobs:
       - name: Build, lint and test affected packages
         run: pnpm nx affected -t build typecheck test
 
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}
+          username: ${{ secrets.CONTAINER_REGISTRY_USERNAME }}
+          password: ${{ secrets.CONTAINER_REGISTRY_PASSWORD }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Build base Docker image
         uses: docker/build-push-action@v6
         with:
-          cache-from: type=gha
-          cache-to: type=gha
-          tags: repro-base:latest
+          cache-from: type=registry,ref=${{ secrets/CONTAINER_REGISTRY_ENDPOINT }}/repro-base:build-cache
+          cache-to: type=registry,ref=${{ secrets/CONTAINER_REGISTRY_ENDPOINT }}/repro-base:build-cache
+          tags: ${{ secrets.CONTAINER_REGISTRY_ENDPOINT}}/repro-base:latest
           file: infra/base.dockerfile
-          push: false
+          push: true
+
+      - name: Build api-server Docker image
+        uses: docker/build-push-action@v6
+        with:
+          target: prod
+          cache-from: type=registry,ref=${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/api-server:build-cache
+          cache-to: type=registry,ref=${{ secrets/CONTAINER_REGISTRY_ENDPOINT }}/api-server:build-cache
+          tags: ${{ secrets.CONTAINER_REGISTRY_ENDPOINT}}/api-server:latest
+          file: infra/apps/api-server/Dockerfile
+          push: true
 
