@@ -93,8 +93,8 @@ jobs:
           tags: ${{ secrets.CONTAINER_REGISTRY_ENDPOINT}}/repro-base:latest
           file: infra/base.dockerfile
           push: true
-          build-args:
-            - CONTAINER_REGISTRY_ENDPOINT="${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/"
+          build-args: |
+            CONTAINER_REGISTRY_ENDPOINT=${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/
 
       - name: Build api-server Docker image
         uses: docker/build-push-action@v6
@@ -105,6 +105,6 @@ jobs:
           tags: ${{ secrets.CONTAINER_REGISTRY_ENDPOINT}}/api-server:latest
           file: infra/apps/api-server/Dockerfile
           push: true
-          build-args:
-            - CONTAINER_REGISTRY_ENDPOINT="${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/"
+          build-args: |
+            CONTAINER_REGISTRY_ENDPOINT=${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/
 
