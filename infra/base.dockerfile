@@ -1,4 +1,4 @@
-FROM node:22-slim as base
+FROM node:22-slim AS base
 WORKDIR /app
 
 RUN corepack enable

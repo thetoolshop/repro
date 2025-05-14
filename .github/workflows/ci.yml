@@ -78,6 +78,8 @@ jobs:
       - name: Build base Docker image
         uses: docker/build-push-action@v6
         with:
+          cache-from: gha
+          cache-to: gha
           tags: repro-base:latest
           file: infra/base.dockerfile
           push: false
