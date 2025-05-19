@@ -1,4 +1,4 @@
-FROM node:22
+FROM node:22-slim
 WORKDIR /app
 
 RUN corepack enable
@@ -15,6 +15,6 @@ COPY . .
 RUN pnpm install --offline
 
 # Run build step for all apps and their dependencies
-RUN pnpm nx run-many --target=build --projects=tag:type:app
+RUN pnpm nx run-many --target=build --projects=tag:build:docker
 
 EXPOSE 8080
