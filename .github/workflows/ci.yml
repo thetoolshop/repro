@@ -83,6 +83,9 @@ jobs:
         with:
           token: ${{ secrets.DIGITAL_OCEAN_API_TOKEN }}
 
+      - name: Login to Container Registry
+        run: doctl registry login
+
       - name: Build base Docker image
         uses: docker/build-push-action@v6
         with:
