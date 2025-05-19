@@ -5,8 +5,11 @@ RUN corepack enable
 RUN corepack prepare pnpm@8.3.1 --activate
 
 COPY ./patches/ ./patches/
+
+# Install PNPM packages only if dependency versions have changed
 COPY pnpm-lock.yaml ./
 RUN pnpm fetch
 
+# Add source files and install dependencies from store
 COPY . .
 RUN pnpm install --offline

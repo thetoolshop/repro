@@ -21,7 +21,7 @@ load_dynamic('./apps/dev-toolbar/Tiltfile')
 docker_build(
     'repro-base',
     PROJECT_ROOT,
-    dockerfile='./base.dockerfile',
+    dockerfile='./Dockerfile.dev-base',
     ignore=['infra', 'dist', 'build', 'node_modules']
 )
 

@@ -4,7 +4,6 @@
   "description": "Demo build of Repro devtools",
   "main": "index.js",
   "scripts": {
-    "postinstall": "patch-package",
     "build": "./scripts/build",
     "dev-serve": "./scripts/build -s",
     "serve": "serve -s dist",
