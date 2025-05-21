@@ -39,21 +39,16 @@ export function createResponseUtils(config: SystemConfig) {
       res.status(409)
     } else if (isNotImplemented(error)) {
       message = error.message || 'Not implemented'
+      res.log.error(error)
       res.status(501)
     } else if (isServiceUnavailable(error)) {
-      // TODO: use Winston to forward logs
-      // console.error(error)
       message = config.debug ? error.message : 'Service unavailable'
+      res.log.error(error)
       res.status(503)
     } else {
-      // TODO: use Winston to forward logs
-      // console.error(error)
       message = config.debug ? error.message : 'Server error'
+      res.log.error(error)
       res.status(500)
-    }
-
-    if (config.debug) {
-      console.error(error)
     }
 
     res.type('application/json')
