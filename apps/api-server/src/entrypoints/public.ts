@@ -25,6 +25,7 @@ const database = createPostgresDatabaseClient({
   database: env.DB_NAME,
   user: env.DB_USER,
   password: env.DB_PASSWORD,
+  ssl: env.DB_SSL,
 })
 
 const storage = createS3StorageClient({

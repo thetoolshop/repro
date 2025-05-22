@@ -8,7 +8,7 @@
       }
     }
   },
-  "tags": ["type:app", "build:docker"],
+  "tags": ["type:app", "build:static"],
   "services": [
     "admin"
   ]
