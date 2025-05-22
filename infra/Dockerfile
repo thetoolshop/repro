@@ -14,7 +14,7 @@ RUN pnpm fetch
 COPY . .
 RUN pnpm install --offline
 
-# Run build step for all apps and their dependencies
-RUN pnpm nx run-many --target=build --projects=tag:build:docker
+# Run build step for all pacakges with a build target
+RUN pnpm nx run-many --target=build
 
 EXPOSE 8080
