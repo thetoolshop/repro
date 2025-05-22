@@ -14,7 +14,7 @@ RUN pnpm fetch
 COPY . .
 RUN pnpm install --offline
 
-# Run build step for all pacakges with a build target
-RUN pnpm nx run-many --target=build
+# Run build step for all library packages with a build target
+RUN pnpm nx run-many --target=build --projects=tag:type:package
 
 EXPOSE 8080
