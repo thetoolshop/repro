@@ -26,7 +26,9 @@ export function createPostgresDatabaseClient(
               database: configOrInstance.database,
               user: configOrInstance.user,
               password: configOrInstance.password,
-              ssl: configOrInstance.ssl,
+              ssl: configOrInstance.ssl && {
+                rejectUnauthorized: false,
+              },
             }),
     }),
   })
