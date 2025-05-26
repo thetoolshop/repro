@@ -1,4 +1,4 @@
-name: Build, test and deploy
+name: Build, test and deploy (split)
 
 on:
   push:
@@ -6,7 +6,102 @@ on:
       - "**"
 
 jobs:
-  run-affected:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Setup Node.js with caching
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Get Nx cache
+        uses: actions/cache@v3
+        with:
+          path: .nx
+          key: ${{ runner.os }}-nx-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-nx-
+
+      - name: Get base and head for affected commands
+        id: vars
+        run: |
+          git fetch origin main --depth=2
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "NX_BASE=HEAD~1" >> $GITHUB_ENV
+            echo "NX_HEAD=HEAD" >> $GITHUB_ENV
+          else
+            echo "NX_BASE=origin/main" >> $GITHUB_ENV
+            echo "NX_HEAD=${{ github.sha }}" >> $GITHUB_ENV
+          fi
+
+      - name: Build affected packages
+        run: pnpm nx affected -t build
+
+  check:
+    name: Typecheck
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Setup Node.js with caching
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Get Nx cache
+        uses: actions/cache@v3
+        with:
+          path: .nx
+          key: ${{ runner.os }}-nx-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-nx-
+
+      - name: Get base and head for affected commands
+        id: vars
+        run: |
+          git fetch origin main --depth=2
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "NX_BASE=HEAD~1" >> $GITHUB_ENV
+            echo "NX_HEAD=HEAD" >> $GITHUB_ENV
+          else
+            echo "NX_BASE=origin/main" >> $GITHUB_ENV
+            echo "NX_HEAD=${{ github.sha }}" >> $GITHUB_ENV
+          fi
+
+      - name: Typecheck affected packages
+        run: pnpm nx affected -t typecheck
+
+  test:
+    name: Test
+    needs: [build]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -69,8 +164,18 @@ jobs:
             echo "NX_HEAD=${{ github.sha }}" >> $GITHUB_ENV
           fi
 
-      - name: Build, lint and test affected packages
-        run: pnpm nx affected -t build typecheck test
+      - name: Test affected packages
+        run: pnpm nx affected -t test
+
+  docker:
+    name: Containerize
+    needs: [build, check, test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
