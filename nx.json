@@ -1,9 +1,9 @@
 {
   "defaultBase": "main",
   "targetDefaults": {
-    "build": { "cache": true },
-    "test": { "cache": true },
-    "typecheck": { "cache": true },
+    "build": { "cache": true, "dependsOn": ["^build"] },
+    "test": { "cache": true, "dependsOn": ["^build"] },
+    "typecheck": { "cache": true, "dependsOn": ["^build"] },
   },
   "useInferencePlugins": false
 }
