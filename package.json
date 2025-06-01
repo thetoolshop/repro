@@ -4,9 +4,13 @@
   "description": "",
   "main": "index.js",
   "license": "UNLICENSED",
+  "scripts": {
+    "down": "tilt down -f infra/Tiltfile",
+    "up": "tilt up -f infra/Tiltfile"
+  },
   "devDependencies": {
     "@jsxstyle/core": "^3.0.1",
-    "@types/trusted-types": "^2.0.2"
+    "@types/trusted-types": "^2.0.7"
   },
   "pnpm": {
     "overrides": {
@@ -27,10 +31,10 @@
     }
   },
   "dependencies": {
-    "@dotenvx/dotenvx": "^1.14.0",
+    "@dotenvx/dotenvx": "^1.43.0",
     "node-gyp-build": "^4.8.4",
-    "nx": "20.4.0",
-    "pm2": "^5.3.1"
+    "nx": "21.0.3",
+    "pm2": "^5.4.3"
   },
   "packageManager": "pnpm@8.3.1",
   "engines": {

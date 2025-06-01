@@ -8,5 +8,8 @@
       }
     }
   },
-  "tags": ["type:app"]
+  "tags": ["type:app", "build:static"],
+  "services": [
+    "admin"
+  ]
 } 

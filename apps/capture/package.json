@@ -4,7 +4,6 @@
   "description": "Bug reporting that captures every detail",
   "main": "index.js",
   "scripts": {
-    "postinstall": "patch-package",
     "build": "BUILD_ENV=production ./scripts/build",
     "watch": "./scripts/build -w",
     "fmt": "prettier --write src",

@@ -9,6 +9,7 @@ interface Config {
   database: string
   user: string
   password: string
+  ssl: boolean
 }
 
 export function createPostgresDatabaseClient(
@@ -25,6 +26,9 @@ export function createPostgresDatabaseClient(
               database: configOrInstance.database,
               user: configOrInstance.user,
               password: configOrInstance.password,
+              ssl: configOrInstance.ssl && {
+                rejectUnauthorized: false,
+              },
             }),
     }),
   })

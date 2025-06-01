@@ -22,5 +22,10 @@
       }
     }
   },
-  "tags": ["type:app"]
+  "tags": ["type:app", "build:docker"],
+  "services": [
+    "admin-api-server",
+    "api-server",
+    "public-api-server"
+  ]
 }

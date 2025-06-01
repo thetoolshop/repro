@@ -1,12 +1,9 @@
 {
   "defaultBase": "main",
-  "cacheDirectory": ".nx-cache",
   "targetDefaults": {
-    "build": {
-      "cache": true
-    }
+    "build": { "cache": true, "dependsOn": ["^build"] },
+    "test": { "cache": true, "dependsOn": ["^build"] },
+    "typecheck": { "cache": true, "dependsOn": ["^build"] },
   },
-  "useInferencePlugins": false,
-  "useLegacyCache": true,
-  "nxCloudId": "68237973538d11f8290d9358"
+  "useInferencePlugins": false
 }

@@ -1,4 +1,4 @@
-name: Build, lint and test
+name: Build, test and deploy (split)
 
 on:
   push:
@@ -6,7 +6,102 @@ on:
       - "**"
 
 jobs:
-  run-affected:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Setup Node.js with caching
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Get Nx cache
+        uses: actions/cache@v3
+        with:
+          path: .nx
+          key: ${{ runner.os }}-nx-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-nx-
+
+      - name: Get base and head for affected commands
+        id: vars
+        run: |
+          git fetch origin main --depth=2
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "NX_BASE=HEAD~1" >> $GITHUB_ENV
+            echo "NX_HEAD=HEAD" >> $GITHUB_ENV
+          else
+            echo "NX_BASE=origin/main" >> $GITHUB_ENV
+            echo "NX_HEAD=${{ github.sha }}" >> $GITHUB_ENV
+          fi
+
+      - name: Build affected packages
+        run: pnpm nx affected -t build
+
+  check:
+    name: Typecheck
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Setup Node.js with caching
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Get Nx cache
+        uses: actions/cache@v3
+        with:
+          path: .nx
+          key: ${{ runner.os }}-nx-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-nx-
+
+      - name: Get base and head for affected commands
+        id: vars
+        run: |
+          git fetch origin main --depth=2
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "NX_BASE=HEAD~1" >> $GITHUB_ENV
+            echo "NX_HEAD=HEAD" >> $GITHUB_ENV
+          else
+            echo "NX_BASE=origin/main" >> $GITHUB_ENV
+            echo "NX_HEAD=${{ github.sha }}" >> $GITHUB_ENV
+          fi
+
+      - name: Typecheck affected packages
+        run: pnpm nx affected -t typecheck
+
+  test:
+    name: Test
+    needs: [build]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -46,25 +141,13 @@ jobs:
           node-version: 22
           cache: "pnpm"
 
-      - name: Get npm-forks cache
-        uses: actions/cache@v3
-        id: npm-forks-cache
-        with:
-          path: |
-            npm-forks/**/lib
-            npm-forks/**/dist
-            npm-forks/**/node_modules
-          key: ${{ runner.os }}-npm-forks-${{ hashFiles('npm-forks/**/npm-fork-version.json') }}
-
       - name: Install dependencies
-        env:
-          CI_NPM_FORKS_CACHE_HIT: ${{ steps.npm-forks-cache.outputs.cache-hit }}
         run: pnpm install
 
       - name: Get Nx cache
         uses: actions/cache@v3
         with:
-          path: .nx-cache
+          path: .nx
           key: ${{ runner.os }}-nx-${{ hashFiles('pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-nx-
@@ -81,11 +164,40 @@ jobs:
             echo "NX_HEAD=${{ github.sha }}" >> $GITHUB_ENV
           fi
 
-      - name: Build affected packages and apps
-        run: pnpm nx affected -t build
-
-      - name: Typecheck affected
-        run: pnpm nx affected -t typecheck
-
-      - name: Test affected
+      - name: Test affected packages
         run: pnpm nx affected -t test
+
+  docker:
+    name: Containerize
+    needs: [build, check, test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}
+          username: ${{ secrets.CONTAINER_REGISTRY_USERNAME }}
+          password: ${{ secrets.CONTAINER_REGISTRY_PASSWORD }}
+
+      - name: Build base Docker image
+        uses: docker/build-push-action@v6
+        with:
+          cache-from: type=registry,ref=${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/repro:build-cache
+          cache-to: type=registry,ref=${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/repro:build-cache
+          tags: ${{ secrets.CONTAINER_REGISTRY_ENDPOINT}}/repro:latest
+          file: infra/Dockerfile
+          push: true
+          build-args: |
+            CONTAINER_REGISTRY_ENDPOINT=${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/
+
