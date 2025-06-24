@@ -81,6 +81,14 @@ export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
     return {}
   }
 
+  function getPreviousBreakpoint() {
+    return getActiveIndex()
+  }
+
+  function getNextBreakpoint() {
+    return getActiveIndex()
+  }
+
   function play() {}
   function pause() {}
 
@@ -187,6 +195,10 @@ export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
     getResourceMap,
     getSnapshot,
     getSourceEvents,
+
+    // Breakpoints
+    getPreviousBreakpoint,
+    getNextBreakpoint,
 
     // Services
     play,
