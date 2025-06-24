@@ -564,7 +564,7 @@ export function createSourcePlayback(
     getSnapshot,
     getSourceEvents,
 
-    // Brakepoints
+    // Breakpoints
     getPreviousBreakpoint,
     getNextBreakpoint,
 
