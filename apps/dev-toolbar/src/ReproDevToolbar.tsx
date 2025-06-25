@@ -1,10 +1,11 @@
+import { cache as styleCache } from '@jsxstyle/react'
+import { PortalRootProvider } from '@repro/design'
 import { Agent, MessagingProvider, createLoopbackAgent } from '@repro/messaging'
 import {
   RecordingStreamProvider,
   createRecordingStream,
 } from '@repro/recording'
 import { applyResetStyles } from '@repro/theme'
-import { cache as styleCache } from '@jsxstyle/react'
 import React from 'react'
 import { Root, createRoot } from 'react-dom/client'
 import { Controller } from './Controller'
@@ -92,13 +93,15 @@ class ReproDevToolbar extends HTMLElement {
     }
 
     this.renderRoot.render(
-      <RecordingStreamProvider stream={stream}>
-        <StateProvider state={this.state}>
-          <MessagingProvider agent={agent}>
-            <Controller />
-          </MessagingProvider>
-        </StateProvider>
-      </RecordingStreamProvider>
+      <PortalRootProvider>
+        <RecordingStreamProvider stream={stream}>
+          <StateProvider state={this.state}>
+            <MessagingProvider agent={agent}>
+              <Controller />
+            </MessagingProvider>
+          </StateProvider>
+        </RecordingStreamProvider>
+      </PortalRootProvider>
     )
   }
 

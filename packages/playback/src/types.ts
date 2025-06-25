@@ -39,6 +39,14 @@ export interface Playback {
   getSnapshot(): Snapshot
   getSourceEvents(): List<SourceEventView>
 
+  // Breakpoints
+  // TODO: Add methods for settings breakpoints on:
+  // 1. Event index
+  // 2. VNode mutation
+  // 3. Event type
+  getPreviousBreakpoint(): number
+  getNextBreakpoint(): number
+
   // Controls
   play(): void
   pause(): void

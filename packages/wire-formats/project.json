@@ -5,8 +5,10 @@
       "executor": "nx:run-script",
       "options": {
         "script": "build"
-      }
+      },
+      "inputs": ["{projectRoot}/src/**/*.tdls"],
+      "outputs": ["{projectRoot}/src/generated/**/*"],
     }
   },
   "tags": ["type:package"]
-} 
+}

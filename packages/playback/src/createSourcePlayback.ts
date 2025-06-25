@@ -337,6 +337,16 @@ export function createSourcePlayback(
     return resourceMap
   }
 
+  function getPreviousBreakpoint() {
+    // TODO: implement me
+    return getActiveIndex()
+  }
+
+  function getNextBreakpoint() {
+    // TODO: implement me
+    return getActiveIndex()
+  }
+
   function play() {
     setPlaybackState(PlaybackState.Playing)
   }
@@ -553,6 +563,10 @@ export function createSourcePlayback(
     getResourceMap,
     getSnapshot,
     getSourceEvents,
+
+    // Breakpoints
+    getPreviousBreakpoint,
+    getNextBreakpoint,
 
     // Services
     play,
