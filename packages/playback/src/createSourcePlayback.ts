@@ -346,7 +346,7 @@ export function createSourcePlayback(
   }
 
   function removeBreakpoint(breakpoint: Breakpoint) {
-    setBreakpoints([...getBreakpoints()].filter(id => id !== nodeId))
+    setBreakpoints(getBreakpoints().filter(item => item !== breakpoint))
   }
 
   function clearBreakpoints() {
