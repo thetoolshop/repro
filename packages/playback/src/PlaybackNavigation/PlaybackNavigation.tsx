@@ -4,6 +4,7 @@ import { colors, Tooltip } from '@repro/design'
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
+  CircleSlash2Icon,
   DotIcon,
   StepBackIcon,
   StepForwardIcon,
@@ -15,45 +16,41 @@ import { Button } from './Button.styles'
 export const PlaybackNavigation: React.FC = () => {
   const playback = usePlayback()
 
+  function clearBreakpoints() {
+    Analytics.track('playback:clear-breakpoints')
+  }
+
   function stepBack() {
     Analytics.track('playback:step-back')
-    playback.seekToEvent(playback.getPreviousBreakpoint())
+    playback.breakPrevious()
   }
 
   function stepBackOneFrame() {
     Analytics.track('playback:step-back-one-frame')
-    playback.pause()
-    playback.seekToEvent(Math.max(0, playback.getActiveIndex() - 1))
+    // TODO: implement me
   }
 
   function stepForward() {
     Analytics.track('playback:step-forward')
-    playback.seekToEvent(playback.getNextBreakpoint())
+    playback.breakNext()
   }
 
   function stepForwardOneFrame() {
     Analytics.track('playback:step-forward-one-frame')
-    playback.pause()
-
-    // TODO: Handle seeking out of bounds
-    playback.seekToEvent(playback.getActiveIndex() + 1)
+    // TODO: implement me
   }
 
   return (
     <Row paddingH={10}>
       <Button onClick={stepBack}>
         <StepBackIcon size={16} />
-        <Tooltip position="top">Step back</Tooltip>
+        <Tooltip position="top">Previous breakpoint</Tooltip>
       </Button>
 
       <Button onClick={stepBackOneFrame}>
         <ChevronLeftIcon size={16} />
         <Tooltip position="top">Back 1 frame</Tooltip>
       </Button>
-
-      <Row alignItems="center" color={colors.slate['500']}>
-        <DotIcon size={16} />
-      </Row>
 
       <Button onClick={stepForwardOneFrame}>
         <ChevronRightIcon size={16} />
@@ -62,7 +59,16 @@ export const PlaybackNavigation: React.FC = () => {
 
       <Button onClick={stepForward}>
         <StepForwardIcon size={16} />
-        <Tooltip position="top">Step forward</Tooltip>
+        <Tooltip position="top">Next breakpoint</Tooltip>
+      </Button>
+
+      <Row alignItems="center" color={colors.slate['500']}>
+        <DotIcon size={16} />
+      </Row>
+
+      <Button onClick={clearBreakpoints}>
+        <CircleSlash2Icon size={16} />
+        <Tooltip position="top">Clear breakpoints</Tooltip>
       </Button>
     </Row>
   )

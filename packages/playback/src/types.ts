@@ -1,5 +1,10 @@
 import { Atom } from '@repro/atom'
-import { Snapshot, SourceEventType, SourceEventView } from '@repro/domain'
+import {
+  NodeId,
+  Snapshot,
+  SourceEventType,
+  SourceEventView,
+} from '@repro/domain'
 import { List } from '@repro/tdl'
 
 export enum PlaybackState {
@@ -14,6 +19,17 @@ export enum ControlFrame {
   Flush,
 }
 
+export enum BreakpointType {
+  VNode,
+}
+
+export interface VNodeBreakpoint {
+  type: BreakpointType.VNode
+  nodeId: NodeId
+}
+
+export type Breakpoint = VNodeBreakpoint
+
 export interface Playback {
   // Atoms
   readonly $activeIndex: Atom<number>
@@ -23,6 +39,7 @@ export interface Playback {
   readonly $latestEventTime: Atom<number>
   readonly $playbackState: Atom<PlaybackState>
   readonly $snapshot: Atom<Snapshot>
+  readonly $breakpoints: Atom<Array<Breakpoint>>
 
   // Accessors
   getActiveIndex(): number
@@ -38,14 +55,14 @@ export interface Playback {
   getResourceMap(): Record<string, string>
   getSnapshot(): Snapshot
   getSourceEvents(): List<SourceEventView>
+  getBreakpoints(): Array<Breakpoint>
 
   // Breakpoints
-  // TODO: Add methods for settings breakpoints on:
-  // 1. Event index
-  // 2. VNode mutation
-  // 3. Event type
-  getPreviousBreakpoint(): number
-  getNextBreakpoint(): number
+  addBreakpoint(breakpoint: Breakpoint): void
+  removeBreakpoint(breakpoint: Breakpoint): void
+  clearBreakpoints(): void
+  breakNext(): void
+  breakPrevious(): void
 
   // Controls
   play(): void

@@ -16,7 +16,7 @@ import {
 import { copyObject } from '@repro/std'
 import { Box, List } from '@repro/tdl'
 import { Observable, Subscription, first, skipUntil } from 'rxjs'
-import { ControlFrame, Playback, PlaybackState } from './types'
+import { Breakpoint, ControlFrame, Playback, PlaybackState } from './types'
 
 const MAX_EVENT_BUFFER_SIZE_BYTES = 32_000_000
 
@@ -38,6 +38,9 @@ export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
   const [$snapshot, setSnapshot, getSnapshot] = createAtom<Snapshot>(
     createEmptySnapshot()
   )
+  const [$breakpoints, _setBreakpoints, getBreakpoints] = createAtom<
+    Array<Breakpoint>
+  >([])
 
   const sourceEventBuffer = createBuffer<SourceEvent>(
     MAX_EVENT_BUFFER_SIZE_BYTES
@@ -81,12 +84,24 @@ export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
     return {}
   }
 
-  function getPreviousBreakpoint() {
-    return getActiveIndex()
+  function addBreakpoint() {
+    // No-op for live playback
   }
 
-  function getNextBreakpoint() {
-    return getActiveIndex()
+  function removeBreakpoint() {
+    // No-op for live playback
+  }
+
+  function clearBreakpoints() {
+    // No-op for live playback
+  }
+
+  function breakNext() {
+    // No-op for live playback
+  }
+
+  function breakPrevious() {
+    // No-op for live playback
   }
 
   function play() {}
@@ -180,6 +195,7 @@ export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
     $latestEventTime,
     $playbackState,
     $snapshot,
+    $breakpoints,
 
     // Accessors
     getActiveIndex,
@@ -195,10 +211,14 @@ export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
     getResourceMap,
     getSnapshot,
     getSourceEvents,
+    getBreakpoints,
 
     // Breakpoints
-    getPreviousBreakpoint,
-    getNextBreakpoint,
+    addBreakpoint,
+    removeBreakpoint,
+    clearBreakpoints,
+    breakNext,
+    breakPrevious,
 
     // Services
     play,

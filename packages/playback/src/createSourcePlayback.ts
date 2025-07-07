@@ -24,7 +24,7 @@ import {
   interval,
 } from 'rxjs'
 import { map, observeOn, pairwise, switchMap } from 'rxjs/operators'
-import { ControlFrame, Playback, PlaybackState } from './types'
+import { Breakpoint, ControlFrame, Playback, PlaybackState } from './types'
 
 const EMPTY_SNAPSHOT = createEmptySnapshot()
 const EMPTY_BUFFER = new List(SourceEventView, [])
@@ -59,6 +59,10 @@ export function createSourcePlayback(
   const lastEventTime = lastEvent ? lastEvent.get('time').orElse(-1) : -1
   const [$latestEventTime, setLatestEventTime, getLatestEventTime] =
     createAtom(lastEventTime)
+
+  const [$breakpoints, setBreakpoints, getBreakpoints] = createAtom<
+    Array<Breakpoint>
+  >([])
 
   const snapshotIndex: Array<number> = []
 
@@ -337,14 +341,28 @@ export function createSourcePlayback(
     return resourceMap
   }
 
-  function getPreviousBreakpoint() {
-    // TODO: implement me
-    return getActiveIndex()
+  function addBreakpoint(breakpoint: Breakpoint) {
+    setBreakpoints([...getBreakpoints(), breakpoint])
   }
 
-  function getNextBreakpoint() {
-    // TODO: implement me
-    return getActiveIndex()
+  function removeBreakpoint(breakpoint: Breakpoint) {
+    setBreakpoints(getBreakpoints().filter(item => item !== breakpoint))
+  }
+
+  function clearBreakpoints() {
+    setBreakpoints([])
+  }
+
+  function breakNext() {
+    return Stats.time('RecordingPlayback#breakNext', () => {
+      // TODO: implement me
+    })
+  }
+
+  function breakPrevious() {
+    return Stats.time('RecordingPlayback#breakPrevious', () => {
+      // TODO: implement me
+    })
   }
 
   function play() {
@@ -548,6 +566,7 @@ export function createSourcePlayback(
     $latestEventTime,
     $playbackState,
     $snapshot,
+    $breakpoints,
 
     // Accessors
     getActiveIndex,
@@ -563,10 +582,14 @@ export function createSourcePlayback(
     getResourceMap,
     getSnapshot,
     getSourceEvents,
+    getBreakpoints,
 
     // Breakpoints
-    getPreviousBreakpoint,
-    getNextBreakpoint,
+    addBreakpoint,
+    removeBreakpoint,
+    clearBreakpoints,
+    breakNext,
+    breakPrevious,
 
     // Services
     play,
