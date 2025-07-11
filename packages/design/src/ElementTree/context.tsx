@@ -1,4 +1,4 @@
-import { SyntheticId, VTree } from '@repro/domain'
+import { NodeId, VTree } from '@repro/domain'
 import React, { useCallback, useContext } from 'react'
 
 export const VTreeContext = React.createContext<VTree | null>(null)
@@ -6,16 +6,19 @@ export const VTreeContext = React.createContext<VTree | null>(null)
 export type Tag = 'open' | 'close'
 
 export interface NodeState {
-  focusedNode: SyntheticId | null
+  focusedNode: NodeId | null
   focusedNodeTag: Tag
-  onFocusNode: (nodeId: SyntheticId, tag: Tag) => void
+  onFocusNode: (nodeId: NodeId, tag: Tag) => void
 
-  selectedNode: SyntheticId | null
+  selectedNode: NodeId | null
   selectedNodeTag: Tag
-  onSelectNode: (nodeId: SyntheticId, tag: Tag) => void
+  onSelectNode: (nodeId: NodeId, tag: Tag) => void
 
-  visibleNodes: Set<SyntheticId>
-  onToggleNodeVisibility: (nodeId: SyntheticId) => void
+  visibleNodes: Set<NodeId>
+  onToggleNodeVisibility: (nodeId: NodeId) => void
+
+  breakpointNodes: Set<NodeId>
+  onToggleBreakpoint: (nodeId: NodeId) => void
 }
 
 export const NodeStateContext = React.createContext<NodeState>({
@@ -27,9 +30,11 @@ export const NodeStateContext = React.createContext<NodeState>({
   onSelectNode() {},
   visibleNodes: new Set(),
   onToggleNodeVisibility() {},
+  breakpointNodes: new Set(),
+  onToggleBreakpoint() {},
 })
 
-export function useNode(nodeId: SyntheticId) {
+export function useNode(nodeId: NodeId) {
   const vtree = useContext(VTreeContext)
 
   if (!vtree) {
@@ -39,7 +44,7 @@ export function useNode(nodeId: SyntheticId) {
   return vtree.nodes[nodeId] ?? null
 }
 
-export function useNodeVisibility(nodeId: SyntheticId) {
+export function useNodeVisibility(nodeId: NodeId) {
   const { visibleNodes, onToggleNodeVisibility } = useContext(NodeStateContext)
 
   return {
@@ -48,7 +53,7 @@ export function useNodeVisibility(nodeId: SyntheticId) {
   }
 }
 
-export function useNodeState(nodeId: SyntheticId, tag: Tag) {
+export function useNodeState(nodeId: NodeId, tag: Tag) {
   const {
     focusedNode,
     focusedNodeTag,
@@ -58,6 +63,8 @@ export function useNodeState(nodeId: SyntheticId, tag: Tag) {
     onSelectNode,
     visibleNodes,
     onToggleNodeVisibility,
+    breakpointNodes,
+    onToggleBreakpoint,
   } = useContext(NodeStateContext)
 
   return {
@@ -75,6 +82,11 @@ export function useNodeState(nodeId: SyntheticId, tag: Tag) {
     onToggleNodeVisibility: useCallback(
       () => onToggleNodeVisibility(nodeId),
       [onToggleNodeVisibility, nodeId]
+    ),
+    hasBreakpoint: breakpointNodes.has(nodeId),
+    onToggleBreakpoint: useCallback(
+      () => onToggleBreakpoint(nodeId),
+      [onToggleBreakpoint, nodeId]
     ),
   }
 }

@@ -1,5 +1,5 @@
-import { SyntheticId, VTree } from '@repro/domain'
 import { Block } from '@jsxstyle/react'
+import { NodeId, SyntheticId, VTree } from '@repro/domain'
 import React, {
   MutableRefObject,
   useCallback,
@@ -29,8 +29,9 @@ export const ElementTree: React.FC<Props> = ({
 }) => {
   const containerRef = useRef() as MutableRefObject<HTMLDivElement>
   const activeRef = useRef(false)
-  const [visibleNodes, setVisibleNodes] = useState(new Set<SyntheticId>())
-  const [openNodes, setOpenNodes] = useState(new Set<SyntheticId>())
+  const [visibleNodes, setVisibleNodes] = useState(new Set<NodeId>())
+  const [openNodes, setOpenNodes] = useState(new Set<NodeId>())
+  const [breakpointNodes, setBreakpointNodes] = useState(new Set<NodeId>())
   const [focusedNodeTag, setFocusedNodeTag] = useState<Tag>('open')
   const [selectedNodeTag, setSelectedNodeTag] = useState<Tag>('open')
 
@@ -129,7 +130,7 @@ export const ElementTree: React.FC<Props> = ({
   }, [containerRef, selectedNode])
 
   const toggleNode = useCallback(
-    (nodeId: SyntheticId) =>
+    (nodeId: NodeId) =>
       setOpenNodes(openNodes => {
         const nextOpenNodes = new Set(openNodes)
 
@@ -142,6 +143,22 @@ export const ElementTree: React.FC<Props> = ({
         return nextOpenNodes
       }),
     [setOpenNodes]
+  )
+
+  const toggleBreakpoint = useCallback(
+    (nodeId: NodeId) =>
+      setBreakpointNodes(breakpointNodes => {
+        const nextBreakpointNodes = new Set(breakpointNodes)
+
+        if (nextBreakpointNodes.has(nodeId)) {
+          nextBreakpointNodes.delete(nodeId)
+        } else {
+          nextBreakpointNodes.add(nodeId)
+        }
+
+        return nextBreakpointNodes
+      }),
+    [setBreakpointNodes]
   )
 
   const nodeStateContext: NodeState = {
@@ -159,6 +176,8 @@ export const ElementTree: React.FC<Props> = ({
     },
     visibleNodes,
     onToggleNodeVisibility: toggleNode,
+    breakpointNodes,
+    onToggleBreakpoint: toggleBreakpoint,
   }
 
   return (
