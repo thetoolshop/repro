@@ -7,12 +7,12 @@ import React, {
   useRef,
   useState,
 } from 'react'
-import { Subscription, fromEvent } from 'rxjs'
+import { Subscription, fromEvent, switchMap, takeUntil, timer } from 'rxjs'
 import { Portal } from '../Portal'
 import { colors } from '../theme'
 
 type Props = PropsWithChildren<{
-  position?: 'top' | 'bottom'
+  position?: 'top' | 'bottom' | 'right' | 'left'
 }>
 
 const MAX_INT32 = 2 ** 32 - 1
@@ -23,32 +23,83 @@ export const Tooltip: React.FC<Props> = ({ children, position = 'top' }) => {
   const [x, setX] = useState(0)
   const [y, setY] = useState(0)
 
+  let translateX = '0'
+  let translateY = '0'
+
+  switch (position) {
+    case 'top':
+      translateX = '-50%'
+      translateY = 'calc(-100% - 5px)'
+      break
+
+    case 'bottom':
+      translateX = '-50%'
+      translateY = '5px'
+      break
+
+    case 'left':
+      translateX = 'calc(-100% - 5px)'
+      translateY = '-50%'
+      break
+
+    case 'right':
+      translateX = '5px'
+      translateY = '-50%'
+      break
+  }
+
   const updatePosition = useCallback(() => {
     const parent = ref.current ? ref.current.parentElement : null
 
     if (parent) {
       const { top, left, width, height } = parent.getBoundingClientRect()
 
-      setX(left + width / 2)
-      setY(top + (position === 'bottom' ? height : 0))
+      switch (position) {
+        case 'top':
+          setX(left + width / 2)
+          setY(top)
+          break
+
+        case 'bottom':
+          setX(left + width / 2)
+          setY(top + height)
+          break
+
+        case 'left':
+          setX(left - width)
+          setY(top + height / 2)
+          break
+
+        case 'right':
+          setX(left + width)
+          setY(top + height / 2)
+          break
+      }
     }
-  }, [ref, setX, setY])
+  }, [position, ref, setX, setY])
 
   useEffect(() => {
     const subscription = new Subscription()
     const parent = ref.current ? ref.current.parentElement : null
 
     if (parent) {
-      subscription.add(
-        fromEvent(parent, 'pointerenter').subscribe(() => {
-          updatePosition()
-          setActive(true)
-        })
-      )
+      const TOOLTIP_DELAY = 100
+
+      const pointerEnter$ = fromEvent(parent, 'pointerenter')
+      const pointerLeave$ = fromEvent(parent, 'pointerleave')
 
       subscription.add(
-        fromEvent(parent, 'pointerleave').subscribe(() => setActive(false))
+        pointerEnter$
+          .pipe(
+            switchMap(() => timer(TOOLTIP_DELAY).pipe(takeUntil(pointerLeave$)))
+          )
+          .subscribe(() => {
+            updatePosition()
+            setActive(true)
+          })
       )
+
+      subscription.add(pointerLeave$.subscribe(() => setActive(false)))
     }
 
     return () => {
@@ -58,28 +109,28 @@ export const Tooltip: React.FC<Props> = ({ children, position = 'top' }) => {
 
   return (
     <Block position="absolute" props={{ ref }}>
-      {active && (
-        <Portal>
-          <Block
-            padding={8}
-            position="absolute"
-            top={y}
-            left={x}
-            transform={`translate(-50%, -125%)`}
-            backgroundColor={colors.slate['700']}
-            borderRadius={2}
-            color={colors.white}
-            fontSize={11}
-            whiteSpace="nowrap"
-            pointerEvents="none"
-            transition="opacity linear 100ms"
-            userSelect="none"
-            zIndex={MAX_INT32}
-          >
-            {children}
-          </Block>
-        </Portal>
-      )}
+      <Portal>
+        <Block
+          padding={8}
+          position="absolute"
+          top={y}
+          left={x}
+          transform={`translate(${translateX}, ${translateY})`}
+          transformOrigin="0 0"
+          backgroundColor={colors.slate['700']}
+          borderRadius={2}
+          color={colors.white}
+          fontSize={11}
+          whiteSpace="nowrap"
+          pointerEvents="none"
+          opacity={active ? 1 : 0}
+          transition="opacity linear 100ms"
+          userSelect="none"
+          zIndex={MAX_INT32}
+        >
+          {children}
+        </Block>
+      </Portal>
     </Block>
   )
 }
