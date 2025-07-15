@@ -1,21 +1,28 @@
-import { NodeType, SyntheticId, VElement } from '@repro/domain'
-import { isEmptyElementVNode, isParentVNode } from '@repro/vdom-utils'
 import { Block } from '@jsxstyle/react'
+import { NodeId, NodeType, VElement } from '@repro/domain'
+import { isEmptyElementVNode, isParentVNode } from '@repro/vdom-utils'
 import React, { useContext } from 'react'
 import { ElementR } from '../DOM'
+import { BreakpointAction } from './BreakpointAction'
 import { NodeRenderer } from './NodeRenderer'
 import { Toggle } from './Toggle'
 import { TreeRow } from './TreeRow'
-import { VTreeContext, useNode, useNodeVisibility } from './context'
+import {
+  VTreeContext,
+  useNode,
+  useNodeBreakpoint,
+  useNodeVisibility,
+} from './context'
 
 interface Props {
   depth: number
-  nodeId: SyntheticId
+  nodeId: NodeId
 }
 
 export const ElementNodeRenderer: React.FC<Props> = ({ nodeId, depth }) => {
   const vtree = useContext(VTreeContext)
   const node = useNode(nodeId)
+  const { hasBreakpoint, onToggleBreakpoint } = useNodeBreakpoint(nodeId)
   const { isVisible, onToggleNodeVisibility } = useNodeVisibility(nodeId)
 
   if (!vtree || !node) {
@@ -38,8 +45,13 @@ export const ElementNodeRenderer: React.FC<Props> = ({ nodeId, depth }) => {
     .filter<VElement>(node => node.type === NodeType.Element)
     .map(node => {
       return (
-        <Block key={nodeId}>
+        <Block key={nodeId} position="relative">
           <TreeRow nodeId={nodeId} depth={depth} tag="open">
+            <BreakpointAction
+              active={hasBreakpoint}
+              onClick={onToggleBreakpoint}
+            />
+
             {!isTopLevelNode && hasChildren && (
               <Toggle isOpen={isVisible} onClick={onToggleNodeVisibility} />
             )}

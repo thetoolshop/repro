@@ -53,6 +53,14 @@ export function useNodeVisibility(nodeId: NodeId) {
   }
 }
 
+export function useNodeBreakpoint(nodeId: NodeId) {
+  const { breakpointNodes, onToggleBreakpoint } = useContext(NodeStateContext)
+  return {
+    hasBreakpoint: breakpointNodes.has(nodeId),
+    onToggleBreakpoint: () => onToggleBreakpoint(nodeId),
+  }
+}
+
 export function useNodeState(nodeId: NodeId, tag: Tag) {
   const {
     focusedNode,
