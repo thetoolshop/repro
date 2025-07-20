@@ -1,9 +1,15 @@
-import { colors, ElementTree } from '@repro/design'
-import { VElement, VTree } from '@repro/domain'
-import { useSnapshot } from '@repro/playback'
-import { isDocumentVNode, isElementVNode } from '@repro/vdom-utils'
 import { Block, Grid } from '@jsxstyle/react'
-import React, { PropsWithChildren, useEffect, useState } from 'react'
+import { useSelector } from '@repro/atom'
+import { colors, ElementTree } from '@repro/design'
+import { NodeId, VElement, VTree } from '@repro/domain'
+import { BreakpointType, usePlayback, useSnapshot } from '@repro/playback'
+import { isDocumentVNode, isElementVNode } from '@repro/vdom-utils'
+import React, {
+  PropsWithChildren,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react'
 import { useElementPicker, useFocusedNode, useSelectedNode } from '../hooks'
 import { SelectedNodeComputedStyle } from './SelectedNodeComputedStyle'
 
@@ -27,6 +33,17 @@ const MainPane: React.FC = React.memo(() => {
   const [selectedNode, setSelectedNode] = useSelectedNode()
   const [picker] = useElementPicker()
   const snapshot = useSnapshot()
+  const playback = usePlayback()
+
+  const breakpointNodes = useSelector(
+    playback.$breakpoints,
+    breakpoints =>
+      new Set(
+        breakpoints
+          .filter(breakpoint => breakpoint.type === BreakpointType.VNode)
+          .map(breakpoint => breakpoint.nodeId)
+      )
+  )
 
   useEffect(() => {
     setSelectedNode(selectedNode => {
@@ -48,6 +65,28 @@ const MainPane: React.FC = React.memo(() => {
     })
   }, [setSelectedNode, snapshot.dom])
 
+  const handleToggleBreakpoint = useCallback(
+    (nodeId: NodeId) => {
+      const breakpoints = playback.getBreakpoints()
+
+      const breakpoint = breakpoints.find(
+        breakpoint =>
+          breakpoint.type === BreakpointType.VNode &&
+          breakpoint.nodeId === nodeId
+      )
+
+      if (breakpoint) {
+        playback.removeBreakpoint(breakpoint)
+      } else {
+        playback.addBreakpoint({
+          type: BreakpointType.VNode,
+          nodeId,
+        })
+      }
+    },
+    [playback]
+  )
+
   return (
     <Block height="100%" overflow="auto">
       {snapshot.dom && (
@@ -55,8 +94,10 @@ const MainPane: React.FC = React.memo(() => {
           vtree={snapshot.dom}
           focusedNode={focusedNode}
           selectedNode={selectedNode}
+          breakpointNodes={breakpointNodes}
           onFocusNode={setFocusedNode}
           onSelectNode={setSelectedNode}
+          onToggleBreakpoint={handleToggleBreakpoint}
           usingPicker={picker}
         />
       )}

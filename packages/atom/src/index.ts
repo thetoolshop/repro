@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { BehaviorSubject, Observable } from 'rxjs'
 import { distinctUntilChanged, map } from 'rxjs/operators'
 
 export type Atom<T> = BehaviorSubject<T>
 export type ReadonlyAtom<T> = Observable<T>
 
-function atom<T>(val: T): Atom<T> {
+export function atom<T>(val: T): Atom<T> {
   return new BehaviorSubject(val)
 }
 
@@ -60,14 +60,15 @@ export function createValueHook<T>(atom: Atom<T>) {
 }
 
 export function useSelector<T, U>(atom: Atom<T>, selector: (value: T) => U) {
+  const selectorRef = useRef(selector)
   const [value, setValue] = useState(selector(atom.getValue()))
 
   useEffect(() => {
     const subscription = atom
-      .pipe(/* observeOn(asyncScheduler), */ map(selector))
+      .pipe(/* observeOn(asyncScheduler), */ map(selectorRef.current))
       .subscribe(setValue)
     return () => subscription.unsubscribe()
-  }, [atom, selector, setValue])
+  }, [atom, selectorRef, setValue])
 
   return value
 }
