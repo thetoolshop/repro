@@ -58,3 +58,8 @@ export function useCurrentPageURL() {
   const snapshot = useSnapshot()
   return snapshot.interaction?.pageURL
 }
+
+export function useBreakpoints() {
+  const playback = usePlayback()
+  return useAtomValue(playback.$breakpoints)
+}

@@ -15,8 +15,10 @@ interface Props {
   vtree: VTree
   focusedNode: SyntheticId | null
   selectedNode: SyntheticId | null
+  breakpointNodes: Set<NodeId>
   onFocusNode(nodeId: SyntheticId | null): void
   onSelectNode(nodeId: SyntheticId | null): void
+  onToggleBreakpoint(nodeId: NodeId): void
   usingPicker: boolean
 }
 
@@ -24,14 +26,15 @@ export const ElementTree: React.FC<Props> = ({
   vtree,
   focusedNode,
   selectedNode,
+  breakpointNodes,
   onFocusNode,
   onSelectNode,
+  onToggleBreakpoint,
 }) => {
   const containerRef = useRef() as MutableRefObject<HTMLDivElement>
   const activeRef = useRef(false)
   const [visibleNodes, setVisibleNodes] = useState(new Set<NodeId>())
   const [openNodes, setOpenNodes] = useState(new Set<NodeId>())
-  const [breakpointNodes, setBreakpointNodes] = useState(new Set<NodeId>())
   const [focusedNodeTag, setFocusedNodeTag] = useState<Tag>('open')
   const [selectedNodeTag, setSelectedNodeTag] = useState<Tag>('open')
 
@@ -145,22 +148,6 @@ export const ElementTree: React.FC<Props> = ({
     [setOpenNodes]
   )
 
-  const toggleBreakpoint = useCallback(
-    (nodeId: NodeId) =>
-      setBreakpointNodes(breakpointNodes => {
-        const nextBreakpointNodes = new Set(breakpointNodes)
-
-        if (nextBreakpointNodes.has(nodeId)) {
-          nextBreakpointNodes.delete(nodeId)
-        } else {
-          nextBreakpointNodes.add(nodeId)
-        }
-
-        return nextBreakpointNodes
-      }),
-    [setBreakpointNodes]
-  )
-
   const nodeStateContext: NodeState = {
     focusedNode,
     focusedNodeTag,
@@ -177,7 +164,7 @@ export const ElementTree: React.FC<Props> = ({
     visibleNodes,
     onToggleNodeVisibility: toggleNode,
     breakpointNodes,
-    onToggleBreakpoint: toggleBreakpoint,
+    onToggleBreakpoint: onToggleBreakpoint,
   }
 
   return (
