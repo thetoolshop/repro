@@ -6,6 +6,7 @@ overrides:
   '@types/react': 18.3.10
   '@types/react-dom': 18.3.0
   expect: 29.7.0
+  global-jsdom: 26.0.0
   react: 18.3.1
   react-dom: 18.3.1
   react-hook-form: 7.53.0
@@ -2251,6 +2252,9 @@ importers:
       '@repro/testing-utils':
         specifier: workspace:*
         version: link:../testing-utils
+      '@types/expect':
+        specifier: 24.3.2
+        version: 24.3.2
       '@types/node':
         specifier: 22.14.0
         version: 22.14.0
@@ -2260,6 +2264,12 @@ importers:
       '@types/repro-shared-types':
         specifier: workspace:*
         version: link:../shared-types
+      expect:
+        specifier: 29.7.0
+        version: 29.7.0
+      global-jsdom:
+        specifier: 26.0.0
+        version: 26.0.0(jsdom@26.1.0)
       prettier:
         specifier: ^3.0.0
         version: 3.0.0
@@ -2373,7 +2383,7 @@ importers:
         specifier: 29.7.0
         version: 29.7.0
       global-jsdom:
-        specifier: ^26.0.0
+        specifier: 26.0.0
         version: 26.0.0(jsdom@26.1.0)
       isomorphic-fetch:
         specifier: ^3.0.0
@@ -8231,12 +8241,6 @@ packages:
       balanced-match: 1.0.2
     dev: false
 
-  /braces@3.0.2:
-    resolution: {integrity: sha512-b8um+L1RzM3WDSzvhm6gIz1yfTbBt6YTlcEKAvsmqCZZFw46z626lVj9j1yEPW33H5H+lBQpZMP1k8l+78Ha0A==}
-    engines: {node: '>=8'}
-    dependencies:
-      fill-range: 7.1.1
-
   /braces@3.0.3:
     resolution: {integrity: sha512-yQbXgO/OSZVD2IsiLlro+7Hf6Q18EJrKSEsdoMzKePKXct3gvD8oLcOQdIzGupr5Fj+EDe8gO/lxc1BzfMpxvA==}
     engines: {node: '>=8'}
@@ -8418,7 +8422,7 @@ packages:
     engines: {node: '>= 8.10.0'}
     dependencies:
       anymatch: 3.1.3
-      braces: 3.0.2
+      braces: 3.0.3
       glob-parent: 5.1.2
       is-binary-path: 2.1.0
       is-glob: 4.0.3
