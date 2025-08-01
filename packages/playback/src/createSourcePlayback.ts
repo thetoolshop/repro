@@ -62,7 +62,7 @@ export function createSourcePlayback(
   const [$breakpoints, setBreakpoints, getBreakpoints] = createAtom<
     Array<Breakpoint>
   >([])
-  const [_$activeBreakpoint, setActiveBreakpoint, _getActiveBreakpoint] =
+  const [$activeBreakpoint, setActiveBreakpoint, getActiveBreakpoint] =
     createAtom<Breakpoint | null>(null)
   const [_$breakingEvent, setBreakingEvent, getBreakingEvent] =
     createAtom<SourceEvent | null>(null)
@@ -604,6 +604,7 @@ export function createSourcePlayback(
     $latestEventTime,
     $playbackState,
     $snapshot,
+    $activeBreakpoint,
     $breakpoints,
 
     // Accessors
@@ -620,6 +621,7 @@ export function createSourcePlayback(
     getResourceMap,
     getSnapshot,
     getSourceEvents,
+    getActiveBreakpoint,
     getBreakpoints,
 
     // Breakpoints

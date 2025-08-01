@@ -38,6 +38,9 @@ export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
   const [$snapshot, setSnapshot, getSnapshot] = createAtom<Snapshot>(
     createEmptySnapshot()
   )
+
+  const [$activeBreakpoint, _setActiveBreakpoint, getActiveBreakpoint] =
+    createAtom<Breakpoint | null>(null)
   const [$breakpoints, _setBreakpoints, getBreakpoints] = createAtom<
     Array<Breakpoint>
   >([])
@@ -195,6 +198,7 @@ export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
     $latestEventTime,
     $playbackState,
     $snapshot,
+    $activeBreakpoint,
     $breakpoints,
 
     // Accessors
@@ -211,6 +215,7 @@ export function createLivePlayback(event$: Observable<SourceEvent>): Playback {
     getResourceMap,
     getSnapshot,
     getSourceEvents,
+    getActiveBreakpoint,
     getBreakpoints,
 
     // Breakpoints

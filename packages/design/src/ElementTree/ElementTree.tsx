@@ -16,6 +16,7 @@ interface Props {
   focusedNode: SyntheticId | null
   selectedNode: SyntheticId | null
   breakpointNodes: Set<NodeId>
+  activeBreakpointNode: NodeId | null
   onFocusNode(nodeId: SyntheticId | null): void
   onSelectNode(nodeId: SyntheticId | null): void
   onToggleBreakpoint(nodeId: NodeId): void
@@ -27,6 +28,7 @@ export const ElementTree: React.FC<Props> = ({
   focusedNode,
   selectedNode,
   breakpointNodes,
+  activeBreakpointNode,
   onFocusNode,
   onSelectNode,
   onToggleBreakpoint,
@@ -37,6 +39,33 @@ export const ElementTree: React.FC<Props> = ({
   const [openNodes, setOpenNodes] = useState(new Set<NodeId>())
   const [focusedNodeTag, setFocusedNodeTag] = useState<Tag>('open')
   const [selectedNodeTag, setSelectedNodeTag] = useState<Tag>('open')
+
+  const openNode = useCallback(
+    (nodeId: NodeId | null) => {
+      setOpenNodes(openNodes => {
+        const nextOpenNodes = new Set(openNodes)
+
+        let currentNodeId = nodeId
+
+        while (currentNodeId) {
+          const node = vtree.nodes[currentNodeId]
+
+          if (!node) {
+            break
+          }
+
+          currentNodeId = node.map(node => node.parentId).orElse(null)
+
+          if (currentNodeId) {
+            nextOpenNodes.add(currentNodeId)
+          }
+        }
+
+        return nextOpenNodes
+      })
+    },
+    [setOpenNodes, vtree]
+  )
 
   useEffect(() => {
     const subscription = new Subscription()
@@ -60,29 +89,23 @@ export const ElementTree: React.FC<Props> = ({
 
   useEffect(() => {
     if (!activeRef.current) {
-      setOpenNodes(openNodes => {
-        const nextOpenNodes = new Set(openNodes)
-
-        let nodeId = selectedNode
-
-        while (nodeId) {
-          const node = vtree.nodes[nodeId]
-
-          if (!node) {
-            break
-          }
-
-          nodeId = node.map(node => node.parentId).orElse(null)
-
-          if (nodeId) {
-            nextOpenNodes.add(nodeId)
-          }
-        }
-
-        return nextOpenNodes
-      })
+      openNode(selectedNode)
     }
-  }, [activeRef, vtree, setOpenNodes, selectedNode])
+  }, [activeRef, selectedNode, openNode])
+
+  useEffect(() => {
+    if (!activeRef.current) {
+      openNode(activeBreakpointNode)
+      setSelectedNodeTag('open')
+      onSelectNode(activeBreakpointNode)
+    }
+  }, [
+    activeRef,
+    activeBreakpointNode,
+    openNode,
+    setSelectedNodeTag,
+    onSelectNode,
+  ])
 
   useEffect(() => {
     const nextVisibleNodes = new Set(openNodes)
