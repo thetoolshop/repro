@@ -62,9 +62,9 @@ export function createSourcePlayback(
   const [$breakpoints, setBreakpoints, getBreakpoints] = createAtom<
     Array<Breakpoint>
   >([])
-  const [$activeBreakpoint, setActiveBreakpoint, getActiveBreakpoint] =
+  const [_$activeBreakpoint, setActiveBreakpoint, _getActiveBreakpoint] =
     createAtom<Breakpoint | null>(null)
-  const [$breakingEvent, setBreakingEvent, getBreakingEvent] =
+  const [_$breakingEvent, setBreakingEvent, getBreakingEvent] =
     createAtom<SourceEvent | null>(null)
 
   const snapshotIndex: Array<number> = []
