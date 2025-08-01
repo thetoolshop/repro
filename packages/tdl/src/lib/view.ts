@@ -24,6 +24,7 @@ export interface View<D extends AnyDescriptor, T> {
   from(data: T): T
   over(data: DataView): T
   nullable(): View<D & { nullable: true }, T | null>
+  is(left: T, right: T): boolean
 }
 
 export function createView<D extends AnyDescriptor, T>(
@@ -80,6 +81,19 @@ export function createView<D extends AnyDescriptor, T>(
     return createView({ ...descriptor, nullable: true })
   }
 
+  function is(left: T, right: T) {
+    if (left === right) {
+      return true
+    }
+
+    // Check if underlying DataViews are referentially equivalent
+    if (encode(left) === encode(right)) {
+      return true
+    }
+
+    return false
+  }
+
   return {
     // Metadata
     descriptor,
@@ -89,6 +103,9 @@ export function createView<D extends AnyDescriptor, T>(
     encode,
     from,
     over,
+
+    // Comparison
+    is,
 
     // Transforms
     nullable,

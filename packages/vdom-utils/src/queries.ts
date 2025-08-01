@@ -29,3 +29,26 @@ export function findElementsByClassName(
 
   return nodes
 }
+
+export function findElementById(vtree: VTree, id: string): VElement | null {
+  let node: VElement | null = null
+  const walkTree = createVTreeWalker()
+
+  walkTree.accept({
+    // Not implemented
+    documentNode() {},
+    docTypeNode() {},
+    textNode() {},
+
+    elementNode(needle, _, controlContext) {
+      if (needle.attributes['id'] === id) {
+        node = needle
+        controlContext.exit = true
+      }
+    },
+  })
+
+  walkTree(vtree)
+
+  return node
+}

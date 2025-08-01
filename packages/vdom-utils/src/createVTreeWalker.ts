@@ -8,11 +8,31 @@ import {
   VTree,
 } from '@repro/domain'
 
+interface VTreeWalkerControlContext {
+  exit: boolean
+}
+
 interface VNodeVisitor {
-  documentNode(node: VDocument, vtree: VTree): void
-  docTypeNode(node: VDocType, vtree: VTree): void
-  elementNode(node: VElement, vtree: VTree): void
-  textNode(node: VText, vtree: VTree): void
+  documentNode(
+    node: VDocument,
+    vtree: VTree,
+    controlContext: VTreeWalkerControlContext
+  ): void
+  docTypeNode(
+    node: VDocType,
+    vtree: VTree,
+    controlContext: VTreeWalkerControlContext
+  ): void
+  elementNode(
+    node: VElement,
+    vtree: VTree,
+    controlContext: VTreeWalkerControlContext
+  ): void
+  textNode(
+    node: VText,
+    vtree: VTree,
+    controlContext: VTreeWalkerControlContext
+  ): void
 }
 
 interface VTreeWalker {
@@ -28,7 +48,11 @@ export function createVTreeWalker(): VTreeWalker {
 
     let nodeId: SyntheticId | undefined
 
-    while ((nodeId = queue.shift())) {
+    const controlContext: VTreeWalkerControlContext = {
+      exit: false,
+    }
+
+    controlLoop: while ((nodeId = queue.shift())) {
       const node = vtree.nodes[nodeId]
 
       if (!node) {
@@ -39,19 +63,19 @@ export function createVTreeWalker(): VTreeWalker {
         for (const visitor of visitors) {
           switch (node.type) {
             case NodeType.Document:
-              visitor.documentNode(node, vtree)
+              visitor.documentNode(node, vtree, controlContext)
               break
 
             case NodeType.DocType:
-              visitor.docTypeNode(node, vtree)
+              visitor.docTypeNode(node, vtree, controlContext)
               break
 
             case NodeType.Element:
-              visitor.elementNode(node, vtree)
+              visitor.elementNode(node, vtree, controlContext)
               break
 
             case NodeType.Text:
-              visitor.textNode(node, vtree)
+              visitor.textNode(node, vtree, controlContext)
               break
           }
         }
@@ -60,6 +84,10 @@ export function createVTreeWalker(): VTreeWalker {
           queue.push(...node.children)
         }
       })
+
+      if (controlContext.exit) {
+        break controlLoop
+      }
     }
   }
 

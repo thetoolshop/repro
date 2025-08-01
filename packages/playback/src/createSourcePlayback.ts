@@ -25,6 +25,7 @@ import {
 } from 'rxjs'
 import { map, observeOn, pairwise, switchMap } from 'rxjs/operators'
 import { Breakpoint, ControlFrame, Playback, PlaybackState } from './types'
+import { findMatchingBreakpoint } from './utils/breakpoint'
 
 const EMPTY_SNAPSHOT = createEmptySnapshot()
 const EMPTY_BUFFER = new List(SourceEventView, [])
@@ -39,8 +40,6 @@ export function createSourcePlayback(
   duration: number,
   resourceMap: Record<string, string>
 ): Playback {
-  const subscription = new Subscription()
-
   const [$activeIndex, setActiveIndex, getActiveIndex] = createAtom(-1)
   const [$buffer, setBuffer, getBuffer] = createAtom(
     new List(SourceEventView, [])
@@ -63,6 +62,10 @@ export function createSourcePlayback(
   const [$breakpoints, setBreakpoints, getBreakpoints] = createAtom<
     Array<Breakpoint>
   >([])
+  const [$activeBreakpoint, setActiveBreakpoint, getActiveBreakpoint] =
+    createAtom<Breakpoint | null>(null)
+  const [$breakingEvent, setBreakingEvent, getBreakingEvent] =
+    createAtom<SourceEvent | null>(null)
 
   const snapshotIndex: Array<number> = []
 
@@ -189,8 +192,12 @@ export function createSourcePlayback(
 
   let currentSize = events.size()
 
+  const subscription = new Subscription()
+
+  const resyncLoop = connectable(interval(100))
+
   subscription.add(
-    interval(100).subscribe(() => {
+    resyncLoop.subscribe(() => {
       if (currentSize < events.size()) {
         Stats.time(
           'RecordingPlayback - append new events from source list',
@@ -249,11 +256,27 @@ export function createSourcePlayback(
   subscription.add(
     $elapsed.subscribe(elapsed => {
       unlessMutexLock(() => {
+        const breakpoints = getBreakpoints()
+        const breakingEvent = getBreakingEvent()
+
         // TODO: investigate performance implications (especially after
         // resuming background/idle tab)
         const [before, after] = partitionEvents(
           queuedEvents,
-          event => event.match(event => event.time > elapsed),
+          event => {
+            if (event.match(event => event.time > elapsed)) {
+              return true
+            }
+
+            // Partition on next matching breakpoint.
+            if (findMatchingBreakpoint(event, breakpoints)) {
+              if (!breakingEvent || !SourceEventView.is(event, breakingEvent)) {
+                return true
+              }
+            }
+
+            return false
+          },
           (sample, time) => time + sample.duration > elapsed
         )
 
@@ -261,6 +284,20 @@ export function createSourcePlayback(
 
         setBuffer(before)
         setActiveIndex(activeIndex => activeIndex + before.size())
+
+        const nextEvent = after.over(0)
+        const encounteredBreakpoint = nextEvent
+          ? findMatchingBreakpoint(nextEvent, breakpoints)
+          : null
+
+        if (encounteredBreakpoint) {
+          setPlaybackState(PlaybackState.Paused)
+          setActiveBreakpoint(encounteredBreakpoint)
+          setBreakingEvent(nextEvent)
+        } else {
+          setActiveBreakpoint(null)
+          setBreakingEvent(null)
+        }
       })
 
       if (elapsed >= duration) {
@@ -546,6 +583,7 @@ export function createSourcePlayback(
   }
 
   function open() {
+    subscription.add(resyncLoop.connect())
     subscription.add(eventLoop.connect())
   }
 

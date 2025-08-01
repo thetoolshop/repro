@@ -12,5 +12,5 @@ export function html2VTree(
   const doc = parser.parseFromString(html, 'text/html')
   const walkDOMTree = createDOMTreeWalker(options)
   walkDOMTree.acceptDOMVisitor(createDOMVisitor())
-  return walkDOMTree(doc)
+  return walkDOMTree(doc as unknown as Node)
 }
