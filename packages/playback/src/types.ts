@@ -39,6 +39,7 @@ export interface Playback {
   readonly $latestEventTime: Atom<number>
   readonly $playbackState: Atom<PlaybackState>
   readonly $snapshot: Atom<Snapshot>
+  readonly $activeBreakpoint: Atom<Breakpoint | null>
   readonly $breakpoints: Atom<Array<Breakpoint>>
 
   // Accessors
@@ -55,6 +56,7 @@ export interface Playback {
   getResourceMap(): Record<string, string>
   getSnapshot(): Snapshot
   getSourceEvents(): List<SourceEventView>
+  getActiveBreakpoint(): Breakpoint | null
   getBreakpoints(): Array<Breakpoint>
 
   // Breakpoints

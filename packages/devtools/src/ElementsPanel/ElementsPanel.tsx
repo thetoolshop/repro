@@ -45,6 +45,17 @@ const MainPane: React.FC = React.memo(() => {
       )
   )
 
+  const activeBreakpointNode = useSelector(
+    playback.$activeBreakpoint,
+    activeBreakpoint => {
+      if (activeBreakpoint && activeBreakpoint.type === BreakpointType.VNode) {
+        return activeBreakpoint.nodeId
+      }
+
+      return null
+    }
+  )
+
   useEffect(() => {
     setSelectedNode(selectedNode => {
       const vtree = snapshot.dom
@@ -95,6 +106,7 @@ const MainPane: React.FC = React.memo(() => {
           focusedNode={focusedNode}
           selectedNode={selectedNode}
           breakpointNodes={breakpointNodes}
+          activeBreakpointNode={activeBreakpointNode}
           onFocusNode={setFocusedNode}
           onSelectNode={setSelectedNode}
           onToggleBreakpoint={handleToggleBreakpoint}
