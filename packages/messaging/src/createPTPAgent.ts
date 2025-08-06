@@ -118,6 +118,8 @@ export function createPTPAgent(): Agent {
     }
 
     window.dispatchEvent(event)
+
+    logger.debug('(PTPAgent -> dispatch):', message)
   }
 
   function raiseIntent<R, P = any>(

@@ -20,6 +20,7 @@
     "@repro/devtools": "workspace:*",
     "@repro/diagnostics": "workspace:*",
     "@repro/domain": "workspace:*",
+    "@repro/future-utils": "workspace:*",
     "@repro/logger": "workspace:*",
     "@repro/messaging": "workspace:*",
     "@repro/playback": "workspace:*",
