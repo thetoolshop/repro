@@ -730,6 +730,9 @@ importers:
       '@repro/domain':
         specifier: workspace:*
         version: link:../../packages/domain
+      '@repro/future-utils':
+        specifier: workspace:*
+        version: link:../../packages/future-utils
       '@repro/logger':
         specifier: workspace:*
         version: link:../../packages/logger

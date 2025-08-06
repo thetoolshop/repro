@@ -1,6 +1,11 @@
+import { logger } from '@repro/logger'
 import { createPTPAgent } from '@repro/messaging'
 import Future, { chain } from 'fluture'
 import { createRuntimeAgent } from './createRuntimeAgent'
+
+if (process.env.NODE_ENV === 'development') {
+  logger.debug('Repro extension startup time:', performance.now())
+}
 
 let scriptElement: HTMLScriptElement | null = null
 
@@ -25,12 +30,14 @@ function addPageScript() {
   })
 }
 
-runtimeAgent.subscribeToIntent('enable', () => {
+runtimeAgent.subscribeToIntent('enable', payload => {
   return addPageScript().pipe(
-    chain(() => inPageAgent.raiseIntent({ type: 'enable' }))
+    chain(() => inPageAgent.raiseIntent({ type: 'enable', payload }))
   )
 })
 
 runtimeAgent.subscribeToIntentAndForward('disable', inPageAgent)
+
+inPageAgent.subscribeToIntentAndForward('set-recording-state', runtimeAgent)
 
 export {}

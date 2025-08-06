@@ -88,6 +88,10 @@ class ReproDevToolbar extends HTMLElement {
       ignoredSelectors,
     })
 
+    if (this.dataset.recording === 'true') {
+      stream.start()
+    }
+
     if (refs.activeStyleRoot) {
       applyResetStyles(`#${TOOLBAR_ROOT_ID}`, refs.activeStyleRoot)
     }
@@ -110,13 +114,15 @@ class ReproDevToolbar extends HTMLElement {
   }
 }
 
-export function attach() {
+export function attach(recording = false) {
   if (!window.customElements.get(NODE_NAME)) {
     window.customElements.define(NODE_NAME, ReproDevToolbar)
   }
 
   if (!document.querySelector(NODE_NAME)) {
     const root = new ReproDevToolbar()
+    root.dataset.recording = recording ? 'true' : 'false'
+
     document.body.appendChild(root)
   }
 }

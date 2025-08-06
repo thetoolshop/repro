@@ -1,4 +1,4 @@
-import { chain, fork, FutureInstance, map, mapRej } from 'fluture'
+import { Cancel, chain, fork, FutureInstance, map, mapRej } from 'fluture'
 import { useEffect, useRef, useState } from 'react'
 import { Observable } from 'rxjs'
 
@@ -118,4 +118,9 @@ export function tapRej<L, R>(
       })
     )
   }
+}
+
+export function forget<L, R>(fut: FutureInstance<L, R>): Cancel {
+  const noop = () => void 0
+  return fork(noop)(noop)(fut)
 }

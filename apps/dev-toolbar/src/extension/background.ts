@@ -5,6 +5,7 @@ import {
   chain,
   fork,
   FutureInstance,
+  map,
   node,
   resolve,
 } from 'fluture'
@@ -17,6 +18,7 @@ function run<L, R>(source: FutureInstance<L, R>, resolve = console.log) {
 const StorageKeys = {
   INSTALLER_ID: 'installed_id',
   ENABLED: 'enabled',
+  RECORDING: 'recording',
 }
 
 const agent = createRuntimeAgent()
@@ -71,7 +73,11 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
   })
 })
 
-function syncActionState(): FutureInstance<unknown, void> {
+agent.subscribeToIntent('set-recording-state', ({ recording }) => {
+  return setRecordingState(recording)
+})
+
+function syncActionState(): FutureInstance<Error, void> {
   return isEnabled().pipe(
     chain(enabled => (enabled ? showActiveIcon() : showInactiveIcon()))
   )
@@ -93,19 +99,42 @@ function syncTab(tabId: number) {
 }
 
 function enableInTab(tabId: number) {
-  return agent.raiseIntent({ type: 'enable' }, { target: tabId })
+  return isRecording().pipe(
+    chain(recording =>
+      agent.raiseIntent(
+        { type: 'enable', payload: { recording } },
+        { target: tabId }
+      )
+    )
+  )
 }
 
 function disableInTab(tabId: number) {
   return agent.raiseIntent({ type: 'disable' }, { target: tabId })
 }
 
-function isEnabled(): FutureInstance<unknown, boolean> {
+function getState<T>(key: string, defaultValue: T): FutureInstance<Error, T> {
   return node(done => {
-    chrome.storage.local.get([StorageKeys.ENABLED], result => {
-      done(null, result[StorageKeys.ENABLED] || false)
+    chrome.storage.local.get([key], result => {
+      done(null, result[key] || defaultValue)
     })
   })
+}
+
+function setState<T>(key: string, value: T): FutureInstance<Error, void> {
+  return attemptP(() =>
+    chrome.storage.local.set({
+      [key]: value,
+    })
+  )
+}
+
+function isEnabled(): FutureInstance<Error, boolean> {
+  return getState(StorageKeys.ENABLED, false)
+}
+
+function isRecording(): FutureInstance<Error, boolean> {
+  return getState(StorageKeys.RECORDING, false)
 }
 
 function toggleEnabledState() {
@@ -113,22 +142,20 @@ function toggleEnabledState() {
 }
 
 function setEnabledState(enabled: boolean) {
-  return attemptP(() =>
-    chrome.storage.local.set({
-      [StorageKeys.ENABLED]: enabled,
-    })
-  ).pipe(chain(() => (enabled ? showActiveIcon() : showInactiveIcon())))
+  return setState(StorageKeys.ENABLED, enabled).pipe(
+    chain(() => (enabled ? showActiveIcon() : showInactiveIcon()))
+  )
 }
 
-function isFirstRun(): FutureInstance<unknown, boolean> {
-  return node(done => {
-    chrome.storage.local.get([StorageKeys.ENABLED], result => {
-      done(null, result[StorageKeys.ENABLED] === undefined)
-    })
-  })
+function setRecordingState(recording: boolean) {
+  return setState(StorageKeys.RECORDING, recording)
 }
 
-function showActiveIcon(): FutureInstance<unknown, void> {
+function isFirstRun(): FutureInstance<Error, boolean> {
+  return getState(StorageKeys.ENABLED, null).pipe(map(value => value === null))
+}
+
+function showActiveIcon(): FutureInstance<Error, void> {
   return attempt(() =>
     chrome.action.setIcon({
       path: {
@@ -141,7 +168,7 @@ function showActiveIcon(): FutureInstance<unknown, void> {
   )
 }
 
-function showInactiveIcon(): FutureInstance<unknown, void> {
+function showInactiveIcon(): FutureInstance<Error, void> {
   return attempt(() =>
     chrome.action.setIcon({
       path: {

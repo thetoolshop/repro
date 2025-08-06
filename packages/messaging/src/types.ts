@@ -7,7 +7,9 @@ export interface Intent<P = any> {
 
 export type Unsubscribe = () => void
 
-export type Resolver<R = any> = (payload: any) => FutureInstance<Error, R>
+export type Resolver<P = any, R = any> = (
+  payload: P
+) => FutureInstance<Error, R>
 
 export interface Agent {
   name: string
@@ -15,6 +17,9 @@ export interface Agent {
     intent: Intent<P>,
     options?: any
   ): FutureInstance<Error, R>
-  subscribeToIntent(type: string, resolver: Resolver): Unsubscribe
+  subscribeToIntent<P = any, R = any>(
+    type: string,
+    resolver: Resolver<P, R>
+  ): Unsubscribe
   subscribeToIntentAndForward(type: string, forwardAgent: Agent): Unsubscribe
 }

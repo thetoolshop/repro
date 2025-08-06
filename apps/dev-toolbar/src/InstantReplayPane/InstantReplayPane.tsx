@@ -1,3 +1,4 @@
+import { Block, Row } from '@jsxstyle/react'
 import { Button, colors } from '@repro/design'
 import { DevTools } from '@repro/devtools'
 import {
@@ -9,7 +10,6 @@ import { randomString } from '@repro/random-string'
 import { useRecordingStream } from '@repro/recording'
 import { calculateDuration } from '@repro/source-utils'
 import { packList } from '@repro/std/src/list-utils'
-import { Block, Row } from '@jsxstyle/react'
 import { DownloadIcon, HistoryIcon } from 'lucide-react'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
@@ -97,7 +97,7 @@ export const InstantReplayPane: React.FC = () => {
 
         <Block
           width="calc(100vw - 40px)"
-          height="85vh"
+          height="calc(100vh - 140px)"
           borderRadius={4}
           overflow="hidden"
         >

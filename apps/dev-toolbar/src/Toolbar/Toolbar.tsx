@@ -1,7 +1,9 @@
+import { Block, Row } from '@jsxstyle/react'
 import { useAtomValue } from '@repro/atom'
 import { Button, colors, Logo, Toggle } from '@repro/design'
+import { forget } from '@repro/future-utils'
+import { useMessaging } from '@repro/messaging'
 import { useRecordingStream } from '@repro/recording'
-import { Block, Row } from '@jsxstyle/react'
 import {
   HistoryIcon,
   PictureInPictureIcon,
@@ -15,6 +17,7 @@ export const Toolbar: React.FC = () => {
   const stream = useRecordingStream()
   const [, setVisiblePane] = useVisiblePane()
   const isRecording = useAtomValue(stream.$started)
+  const agent = useMessaging()
 
   function toggleRecording() {
     if (isRecording) {
@@ -23,6 +26,15 @@ export const Toolbar: React.FC = () => {
     } else {
       stream.start()
     }
+
+    forget(
+      agent.raiseIntent({
+        type: 'set-recording-state',
+        payload: {
+          recording: !isRecording,
+        },
+      })
+    )
   }
 
   function openInstantReplay() {

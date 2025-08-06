@@ -10,10 +10,11 @@ declare global {
 
 const standalone = process.env.MODE === 'standalone'
 
-logger.debug('Repro build version:', __BUILD_VERSION__)
-logger.debug('Repro build mode:', process.env.MODE ?? '(default: extension)')
-
 if (process.env.NODE_ENV === 'development') {
+  logger.debug('Repro build version:', __BUILD_VERSION__)
+  logger.debug('Repro build mode:', process.env.MODE ?? '(default: extension)')
+  logger.debug('Repro page startup time:', performance.now())
+
   Stats.enable()
   Trace.enable()
 }
@@ -33,8 +34,8 @@ switch (process.env.MODE) {
 
 usingAgent(agent)
 
-agent.subscribeToIntent('enable', () => {
-  attach()
+agent.subscribeToIntent('enable', ({ recording }) => {
+  attach(recording)
   return resolve<void>(undefined)
 })
 
