@@ -1,7 +1,7 @@
+import { Block, Row } from '@jsxstyle/react'
 import { Analytics } from '@repro/analytics'
 import { formatTime } from '@repro/date-utils'
 import { colors } from '@repro/design'
-import { Block, Row } from '@jsxstyle/react'
 import React, {
   MutableRefObject,
   PropsWithChildren,
@@ -269,11 +269,15 @@ export const SimpleTimeline: React.FC<PropsWithChildren<Props>> = ({
         fontSize={13}
         userSelect="none"
       >
-        <Block color={colors.blue['700']} props={{ ref: elapsedTimeRef }}>
+        <Block
+          color={colors.blue['700']}
+          whiteSpace="nowrap"
+          props={{ ref: elapsedTimeRef }}
+        >
           00:00
         </Block>
         <Block color={colors.slate['500']}>/</Block>
-        <Block color={colors.blue['700']}>
+        <Block color={colors.blue['700']} whiteSpace="nowrap">
           {formatTime((max || playback.getDuration()) - (min || 0), 'seconds')}
         </Block>
       </Row>
