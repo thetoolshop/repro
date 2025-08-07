@@ -526,13 +526,18 @@ function createDOMFromVTree(
       return doc.createDocumentFragment()
     }
 
-    if (!vNode) {
-      throw new Error(
-        `PlaybackCanvas/NativeDOMRenderer: could not find VNode: ${nodeId}`
-      )
-    }
-
     let node: Node = document.createDocumentFragment()
+
+    if (!vNode) {
+      logger.error(`render: Could not find VNode(${nodeId})`, {
+        nodeId,
+        parentId,
+        parentVNode: parentVNode?.orElse(null),
+        vtree,
+      })
+
+      return node
+    }
 
     if (isTextVNode(vNode)) {
       let value = vNode.map(vNode => vNode.value).orElse('')
