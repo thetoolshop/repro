@@ -392,13 +392,56 @@ export function createSourcePlayback(
 
   function breakNext() {
     return Stats.time('RecordingPlayback#breakNext', () => {
-      // TODO: implement me
+      const breakpoints = getBreakpoints()
+
+      if (breakpoints.length === 0) {
+        return
+      }
+
+      const activeIndex = getActiveIndex()
+      const trailingEvents = loadEvents().slice(activeIndex + 1)
+
+      let nextBreakingEventIndex = activeIndex
+
+      for (let i = 0, len = trailingEvents.size(); i < len; i++) {
+        const event = trailingEvents.over(i)
+        if (event && findMatchingBreakpoint(event, breakpoints)) {
+          // Take trailing event index, apply activeIndex offset
+          nextBreakingEventIndex = activeIndex + i
+          break
+        }
+      }
+
+      if (nextBreakingEventIndex > activeIndex) {
+        seekToEvent(nextBreakingEventIndex)
+      }
     })
   }
 
   function breakPrevious() {
     return Stats.time('RecordingPlayback#breakPrevious', () => {
-      // TODO: implement me
+      const breakpoints = getBreakpoints()
+
+      if (breakpoints.length === 0) {
+        return
+      }
+
+      const activeIndex = getActiveIndex()
+      const leadingEvents = loadEvents().slice(0, activeIndex)
+
+      let previousBreakingEventIndex = activeIndex
+
+      for (let i = leadingEvents.size() - 1; i >= 0; i--) {
+        const event = leadingEvents.over(i)
+        if (event && findMatchingBreakpoint(event, breakpoints)) {
+          previousBreakingEventIndex = i
+          break
+        }
+      }
+
+      if (previousBreakingEventIndex < activeIndex) {
+        seekToEvent(previousBreakingEventIndex)
+      }
     })
   }
 
