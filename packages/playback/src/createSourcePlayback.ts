@@ -263,13 +263,15 @@ export function createSourcePlayback(
         // resuming background/idle tab)
         const [before, after] = partitionEvents(
           queuedEvents,
-          event => {
+          (event, index) => {
             if (event.match(event => event.time > elapsed)) {
               return true
             }
 
+            const previousEvent = queuedEvents.over(index - 1)
+
             // Partition on next matching breakpoint.
-            if (findMatchingBreakpoint(event, breakpoints)) {
+            if (findMatchingBreakpoint(previousEvent, event, breakpoints)) {
               if (!breakingEvent || !SourceEventView.is(event, breakingEvent)) {
                 return true
               }
@@ -285,9 +287,10 @@ export function createSourcePlayback(
         setBuffer(before)
         setActiveIndex(activeIndex => activeIndex + before.size())
 
+        const previousEvent = before.over(before.size() - 1)
         const nextEvent = after.over(0)
         const encounteredBreakpoint = nextEvent
-          ? findMatchingBreakpoint(nextEvent, breakpoints)
+          ? findMatchingBreakpoint(previousEvent, nextEvent, breakpoints)
           : null
 
         if (encounteredBreakpoint) {
@@ -404,8 +407,10 @@ export function createSourcePlayback(
       let nextBreakingEventIndex = activeIndex
 
       for (let i = 0, len = trailingEvents.size(); i < len; i++) {
-        const event = trailingEvents.over(i)
-        if (event && findMatchingBreakpoint(event, breakpoints)) {
+        const previousEvent = trailingEvents.over(i - 1)
+        const nextEvent = trailingEvents.over(i)
+
+        if (findMatchingBreakpoint(previousEvent, nextEvent, breakpoints)) {
           // Take trailing event index, apply activeIndex offset
           nextBreakingEventIndex = activeIndex + i
           break
@@ -432,8 +437,10 @@ export function createSourcePlayback(
       let previousBreakingEventIndex = activeIndex
 
       for (let i = leadingEvents.size() - 1; i >= 0; i--) {
-        const event = leadingEvents.over(i)
-        if (event && findMatchingBreakpoint(event, breakpoints)) {
+        const previousEvent = leadingEvents.over(i)
+        const nextEvent = leadingEvents.over(i + 1)
+
+        if (findMatchingBreakpoint(previousEvent, nextEvent, breakpoints)) {
           previousBreakingEventIndex = i
           break
         }

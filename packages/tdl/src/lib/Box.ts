@@ -1,6 +1,6 @@
 export class Box<T> {
   // FIXME: correctly infer types here
-  public static from<T>(value: T) {
+  public static from<T>(value: T | null) {
     return value instanceof Box ? value : new Box(value)
   }
 
