@@ -7,44 +7,67 @@ import {
 } from '@repro/domain'
 import { BreakpointType, type Breakpoint } from '../types'
 
+// FIXME: Return all matching breakpoints where multiple match
 export function findMatchingBreakpoint(
-  event: SourceEvent,
+  previousEvent: SourceEvent | null,
+  nextEvent: SourceEvent | null,
   breakpoints: Array<Breakpoint>
 ): Breakpoint | null {
   if (breakpoints.length === 0) {
     return null
   }
 
-  const domPatch = event
-    .filter<DOMPatchEvent>(event => event.type === SourceEventType.DOMPatch)
-    .flatMap(event => event.data)
+  let targetIds: Array<NodeId> = []
 
-  const targetId = domPatch.map(domPatch => {
-    let targetId: NodeId
+  if (previousEvent) {
+    const previousDOMPatch = previousEvent
+      .filter<DOMPatchEvent>(event => event.type === SourceEventType.DOMPatch)
+      .flatMap(event => event.data)
 
-    switch (domPatch.type) {
-      case PatchType.AddNodes:
-      case PatchType.RemoveNodes:
-        // TODO: Handle added and removed nodes
-        // - [ ] Break _after_ nodes are added
-        // - [ ] Break _before_ nodes are removed
-        // We likely need to consider pairs of events
-        targetId = domPatch.parentId
-        break
+    previousDOMPatch.apply(domPatch => {
+      if (domPatch.type === PatchType.AddNodes) {
+        // Break **after** nodes are added
+        targetIds.push(domPatch.parentId)
 
-      case PatchType.Attribute:
-      case PatchType.BooleanProperty:
-      case PatchType.NumberProperty:
-      case PatchType.Text:
-      case PatchType.TextProperty:
-        targetId = domPatch.targetId
-        break
-    }
+        for (const subtree of domPatch.nodes) {
+          targetIds.push(...Object.keys(subtree.nodes))
+        }
+      }
+    })
+  }
 
-    return targetId
-  })
+  if (nextEvent) {
+    const nextDOMPatch = nextEvent
+      .filter<DOMPatchEvent>(event => event.type === SourceEventType.DOMPatch)
+      .flatMap(event => event.data)
 
-  const breakpoint = targetId.map(targetId => {
+    nextDOMPatch.apply(domPatch => {
+      switch (domPatch.type) {
+        case PatchType.RemoveNodes: {
+          // Break **before** nodes are removed
+          targetIds.push(domPatch.parentId)
+
+          for (const subtree of domPatch.nodes) {
+            targetIds.push(...Object.keys(subtree.nodes))
+          }
+          break
+        }
+
+        case PatchType.Attribute:
+        case PatchType.BooleanProperty:
+        case PatchType.NumberProperty:
+        case PatchType.Text:
+        case PatchType.TextProperty:
+          targetIds.push(domPatch.targetId)
+          break
+
+        default:
+          break
+      }
+    })
+  }
+
+  for (const targetId of targetIds) {
     for (const breakpoint of breakpoints) {
       if (
         breakpoint.type === BreakpointType.VNode &&
@@ -53,9 +76,7 @@ export function findMatchingBreakpoint(
         return breakpoint
       }
     }
+  }
 
-    return null
-  })
-
-  return breakpoint.orElse(null)
+  return null
 }
